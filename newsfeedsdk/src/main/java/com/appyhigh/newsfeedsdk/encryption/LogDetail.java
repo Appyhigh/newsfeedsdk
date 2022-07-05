@@ -10,7 +10,7 @@ import com.appyhigh.newsfeedsdk.BuildConfig;
 
 public class LogDetail {
 
-    private static boolean debugger = false;
+    private static boolean debugger = true;
 
     public static void LogD(String T, String S) {
         if (debugger) {
