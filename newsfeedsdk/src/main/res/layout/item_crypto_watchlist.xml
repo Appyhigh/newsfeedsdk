@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+
+        <variable
+            name="item"
+            type="com.appyhigh.newsfeedsdk.model.feeds.Item" />
+
+        <variable
+            name="position"
+            type="Integer" />
+
+        <import type="com.appyhigh.newsfeedsdk.R" />
+    </data>
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:minWidth="60dp"
+        android:layout_marginEnd="5dp"
+        android:paddingStart="5dp"
+        android:paddingEnd="10dp"
+        android:paddingTop="25dp"
+        android:paddingBottom="10dp"
+        android:background="@drawable/bg_crypto_border_grey">
+
+        <TextView
+            android:id="@+id/coinSymbol"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+
+            android:textColor="#727272"
+            android:textSize="12sp"
+            android:text="@{item.coinSymbol}"
+            tools:text="XRP"
+            />
+
+        <TextView
+            android:id="@+id/currPrice"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textStyle="bold"
+
+            app:isBold="@{true}"
+            android:textColor="@color/feedPrimaryTextColor"
+            android:textSize="12sp"
+            tools:text="$54,042"
+            />
+
+        <TextView
+            android:id="@+id/priceChange"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+
+            android:textSize="10sp"
+            android:layout_marginTop="5dp"
+            tools:textColor="#21C17A"
+            tools:text="+ 6.83 %"
+            tools:ignore="SmallSp" />
+    </LinearLayout>
+
+</layout>

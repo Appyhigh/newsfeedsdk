@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+
+        <variable
+            name="language"
+            type="com.appyhigh.newsfeedsdk.model.Language" />
+
+        <variable
+            name="listener"
+            type="com.appyhigh.newsfeedsdk.callbacks.LanguageClickListener" />
+
+        <variable
+            name="position"
+            type="Integer" />
+
+        <import type="com.appyhigh.newsfeedsdk.R" />
+    </data>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:onClick="@{(v) -> listener.onLanguageClicked(v, position)}"
+        android:paddingTop="10dp"
+        android:paddingBottom="10dp">
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <TextView
+                android:id="@+id/tvLanguage"
+                style="@style/Text.Regular"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentStart="true"
+                android:layout_centerInParent="true"
+                android:layout_marginStart="0dp"
+                android:layout_marginEnd="@dimen/horizontal_spacing"
+                android:ellipsize="end"
+                android:textStyle="bold"
+
+                app:isBold="@{true}"
+                android:maxLines="1"
+                android:text="@{language.language}"
+                android:textSize="16sp"
+                tools:text="Hindi" />
+
+            <TextView
+                android:id="@+id/tvSample"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:layout_marginEnd="@dimen/space_regular"
+                android:layout_toStartOf="@+id/cbLangugae"
+                android:textStyle="bold"
+
+                app:isBold="@{true}"
+                android:gravity="center"
+                android:maxLines="1"
+                android:text="@{language.nativeName}"
+                android:textColor="@color/dark_gray"
+                android:textSize="16sp"
+                tools:text="Hindi" />
+
+            <androidx.appcompat.widget.AppCompatImageView
+                android:id="@+id/cbLangugae"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentEnd="true"
+                android:layout_centerInParent="true"
+                app:selected="@{language.selected}"
+                app:srcCompat="@drawable/ic_checkbox_unselected" />
+
+        </RelativeLayout>
+    </LinearLayout>
+</layout>

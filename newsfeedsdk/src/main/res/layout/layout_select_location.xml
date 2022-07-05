@@ -1,0 +1,148 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+        <import type="com.appyhigh.newsfeedsdk.R" />
+    </data>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:background="@color/feedBackground">
+
+        <LinearLayout
+            android:id="@+id/title_header"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:paddingStart="15dp"
+            android:paddingEnd="5dp"
+            android:paddingTop="20dp"
+            android:paddingBottom="10dp"
+            android:background="#EEF5FF"
+            tools:ignore="UnusedAttribute">
+
+            <androidx.appcompat.widget.AppCompatTextView
+                android:id="@+id/title"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="0.9"
+                android:text="@string/change_location"
+                android:textColor="@color/feedLocationTitleColor"
+                android:textSize="18sp" />
+
+            <androidx.appcompat.widget.AppCompatImageView
+                android:id="@+id/back_btn"
+                android:layout_width="0dp"
+                android:layout_height="20dp"
+                android:layout_weight="0.1"
+                android:layout_gravity="center"
+                app:srcCompat="@drawable/ic_close"
+                app:tint="@color/black_to_grey" />
+        </LinearLayout>
+
+        <FrameLayout
+            android:id="@+id/layout_search"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingTop="10dp"
+            android:paddingStart="10dp"
+            android:paddingBottom="10dp"
+            android:paddingEnd="10dp"
+            android:background="@drawable/bg_location_search"
+            android:gravity="center"
+            tools:ignore="UnusedAttribute">
+
+            <androidx.appcompat.widget.AppCompatEditText
+                android:id="@+id/et_search"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="5dp"
+                android:layout_marginEnd="5dp"
+                android:background="@drawable/bg_location_search_border"
+                android:drawableStart="@drawable/ic_search_icon"
+                android:drawablePadding="10dp"
+                android:drawableTint="@color/text_color_black"
+                android:textSize="16sp"
+                android:textColorHint="#999999"
+                android:hint="Search location or City"
+                android:padding="10dp" />
+        </FrameLayout>
+
+
+        <LinearLayout
+            android:id="@+id/ll_layout"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical"
+            android:layout_marginTop="10dp">
+
+            <TextView
+                android:id="@+id/curr_location"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="20dp"
+                android:layout_marginEnd="20dp"
+                android:layout_marginBottom="10dp"
+                android:drawableStart="@drawable/ic_location_small"
+                android:drawableTint="@color/purple_500"
+                android:drawablePadding="5dp"
+                android:gravity="center_vertical"
+                tools:text="Ahemadabad"
+                android:textColor="@color/purple_500"
+                android:textSize="16sp" />
+
+            <FrameLayout
+                android:id="@+id/progress_layout"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_gravity="center"
+                tools:visibility="gone"
+                >
+                <ProgressBar
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:indeterminateTint="@color/primaryColorFeeds"
+                    />
+            </FrameLayout>
+
+
+            <androidx.appcompat.widget.AppCompatTextView
+                android:id="@+id/invalid_tv"
+                android:layout_width="match_parent"
+                android:visibility="gone"
+                android:layout_height="match_parent"
+                android:text="No data found"
+                android:textSize="20sp"
+                tools:visibility="visible"
+                android:layout_gravity="center"
+                android:gravity="center"
+                android:textColor="@color/feedPrimaryTextColor"
+                />
+
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/rv_interests"
+                tools:visibility="gone"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="0.99"
+                android:layout_marginStart="20dp"
+                android:layout_marginEnd="20dp"
+                app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+                tools:listitem="@layout/item_location" />
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="0.01"
+                />
+
+
+        </LinearLayout>
+
+    </LinearLayout>
+</layout>

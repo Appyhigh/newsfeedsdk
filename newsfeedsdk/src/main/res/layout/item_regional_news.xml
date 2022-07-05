@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <data>
+        <import type="com.appyhigh.newsfeedsdk.R" />
+        <variable
+            name="buildConfig"
+            type="com.appyhigh.newsfeedsdk.BuildConfig" />
+
+        <variable
+            name="card"
+            type="com.appyhigh.newsfeedsdk.model.feeds.Card" />
+
+        <variable
+            name="listener"
+            type="com.appyhigh.newsfeedsdk.callbacks.PostViewsClickListener" />
+
+
+        <variable
+            name="position"
+            type="Integer" />
+    </data>
+
+    <androidx.cardview.widget.CardView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="10dp"
+        android:layout_marginTop="10dp"
+        android:layout_marginEnd="10dp"
+        android:padding="10dp"
+        android:onClick="@{(v) -> listener.onPostClicked(v, position)}"
+        app:cardBackgroundColor="@color/feedSecondaryBackground"
+        app:cardCornerRadius="10dp">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <androidx.appcompat.widget.AppCompatImageView
+                android:id="@+id/imgID"
+                android:layout_width="match_parent"
+                android:layout_height="200dp"
+                android:adjustViewBounds="true"
+                android:scaleType="centerCrop"
+                app:cardType="@{card.cardType}"
+                app:postImage="@{card.items[0].content.mediaList.get(0)}"
+                />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="15dp">
+
+                <androidx.appcompat.widget.AppCompatTextView
+                    android:id="@+id/titleTextViewID"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:textColor="@color/text_color_black"
+                    app:description="@{card.items[0].content.description}"
+                    app:title="@{card.items[0].content.title}"
+                    android:textSize="20sp" />
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:layout_marginTop="4dp"
+                    >
+                    <de.hdodenhof.circleimageview.CircleImageView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:src="@drawable/ic_message"
+                        app:logoSmall="@{card.items[0].publisherProfilePic}"
+                        app:publisherName="@{card.items[0].publisherName}"
+                        app:tvPublisherImage="@{@id/tvPublisherImage}"
+                        />
+
+                    <androidx.appcompat.widget.AppCompatTextView
+                        android:id="@+id/published"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:maxLines="1"
+                        app:isBold="@{true}"
+                        android:text="@{card.items[0].publisherName}"
+                        android:textColor="@color/feedPrimaryTextColor"
+                        android:textSize="11sp"
+                        />
+                </LinearLayout>
+
+                <androidx.appcompat.widget.AppCompatTextView
+                    android:layout_marginTop="10dp"
+                    android:id="@+id/detailsTextViewID"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:ellipsize="end"
+                    android:maxLines="10"
+                    android:text="@{card.items[0].content.caption}"
+                    android:textColor="@color/text_color_black"
+                    />
+                <androidx.appcompat.widget.AppCompatTextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Read More"
+                    android:textColor="@color/feedPrimaryColor"
+                    android:onClick="@{(v) -> listener.onPostClicked(v, position)}"
+                    />
+            </LinearLayout>
+        </LinearLayout>
+    </androidx.cardview.widget.CardView>
+</layout>

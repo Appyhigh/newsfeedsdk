@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+
+        <variable
+            name="view"
+            type="android.view.View" />
+        <variable
+            name="position"
+            type="Integer" />
+        <variable
+            name="card"
+            type="com.appyhigh.newsfeedsdk.model.feeds.Card" />
+        <variable
+            name="listener"
+            type="com.appyhigh.newsfeedsdk.callbacks.PostViewsClickListener" />
+
+        <import type="com.appyhigh.newsfeedsdk.R" />
+    </data>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/feedBackground"
+        android:layout_marginBottom="10dp"
+        android:orientation="vertical">
+        <androidx.recyclerview.widget.RecyclerView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="5dp"
+            android:background="@color/feedBackground"
+            android:overScrollMode="never"
+            app:hashtagsPlatforms="@{card.items}"
+           />
+
+        <androidx.appcompat.widget.AppCompatTextView
+            android:id="@+id/more"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:paddingStart="10dp"
+            android:paddingEnd="10dp"
+            android:paddingTop="10dp"
+            android:layout_marginTop="10dp"
+            android:layout_marginBottom="20dp"
+            android:gravity="center"
+            android:layout_gravity="center"
+            android:paddingBottom="10dp"
+            android:textColor="@color/textColor11"
+
+            android:textSize="14sp"
+            android:onClick='@{(v) -> listener.onShowMoreClicked(v, card, position)}'
+            android:text="Show More"
+            android:visibility='@{card.items.size>9?view.VISIBLE:view.GONE}'
+            android:background="@drawable/bg_podcast_border_rounded"
+            />
+    </LinearLayout>
+</layout>

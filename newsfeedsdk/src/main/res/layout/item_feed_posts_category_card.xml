@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <data>
+
+        <variable
+            name="card"
+            type="com.appyhigh.newsfeedsdk.model.feeds.Card" />
+    </data>
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="5dp"
+        android:paddingStart="10dp"
+        android:background="@color/feedBackground"
+        android:overScrollMode="never"
+        app:feedPostsCategory="@{card.items}" />
+</layout>

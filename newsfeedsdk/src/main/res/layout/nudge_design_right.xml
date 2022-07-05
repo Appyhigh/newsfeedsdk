@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/main_frame"
+    android:layout_height="wrap_content"
+    android:layout_width="wrap_content"
+    android:layout_gravity="end|center_vertical"
+    android:layout_marginStart="6dp"
+    android:layout_marginBottom="7dp"
+    >
+    <FrameLayout
+        android:id="@+id/nudgeFrame"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:background="@drawable/ic_nudge_bg_side"
+        tools:ignore="UnusedAttribute" >
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_marginStart="5dp"
+            android:layout_marginEnd="3dp"
+            android:layout_marginTop="3dp"
+            android:layout_marginBottom="3dp"
+            android:orientation="horizontal">
+            <androidx.appcompat.widget.AppCompatImageView
+                android:id="@+id/nudgeInnerImage"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:layout_marginStart="3dp"
+                app:srcCompat="@drawable/ic_nudge_inner_white"/>
+
+                <TextView
+                    android:id="@+id/notificationsBadge"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="5dp"
+                    android:layout_gravity="top"
+                    tools:text="9+"
+                    android:textColor="@color/white"
+                    android:textSize="12sp" />
+        </LinearLayout>
+    </FrameLayout>
+
+</FrameLayout>

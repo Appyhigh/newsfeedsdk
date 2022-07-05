@@ -1,0 +1,254 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:paddingBottom="10dp">
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="5dp"
+        android:orientation="horizontal">
+        <ImageView
+            android:id="@+id/appLogo"
+            android:layout_width="20dp"
+            android:layout_height="20dp"
+            android:layout_gravity="center_vertical"
+            android:src="@drawable/placeholder"
+            android:scaleType="centerCrop"
+            tools:ignore="ContentDescription" />
+
+        <TextView
+            android:id="@+id/appName"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Masterfeed"
+            android:textSize="12sp"
+            android:layout_marginStart="5dp"
+            android:layout_gravity="center_vertical"
+            android:textColor="@color/cricket_feed_title"
+            />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_marginStart="5dp"
+            android:text="\u25CF"
+            android:textColor="#EF3E42"
+            />
+        <!--        <View-->
+        <!--            android:layout_width="5dp"-->
+        <!--            android:layout_height="5dp"-->
+        <!--            android:layout_marginStart="15dp"-->
+        <!--            android:layout_gravity="center_vertical"-->
+        <!--            android:background="@drawable/bg_round_button"-->
+        <!--            android:backgroundTint="#EF3E42" />-->
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="4dp"
+            android:layout_gravity="center_vertical"
+            android:text="LIVE"
+            android:textColor="#EF3E42"
+            android:textSize="12sp" />
+
+        <TextView
+            android:id="@+id/dot"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:paddingStart="5dp"
+            android:paddingEnd="5dp"
+            android:text="\u2022"
+            />
+
+        <TextView
+            android:id="@+id/tourName"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="India tour of England"
+            android:textSize="12sp"
+            android:ellipsize="end"
+            android:layout_gravity="center_vertical"
+            android:textColor="@color/cricket_feed_title"
+            android:singleLine="true" />
+
+<!--        <LinearLayout-->
+<!--            android:layout_width="match_parent"-->
+<!--            android:layout_height="wrap_content"-->
+<!--            android:layout_gravity="center_vertical|end"-->
+<!--            android:gravity="center_vertical|end">-->
+<!--            <ImageView-->
+<!--                android:layout_width="10dp"-->
+<!--                android:layout_height="10dp"-->
+<!--                android:src="@drawable/ic_down_arrow"-->
+<!--                android:layout_gravity="center_vertical|end"-->
+<!--                />-->
+<!--        </LinearLayout>-->
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        >
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:orientation="horizontal"
+            android:layout_marginStart="10dp"
+            android:layout_marginEnd="10dp"
+            android:layout_marginTop="5dp"
+            android:layout_marginBottom="5dp">
+
+            <ImageView
+                android:id="@+id/firstTeamLogo"
+                android:layout_width="30dp"
+                android:layout_height="30dp"
+                android:src="@drawable/team_sample"
+                android:scaleType="centerCrop"
+                android:layout_marginEnd="10dp"
+                android:layout_gravity="center_vertical"
+                />
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:layout_gravity="center_vertical"
+                android:gravity="center_vertical">
+                <TextView
+                    android:id="@+id/firstTeamName"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="ENG"
+                    android:textSize="13sp"
+                    android:layout_gravity="center_vertical"
+                    android:textColor="@color/cricket_feed_title"
+                    />
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal">
+                    <TextView
+                        android:id="@+id/firstTeamScore"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="120/1"
+                        android:textSize="13sp"
+                        android:layout_gravity="center_vertical"
+                        android:textColor="@color/cricket_feed_title"
+                        />
+                    <TextView
+                        android:id="@+id/firstTeamOvers"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="(20.3)"
+                        android:layout_marginStart="3dp"
+                        android:textSize="10sp"
+                        android:layout_gravity="center_vertical"
+                        android:textColor="@color/cricket_feed_grey"
+                        tools:ignore="SmallSp" />
+                </LinearLayout>
+            </LinearLayout>
+
+
+
+        </LinearLayout>
+        <ImageView
+            android:layout_width="0dp"
+            android:layout_height="30dp"
+            android:layout_weight="1"
+            app:srcCompat="@drawable/ic_filled_refresh"
+            android:layout_gravity="center_vertical"
+            android:visibility="gone"
+            tools:ignore="ContentDescription" />
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:orientation="horizontal"
+            android:layout_gravity="center_vertical|end"
+            android:gravity="center_vertical|end"
+            android:layout_marginStart="10dp"
+            android:layout_marginEnd="10dp"
+            android:layout_marginTop="5dp"
+            android:layout_marginBottom="5dp">
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:layout_marginStart="5dp"
+                android:layout_gravity="center_vertical"
+                android:gravity="center_vertical">
+                <TextView
+                    android:id="@+id/secondTeamName"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="ENG"
+                    android:textSize="13sp"
+                    android:layout_gravity="center_vertical|end"
+                    android:textColor="@color/cricket_feed_title"
+                    />
+                <LinearLayout
+                    android:id="@+id/secondTeamLayout"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal">
+                    <TextView
+                        android:id="@+id/secondTeamScore"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="120/1"
+                        android:textSize="13sp"
+                        android:layout_gravity="center_vertical"
+                        android:textColor="@color/cricket_feed_title"
+                        />
+                    <TextView
+                        android:id="@+id/secondTeamOvers"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="(20.3)"
+                        android:layout_marginStart="3dp"
+                        android:textSize="10sp"
+                        android:layout_gravity="center_vertical"
+                        android:textColor="@color/cricket_feed_grey"
+                        tools:ignore="SmallSp" />
+                </LinearLayout>
+            </LinearLayout>
+
+            <ImageView
+                android:id="@+id/secondTeamLogo"
+                android:layout_width="30dp"
+                android:layout_height="30dp"
+                android:layout_marginStart="10dp"
+                android:src="@drawable/team_sample"
+                android:scaleType="centerCrop"
+                android:layout_gravity="center_vertical"
+                />
+
+        </LinearLayout>
+
+    </LinearLayout>
+
+    <TextView
+        android:id="@+id/equation"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="10dp"
+        android:text="England need 216 runs off 177 balls at 7.40 RPO"
+        android:textSize="13sp"
+        android:textColor="#0084FF"
+        android:maxLines="1"
+        android:ellipsize="end"
+        />
+
+</LinearLayout>

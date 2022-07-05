@@ -1,0 +1,123 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <data>
+
+        <variable
+            name="buildConfig"
+            type="com.appyhigh.newsfeedsdk.BuildConfig" />
+
+        <variable
+            name="card"
+            type="com.appyhigh.newsfeedsdk.model.feeds.Card" />
+
+        <variable
+            name="listener"
+            type="com.appyhigh.newsfeedsdk.callbacks.PostViewsClickListener" />
+
+
+        <variable
+            name="position"
+            type="Integer" />
+
+        <import type="com.appyhigh.newsfeedsdk.R" />
+    </data>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:paddingTop="10dp"
+        android:paddingBottom="10dp"
+        android:paddingStart="10dp"
+        android:paddingEnd="10dp"
+        android:onClick="@{(v) -> listener.onPodcastClicked(v, position, card)}"
+        android:background="@color/feedSecondaryBackground">
+
+        <androidx.cardview.widget.CardView
+            android:layout_width="match_parent"
+            android:layout_height="160dp"
+            app:cardCornerRadius="10dp">
+
+            <FrameLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
+
+                <androidx.appcompat.widget.AppCompatImageView
+                    android:id="@+id/podcastImage"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:scaleType="centerCrop"
+                    android:visibility="visible"
+                    app:postImage="@{card.items[0].content.images[0][0].url}"
+                    app:srcCompat="@drawable/placeholder"/>
+
+                <androidx.appcompat.widget.AppCompatImageView
+                    android:layout_width="42dp"
+                    android:layout_height="42dp"
+                    android:layout_gravity="center"
+                    app:srcCompat="@drawable/ic_crypto_podcasts_playing"
+                    />
+
+            </FrameLayout>
+
+        </androidx.cardview.widget.CardView>
+
+        <androidx.appcompat.widget.AppCompatTextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:maxLines="2"
+            android:ellipsize="end"
+            android:textSize="14sp"
+            android:layout_marginTop="10dp"
+            android:textColor="@color/feedPrimaryTextColor"
+
+            app:description="@{card.items[0].content.description}"
+            app:title="@{card.items[0].content.title}"
+            tools:text="Work From Your Happy Place with Belinda Ellsworth"
+            />
+
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="5dp"
+            android:orientation="horizontal">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="#7F8386"
+                android:textSize="12sp"
+
+                app:setPodcastDuration="@{card.items[0].content.duration}"
+                tools:text="30 min"
+                />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="5dp"
+                android:layout_marginEnd="5dp"
+                android:textSize="12sp"
+                android:text="@string/mode_middleDot"
+                />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="#7F8386"
+                android:textSize="12sp"
+                android:maxLines="1"
+                android:ellipsize="end"
+                android:text="@{card.items[0].publisherName}"
+
+                tools:text="Jane Cooper"
+                />
+        </LinearLayout>
+
+
+    </LinearLayout>
+</layout>

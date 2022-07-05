@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+
+        <variable
+            name="feedSDK"
+            type="com.appyhigh.newsfeedsdk.FeedSdk" />
+
+        <variable
+            name="card"
+            type="com.appyhigh.newsfeedsdk.model.feeds.Card" />
+
+        <variable
+            name="listener"
+            type="com.appyhigh.newsfeedsdk.callbacks.PostViewsClickListener" />
+
+        <variable
+            name="position"
+            type="Integer" />
+        <import type="com.appyhigh.newsfeedsdk.R" />
+    </data>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="5dp"
+        android:orientation="vertical">
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <androidx.appcompat.widget.AppCompatImageView
+                android:layout_width="match_parent"
+                android:layout_height="185dp"
+                app:srcCompat="@drawable/ic_share_bg"
+                tools:ignore="VectorDrawableCompat" />
+
+            <androidx.appcompat.widget.AppCompatTextView
+                android:id="@+id/shareText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="20dp"
+                android:gravity="start"
+                android:text='@{@string/invite+feedSDK.Companion.appName}'
+                android:textColor="#007DFA"
+                android:textSize="20sp" />
+
+            <androidx.appcompat.widget.AppCompatButton
+                android:id="@+id/btnShare"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/shareText"
+                android:layout_marginStart="20dp"
+                android:background="@drawable/bg_round_button"
+                android:onClick="@{ (v) -> listener.onShareClicked(v, position)}"
+                android:padding="10dp"
+                android:text="@string/invite_now"
+                android:textColor="@color/white"
+                android:textSize="20sp" />
+        </RelativeLayout>
+    </LinearLayout>
+</layout>

@@ -1,0 +1,496 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+
+    <data>
+
+        <variable
+            name="card"
+            type="com.appyhigh.newsfeedsdk.model.feeds.Card" />
+
+        <variable
+            name="position"
+            type="Integer" />
+
+        <import type="com.appyhigh.newsfeedsdk.R" />
+
+        <variable
+            name="listener"
+            type="com.appyhigh.newsfeedsdk.callbacks.CovidCardShareListener" />
+    </data>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/feedBackground"
+        android:padding="10dp"
+        app:covidItem="@{card.items[0]}"
+        android:layout_marginBottom="5dp"
+        android:orientation="vertical">
+
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <androidx.appcompat.widget.AppCompatImageView
+                android:id="@+id/ivIcon"
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:layout_gravity="center"
+                imageUrl="@{card.items[0].link}"/>
+
+            <androidx.appcompat.widget.AppCompatTextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="5"
+                android:layout_marginStart="10dp"
+
+                app:isBold="@{true}"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                android:maxLines="1"
+                android:ellipsize="end"
+                android:layout_gravity="center"
+                tools:text="title"
+                android:textColor="@color/feedPrimaryTextColor"
+                android:text="@{card.items[0].id}"/>
+
+            <com.google.android.material.textfield.TextInputLayout
+                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="5"
+                android:id="@+id/tilHinTxt"
+                app:boxStrokeColor="@color/purple_500"
+                android:textColorHint="@color/purple_500"
+                app:hintTextColor="@color/purple_500"
+                app:endIconTint="@color/purple_500"
+                android:hint="State">
+
+                <AutoCompleteTextView
+                    android:id="@+id/outlined_exposed_dropdown"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:inputType="none"
+                    android:singleLine="true"
+                    />
+
+            </com.google.android.material.textfield.TextInputLayout>
+        </LinearLayout>
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/rvTabs"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
+            android:orientation="horizontal">
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:orientation="vertical">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:maxLines="1"
+                        android:ellipsize="end"
+
+                        android:textSize="14sp"
+                        android:textColor="@color/feedPrimaryTextColor"
+                        android:text="@string/tested"
+                        />
+
+                    <androidx.appcompat.widget.AppCompatTextView
+                        android:id="@+id/testCases"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:maxLines="1"
+                        android:ellipsize="end"
+                        android:textSize="18sp"
+                        android:layout_marginTop="2dp"
+                        android:textColor="#EF3E42"
+
+                        tools:text="3,45,370"
+                        />
+
+                    <androidx.appcompat.widget.AppCompatTextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:maxLines="1"
+                        android:ellipsize="end"
+                        android:textSize="12sp"
+                        android:textColor="#21C17A"
+                         />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="10dp"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:maxLines="1"
+                        android:ellipsize="end"
+                        android:textSize="14sp"
+                        android:textColor="@color/feedPrimaryTextColor"
+
+                        android:text="@string/deceased"
+                        />
+
+                    <androidx.appcompat.widget.AppCompatTextView
+                        android:id="@+id/totalDeceasedCases"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:maxLines="1"
+                        android:ellipsize="end"
+                        android:textSize="18sp"
+                        android:textColor="@color/feedPrimaryTextColor"
+
+                        tools:text="3,45,370"
+                        />
+
+                    <androidx.appcompat.widget.AppCompatTextView
+                        android:id="@+id/todayDeceasedCases"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:maxLines="1"
+                        android:ellipsize="end"
+                        android:textSize="12sp"
+                        android:textColor="#EF3E42"
+
+                        tools:text="5,370"
+                        android:drawablePadding="3dp"
+                        app:drawableEndCompat="@drawable/ic_up_key_arrow" />
+                </LinearLayout>
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:orientation="vertical">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:maxLines="1"
+                        android:ellipsize="end"
+                        android:textSize="14sp"
+                        android:textColor="@color/feedPrimaryTextColor"
+
+                        android:text="@string/recovered"
+                        />
+                    <androidx.appcompat.widget.AppCompatTextView
+                        android:id="@+id/totalRecoveredCases"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:maxLines="1"
+                        android:ellipsize="end"
+                        android:textSize="18sp"
+                        android:textColor="#21C17A"
+
+                        tools:text="3,45,370"
+                        />
+
+                    <androidx.appcompat.widget.AppCompatTextView
+                        android:id="@+id/todayRecoveredCases"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:maxLines="1"
+                        android:ellipsize="end"
+                        android:textSize="12sp"
+                        android:textColor="#21C17A"
+
+                        tools:text="5,370"
+                        android:drawablePadding="3dp"
+                        app:drawableTint="#21C17A"
+                        app:drawableEndCompat="@drawable/ic_up_key_arrow" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="10dp"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:maxLines="1"
+                        android:ellipsize="end"
+                        android:textSize="14sp"
+                        android:textColor="@color/feedPrimaryTextColor"
+
+                        android:text="@string/active"
+                        />
+                    <androidx.appcompat.widget.AppCompatTextView
+                        android:id="@+id/totalConfirmedCases"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:maxLines="1"
+                        android:ellipsize="end"
+                        android:textSize="18sp"
+                        android:textColor="#EF3E42"
+
+                        tools:text="3,45,370"
+                        />
+
+                    <androidx.appcompat.widget.AppCompatTextView
+                        android:id="@+id/todayConfirmedCases"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:maxLines="1"
+                        android:ellipsize="end"
+                        android:textSize="12sp"
+                        android:textColor="#EF3E42"
+                        tools:text="5,370"
+                        android:drawablePadding="3dp"
+                        app:drawableEndCompat="@drawable/ic_up_key_arrow" />
+                </LinearLayout>
+            </LinearLayout>
+        </LinearLayout>
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:layout_marginTop="20dp"
+            android:background="#EFF2F5" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
+            android:orientation="vertical">
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:orientation="vertical">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:maxLines="1"
+                        android:ellipsize="end"
+                        android:textSize="14sp"
+                        android:textColor="@color/feedPrimaryTextColor"
+
+                        android:text="@string/total_vaccine_doses_administered"
+                        />
+
+                    <androidx.appcompat.widget.AppCompatTextView
+                        android:id="@+id/totalVaccinated"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:maxLines="1"
+                        android:ellipsize="end"
+                        android:textSize="18sp"
+                        android:layout_marginTop="2dp"
+                        android:textColor="@color/purple_500"
+
+                        tools:text="3,45,370"
+                        />
+
+                    <androidx.appcompat.widget.AppCompatTextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:maxLines="1"
+                        android:ellipsize="end"
+                        android:textSize="12sp"
+                        android:textColor="#21C17A"
+                         />
+                </LinearLayout>
+
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:layout_marginTop="10dp"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:maxLines="1"
+                        android:ellipsize="end"
+                        android:textSize="14sp"
+                        android:textColor="@color/feedPrimaryTextColor"
+
+                        android:text="@string/one_dose"
+                        />
+
+                    <androidx.appcompat.widget.AppCompatTextView
+                        android:id="@+id/halfVaccinated"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:maxLines="1"
+                        android:ellipsize="end"
+                        android:textSize="18sp"
+                        android:textColor="#FF9E00"
+
+                        tools:text="3,45,370"
+                        />
+
+                    <androidx.appcompat.widget.AppCompatTextView
+                        android:id="@+id/todayHalfVaccinated"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:maxLines="1"
+                        android:ellipsize="end"
+                        android:textSize="12sp"
+                        android:textColor="#FF9E00"
+
+                        tools:text="5,370"
+                        android:drawablePadding="3dp"
+                        app:drawableTint="#FF9E00"
+                        app:drawableEndCompat="@drawable/ic_up_key_arrow" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:layout_marginTop="10dp"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:maxLines="1"
+                        android:ellipsize="end"
+                        android:textSize="14sp"
+                        android:textColor="@color/feedPrimaryTextColor"
+
+                        android:text="@string/fully_vaccinated"
+                        />
+                    <androidx.appcompat.widget.AppCompatTextView
+                        android:id="@+id/fullyVaccinated"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:maxLines="1"
+                        android:ellipsize="end"
+                        android:textSize="18sp"
+                        android:textColor="#21C17A"
+
+                        tools:text="3,45,370"
+                        />
+
+                    <androidx.appcompat.widget.AppCompatTextView
+                        android:id="@+id/todayFullyVaccinated"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:maxLines="1"
+                        android:ellipsize="end"
+                        android:textSize="12sp"
+                        android:textColor="#21C17A"
+
+                        tools:text="5,370"
+                        android:drawablePadding="3dp"
+                        app:drawableTint="#21C17A"
+                        app:drawableEndCompat="@drawable/ic_up_key_arrow" />
+                </LinearLayout>
+            </LinearLayout>
+        </LinearLayout>
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:layout_marginTop="20dp"
+            android:background="#EFF2F5" />
+
+        <androidx.appcompat.widget.AppCompatTextView
+            android:id="@+id/lastUpdated"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:maxLines="1"
+            android:ellipsize="end"
+
+            android:textSize="12sp"
+            android:textColor="#7F8386"
+            tools:text="Last updated on : 22 March 2021"
+            />
+
+        <androidx.appcompat.widget.AppCompatTextView
+            android:id="@+id/source"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="5dp"
+            android:maxLines="1"
+            android:ellipsize="end"
+
+            android:textSize="12sp"
+            android:textColor="#7F8386"
+            tools:text="Source: Govt. API"
+            />
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:layout_marginTop="15dp"
+            android:background="#EFF2F5" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="30dp"
+            android:layout_marginTop="10dp"
+            android:orientation="horizontal"
+            >
+            <ImageView
+                android:layout_width="20dp"
+                android:layout_height="20dp"
+                app:srcCompat="@drawable/ic_share_cricket_feed"
+                android:id="@+id/imgShare"
+                android:layout_marginStart="3dp"
+                android:layout_gravity="center"
+                android:onClick="@{(v) -> listener.onShareCovidData(v, position, false)}"
+                />
+            <ImageView
+                android:id="@+id/imgWhatsAppShare"
+                android:layout_width="20dp"
+                android:layout_height="20dp"
+                app:srcCompat="@drawable/ic_cricket_whatsapp"
+                android:layout_gravity="center"
+                android:layout_marginStart="50dp"
+                android:onClick="@{(v) -> listener.onShareCovidData(v, position, true)}"
+                />
+
+        </LinearLayout>
+
+    </LinearLayout>
+</layout>

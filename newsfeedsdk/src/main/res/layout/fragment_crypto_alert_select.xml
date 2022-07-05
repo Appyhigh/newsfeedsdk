@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:orientation="vertical"
+    android:background="@color/feedSecondaryBackground"
+    tools:context=".fragment.CryptoAlertSelectFragment">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/feedBackground"
+        android:padding="20dp"
+        android:orientation="horizontal">
+        <androidx.appcompat.widget.AppCompatImageView
+            android:id="@+id/back_btn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            app:tint="@color/feedSecondaryTintColor"
+            android:scaleType="center"
+            app:srcCompat="@drawable/ic_back"/>
+        <androidx.appcompat.widget.AppCompatTextView
+            android:id="@+id/headerText"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="0.9"
+            android:layout_marginStart="20dp"
+            android:layout_gravity="center"
+            android:textSize="16sp"
+            android:textColor="@color/feedSecondaryTintColor"
+            app:textAllCaps="true"
+            android:maxLines="1"
+            android:ellipsize="end"
+            android:text="@string/select_cryptoassets"
+            />
+        <androidx.appcompat.widget.AppCompatEditText
+            android:id="@+id/searchText"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="0.9"
+            android:layout_marginStart="20dp"
+            android:layout_gravity="center"
+            android:focusableInTouchMode="true"
+            android:textCursorDrawable="@null"
+            android:backgroundTint="@color/purple_500"
+            android:inputType="textAutoComplete"
+            android:textSize="16sp"
+            android:textColor="@color/feedSecondaryTintColor"
+            android:maxLines="1"
+            android:visibility="gone"
+            android:ellipsize="end"
+            tools:ignore="UnusedAttribute" />
+        <androidx.appcompat.widget.AppCompatImageView
+            android:id="@+id/searchIcon"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:scaleType="center"
+            app:tint="@color/feedSecondaryTintColor"
+            app:srcCompat="@drawable/ic_crypto_alert_search"/>
+    </LinearLayout>
+
+    <ProgressBar
+        android:id="@+id/pbLoading"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:layout_gravity="center"
+        android:indeterminateTint="@color/purple_500"
+        tools:ignore="UnusedAttribute" />
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/rvPosts"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:paddingTop="10dp"
+        android:paddingStart="20dp"
+        android:paddingEnd="20dp"
+        />
+
+</LinearLayout>

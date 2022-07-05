@@ -1,0 +1,228 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/notificationLayout"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal"
+    tools:background="@drawable/bg_sticky_solid_default"
+    >
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:orientation="horizontal">
+
+        <LinearLayout
+            android:id="@+id/tile0"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:orientation="vertical"
+            android:padding="10dp"
+            android:layout_weight="0.20">
+
+            <FrameLayout
+                android:id="@+id/searchIconFrame"
+                android:layout_width="30dp"
+                android:layout_height="30dp"
+                android:layout_gravity="center"
+                >
+                <ImageView
+                    android:id="@+id/searchIconUrl"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:scaleType="centerCrop"
+                    android:layout_gravity="center"
+                    tools:padding="3dp"
+                    tools:src="@drawable/ic_sticky_solid_search"
+                    tools:ignore="ContentDescription,UseAppTint" />
+            </FrameLayout>
+
+
+            <TextView
+                android:id="@+id/tileName0"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/search"
+                android:textSize="12sp"
+                android:maxLines="1"
+                android:ellipsize="end"
+                android:layout_gravity="center"
+                android:textColor="@color/colorWhite"
+                tools:ignore="SmallSp" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/tile1"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:padding="10dp"
+            android:orientation="vertical"
+            android:layout_gravity="center"
+            android:layout_weight="0.20">
+            <FrameLayout
+                android:id="@+id/tileIconFrame1"
+                android:layout_width="30dp"
+                android:layout_height="30dp"
+                android:layout_gravity="center"
+                >
+                <ImageView
+                    android:id="@+id/tileIconUrl1"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:scaleType="centerCrop"
+                    android:layout_gravity="center"
+                    tools:src="@drawable/ic_sticky_solid_feed"
+                    tools:tint="@color/white"
+                    tools:ignore="ContentDescription,UseAppTint" />
+            </FrameLayout>
+
+            <TextView
+                android:id="@+id/tileName1"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="12sp"
+                android:maxLines="1"
+                android:ellipsize="end"
+                android:layout_gravity="center"
+                android:textColor="@color/colorWhite"
+                tools:text="News"
+                tools:ignore="SmallSp" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/tile2"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="10dp"
+            android:layout_gravity="center"
+            android:layout_weight="0.20">
+
+            <FrameLayout
+                android:id="@+id/tileIconFrame2"
+                android:layout_width="30dp"
+                android:layout_height="30dp"
+                android:layout_gravity="center"
+                >
+                <ImageView
+                    android:id="@+id/tileIconUrl2"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:scaleType="centerCrop"
+                    android:layout_gravity="center"
+                    tools:src="@drawable/ic_sticky_solid_reels"
+                    tools:tint="@color/white"
+                    tools:ignore="ContentDescription,UseAppTint" />
+            </FrameLayout>
+
+            <TextView
+                android:id="@+id/tileName2"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="12sp"
+                android:maxLines="1"
+                android:ellipsize="end"
+                android:layout_gravity="center"
+                android:textColor="@color/colorWhite"
+                tools:text="Videos"
+                tools:ignore="SmallSp" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/tile3"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="10dp"
+            android:layout_gravity="center"
+            android:layout_weight="0.20">
+
+            <FrameLayout
+                android:id="@+id/tileIconFrame3"
+                android:layout_width="30dp"
+                android:layout_height="30dp"
+                android:layout_gravity="center"
+                >
+                <ImageView
+                    android:id="@+id/tileIconUrl3"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_gravity="center"
+                    tools:src="@drawable/ic_sticky_solid_camera"
+                    tools:tint="@color/white"
+                    tools:ignore="ContentDescription,UseAppTint" />
+            </FrameLayout>
+
+            <TextView
+                android:id="@+id/tileName3"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="12sp"
+                android:maxLines="1"
+                android:ellipsize="end"
+                android:layout_gravity="center"
+                android:textColor="@color/colorWhite"
+                tools:text="Camera"
+                tools:ignore="SmallSp" />
+        </LinearLayout>
+
+
+        <LinearLayout
+            android:id="@+id/tile4"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="10dp"
+            android:layout_gravity="center"
+            android:layout_weight="0.20">
+
+            <FrameLayout
+                android:id="@+id/tileIconFrame4"
+                android:layout_width="30dp"
+                android:layout_height="30dp"
+                android:layout_gravity="center"
+                >
+                <ImageView
+                    android:id="@+id/tileIconUrl4"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_gravity="center"
+                    tools:src="@drawable/ic_sticky_solid_whatsapp"
+                    tools:tint="@color/white"
+                    tools:ignore="ContentDescription,UseAppTint" />
+            </FrameLayout>
+
+            <TextView
+                android:id="@+id/tileName4"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="12sp"
+                android:maxLines="1"
+                android:ellipsize="end"
+                android:layout_gravity="center"
+                android:textColor="@color/colorWhite"
+                tools:text="Whatsapp"
+                tools:ignore="SmallSp" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="35dp"
+            android:layout_height="match_parent"
+            android:background="@drawable/bg_sticky_collapsed_settings"
+            android:orientation="horizontal">
+
+            <ImageView
+                android:id="@+id/settings"
+                android:layout_width="22dp"
+                android:layout_height="match_parent"
+                android:layout_marginStart="5dp"
+                android:layout_gravity="start"
+                tools:src="@drawable/ic_sticky_solid_settings"
+                tools:ignore="ContentDescription" />
+        </LinearLayout>
+    </LinearLayout>
+</LinearLayout>

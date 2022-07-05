@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+
+        <variable
+            name="interest"
+            type="com.appyhigh.newsfeedsdk.model.Interest" />
+
+        <variable
+            name="listener"
+            type="com.appyhigh.newsfeedsdk.callbacks.InterestClickListener" />
+
+        <variable
+            name="position"
+            type="Integer" />
+
+        <import type="com.appyhigh.newsfeedsdk.R" />
+    </data>
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:onClick="@{(v) ->listener.onInterestClicked(v, position)}">
+
+        <LinearLayout
+            android:id="@+id/ll_feed_category"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/space_small"
+            android:layout_marginEnd="@dimen/space_regular"
+            android:layout_marginBottom="@dimen/space_small"
+            android:gravity="center"
+            android:orientation="horizontal"
+            android:paddingStart="@dimen/space_regular_x"
+            android:paddingTop="@dimen/space_small_x"
+            android:paddingEnd="@dimen/space_regular_x"
+            android:paddingBottom="@dimen/space_small_x"
+            app:selected="@{interest.selected}"
+            tools:background="@drawable/bg_unselected_preference">
+
+            <androidx.appcompat.widget.AppCompatImageView
+                android:id="@+id/ivInterest"
+                android:layout_width="@dimen/preference_item_image_size"
+                android:layout_height="@dimen/preference_item_image_size"
+                android:layout_marginEnd="@dimen/space_regular"
+                android:scaleType="fitCenter"
+                app:interestImage="@{interest.thumbnails.xxxhdpi}"
+                app:isSelected="@{interest.selected}"
+                tools:src="@drawable/ic_tree_palm_white" />
+
+            <androidx.appcompat.widget.AppCompatTextView
+                android:id="@+id/tvInterest"
+                style="@style/Text.Medium"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textStyle="bold"
+
+                android:text="@{interest.label}"
+                android:textSize="15sp"
+                app:selectedText="@{interest.selected}"
+                tools:text="For you" />
+
+        </LinearLayout>
+    </LinearLayout>
+</layout>

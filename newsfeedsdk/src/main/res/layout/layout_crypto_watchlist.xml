@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+xmlns:app="http://schemas.android.com/apk/res-auto">
+
+<data>
+
+    <variable
+        name="card"
+        type="com.appyhigh.newsfeedsdk.model.feeds.Card" />
+
+    <import type="com.appyhigh.newsfeedsdk.R" />
+</data>
+
+<LinearLayout
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:background="@color/feedSecondaryBackground"
+    android:layout_marginBottom="7.5dp">
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="5dp"
+        android:layout_marginBottom="5dp"
+        android:layout_marginStart="15dp"
+        android:background="@color/feedSecondaryBackground"
+        android:overScrollMode="never"
+        app:cryptoType="@{card.cardType}"
+        app:cryptoWatchList="@{card.items}" />
+
+    <androidx.cardview.widget.CardView
+        android:id="@+id/cryptoPriceAlert"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:layout_marginTop="10dp"
+        app:checkCryptoApp="@{true}"
+        app:cardBackgroundColor="@color/purple_500"
+        app:cardCornerRadius="20dp">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="20dp"
+            android:layout_marginTop="10dp"
+            android:layout_marginEnd="20dp"
+            android:layout_marginBottom="10dp"
+            android:orientation="horizontal">
+
+            <androidx.appcompat.widget.AppCompatImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:scaleType="center"
+                app:srcCompat="@drawable/ic_crypto_alert_noti" />
+
+            <androidx.appcompat.widget.AppCompatTextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:layout_marginStart="10dp"
+                android:gravity="center"
+                android:text="@string/set_price_alert"
+                android:textColor="@color/textColor"
+                android:textSize="16sp"
+                 />
+        </LinearLayout>
+    </androidx.cardview.widget.CardView>
+
+    <LinearLayout
+        android:id="@+id/allCryptoCoins"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="20dp"
+        android:layout_marginEnd="20dp"
+        android:layout_marginTop="10dp"
+        android:layout_marginBottom="20dp"
+        android:padding="10dp"
+        android:layout_gravity="center"
+        android:gravity="center"
+        android:background="@drawable/bg_submit_button_blue"
+        android:orientation="horizontal">
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:gravity="center"
+
+            android:textSize="16sp"
+            android:textColor="@color/textColor"
+            android:text="@string/all_coins"
+            />
+        <androidx.appcompat.widget.AppCompatImageView
+            android:layout_width="18dp"
+            android:layout_height="18dp"
+            android:layout_gravity="center"
+            android:layout_marginStart="5dp"
+            app:srcCompat="@drawable/ic_forward_white"
+            />
+    </LinearLayout>
+</LinearLayout>
+</layout>

@@ -1,0 +1,146 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+
+        <variable
+            name="view"
+            type="android.view.View" />
+
+        <variable
+            name="item"
+            type="com.appyhigh.newsfeedsdk.model.feeds.Item" />
+
+        <variable
+            name="listener"
+            type="com.appyhigh.newsfeedsdk.callbacks.FeedPostCategoryClickListener" />
+
+        <variable
+            name="position"
+            type="Integer" />
+
+        <import type="com.appyhigh.newsfeedsdk.R" />
+    </data>
+
+    <androidx.cardview.widget.CardView
+        android:layout_width="270dp"
+        android:layout_height="wrap_content"
+        android:layout_margin="5dp"
+        android:background="@color/feedBackground"
+        android:onClick="@{(v) -> listener.onFeedPostCategoryClicked(v, position)}"
+        app:cardCornerRadius="10dp">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:background="@color/feedBackground">
+
+            <FrameLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <androidx.appcompat.widget.AppCompatImageView
+                    android:id="@+id/explore_like_image"
+                    android:layout_width="match_parent"
+                    android:layout_height="150dp"
+                    android:scaleType="centerCrop"
+                    app:imageUrl="@{item.content.mediaList[0]}"
+                    tools:ignore="ContentDescription"
+                    tools:src="@drawable/placeholder" />
+
+                <androidx.appcompat.widget.AppCompatImageView
+                    android:id="@+id/explore_like_logo"
+                    android:layout_width="20dp"
+                    android:layout_height="20dp"
+                    android:layout_gravity="bottom|end"
+                    android:layout_margin="5dp"
+                    android:scaleType="centerCrop"
+                    app:srcCompat="@drawable/ic_instagram"
+                    android:visibility="gone"
+                    tools:ignore="ContentDescription" />
+
+            </FrameLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_margin="10dp"
+                android:orientation="horizontal"
+                android:visibility="gone"
+                tools:ignore="UseCompoundDrawables">
+
+                <ImageView
+                    android:id="@+id/explore_like_icon"
+                    android:layout_width="25dp"
+                    android:layout_height="25dp"
+                    android:layout_gravity="center"
+                    tools:ignore="ContentDescription" />
+
+                <TextView
+                    android:id="@+id/explore_like_name"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:layout_marginStart="10dp"
+                    android:ellipsize="end"
+                    android:textStyle="bold"
+
+                    app:isBold="@{true}"
+                    android:maxLines="1"
+                    android:textColor="@color/textColor"
+                    android:textSize="@dimen/explore_font" />
+
+            </LinearLayout>
+
+            <androidx.appcompat.widget.AppCompatTextView
+                android:id="@+id/explore_like_title"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="10dp"
+                android:layout_marginTop="10dp"
+                android:layout_marginEnd="10dp"
+                android:ellipsize="end"
+                android:textStyle="bold"
+
+                app:isBold="@{true}"
+                android:maxLines="2"
+                android:textColor="@color/text_color_black"
+                android:textSize="@dimen/explore_font"
+                app:description="@{item.content.description}"
+                app:title="@{item.content.title}"
+                tools:text="20 I’m free!! choose my own destiny!! my own destiny!!" />
+
+            <TextView
+                android:id="@+id/explore_like_more"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="10dp"
+                android:layout_marginTop="13dp"
+                android:layout_marginBottom="15dp"
+                android:textStyle="bold"
+
+                app:isBold="@{true}"
+                android:text="@{item.publisherName}"
+                android:textColor="@color/text_color_black"
+                android:textSize="@dimen/explore_font"
+                android:visibility="@{item.updated_at==null?view.VISIBLE:view.GONE}"
+                tools:text="Publisher Name" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="#ACACAC"
+                android:textSize="@dimen/explore_font"
+                android:visibility="@{item.updated_at==null?view.GONE:view.VISIBLE}"
+                android:layout_marginStart="10dp"
+                android:layout_marginTop="13dp"
+                android:text="@{item.updated_at.toString()}"
+                android:layout_marginBottom="15dp"
+                />
+        </LinearLayout>
+
+    </androidx.cardview.widget.CardView>
+</layout>

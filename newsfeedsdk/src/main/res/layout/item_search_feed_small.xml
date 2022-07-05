@@ -1,0 +1,359 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+
+        <variable
+            name="buildConfig"
+            type="com.appyhigh.newsfeedsdk.BuildConfig" />
+
+        <variable
+            name="card"
+            type="com.appyhigh.newsfeedsdk.model.feeds.Card" />
+
+        <variable
+            name="listener"
+            type="com.appyhigh.newsfeedsdk.callbacks.PostViewsClickListener" />
+
+        <variable
+            name="position"
+            type="Integer" />
+
+        <import type="com.appyhigh.newsfeedsdk.R" />
+    </data>
+
+    <androidx.cardview.widget.CardView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:cardCornerRadius="10dp"
+        android:layout_marginBottom="20dp"
+        app:cardElevation="5dp">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:layout_marginBottom="10dp"
+            android:background="@color/feedSecondaryBackground"
+            android:orientation="vertical"
+            android:onClick="@{(v) -> listener.onPostClicked(v, position)}">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:gravity="center_vertical"
+                android:orientation="horizontal"
+                android:paddingHorizontal="10dp">
+
+
+                <RelativeLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_vertical">
+
+                    <de.hdodenhof.circleimageview.CircleImageView
+                        android:id="@+id/news_item_logo"
+                        android:layout_width="48dp"
+                        android:layout_height="48dp"
+                        android:scaleType="centerCrop"
+                        app:logoSmall="@{card.items[0].publisherProfilePic}"
+                        app:publisherName="@{card.items[0].publisherName}"
+                        app:srcCompat="@drawable/ic_launcher_background"
+                        app:tvPublisherImage="@{@id/tvPublisherImage}" />
+
+                    <androidx.appcompat.widget.AppCompatTextView
+                        android:id="@+id/tvPublisherImage"
+                        android:layout_width="40dp"
+                        android:layout_height="40dp"
+                        android:background="@drawable/text_bg_red"
+                        android:textStyle="bold"
+
+                        app:isBold="@{true}"
+                        android:gravity="center"
+                        android:text="A"
+                        android:textColor="@color/white"
+                        android:textSize="16sp"
+                        android:visibility="gone" />
+
+                    <RelativeLayout
+                        android:layout_width="16dp"
+                        android:layout_height="16dp"
+                        android:layout_marginStart="34dp"
+                        android:layout_marginTop="30dp"
+                        android:background="@drawable/bg_round_button_white">
+
+                        <androidx.appcompat.widget.AppCompatImageView
+                            android:id="@+id/ivPlatform"
+                            android:layout_width="16dp"
+                            android:layout_height="16dp"
+                            android:padding="1dp"
+                            android:scaleType="centerInside"
+                            app:platform="@{card.items[0].platform}" />
+                    </RelativeLayout>
+                </RelativeLayout>
+
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="5dp">
+
+                    <TextView
+                        android:id="@+id/news_item_publisher_name"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:maxLength="30"
+                        android:ellipsize="end"
+                        android:text="@{card.items[0].publisherName}"
+                        android:textColor="@color/feedPrimaryTextColor"
+                        android:textSize="14sp"
+                        tools:text="News18 English" />
+
+                    <LinearLayout
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="-2dp"
+                        android:gravity="center"
+                        android:orientation="horizontal">
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:gravity="center"
+                            android:orientation="horizontal">
+
+                            <androidx.appcompat.widget.AppCompatTextView
+                                android:id="@+id/news_item_posted_on"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:textStyle="bold"
+                                app:isBold="@{true}"
+                                android:textColor="@android:color/darker_gray"
+                                android:textSize="12sp"
+                                app:formattedTime='@{card.items[0].publishedOn ?? ""}'
+                                tools:text="6 hours ago" />
+
+
+                        </LinearLayout>
+
+                        <androidx.appcompat.widget.AppCompatImageView
+                            android:layout_width="wrap_content"
+                            android:layout_height="match_parent"
+                            android:layout_marginStart="5dp"
+                            app:srcCompat="@drawable/ic_note_black_18dp"
+                            android:visibility="gone" />
+                    </LinearLayout>
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:gravity="end"
+                    android:orientation="horizontal"
+                    tools:ignore="NestedWeights">
+
+                    <LinearLayout
+                        android:id="@+id/llLike"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:gravity="center"
+                        android:layout_gravity="center"
+                        android:onClick="@{(v) -> listener.onLikeClicked(v,position, card)}"
+                        android:orientation="horizontal">
+
+                        <androidx.appcompat.widget.AppCompatImageView
+                            android:id="@+id/ivLike"
+                            android:layout_width="24dp"
+                            android:layout_height="24dp"
+                            android:layout_gravity="center"
+                            app:srcCompat="@drawable/ic_cricket_like"
+                            app:isLiked="@{card.items[0].isReacted}" />
+
+                    </LinearLayout>
+
+                    <androidx.appcompat.widget.AppCompatImageView
+                        android:id="@+id/ivShare"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:onClick="@{(v) -> listener.onSharePost(v,position, card, false)}"
+                        android:paddingStart="15dp"
+                        android:paddingEnd="10dp"
+                        android:layout_gravity="center"
+                        app:tint="@color/feedSecondaryTintColor"
+                        app:srcCompat="@drawable/ic_cricket_share" />
+
+                </LinearLayout>
+
+
+            </LinearLayout>
+
+            <RelativeLayout
+                android:id="@+id/rlYoutube"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:visibility="gone">
+
+                <ImageView
+                    android:id="@+id/ivYouTubeThumbnail"
+                    android:layout_width="match_parent"
+                    android:layout_height="220dp"
+                    android:scaleType="centerCrop" />
+
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="220dp"
+                    android:background="#80000000" />
+
+                <androidx.appcompat.widget.AppCompatImageView
+                    android:layout_width="35dp"
+                    android:layout_height="35dp"
+                    android:layout_centerInParent="true"
+                    app:srcCompat="@drawable/ic_play" />
+            </RelativeLayout>
+
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:paddingHorizontal="15dp"
+                android:paddingTop="10dp"
+                android:visibility="gone">
+
+                <TextView
+                    android:id="@+id/news_item_category"
+                    android:layout_width="150dp"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentStart="true"
+                    android:layout_alignParentLeft="true"
+                    android:ellipsize="end"
+                    android:maxLines="1"
+                    android:text="NEWS"
+                    android:textAllCaps="true"
+                    android:textColor="@android:color/holo_blue_light"
+                    android:textStyle="bold" />
+
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentEnd="true"
+                    android:layout_alignParentRight="true"
+                    android:orientation="horizontal">
+
+                    <androidx.appcompat.widget.AppCompatImageView
+                        android:id="@+id/news_item_share_small"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="5dp"
+                        android:layout_marginEnd="30dp"
+                        app:srcCompat="@drawable/ic_share" />
+
+                    <androidx.appcompat.widget.AppCompatImageView
+                        android:id="@+id/news_item_whatsapp_share_small"
+                        android:layout_width="20dp"
+                        android:layout_height="20dp"
+                        app:srcCompat="@drawable/ic_whatsapp" />
+
+                </LinearLayout>
+
+            </RelativeLayout>
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:orientation="horizontal"
+                android:paddingTop="8dp"
+                android:paddingBottom="8dp">
+
+                <RelativeLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:minHeight="77dp"
+                    android:orientation="vertical">
+
+                    <androidx.appcompat.widget.AppCompatTextView
+                        android:id="@+id/news_item_title"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_centerVertical="true"
+                        android:layout_marginStart="10dp"
+                        android:layout_marginTop="5dp"
+                        android:gravity="center_vertical"
+                        android:lineSpacingExtra="3dp"
+                        android:maxLines="3"
+                        android:minHeight="52dp"
+                        android:paddingEnd="10dp"
+                        android:textColor="@color/feedPrimaryTextColor"
+                        android:textSize="17sp"
+                        android:textStyle="bold"
+                        app:description="@{card.items[0].content.description}"
+                        app:isBold="@{true}"
+                        app:title="@{card.items[0].content.title}"
+                        tools:text="Schools, Colleges  " />
+
+                </RelativeLayout>
+
+                <FrameLayout
+                    android:layout_width="77dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginEnd="10dp">
+
+                    <androidx.appcompat.widget.AppCompatImageView
+                        android:id="@+id/news_item_image"
+                        android:layout_width="77dp"
+                        android:layout_height="77dp"
+                        android:adjustViewBounds="true"
+                        android:scaleType="centerCrop"
+                        app:postImage="@{card.items[0].content.mediaList.get(0)}"
+                        tools:src="@drawable/ic_launcher_background"
+                        android:visibility="visible" />
+
+                    <View
+                        android:id="@+id/iv_play_video_bg"
+                        android:layout_width="0dp"
+                        android:layout_height="0dp"
+                        android:background="#4A000000"
+                        android:visibility="gone"
+                        app:isVideo="@{card.items[0].video}"
+                        app:platform="@{card.items[0].platform}"/>
+
+                    <androidx.appcompat.widget.AppCompatImageView
+                        android:id="@+id/iv_play_video"
+                        android:layout_width="20dp"
+                        android:layout_height="20dp"
+                        android:layout_gravity="center"
+                        android:alpha="0.9"
+                        android:contentDescription="@null"
+                        app:srcCompat="@drawable/ic_play"
+                        android:visibility="gone"
+                        app:isVideo="@{card.items[0].video}"
+                        app:platform="@{card.items[0].platform}"/>
+                </FrameLayout>
+
+
+            </LinearLayout>
+
+            <View
+                android:id="@+id/divider"
+                android:layout_width="match_parent"
+                android:layout_height="0.8dp"
+                android:layout_marginHorizontal="15dp"
+                android:layout_marginVertical="10dp"
+                android:background="?android:attr/listDivider"
+                android:visibility="gone" />
+
+
+            <View
+                android:id="@+id/divider2"
+                android:layout_width="match_parent"
+                android:layout_height="2dp"
+                android:layout_marginVertical="10dp"
+                android:background="?android:attr/listDivider"
+                android:visibility="gone" />
+
+        </LinearLayout>
+    </androidx.cardview.widget.CardView>
+</layout>

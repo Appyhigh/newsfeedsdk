@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@color/colorWhite"
+    android:paddingStart="@dimen/space_regular"
+    android:paddingTop="@dimen/space_large"
+    android:paddingEnd="@dimen/space_regular">
+
+    <ImageView
+        android:id="@+id/iv_user"
+        android:layout_width="35dp"
+        android:layout_height="35dp"
+        android:adjustViewBounds="true"
+        android:contentDescription="@null"
+        android:scaleType="centerCrop"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:src="@drawable/ic_permission_overlay" />
+
+    <LinearLayout
+        android:id="@+id/ll_comment"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/space_small_x"
+        android:background="@drawable/bg_comment_text"
+        android:orientation="vertical"
+        android:paddingStart="@dimen/selected_identifier_size"
+        android:paddingTop="@dimen/space_small_x"
+        android:paddingEnd="@dimen/selected_identifier_size"
+        android:paddingBottom="@dimen/selected_identifier_size"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@id/iv_user"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <TextView
+            android:id="@+id/tvUserName"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textStyle="bold"
+            android:letterSpacing="@dimen/letter_spacing_regular"
+            android:lineSpacingExtra="@dimen/line_spacing_regular_x"
+            android:textColor="@color/colorTextBlack"
+            android:textSize="@dimen/text_size_medium"
+            tools:text="@string/text_dummy_blog_company" />
+
+        <TextView
+            android:id="@+id/tv_comment_text"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:letterSpacing="0.02"
+            android:lineSpacingExtra="4sp"
+            android:textColor="@color/colorTextBlack"
+            android:textSize="@dimen/text_size_regular"
+            tools:text="Unlimited laboris nisi ut aliquip exullamco laboris nisi ut ut labore et dolore magna. Mot ut labore et dolore magna." />
+
+    </LinearLayout>
+
+
+    <TextView
+        android:id="@+id/tv_like"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/space_small_x"
+        android:letterSpacing="0.02"
+        android:lineSpacingExtra="4sp"
+        android:paddingEnd="@dimen/space_small_x"
+        android:text="@string/text_like"
+        android:textSize="@dimen/text_size_regular"
+        android:visibility="gone"
+        app:layout_constraintEnd_toStartOf="@+id/tv_separator_dot"
+        app:layout_constraintStart_toStartOf="@id/ll_comment"
+        app:layout_constraintTop_toBottomOf="@id/ll_comment" />
+
+    <TextView
+        android:id="@+id/tv_separator_dot"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/text_separator_dot"
+        android:textColor="@color/colorText"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="@id/tv_like"
+        app:layout_constraintStart_toEndOf="@id/tv_like"
+        app:layout_constraintTop_toTopOf="@id/tv_like" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:paddingStart="@dimen/space_small_x"
+        android:paddingEnd="@dimen/space_small_x"
+        android:text="@string/text_reply"
+        android:textColor="@color/colorAzulBlue"
+        android:textSize="@dimen/text_size_regular"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="@+id/tv_like"
+        app:layout_constraintStart_toEndOf="@id/tv_separator_dot"
+        app:layout_constraintTop_toTopOf="@id/tv_like" />
+
+    <TextView
+        android:id="@+id/tv_comment_time"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/space_small_x"
+        android:textStyle="bold"
+        android:textColor="@color/colorTextBlack40"
+        app:layout_constraintEnd_toEndOf="@id/ll_comment"
+        app:layout_constraintTop_toBottomOf="@id/ll_comment"
+        tools:text="10h ago" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

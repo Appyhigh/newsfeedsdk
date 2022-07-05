@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="textColor">#CFDEF0</color>
+    <color name="feedBackground">#0C1622</color>
+    <color name="feedSecondaryBackground">#0C1622</color>
+    <color name="feedBlackBackground">#000000</color>
+    <color name="background_white">#000000</color>
+    <color name="feedPrimaryTextColor">#CFDEF0</color>
+    <color name="feedLocationTitleColor">#7C94B2</color>
+    <color name="feedNewInterestTitleColor">#0C1622</color>
+    <color name="feedLocationItemColor">#CFDEF0</color>
+    <color name="darker_gray">#7C94B2</color>
+    <color name="text_color_black">@color/textColor</color>
+
+    <color name="gradientStart">#0C1622</color>
+    <color name="gradientEnd">#0C1622</color>
+    <color name="feedSecondaryTintColor">@color/textColor</color>
+
+    <color name="homeBackground">#304864</color>
+    <color name="button_bg_color">#304864</color>
+
+    <color name="black_to_grey">#7C94B2</color>
+
+    <color name="feedProgressColor">@color/feedBackground</color>
+    <color name="feedPrimaryColor">@color/feedBackground</color>
+    <color name="native_page_comment_bg">@color/feedBackground</color>
+
+    <color name="textColor11">#3860F6</color>
+    <color name="feedLayoutBackground">@color/feedBackground</color>
+
+    <color name="alert_select_line">@color/feedBackground</color>
+    <color name="alert_coin_bg">@color/feedSecondaryBackground</color>
+
+</resources>

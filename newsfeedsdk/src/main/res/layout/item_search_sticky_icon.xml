@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+    <data>
+        <import type="com.appyhigh.newsfeedsdk.R" />
+    </data>
+    <LinearLayout
+        android:id="@+id/mainLayout"
+        android:orientation="vertical"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_margin="5dp"
+        android:background="@color/white">
+
+        <FrameLayout
+            android:id="@+id/iconLayout"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:layout_gravity="center"
+            android:background="@drawable/bg_sticky_icon_not_selected">
+
+
+            <de.hdodenhof.circleimageview.CircleImageView
+                android:id="@+id/icon"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:scaleType="centerCrop"
+                android:layout_gravity="center_vertical"
+                />
+
+            <androidx.appcompat.widget.AppCompatImageView
+                android:id="@+id/check"
+                android:layout_width="15dp"
+                android:layout_height="15dp"
+                app:srcCompat="@drawable/ic_sticky_check"
+                android:visibility="gone"
+                android:layout_gravity="top|end"/>
+        </FrameLayout>
+
+        <TextView
+            android:id="@+id/title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="#B9C5D9"
+
+            android:textSize="13sp"
+            android:layout_gravity="center"
+            android:gravity="center"
+            tools:text="Camera"
+            />
+
+
+    </LinearLayout>
+</layout>

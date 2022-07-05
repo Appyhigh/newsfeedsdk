@@ -1,0 +1,166 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="buttonColor">#0084FF</color>
+    <color name="purple_200">#FFBB86FC</color>
+    <color name="purple_500">#0084FF</color>
+    <color name="purple_700">#0084FF</color>
+    <color name="teal_200">#FF03DAC5</color>
+    <color name="teal_700">#FF018786</color>
+    <color name="gnt_red">#FF0000</color>
+
+    <color name="textColor">#FFFFFF</color>
+    <color name="background_white">#FFFFFF</color>
+    <color name="gradientStart">#4AFFFFFF</color>
+    <color name="gradientEnd">#FFFFFF</color>
+    <color name="likeButtonColor">#231F20</color>
+    <color name="greyTextColor">#c6c6c6</color>
+
+
+    <color name="primaryColorFeeds">@color/purple</color>
+    <color name="dividerColor">#337C94B2</color>
+
+    <color name="white">#FFFFFF</color>
+    <color name="selected_tab_color">#007DFA</color>
+    <color name="un_selected_tab_color">#5F5F5F</color>
+    <color name="black">#000000</color>
+    <color name="purple">#267dee</color>
+    <color name="text_color_black">#231F20</color>
+    <color name="purple_blue">#0A098A</color>
+    <color name="colorWhite">#ffffff</color>
+    <color name="colorText">@android:color/black</color>
+    <color name="colorTextError">@android:color/holo_red_dark</color>
+    <color name="colorTextAction">@android:color/white</color>
+    <color name="colorTextHint">#331d2443</color>
+    <color name="colorDarkGreyOpacity5">#0D171719</color>
+    <color name="colorWhite2">#f5f5f5</color>
+    <color name="colorWhite3">#f8f8f8</color>
+    <color name="colorWhite15">#26ffffff</color>
+    <color name="colorWhite25">#40ffffff</color>
+    <color name="colorWhite40">#65ffffff</color>
+    <color name="colorWhite50">#80ffffff</color>
+    <color name="colorWhite60">#99ffffff</color>
+    <color name="colorWhite75">#bfffffff</color>
+    <color name="colorWhite90">#E6ffffff</color>
+    <color name="sd">#FFBEBEBE</color>
+    <color name="windowBackground">#ffffff</color>
+    <color name="colorBlack80">#CC000000</color>
+    <color name="colorBlack60">#99000000</color>
+    <color name="colorBlack50">#80000000</color>
+    <color name="colorBlack46">#75000000</color>
+    <color name="colorBlack40">#66000000</color>
+    <color name="colorBlack20">#33000000</color>
+    <color name="colorBlackTransparent">#00000000</color>
+
+    <color name="colorTextBlack50">#80222222</color>
+    <color name="colorTextBlack40">#66222222</color>
+    <color name="colorTextBlack25">#40222222</color>
+    <color name="colorTextBlack">#222222</color>
+
+    <color name="colorTextBlackTwo40">#66252525</color>
+
+    <color name="colorDarkBlue">#232744</color>
+    <color name="colorDarkBlueGrey">#1d2443</color>
+    <color name="colorDarkBlueGrey3">#081d2443</color>
+    <color name="colorDarkBlueGrey5">#0D1d2443</color>
+    <color name="colorDarkBlueGrey20">#331d2443</color>
+    <color name="colorDarkBlueGrey30">#4D1d2443</color>
+    <color name="colorDarkBlueGrey40">#661d2443</color>
+    <color name="colorDarkBlueGrey50">#801d2443</color>
+    <color name="colorDarkBlueGrey60">#991d2443</color>
+    <color name="colorMidnightBlue">#12003e</color>
+    <color name="colorMidnightBlue20">#3312003e</color>
+    <color name="colorDarkBlueTwo">#991e2046</color>
+
+    <color name="colorGrey">#142a485a</color>
+    <color name="colorSlateGrey">#62686f</color>
+    <color name="colorSlateGreyTwo">#636970</color>
+    <color name="colorPaleGrey">#eae4f5</color>
+    <color name="colorPaleGrey2">#f6f7fa</color>
+    <color name="colorGreyishBrown50">#80565656</color>
+    <color name="colorLightGrey">#f7f8f8</color>
+
+    <color name="colorCornFlour">#7c73f3</color>
+    <color name="colorSeaFoamBlue">#55cdb4</color>
+    <color name="colorAzulBlue">#1848e3</color>
+    <color name="colorLightBlue">#73c4f3</color>
+    <color name="colorBluishPurple">#654ae6</color>
+    <color name="colorSkyBlue">#5ae9ff</color>
+    <color name="colorLightishPurple">#a54ae6</color>
+    <color name="colorWarmPink">#ff4b7d</color>
+    <color name="colorCharcoal">#42434e</color>
+    <color name="colorWhitishBlue">#F3F7FD</color>
+
+    <color name="colorTextGrey">#7e7e7e</color>
+    <color name="colorTextGreyTwo">#9195a0</color>
+    <color name="colorTextGreyThree">#a8a7a8</color>
+
+    <color name="colorLightBlueVariant2">#dee7ec</color>
+
+    <color name="orange">#FF9800</color>
+    <color name="activities_background_color">#ebebeb</color>
+    <color name="grey_tab_text">#b2b2b2</color>
+    <color name="chat_user">#5094BB</color>
+    <color name="chat_Other">#ffffff</color>
+    <color name="gray">#F7F8F8</color>
+    <color name="gnt_dark_green">#21C17A</color>
+
+    <color name="dark_gray">#A4A4A4</color>
+
+    <color name="language_color_one">#B44ECD</color>
+    <color name="language_color_two">#0084FF</color>
+    <color name="language_color_three">#28B9B5</color>
+    <color name="language_color_four">#6D5CD1</color>
+    <color name="language_color_five">#EF3E42</color>
+    <color name="language_color_six">#328AD1</color>
+    <color name="language_color_seven">#129353</color>
+    <color name="language_color_eight">#BE8F2C</color>
+
+    <color name="interest_color_one">#1380D0</color>
+    <color name="interest_color_two">#15BBCB</color>
+    <color name="interest_color_three">#2AB979</color>
+    <color name="interest_color_four">#7173EA</color>
+    <color name="interest_color_five">#5048AD</color>
+    <color name="interest_color_six">#B360D6</color>
+    <color name="interest_color_seven">#F2A63F</color>
+    <color name="interest_color_eight">#1493E4</color>
+    <color name="interest_color_nine">#90CE49</color>
+
+    <color name="cricket_feed_title">#231F20</color>
+    <color name="cricket_feed_grey">#7F8386</color>
+    <color name="cricket_commentary_color">#F6FBFF</color>
+
+    <color name="feedProgressColor">#0084FF</color>
+    <color name="feedPrimaryColor">#0084FF</color>
+    <color name="feedBackground">@color/white</color>
+    <color name="feedSecondaryBackground">@color/white</color>
+    <color name="feedBlackBackground">@color/white</color>
+    <color name="feedLayoutBackground">#EBF4FF</color>
+    <color name="feedPrimaryTextColor">#231F20</color>
+    <color name="feedLocationTitleColor">#201D1E</color>
+    <color name="feedNewInterestTitleColor">#201D1E</color>
+    <color name="feedLocationItemColor">#656565</color>
+    <color name="feedPrimaryTintColor">#0A1A3F</color>
+    <color name="feedSecondaryTintColor">#000000</color>
+    <color name="feedGreyTintColor">#7F8386</color>
+    <color name="feedRelatedVideoColor">#FFFFFF</color>
+    <color name="feedPageSubtextColor">#40000000</color>
+    <color name="darker_gray">#aaa</color>
+
+    <color name="black_to_grey">#000000</color>
+
+    <color name="homeBackground">#EBF4FF</color>
+
+    <color name="textColor11">@color/feedPrimaryColor</color>
+
+    <color name="button_bg_color">#EFF2F5</color>
+    <color name="native_page_comment_bg">#f4f4f4</color>
+
+    <!--    crypto-->
+    <color name="feedCryptoStroke">#7F8386</color>
+    <color name="feedCryptoLine">#7F8386</color>
+    <color name="feedWhiteLine">#EFF2F5</color>
+    <color name="feedStickySearchStroke">#E9F4FF</color>
+    <color name="alert_select_line">#E8EAEC</color>
+    <color name="alert_coin_bg">#eff2f5</color>
+
+</resources>

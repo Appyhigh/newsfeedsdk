@@ -1,0 +1,181 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <data>
+
+        <variable
+            name="card"
+            type="com.appyhigh.newsfeedsdk.model.feeds.Card" />
+
+        <import type="com.appyhigh.newsfeedsdk.R" />
+    </data>
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="15dp"
+        android:padding="15dp"
+        android:background="@drawable/bg_coin_overview">
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="0.33"
+            android:orientation="vertical">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="#A3A5AC"
+                android:textSize="14sp"
+                android:maxLines="1"
+                android:ellipsize="end"
+
+                android:text="@string/market_cap"/>
+
+            <TextView
+                android:id="@+id/marketCap"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="2dp"
+
+                android:textColor="@color/feedPrimaryTextColor"
+                android:textSize="16sp"
+                android:maxLines="1"
+                android:ellipsize="end"
+                app:marketCap="@{card.items[0].marketCap}"
+                tools:text="$1.17 T"/>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:textColor="#A3A5AC"
+
+                android:textSize="14sp"
+                android:maxLines="1"
+                android:ellipsize="end"
+                android:text="@string/liquidity"/>
+
+            <TextView
+                android:id="@+id/hChange"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="2dp"
+                android:textColor="@color/feedPrimaryTextColor"
+
+                android:textSize="16sp"
+                android:maxLines="1"
+                app:cryptoLiquidityValue="@{card.items[0].liquidityScore}"
+                android:ellipsize="end"
+                tools:text="$1.17 T"/>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:textColor="#A3A5AC"
+
+                android:textSize="14sp"
+                android:maxLines="1"
+                android:ellipsize="end"
+                android:text="@string/all_time_high"/>
+
+            <TextView
+                android:id="@+id/allTimeHigh"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="2dp"
+                android:textColor="@color/feedPrimaryTextColor"
+
+                android:textSize="16sp"
+                android:maxLines="1"
+                app:cryptoFormattedValue="@{card.items[0].allTimeHigh}"
+                android:ellipsize="end"
+                tools:text="$65,869.10"/>
+
+        </LinearLayout>
+
+        <View
+            android:layout_width="1dp"
+            android:layout_height="match_parent"
+            android:background="@color/feedCryptoLine"/>
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="0.33"
+            android:layout_marginStart="20dp"
+            android:orientation="vertical">
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="#A3A5AC"
+
+                android:textSize="14sp"
+                android:maxLines="1"
+                android:ellipsize="end"
+                android:text="@string/volume_24h"/>
+
+            <TextView
+                android:id="@+id/hVolume"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="2dp"
+                android:textColor="@color/feedPrimaryTextColor"
+
+                android:textSize="16sp"
+                app:marketCap="@{card.items[0].hVol}"
+                android:maxLines="1"
+                android:ellipsize="end"
+                tools:text="$1.17 T"/>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:textColor="#A3A5AC"
+
+                android:textSize="14sp"
+                android:maxLines="1"
+                android:ellipsize="end"
+                android:text="@string/rank"/>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="2dp"
+                android:textColor="@color/feedPrimaryTextColor"
+
+                android:textSize="16sp"
+                android:maxLines="1"
+                android:ellipsize="end"
+                android:text='@{"#"+card.items[0].marketCapRank}'
+                tools:text="#1"/>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:textColor="#A3A5AC"
+
+                android:textSize="14sp"
+                android:maxLines="1"
+                android:ellipsize="end"
+                android:text="@string/all_time_low"/>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="2dp"
+                android:textColor="@color/feedPrimaryTextColor"
+
+                android:textSize="16sp"
+                android:maxLines="1"
+                android:ellipsize="end"
+                app:cryptoFormattedValue='@{card.items[0].allTimeLow}'
+                tools:text="$65,869.10"/>
+        </LinearLayout>
+    </LinearLayout>
+
+</layout>

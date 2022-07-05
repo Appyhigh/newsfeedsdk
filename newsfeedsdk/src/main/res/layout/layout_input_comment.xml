@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:translationZ="@dimen/space_large">
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_above="@+id/ll_comment"
+        android:layout_alignParentTop="true"
+        android:background="@color/colorBlack40"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:visibility="gone" />
+
+    <LinearLayout
+        android:id="@+id/ll_comment"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:background="@drawable/bg_bottom_action_bar"
+        android:gravity="center"
+        android:orientation="horizontal"
+        android:paddingTop="@dimen/space_regular"
+        app:layout_constraintBottom_toBottomOf="parent">
+
+        <EditText
+            android:id="@+id/et_comment"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_marginStart="@dimen/space_medium"
+            android:layout_marginTop="@dimen/space_regular_x"
+            android:layout_marginBottom="@dimen/space_regular_x"
+            android:layout_weight="0.8"
+            android:background="@drawable/bg_comment_edit_text"
+            android:textStyle="bold"
+            android:hint="@string/hint_add_comment"
+            android:inputType="textMultiLine|textCapSentences"
+            android:lineSpacingExtra="10sp"
+            android:paddingStart="@dimen/space_large"
+            android:paddingTop="@dimen/space_regular"
+            android:paddingEnd="@dimen/space_large"
+            android:paddingBottom="@dimen/space_regular"
+            android:textColorHint="@color/colorTextBlack40"
+            android:textSize="@dimen/text_size_medium"
+            tools:ignore="Autofill" />
+
+        <androidx.appcompat.widget.AppCompatImageView
+            android:id="@+id/ivSend"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="0.15"
+            android:layout_marginStart="@dimen/space_small"
+            android:contentDescription="@null"
+            android:paddingStart="@dimen/space_large"
+            android:paddingTop="@dimen/space_medium"
+            android:paddingEnd="@dimen/space_medium_x"
+            android:paddingBottom="@dimen/space_medium"
+            app:srcCompat="@drawable/ic_send"
+            app:tint="@color/purple_500" />
+
+        <androidx.appcompat.widget.AppCompatImageView
+            android:layout_width="80dp"
+            android:layout_height="wrap_content"
+            android:contentDescription="@null"
+            android:paddingStart="@dimen/space_regular_x"
+            android:paddingTop="@dimen/space_medium"
+            android:paddingEnd="@dimen/space_large"
+            android:paddingBottom="@dimen/space_medium"
+            app:srcCompat="@drawable/ic_mic"
+            android:visibility="gone" />
+
+    </LinearLayout>
+</androidx.constraintlayout.widget.ConstraintLayout>

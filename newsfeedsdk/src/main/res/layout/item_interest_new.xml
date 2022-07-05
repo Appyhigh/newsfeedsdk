@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:tools="http://schemas.android.com/tools"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <data>
+
+        <variable
+            name="interest"
+            type="com.appyhigh.newsfeedsdk.model.Interest" />
+
+        <variable
+            name="listener"
+            type="com.appyhigh.newsfeedsdk.callbacks.NewInterestClickListener" />
+
+        <variable
+            name="position"
+            type="Integer" />
+        <import type="com.appyhigh.newsfeedsdk.R" />
+    </data>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:paddingTop="20dp"
+        android:paddingBottom="20dp">
+
+        <androidx.appcompat.widget.AppCompatTextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@{interest.label}"
+            android:layout_gravity="center_vertical"
+            android:textColor="@color/feedPrimaryTextColor"
+            android:textSize="16sp" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="end">
+
+            <androidx.appcompat.widget.AppCompatTextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:paddingStart="20dp"
+                android:paddingEnd="20dp"
+                app:newInterestItem="@{interest}"
+                android:textAllCaps="false"
+                tools:text="Follow"
+                android:onClick="@{(v) -> listener.onInterestFollowed(v,position,interest.userSelected)}"
+                />
+
+            <androidx.appcompat.widget.AppCompatImageView
+                android:id="@+id/ivPin"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:layout_marginStart="20dp"
+                tools:src="@drawable/ic_pin_selected"
+                android:onClick="@{ (v) -> listener.onInterestPinned(v, position,interest.isPinned) }"
+                app:isPinned="@{interest.isPinned}" />
+
+
+        </LinearLayout>
+
+
+    </LinearLayout>
+</layout>

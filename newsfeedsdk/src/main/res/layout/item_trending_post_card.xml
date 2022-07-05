@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+        <variable
+            name="item"
+            type="com.appyhigh.newsfeedsdk.model.feeds.Item" />
+
+        <variable
+            name="listener"
+            type="com.appyhigh.newsfeedsdk.callbacks.FeedPostCategoryClickListener" />
+
+        <variable
+            name="position"
+            type="Integer" />
+    </data>
+
+    <androidx.cardview.widget.CardView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:cardCornerRadius="0dp"
+        android:layout_marginBottom="8dp"
+        >
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:onClick="@{(v) -> listener.onFeedPostCategoryClicked(v, position)}"
+            android:orientation="vertical"
+            >
+
+            <androidx.appcompat.widget.AppCompatImageView
+                android:layout_width="match_parent"
+                android:layout_height="200dp"
+                android:scaleType="centerCrop"
+                tools:ignore="ContentDescription"
+                app:imageUrl="@{item.content.mediaList[0]}" />
+
+            <androidx.appcompat.widget.AppCompatTextView
+                android:id="@+id/explore_like_title"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="10dp"
+                android:layout_marginTop="10dp"
+                android:layout_marginEnd="10dp"
+                android:ellipsize="end"
+                android:maxLines="2"
+                android:textColor="@color/text_color_black"
+                android:textSize="@dimen/cricket_feed_title_size"
+                app:description="@{item.content.description}"
+                app:title="@{item.content.title}"
+                tools:text="20 I’m free!! choose my own destiny!! my own destiny!!" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="#ACACAC"
+                android:textSize="@dimen/explore_font"
+                android:layout_marginStart="10dp"
+                android:layout_marginTop="13dp"
+                android:text="@{item.updated_at.toString()}"
+                android:layout_marginBottom="15dp" />
+
+
+        </LinearLayout>
+    </androidx.cardview.widget.CardView>
+</layout>

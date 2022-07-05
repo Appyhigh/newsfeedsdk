@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/podcastMainLayout"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:padding="15dp"
+    android:background="#36424E"
+    android:orientation="horizontal">
+    <LinearLayout
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="0.40"
+        android:orientation="vertical"
+        android:layout_marginEnd="30dp"
+        android:layout_gravity="center"
+        >
+        <TextView
+            android:id="@+id/podcastBottomTitle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="start"
+            android:maxLines="1"
+            android:ellipsize="end"
+            android:textSize="12sp"
+            tools:text="Listen! Listen! Listen! With Curtis Elton"
+            android:textColor="@color/white"/>
+
+        <TextView
+            android:id="@+id/podcastBottomPublisherName"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="2dp"
+            android:gravity="start"
+            android:maxLines="1"
+            android:ellipsize="end"
+            android:textSize="10sp"
+            tools:text="By Kurtis Patterson"
+            android:textColor="#7F8386"
+            tools:ignore="SmallSp" />
+    </LinearLayout>
+
+    <ImageView
+        android:id="@+id/podcastBottomBackward"
+        android:layout_width="0dp"
+        android:layout_height="24dp"
+        android:layout_weight="0.15"
+        android:layout_gravity="center"
+        android:src="@drawable/ic_backward_10"
+        app:tint="@color/white"
+        tools:ignore="VectorDrawableCompat" />
+
+    <ImageView
+        android:id="@+id/podcastBottomPlay"
+        android:layout_width="0dp"
+        android:layout_height="24dp"
+        android:layout_weight="0.15"
+        android:layout_gravity="center"
+        android:src="@drawable/ic_podcast_play_white"
+        app:tint="@color/white"
+        tools:ignore="VectorDrawableCompat" />
+
+    <ImageView
+        android:id="@+id/podcastBottomForward"
+        android:layout_width="0dp"
+        android:layout_height="24dp"
+        android:layout_weight="0.15"
+        android:layout_gravity="center"
+        android:src="@drawable/ic_forward_10"
+        app:tint="@color/white"
+        tools:ignore="VectorDrawableCompat" />
+
+    <LinearLayout
+        android:layout_width="0dp"
+        android:layout_height="36dp"
+        android:layout_weight="0.25"
+        android:gravity="center"
+        android:layout_gravity="center">
+        <ImageView
+            android:id="@+id/podcastBottomImage"
+            android:layout_width="36dp"
+            android:layout_height="36dp"
+            android:layout_gravity="center"
+            android:scaleType="centerCrop"
+            tools:src="@drawable/placeholder"
+            />
+    </LinearLayout>
+</LinearLayout>

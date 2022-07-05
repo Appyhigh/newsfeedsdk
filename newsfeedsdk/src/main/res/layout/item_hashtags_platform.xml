@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+
+        <variable
+            name="item"
+            type="com.appyhigh.newsfeedsdk.model.feeds.Item" />
+
+        <variable
+            name="listener"
+            type="com.appyhigh.newsfeedsdk.adapter.HashtagsPlatformsListener" />
+
+        <variable
+            name="position"
+            type="Integer" />
+
+        <import type="com.appyhigh.newsfeedsdk.R" />
+    </data>
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:background="@color/feedBackground"
+        android:gravity="center_horizontal"
+        android:onClick="@{(v) -> listener.onPlatformClicked(v, item, position)}"
+        android:orientation="vertical"
+        android:padding="10dp">
+
+        <androidx.cardview.widget.CardView
+            android:id="@+id/cvProfilePic"
+            android:layout_width="80dp"
+            android:layout_height="80dp"
+            android:layout_gravity="center"
+            android:padding="6dp"
+            app:cardCornerRadius="40dp">
+
+            <de.hdodenhof.circleimageview.CircleImageView
+                android:id="@+id/explore_popular_pic"
+                android:layout_width="80dp"
+                android:layout_height="80dp"
+                android:scaleType="centerCrop"
+                app:imageUrl='@{item.link ?? ""}'
+                app:parentView='@{@id/cvProfilePic}'
+                app:publisherName="@{item.id}" />
+
+            <RelativeLayout
+                android:id="@+id/rlImage"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="@drawable/text_bg_red"
+                android:visibility="gone">
+
+                <androidx.appcompat.widget.AppCompatTextView
+                    android:id="@+id/tvImage"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:gravity="center"
+                    android:text="A"
+
+                    android:textColor="@color/textColor"
+                    android:textSize="30sp" />
+            </RelativeLayout>
+        </androidx.cardview.widget.CardView>
+
+        <TextView
+            android:id="@+id/explore_popular_title"
+            android:layout_width="100dp"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_marginTop="10dp"
+            android:ellipsize="end"
+            android:textStyle="bold"
+
+            android:maxLines="1"
+            android:text="@{item.id}"
+            android:textAlignment="center"
+            android:textColor="@color/text_color_black"
+            android:textSize="@dimen/explore_font"
+            tools:text="Instagram Instagram Instagram Instagram" />
+
+    </LinearLayout>
+
+</layout>

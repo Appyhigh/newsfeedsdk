@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <style name="Text">
+        <item name="android:textSize">@dimen/text_size_regular</item>
+        <item name="android:textColor">@color/colorText</item>
+    </style>
+
+    <!-- Toolbar -->
+
+    <!-- Headings-->
+
+    <!-- Text Body -->
+
+    <style name="Text.Regular">
+        <item name="android:textSize">@dimen/text_size_regular</item>
+        <item name="android:includeFontPadding">false</item>
+        <item name="android:textAlignment">center</item>
+    </style>
+
+    <style name="Text.Medium">
+        <item name="android:textSize">@dimen/text_size_medium</item>
+        <item name="android:includeFontPadding">false</item>
+        <item name="android:textAlignment">center</item>
+    </style>
+
+    <!-- EditText -->
+
+</resources>

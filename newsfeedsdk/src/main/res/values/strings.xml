@@ -1,0 +1,115 @@
+<resources>
+    <string name="error_video_unavailable">Video Unavailable</string>
+    <string name="error_video_description">The video URL seems incorrect</string>
+    <string name="rate_us_to_share_your_feedback" translatable="false">Rate us to share your feedback</string>
+    <string name="done">Done</string>
+    <string name="enjoying">Enjoying</string>
+    <string name="invite" translatable="false">India\'s Own\n</string>
+    <string name="invite_now">Invite Now</string>
+    <string name="dynamic_link_url_suffix">\n\nCheck out more interesting content on</string>
+    <string name="dynamic_link_url_suffix2" translatable="false">App. Download Now- https://play.google.com/store/apps/details?id=</string>
+    <string name="share_link_prefix">\n\nDownload Now- https://play.google.com/store/apps/details?id=</string>
+    <string name="dynamic_link_match_details" translatable="false">filename=%s&amp;matchType=%s&amp;pwa=%s</string>
+    <string name="dynamic_link_live_matches" translatable="false">matchesMode=%s</string>
+    <string name="error_share_post">Unable to share the post, please ensure you have installed supported apps!</string>
+    <string name="personalise_your_feed">Personalise your feed</string>
+    <string name="message_thank_you">Thank you for feedback!</string>
+    <string name="hint_add_comment">Add your comments here…</string>
+    <string name="cd_close">Close screen</string>
+    <string name="text_dummy_blog_company">Tuscana Travels</string>
+    <string name="text_like">Like</string>
+    <string name="text_separator_dot">•</string>
+    <string name="text_reply">Reply</string>
+    <string name="error_some_issue_occurred">Some issue occurred, please try after sometime</string>
+    <string name="hashtags">Hashtags</string>
+    <string name="no_posts_found">No posts found!</string>
+    <string name="followers">Followers</string>
+    <string name="follow">Follow</string>
+    <string name="following">Following</string>
+    <string name="select_language">Select Language</string>
+    <string name="choose_your_interests">Choose Your Interests</string>
+    <string name="related_video">Related Video</string>
+    <string name="read_next">Read Next >></string>
+    <string name="live_matches" translatable="false">Live Matches</string>
+    <string name="no_matches_found" translatable="false">No Matches found!</string>
+    <string name="live_match_updates">Live Match Updates</string>
+    <string name="view_all">View All</string>
+    <string name="close_notification_bar">Close Notification</string>
+    <string name="notification_bar">Notification Bar</string>
+    <string name="cricket_notification_bar">Cricket Notifications</string>
+    <string name="seach_on_the_web">Search</string>
+    <string name="trending_searches">Trending Searches</string>
+    <string name="search">Search</string>
+    <string name="settings_save">Save</string>
+    <string name="notification_settings">Notification Settings</string>
+    <string name="customise_the_notification_bar">Customise the Notification Bar</string>
+    <string name="report">Report</string>
+    <string name="write_here">Write here…</string>
+    <string name="submit">Submit</string>
+    <string name="other">Other</string>
+    <string name="mode_middleDot" translatable="false">\u2022</string>
+    <string name="recent_search_queries">Recent Search Queries</string>
+    <string name="innings_not_started">Innings is not started yet!</string>
+    <string name="all_coins">All Coins</string>
+    <string name="past_month">PAST MONTH</string>
+    <string name="market_cap">Market Cap</string>
+    <string name="volume_24h">Volume 24h</string>
+    <string name="rank">Rank</string>
+    <string name="all_time_low">All Time Low</string>
+    <string name="all_time_high">All Time High</string>
+    <string name="podcasts_caps">PODCASTS</string>
+    <string name="liquidity">Liquidity</string>
+    <string name="interests_header">Select at least 3 topics and locations you would be interested in</string>
+    <string name="proceed">Proceed</string>
+    <string name="select_your_preferred_languages">Select your preferred languages</string>
+    <string name="you_can_choose_multiple_language">You can choose multiple language</string>
+    <string name="choose_atleast_one_language">Please Choose atleast one language!</string>
+    <string name="choose_atleast_three_interests">Please choose atleast 3 interests!</string>
+    <string name="recent_post">Trending News</string>
+    <string name="active">Active</string>
+    <string name="recovered">Recovered</string>
+    <string name="deceased">Deceased</string>
+    <string name="tested">Tested</string>
+    <string name="total_vaccine_doses_administered">Total Vaccine doses administered</string>
+    <string name="one_dose">One Dose</string>
+    <string name="fully_vaccinated">Fully Vaccinated</string>
+    <string name="set_price_alert">Set Price Alert</string>
+    <string name="price_alerts">Price Alerts</string>
+    <string name="select_cryptoassets">SELECT CRYPTOASSETS</string>
+    <string name="set_price">Set Price</string>
+    <string name="enter_target_price">Enter Target Price</string>
+    <string name="current_price">Current Price</string>
+    <string name="numberkeyboard_zero">0</string>
+    <string name="numberkeyboard_one">1</string>
+    <string name="numberkeyboard_two">2</string>
+    <string name="numberkeyboard_three">3</string>
+    <string name="numberkeyboard_four">4</string>
+    <string name="numberkeyboard_five">5</string>
+    <string name="numberkeyboard_six">6</string>
+    <string name="numberkeyboard_seven">7</string>
+    <string name="numberkeyboard_eight">8</string>
+    <string name="numberkeyboard_nine">9</string>
+    <string name="add">Add</string>
+    <string name="report_post">Report Post</string>
+    <string name="contact_publisher">Contact Publisher</string>
+    <string name="comments">Comments</string>
+    <string name="explore_more">Explore more</string>
+    <string name="related_posts">Related Posts</string>
+    <string name="no_internet">No Internet</string>
+    <string name="check_your_connection">Check your connection and try again</string>
+    <string name="get_notification_alerts_for_all_matches">Get Notification alerts for all matches</string>
+    <string name="add_price_alert">Add Price Alert</string>
+    <string name="match_has_not_started_yet">Match has not started yet!</string>
+    <string name="player_ranking">Player Ranking</string>
+    <string name="price_alert_notifications">Price Alert Notifications</string>
+    <string name="change_percentage"> %s %%</string>
+    <string name="trending_coins">TRENDING COINS</string>
+    <string name="no_internet_connection">No Internet Connection</string>
+    <string name="retry">Retry</string>
+    <string name="you_may_like_interests_title" translatable="false">Do you like %s?</string>
+    <string name="you_may_like_interests_body" translatable="false"><font color="purple_500">%s</font> user likes %s</string>
+    <string name="change_location">Change Location</string>
+    <string name="make_feed">Create Interest Feed</string>
+    <string name="gurgaon">Gurgaon</string>
+    <string name="location_msg">Select Location</string>
+</resources>

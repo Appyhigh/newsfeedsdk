@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/podcastMainLayout"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:paddingStart="15dp"
+    android:paddingEnd="10dp"
+    android:paddingTop="10dp"
+    android:paddingBottom="15dp"
+    tools:background="#36424E">
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+        <ImageView
+            android:id="@+id/appIcon"
+            android:layout_width="16dp"
+            android:layout_height="16dp"
+            android:layout_gravity="center"
+            />
+        <TextView
+            android:id="@+id/appName"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="5dp"
+            android:textSize="12sp"
+            tools:text="appName"
+            tools:textColor="@color/white"
+            />
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:orientation="horizontal">
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="0.40"
+            android:orientation="vertical"
+            android:layout_marginEnd="30dp"
+            android:layout_gravity="center"
+            >
+            <TextView
+                android:id="@+id/title"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:gravity="start"
+                android:maxLines="1"
+                android:ellipsize="end"
+                android:textSize="12sp"
+                tools:text="Listen! Listen! Listen! With Curtis Elton"
+                tools:textColor="@color/white"/>
+
+            <TextView
+                android:id="@+id/publisherName"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="2dp"
+                android:gravity="start"
+                android:maxLines="1"
+                android:ellipsize="end"
+                android:textSize="10sp"
+                tools:text="By Kurtis Patterson"
+                android:textColor="#7F8386"
+                tools:ignore="SmallSp" />
+        </LinearLayout>
+
+        <ImageView
+            android:id="@+id/backward"
+            android:layout_width="0dp"
+            android:layout_height="24dp"
+            android:layout_weight="0.15"
+            android:layout_gravity="center"
+            android:src="@drawable/ic_backward_10"
+            tools:tint="@color/white"
+            tools:ignore="VectorDrawableCompat" />
+
+        <ImageView
+            android:id="@+id/play"
+            android:layout_width="0dp"
+            android:layout_height="24dp"
+            android:layout_weight="0.15"
+            android:layout_gravity="center"
+            android:src="@drawable/ic_podcast_play_white"
+            tools:tint="@color/white"
+            tools:ignore="VectorDrawableCompat" />
+
+        <ImageView
+            android:id="@+id/forward"
+            android:layout_width="0dp"
+            android:layout_height="24dp"
+            android:layout_weight="0.15"
+            android:layout_gravity="center"
+            android:src="@drawable/ic_forward_10"
+            tools:tint="@color/white"
+            tools:ignore="VectorDrawableCompat" />
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="36dp"
+            android:layout_weight="0.25"
+            android:gravity="center"
+            android:layout_gravity="center">
+            <ImageView
+                android:id="@+id/image"
+                android:layout_width="36dp"
+                android:layout_height="36dp"
+                android:layout_gravity="center"
+                android:scaleType="centerCrop"
+                tools:src="@drawable/placeholder"
+                />
+        </LinearLayout>
+    </LinearLayout>
+
+</LinearLayout>

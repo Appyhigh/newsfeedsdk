@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_margin="10dp">
+
+    <RelativeLayout
+        android:id="@+id/rlRoot"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:background="@drawable/interest_bg_one"
+        android:backgroundTint="@color/language_color_one"
+        android:elevation="5dp"
+        android:orientation="vertical"
+        app:layout_constraintDimensionRatio="1.7:1"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+
+        <androidx.appcompat.widget.AppCompatImageView
+            android:id="@+id/ivIcon"
+            android:layout_width="70dp"
+            android:layout_height="70dp"
+            android:layout_alignParentEnd="true"
+            android:layout_alignParentBottom="true"
+            android:paddingEnd="20dp"
+            app:srcCompat="@drawable/ic_interest_placeholder" />
+
+        <androidx.appcompat.widget.AppCompatTextView
+            android:id="@+id/tvTitle"
+            style="@style/TextAppearance.MaterialComponents.Headline6"
+            android:layout_width="120dp"
+            android:layout_height="wrap_content"
+            android:layout_alignParentBottom="true"
+            android:paddingBottom="10dp"
+            android:maxLines="1"
+            android:ellipsize="end"
+            android:text="Entertainment"
+            android:paddingStart="10dp"
+            android:textColor="@color/white"
+            android:textSize="16sp" />
+
+
+        <View
+            android:id="@+id/vSelected"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:visibility="gone"
+            android:background="@drawable/interest_bg_selected"/>
+
+        <androidx.appcompat.widget.AppCompatImageView
+            android:id="@+id/ivSelected"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentEnd="true"
+            android:visibility="gone"
+            android:layout_margin="10dp"
+            app:srcCompat="@drawable/ic_tick_selected" />
+
+    </RelativeLayout>
+</androidx.constraintlayout.widget.ConstraintLayout>

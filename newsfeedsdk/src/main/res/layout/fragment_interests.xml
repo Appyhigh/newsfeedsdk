@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".fragment.PersonalizeFragment">
+
+    <androidx.appcompat.widget.AppCompatTextView
+        android:id="@+id/tvIntro"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textSize="14sp"
+        android:layout_marginTop="10dp"
+        android:textStyle="bold"
+        tools:visibility="visible"
+        android:text="Choose atleast 3 categories that\ntickle your liking bone"/>
+
+    <ProgressBar
+        android:id="@+id/pbLoading"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:indeterminateTint="@color/purple_500"
+        android:layout_gravity="center"
+        tools:ignore="UnusedAttribute" />
+
+    <androidx.appcompat.widget.AppCompatEditText
+        android:id="@+id/et_search"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:layout_marginStart="20dp"
+        android:layout_marginEnd="20dp"
+        android:layout_marginTop="5dp"
+        android:background="@drawable/bg_interest_edit_text"
+        android:drawableStart="@drawable/ic_search_icon"
+        android:drawablePadding="10dp"
+        android:drawableTint="@color/text_color_black"
+        android:textSize="16sp"
+        android:hint="Search Interest"
+        android:padding="10dp"
+        tools:ignore="UnusedAttribute" />
+
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/rvInterests"
+        android:layout_width="match_parent"
+        android:layout_height="330dp"
+        android:layout_marginTop="50dp"
+        android:visibility="gone"
+        android:paddingEnd="20dp"
+        android:paddingStart="20dp"
+        android:paddingTop="10dp"
+        tools:visibility="visible"
+        tools:listitem="@layout/item_interest_new"
+        android:paddingBottom="40dp"/>
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/rvLanguages"
+        android:layout_width="match_parent"
+        android:layout_height="330dp"
+        android:visibility="gone"
+        android:paddingEnd="20dp"
+        android:paddingStart="20dp"
+        android:paddingTop="10dp"
+        android:paddingBottom="40dp"/>
+
+    <androidx.appcompat.widget.AppCompatButton
+        android:id="@+id/btnSave"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Save"
+        android:textAllCaps="false"
+        android:background="@drawable/bg_round_button"
+        android:padding="10dp"
+        android:gravity="center"
+        android:layout_marginTop="350dp"
+        android:layout_marginEnd="10dp"
+        android:layout_marginStart="10dp"
+        android:layout_marginBottom="20dp"
+        android:textStyle="bold"
+        android:textSize="16sp"
+        android:textColor="@color/white"/>
+
+
+
+</FrameLayout>

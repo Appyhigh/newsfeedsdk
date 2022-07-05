@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="20dp"
+        android:layout_marginStart="10dp"
+        android:layout_marginEnd="10dp"
+        android:layout_marginBottom="10dp"
+        android:orientation="horizontal">
+        <View
+            android:layout_width="3dp"
+            android:layout_height="14dp"
+            android:layout_gravity="center"
+            android:background="#a9fb38"/>
+        <androidx.appcompat.widget.AppCompatTextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="10dp"
+            android:fontFamily="_regular"
+            android:textColor="@color/feedPrimaryTextColor"
+            android:textSize="14sp"
+            android:text="@string/trending_coins"
+            />
+    </LinearLayout>
+
+    <ProgressBar
+        android:id="@+id/pbLoading"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:layout_gravity="center"
+        android:indeterminateTint="@color/feedProgressColor"
+        tools:ignore="UnusedAttribute" />
+
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/rvTabs"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="5dp"/>
+
+    <com.appyhigh.newsfeedsdk.utils.NestedScrollableHost
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior">
+
+        <androidx.viewpager2.widget.ViewPager2
+            android:id="@+id/vpFeed"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"/>
+    </com.appyhigh.newsfeedsdk.utils.NestedScrollableHost>
+
+</LinearLayout>

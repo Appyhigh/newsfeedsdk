@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+
+        <variable
+            name="view"
+            type="android.view.View" />
+
+        <variable
+            name="card"
+            type="com.appyhigh.newsfeedsdk.model.feeds.Card" />
+
+        <variable
+            name="position"
+            type="Integer" />
+
+        <variable
+            name="listener"
+            type="com.appyhigh.newsfeedsdk.callbacks.PostViewsClickListener" />
+        <import type="com.appyhigh.newsfeedsdk.R" />
+
+    </data>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:background="@color/feedBackground"
+        android:paddingTop="15dp"
+        android:paddingStart="15dp"
+        android:paddingEnd="15dp"
+        android:paddingBottom="5dp">
+
+        <androidx.appcompat.widget.AppCompatImageView
+            android:id="@+id/ivIcon"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            imageUrl="@{card.items[0].link}"/>
+
+        <androidx.appcompat.widget.AppCompatTextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="9"
+            android:layout_marginStart="10dp"
+
+            android:textSize="16sp"
+            android:maxLines="1"
+            android:ellipsize="end"
+            tools:text="title"
+            android:textColor="@color/feedPrimaryTextColor"
+            android:text="@{card.items[0].id}"/>
+
+        <androidx.appcompat.widget.AppCompatTextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="5dp"
+            android:textSize="16sp"
+
+            android:maxLines="1"
+            android:ellipsize="end"
+            android:textColor="@color/feedPrimaryColor"
+            android:visibility="@{card.sideText==null?view.GONE:view.VISIBLE}"
+            android:onClick="@{(v) -> listener.onSideTextClicked(v, position, card)}"
+            android:text="@{card.sideText}"
+            tools:text="View All"
+            />
+
+        <androidx.appcompat.widget.AppCompatTextView
+            android:id="@+id/ivAdd"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:padding="4dp"
+            android:paddingStart="4dp"
+            android:paddingEnd="8dp"
+            android:drawableStart="@drawable/ic_new_add"
+            android:background="@drawable/bg_new_add"
+            android:textColor="@color/feedPrimaryTextColor"
+            android:text="Add"
+            app:forInterest="@{card.items[0].id}"
+            android:visibility="gone"
+            tools:visibility="visible"
+            tools:ignore="VectorDrawableCompat" />
+    </LinearLayout>
+</layout>

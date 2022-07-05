@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+
+        <variable
+            name="interest"
+            type="com.appyhigh.newsfeedsdk.model.Interest" />
+
+        <variable
+            name="listener"
+            type="com.appyhigh.newsfeedsdk.callbacks.InterestClickListener" />
+
+        <variable
+            name="position"
+            type="Integer" />
+        <import type="com.appyhigh.newsfeedsdk.R" />
+    </data>
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingStart="10dp"
+        android:onClick="@{ (v) -> listener.onInterestClicked(v, position) }"
+        android:paddingTop="15dp"
+        android:paddingEnd="10dp">
+
+        <androidx.appcompat.widget.AppCompatTextView
+            android:id="@+id/tvInterest"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@{interest.label}"
+
+            android:textSize="14sp"
+            android:textColor="@color/text_color_black"/>
+
+        <androidx.appcompat.widget.AppCompatImageView
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:layout_alignParentEnd="true"
+            android:padding="5dp"
+            app:srcCompat="@drawable/ic_office_pin" />
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="0.5dp"
+            android:layout_marginTop="40dp"
+            android:background="#878787" />
+
+    </RelativeLayout>
+</layout>

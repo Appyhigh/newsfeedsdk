@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    package="com.appyhigh.newsfeedsdk">
+
+    <queries>
+
+        <!-- Specific apps you interact with -->
+        <package android:name="com.facebook.katana" />
+        <package android:name="com.google.android.youtube" />
+        <package android:name="com.google.android.gm" />
+        <package android:name="com.twitter.android" />
+        <package android:name="com.instagram.android" />
+        <package android:name="com.linkedin.android" />
+        <package android:name="com.snapchat.android" />
+        <package android:name="com.reddit.frontpage" />
+        <package android:name="com.whatsapp" />
+    </queries>
+
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE"/>
+    <uses-permission android:name="android.permission.WAKE_LOCK" />
+
+    <application
+        android:allowBackup="true"
+        android:supportsRtl="true"
+        android:usesCleartextTraffic="true"
+        tools:ignore="UnusedAttribute">
+        <activity
+            android:name=".activity.PWACricketActivity"
+            android:exported="false" />
+        <activity
+            android:name=".activity.PWACricketTabsActivity"
+            android:exported="false" />
+        <activity
+            android:name=".activity.CryptoMainAlertActivity"
+            android:exported="false" />
+        <activity
+            android:name=".activity.PWAMatchScoreActivity"
+            android:exported="false" />
+        <activity
+            android:name=".activity.PostNativeDetailActivity"
+            android:exported="false" />
+        <activity
+            android:name=".activity.FeedLanguageActivity"
+            android:exported="false" />
+        <activity
+            android:name=".activity.FeedInterestsActivity"
+            android:exported="false" />
+        <activity
+            android:name=".activity.CryptoCoinDetailsActivity"
+            android:exported="false" />
+        <activity
+            android:name=".activity.CryptoListActivity"
+            android:exported="false" />
+        <activity
+            android:name=".activity.PodcastPlayerActivity"
+            android:exported="false" />
+        <activity
+            android:name=".activity.PodcastsCategoryActivity"
+            android:exported="false" />
+        <activity android:name=".activity.ReelsActivity" />
+        <activity android:name=".activity.TradingViewActivity" />
+        <activity android:name=".activity.PublisherPageActivity" />
+        <activity android:name=".activity.FeedsActivity" />
+        <service android:name=".service.NotificationCricketService" />
+        <service android:name=".service.StickyNotificationService" />
+
+        <activity android:name=".activity.NewsFeedPageActivity"
+            android:configChanges="orientation|screenSize"/>
+        <activity android:name=".activity.ContactPublisherActivity" />
+        <activity android:name=".activity.AddInterestsActivity" />
+        <activity
+            android:name=".activity.SettingsActivity"
+            android:exported="true" />
+        <activity
+            android:name=".activity.WebActivity"
+            android:screenOrientation="portrait"
+            android:windowSoftInputMode="adjustPan" />
+    </application>
+
+</manifest>

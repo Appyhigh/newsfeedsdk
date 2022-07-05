@@ -1,0 +1,3 @@
+rootProject.name = "feedsdk"
+include ':app'
+include ':newsfeedsdk'

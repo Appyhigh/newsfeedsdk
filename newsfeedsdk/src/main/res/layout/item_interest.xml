@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+
+        <import type="android.view.View"/>
+        <variable
+            name="interest"
+            type="com.appyhigh.newsfeedsdk.model.Interest" />
+
+        <variable
+            name="listener"
+            type="com.appyhigh.newsfeedsdk.callbacks.InterestClickListener" />
+
+        <variable
+            name="position"
+            type="Integer" />
+
+        <import type="com.appyhigh.newsfeedsdk.R" />
+    </data>
+
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:background="@color/background_white">
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:onClick="@{ (v) -> listener.onInterestClicked(v, position) }"
+            android:orientation="horizontal"
+            android:background="@color/background_white"
+            android:paddingStart="15dp"
+            android:paddingEnd="15dp"
+            android:paddingTop="15dp"
+            android:paddingBottom="7.5dp">
+
+            <androidx.appcompat.widget.AppCompatImageView
+                android:id="@+id/ivInterest"
+                android:layout_width="@dimen/preference_item_image_size"
+                android:layout_height="@dimen/preference_item_image_size"
+                android:layout_marginEnd="@dimen/space_regular"
+                android:scaleType="fitCenter"
+                android:visibility="gone"
+                tools:visibility="visible"
+                app:interestImage="@{interest.thumbnails.xxxhdpi}"
+                tools:src="@drawable/ic_tree_palm_white" />
+
+            <TextView
+                android:id="@+id/tvInterest"
+                style="@style/Text.Medium"
+                android:textColor="@color/text_color_black"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@{interest.label}"
+                android:textSize="15sp"
+                app:isSelected="@{interest.selected}"
+                tools:text="For you" />
+
+        </LinearLayout>
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="2dp"
+            android:background="@color/purple_500"
+            android:visibility="@{interest.selected?View.VISIBLE:View.GONE}"
+            />
+    </LinearLayout>
+</layout>

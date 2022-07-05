@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+
+        <variable
+            name="card"
+            type="com.appyhigh.newsfeedsdk.model.feeds.Card" />
+
+        <variable
+            name="ad_unit"
+            type="String" />
+
+        <variable
+            name="contentUrls"
+            type="ArrayList&lt;String>" />
+
+        <import type="java.util.ArrayList"/>
+        <import type="com.appyhigh.newsfeedsdk.R" />
+    </data>
+
+    <LinearLayout
+        android:id="@+id/adLayout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:minHeight="237dp"
+        android:background="@color/feedSecondaryBackground"
+        android:orientation="vertical"
+        app:bindAd="@{ad_unit}"
+        app:contentUrls="@{contentUrls}"
+        app:type="@{card.items[0].id}"
+        android:gravity="center"
+        tools:ignore="ResourceName">
+
+        <androidx.appcompat.widget.AppCompatTextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+
+            android:textColor="@color/text_color_black"
+            android:text="Loading Ad..."/>
+
+    </LinearLayout>
+</layout>

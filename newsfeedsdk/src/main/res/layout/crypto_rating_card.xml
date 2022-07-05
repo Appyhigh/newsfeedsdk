@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <data>
+
+        <variable
+            name="feedSDK"
+            type="com.appyhigh.newsfeedsdk.FeedSdk" />
+
+        <variable
+            name="card"
+            type="com.appyhigh.newsfeedsdk.model.feeds.Card" />
+
+        <variable
+            name="listener"
+            type="com.appyhigh.newsfeedsdk.callbacks.PostViewsClickListener" />
+
+        <variable
+            name="position"
+            type="Integer" />
+    </data>
+    <androidx.cardview.widget.CardView
+        xmlns:tools="http://schemas.android.com/tools"
+        android:orientation="vertical"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="15dp"
+        android:layout_marginEnd="15dp"
+        android:layout_marginBottom="10dp"
+        app:cardBackgroundColor="@color/feedSecondaryBackground"
+        app:cardCornerRadius="10dp">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="20dp"
+            android:layout_gravity="center"
+            android:gravity="center"
+            android:orientation="vertical">
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+                <androidx.appcompat.widget.AppCompatTextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="0.9"
+                    android:maxLines="1"
+                    android:layout_gravity="center"
+                    android:gravity="center"
+
+                    android:textSize="16sp"
+                    android:textColor="@color/feedPrimaryTextColor"
+                    android:text="Enjoying CoinGo?"
+                    />
+                <androidx.appcompat.widget.AppCompatImageView
+                    android:id="@+id/ivClose"
+                    android:layout_width="20dp"
+                    android:layout_height="20dp"
+                    app:tint="@color/white"
+                    app:srcCompat="@drawable/ic_close"/>
+            </LinearLayout>
+            <androidx.appcompat.widget.AppCompatTextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="5dp"
+                android:maxLines="1"
+                android:layout_gravity="center"
+                android:gravity="center"
+                android:fontFamily="_regular"
+                android:textSize="14sp"
+                android:textColor="@color/feedPrimaryTextColor"
+                android:text="Please rate us and show your love"
+                />
+
+            <RatingBar
+                android:id="@+id/ratingBar"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:clickable="true"
+                android:focusable="true"
+                android:numStars="5"
+                android:scaleX="0.7"
+                android:scaleY="0.7"
+                android:progressTint="@color/purple_500"
+                android:progressBackgroundTint="#74787c"
+                android:stepSize="1.0"
+                tools:ignore="UnusedAttribute" />
+
+            <androidx.appcompat.widget.AppCompatTextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@drawable/bg_rating_submit"
+                android:paddingStart="60dp"
+                android:paddingEnd="60dp"
+                android:paddingTop="10dp"
+                android:paddingBottom="10dp"
+                android:gravity="center"
+                android:fontFamily="_regular"
+                android:textSize="14sp"
+                android:textColor="@color/feedPrimaryTextColor"
+                android:onClick="@{ (v) -> listener.onRatingClicked(v, position)}"
+                android:text="SUBMIT"/>
+
+        </LinearLayout>
+
+    </androidx.cardview.widget.CardView>
+</layout>

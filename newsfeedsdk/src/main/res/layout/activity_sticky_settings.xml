@@ -1,0 +1,432 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/colorWhite"
+    >
+
+    <LinearLayout
+        android:id="@+id/headerLayout"
+        android:layout_width="match_parent"
+        android:layout_height="220dp"
+        android:layout_alignParentTop="true"
+        android:background="@drawable/bg_settings_top"
+        android:orientation="vertical">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="10dp"
+            android:layout_marginTop="20dp"
+            android:layout_marginEnd="10dp"
+            android:orientation="horizontal">
+
+            <ImageView
+                android:id="@+id/back_btn"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:srcCompat="@drawable/ic_back_btn" />
+
+            <TextView
+                android:id="@+id/title"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="10dp"
+                android:layout_weight="0.9"
+                android:ellipsize="end"
+                android:maxLines="1"
+                android:text="@string/notification_settings"
+                android:textColor="#687690"
+                android:textSize="16sp" />
+
+            <TextView
+                android:id="@+id/save"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/settings_save"
+                android:textColor="#A3B8D9"
+                android:textSize="16sp" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/notificationLayout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="20dp"
+            android:layout_marginTop="40dp"
+            android:layout_marginEnd="20dp"
+            android:orientation="horizontal"
+            tools:background="@drawable/bg_sticky_solid_default">
+
+            <LinearLayout
+                android:id="@+id/tiles"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_gravity="center"
+                android:gravity="center"
+                android:orientation="horizontal">
+
+                <LinearLayout
+                    android:id="@+id/tile0"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:layout_weight="0.20"
+                    android:orientation="vertical"
+                    android:padding="10dp">
+
+                    <FrameLayout
+                        android:id="@+id/searchIconFrame"
+                        android:layout_width="30dp"
+                        android:layout_height="30dp"
+                        android:layout_gravity="center">
+
+                        <ImageView
+                            android:id="@+id/searchIconUrl"
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:layout_gravity="center"
+                            android:scaleType="centerCrop"
+                            android:padding="7dp"
+                            tools:ignore="ContentDescription,UseAppTint"
+                            tools:src="@drawable/ic_sticky_solid_search"
+                            />
+                    </FrameLayout>
+
+
+                    <TextView
+                        android:id="@+id/tileName0"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center"
+                        android:ellipsize="end"
+                        android:maxLines="1"
+                        android:text="@string/search"
+                        android:textColor="@color/colorWhite"
+                        android:textSize="12sp"
+                        tools:ignore="SmallSp" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:id="@+id/tile1"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:layout_weight="0.20"
+                    android:orientation="vertical"
+                    android:padding="10dp">
+
+                    <FrameLayout
+                        android:id="@+id/tileIconFrame1"
+                        android:layout_width="30dp"
+                        android:layout_height="30dp"
+                        android:layout_gravity="center">
+
+                        <ImageView
+                            android:id="@+id/tileIconUrl1"
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:layout_gravity="center"
+                            android:scaleType="centerCrop"
+                            tools:ignore="ContentDescription,UseAppTint"
+                            tools:src="@drawable/ic_sticky_solid_feed"
+                            tools:tint="@color/white" />
+                    </FrameLayout>
+
+                    <TextView
+                        android:id="@+id/tileName1"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center"
+                        android:ellipsize="end"
+                        android:maxLines="1"
+                        android:textColor="@color/colorWhite"
+                        android:textSize="12sp"
+                        tools:ignore="SmallSp"
+                        tools:text="News" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:id="@+id/tile2"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:layout_weight="0.20"
+                    android:orientation="vertical"
+                    android:padding="10dp">
+
+                    <FrameLayout
+                        android:id="@+id/tileIconFrame2"
+                        android:layout_width="30dp"
+                        android:layout_height="30dp"
+                        android:layout_gravity="center">
+
+                        <ImageView
+                            android:id="@+id/tileIconUrl2"
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:layout_gravity="center"
+                            android:scaleType="centerCrop"
+                            tools:ignore="ContentDescription,UseAppTint"
+                            tools:src="@drawable/ic_sticky_solid_reels"
+                            tools:tint="@color/white" />
+                    </FrameLayout>
+
+                    <TextView
+                        android:id="@+id/tileName2"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center"
+                        android:ellipsize="end"
+                        android:maxLines="1"
+                        android:textColor="@color/colorWhite"
+                        android:textSize="12sp"
+                        tools:ignore="SmallSp"
+                        tools:text="Videos" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:id="@+id/tile3"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:layout_weight="0.20"
+                    android:orientation="vertical"
+                    android:padding="10dp">
+
+                    <FrameLayout
+                        android:id="@+id/tileIconFrame3"
+                        android:layout_width="30dp"
+                        android:layout_height="30dp"
+                        android:layout_gravity="center">
+
+                        <ImageView
+                            android:id="@+id/tileIconUrl3"
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:layout_gravity="center"
+                            tools:ignore="ContentDescription,UseAppTint"
+                            tools:src="@drawable/ic_sticky_solid_camera"
+                            tools:tint="@color/white" />
+                    </FrameLayout>
+
+                    <TextView
+                        android:id="@+id/tileName3"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center"
+                        android:ellipsize="end"
+                        android:maxLines="1"
+                        android:textColor="@color/colorWhite"
+                        android:textSize="12sp"
+                        tools:ignore="SmallSp"
+                        tools:text="Camera" />
+                </LinearLayout>
+
+
+                <LinearLayout
+                    android:id="@+id/tile4"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:layout_weight="0.20"
+                    android:orientation="vertical"
+                    android:padding="10dp">
+
+                    <FrameLayout
+                        android:id="@+id/tileIconFrame4"
+                        android:layout_width="30dp"
+                        android:layout_height="30dp"
+                        android:layout_gravity="center">
+
+                        <ImageView
+                            android:id="@+id/tileIconUrl4"
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:layout_gravity="center"
+                            tools:ignore="ContentDescription,UseAppTint"
+                            tools:src="@drawable/ic_sticky_solid_whatsapp"
+                            tools:tint="@color/white" />
+                    </FrameLayout>
+
+                    <TextView
+                        android:id="@+id/tileName4"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center"
+                        android:ellipsize="end"
+                        android:maxLines="1"
+                        android:textColor="@color/colorWhite"
+                        android:textSize="12sp"
+                        tools:ignore="SmallSp"
+                        tools:text="Whatsapp" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="35dp"
+                    android:layout_height="match_parent"
+                    android:background="@drawable/bg_sticky_collapsed_settings"
+                    android:orientation="horizontal">
+
+                    <ImageView
+                        android:id="@+id/settings"
+                        android:layout_width="22dp"
+                        android:layout_height="match_parent"
+                        android:layout_gravity="start"
+                        android:layout_marginStart="5dp"
+                        tools:ignore="ContentDescription"
+                        tools:src="@drawable/ic_sticky_solid_settings" />
+                </LinearLayout>
+            </LinearLayout>
+        </LinearLayout>
+
+        <TextView
+            android:id="@+id/customiseTitle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_marginTop="10dp"
+            android:gravity="center"
+            android:text="@string/customise_the_notification_bar"
+            android:textColor="#A3B7D8" />
+    </LinearLayout>
+
+    <androidx.coordinatorlayout.widget.CoordinatorLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_below="@+id/headerLayout">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_above="@+id/footerLayout"
+            android:orientation="vertical"
+            app:layout_behavior="@string/appbar_scrolling_view_behavior">
+
+            <com.google.android.material.tabs.TabLayout
+                android:id="@+id/tabLayout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="20dp"
+                android:layout_marginEnd="20dp"
+                app:tabIndicatorColor="#337CFF"
+                app:tabMode="fixed"
+                app:tabSelectedTextColor="#337CFF"
+                app:tabTextAppearance="@android:style/TextAppearance.Widget.TabWidget"
+                app:tabTextColor="#A3B8D9" />
+
+            <androidx.viewpager2.widget.ViewPager2
+                android:id="@+id/vpTabs"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent" />
+
+        </LinearLayout>
+
+        <FrameLayout
+            android:id="@+id/footerLayout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="bottom"
+            android:background="@color/colorBlackTransparent"
+            app:layout_behavior="com.google.android.material.behavior.HideBottomViewOnScrollBehavior">
+
+            <androidx.appcompat.widget.AppCompatImageView
+                android:layout_width="match_parent"
+                android:layout_height="105dp"
+                android:scaleType="fitXY"
+                app:srcCompat="@drawable/bg_settings_bottom" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="20dp"
+                android:layout_marginTop="35dp"
+                android:orientation="vertical">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_vertical"
+                    android:orientation="horizontal"
+                    tools:ignore="UseCompoundDrawables">
+
+                    <TextView
+                        android:id="@+id/notification_text"
+                        android:layout_width="0dp"
+                        android:layout_height="match_parent"
+                        android:layout_gravity="center_vertical"
+                        android:layout_weight="0.9"
+                        android:fontFamily="_regular"
+                        android:gravity="center_vertical"
+                        android:text="@string/notification_bar"
+                        android:textColor="#566075"
+                        android:textSize="14sp" />
+
+                    <ImageView
+                        android:id="@+id/turn_off_icon"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center_vertical|end"
+                        android:layout_marginEnd="20dp"
+                        android:rotation="180"
+                        app:srcCompat="@drawable/ic_switch_off"
+                        tools:ignore="ContentDescription" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_vertical"
+                    android:orientation="horizontal"
+                    tools:ignore="UseCompoundDrawables">
+
+                    <TextView
+                        android:id="@+id/cricket_notification_text"
+                        android:layout_width="0dp"
+                        android:layout_height="match_parent"
+                        android:layout_gravity="center_vertical"
+                        android:layout_weight="0.9"
+                        android:fontFamily="_regular"
+                        android:gravity="center_vertical"
+                        android:maxLines="1"
+                        android:ellipsize="end"
+                        android:text="@string/cricket_notification_bar"
+                        android:textColor="#566075"
+                        android:textSize="14sp" />
+
+                    <ImageView
+                        android:id="@+id/turn_off_cricket_icon"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center_vertical|end"
+                        android:layout_marginEnd="20dp"
+                        android:rotation="180"
+                        app:srcCompat="@drawable/ic_switch_off"
+                        tools:ignore="ContentDescription" />
+                </LinearLayout>
+
+                <TextView
+                    android:id="@+id/close_notification_bar"
+                    android:layout_width="match_parent"
+                    android:layout_height="58dp"
+                    android:layout_gravity="center_vertical"
+                    android:background="?attr/selectableItemBackground"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:fontFamily="_regular"
+                    android:gravity="center_vertical"
+                    android:text="@string/close_notification_bar"
+                    android:textColor="#566075"
+                    android:textSize="14sp"
+                    android:visibility="gone" />
+
+
+            </LinearLayout>
+
+        </FrameLayout>
+    </androidx.coordinatorlayout.widget.CoordinatorLayout>
+
+
+</RelativeLayout>

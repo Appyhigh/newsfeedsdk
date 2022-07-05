@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="@color/feedBackground"
+    tools:context=".activity.PWACricketTabsActivity">
+
+    <androidx.appcompat.widget.AppCompatImageView
+        android:id="@+id/back_btn"
+        android:layout_width="30dp"
+        android:layout_height="30dp"
+        app:tint="@color/feedSecondaryTintColor"
+        app:srcCompat="@drawable/ic_back_btn"
+        android:scaleType="centerCrop"
+        android:layout_marginTop="10dp"
+        android:layout_marginStart="10dp"
+        />
+
+    <ProgressBar
+        android:id="@+id/pbLoading"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:layout_gravity="center"
+        android:indeterminateTint="@color/purple_500"
+        tools:visibility="gone"
+        tools:ignore="UnusedAttribute" />
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/rvCricketTabs"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="10dp"
+        android:layout_marginTop="15dp"/>
+
+    <com.appyhigh.newsfeedsdk.utils.NestedScrollableHost
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior">
+
+        <androidx.viewpager2.widget.ViewPager2
+            android:id="@+id/vpCricketFeed"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"/>
+    </com.appyhigh.newsfeedsdk.utils.NestedScrollableHost>
+</LinearLayout>

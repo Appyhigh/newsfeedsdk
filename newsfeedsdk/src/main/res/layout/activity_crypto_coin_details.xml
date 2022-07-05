@@ -1,0 +1,295 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:background="@color/feedBackground"
+    android:orientation="vertical"
+    tools:context=".activity.CryptoCoinDetailsActivity">
+
+    <LinearLayout
+        android:id="@+id/ll_details"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        >
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
+            android:layout_marginStart="20dp"
+            android:layout_marginEnd="20dp"
+            android:layout_marginBottom="20dp"
+            >
+
+            <androidx.appcompat.widget.AppCompatImageView
+                android:id="@+id/back_btn"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:srcCompat="@drawable/ic_back"
+                app:tint="@color/feedSecondaryTintColor"
+                android:layout_gravity="center"
+                />
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:layout_weight="1">
+
+                <androidx.appcompat.widget.AppCompatImageView
+                    android:id="@+id/coinImage"
+                    android:layout_width="22dp"
+                    android:layout_height="22dp"
+                    android:scaleType="centerCrop"
+                    tools:src="@drawable/news_logo_sample"/>
+
+                <TextView
+                    android:id="@+id/coinId"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="3dp"
+                    android:maxLines="1"
+                    android:ellipsize="end"
+                    android:gravity="center"
+                    android:textSize="16sp"
+                    android:textColor="@color/feedPrimaryTextColor"
+                    tools:text="Bitcoin"
+                    />
+
+            </LinearLayout>
+
+            <androidx.appcompat.widget.AppCompatImageView
+                android:id="@+id/refresh"
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:layout_marginStart="20dp"
+                app:tint="@color/feedSecondaryTintColor"
+                app:srcCompat="@drawable/ic_refresh_24"
+                android:layout_gravity="center"
+                />
+
+            <androidx.appcompat.widget.AppCompatImageView
+                android:id="@+id/cryptoSelected"
+                android:layout_width="18dp"
+                android:layout_height="18dp"
+                android:layout_marginStart="20dp"
+                tools:srcCompat="@drawable/ic_crypto_not_selected"
+                android:layout_gravity="center"
+                />
+        </LinearLayout>
+
+        <ProgressBar
+            android:id="@+id/pbLoading"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_gravity="center"
+            android:indeterminateTint="@color/purple_500"
+            tools:visibility="gone"
+            tools:ignore="UnusedAttribute" />
+
+        <androidx.coordinatorlayout.widget.CoordinatorLayout
+            android:id="@+id/mainLayout"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:visibility="gone"
+            tools:visibility="visible"
+            android:background="@color/feedBackground">
+
+            <com.google.android.material.appbar.AppBarLayout
+                android:id="@+id/app_bar"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:fitsSystemWindows="true"
+                tools:ignore="UnusedAttribute">
+
+                <com.google.android.material.appbar.CollapsingToolbarLayout
+                    android:id="@+id/toolbar_layout"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:fitsSystemWindows="true"
+                    app:contentScrim="@color/feedBackground"
+                    android:background="@color/feedBackground"
+                    app:layout_scrollFlags="scroll|exitUntilCollapsed"
+                    app:layout_scrollInterpolator="@android:anim/decelerate_interpolator">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:gravity="center"
+                        android:layout_gravity="center"
+                        app:layout_collapseMode="parallax"
+                        android:orientation="vertical">
+
+                        <TextView
+                            android:id="@+id/currPrice"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+
+                            android:textColor="@color/feedPrimaryTextColor"
+                            android:textSize="18sp"
+                            tools:text="$ 61,885.45"/>
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="center"
+                            android:gravity="center">
+                            <TextView
+                                android:id="@+id/percentChange"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:fontFamily="_regular"
+                                tools:textColor="#21C17A"
+                                android:textSize="10sp"
+                                tools:text="27.8 %"
+                                tools:ignore="SmallSp" />
+
+                            <TextView
+                                android:id="@+id/tvPastMonth"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:fontFamily="_regular"
+                                android:layout_marginStart="4dp"
+                                tools:textColor="#969696"
+                                android:textSize="10sp"
+                                android:text="@string/past_month"
+                                tools:ignore="SmallSp" />
+                        </LinearLayout>
+
+                        <LinearLayout
+                            android:id="@+id/chartLayout"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:visibility="gone"
+                            android:background="@color/feedBackground"
+                            android:orientation="vertical">
+                            <androidx.cardview.widget.CardView
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                app:cardElevation="5dp"
+                                app:cardCornerRadius="5dp"
+                                app:cardBackgroundColor="@color/feedBackground"
+                                android:layout_marginTop="20dp"
+                                android:layout_marginBottom="5dp">
+
+                                <androidx.recyclerview.widget.RecyclerView
+                                    android:id="@+id/rvGraphTabs"
+                                    android:layout_width="match_parent"
+                                    android:layout_height="wrap_content"
+                                    android:layout_marginTop="5dp"
+                                    android:layout_marginBottom="5dp"
+                                    android:layout_marginStart="5dp"
+                                    android:layout_marginEnd="5dp"
+                                    />
+
+                            </androidx.cardview.widget.CardView>
+                            <!--                        <com.github.mikephil.charting.charts.LineChart-->
+                            <!--                            android:id="@+id/chart"-->
+                            <!--                            android:layout_width="match_parent"-->
+                            <!--                            android:layout_height="200dp"-->
+                            <!--                            android:layout_marginBottom="10dp"-->
+                            <!--                            />-->
+                            <FrameLayout
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                >
+                                <androidx.appcompat.widget.AppCompatImageView
+                                    android:id="@+id/open_full"
+                                    android:layout_width="22dp"
+                                    android:layout_height="22dp"
+                                    android:layout_gravity="top|end"
+                                    android:elevation="10dp"
+                                    android:layout_margin="10dp"
+                                    app:srcCompat="@drawable/ic_open_in_full_black_24dp"
+                                    />
+                                <com.github.mikephil.charting.charts.LineChart
+                                    android:id="@+id/native_chart"
+                                    android:layout_width="match_parent"
+                                    android:layout_height="200dp"
+                                    android:layout_marginBottom="10dp"
+                                    android:visibility="gone"
+                                    />
+                                <WebView
+                                    android:id="@+id/chart_view"
+                                    android:layout_width="match_parent"
+                                    android:layout_height="400dp"
+                                    android:isScrollContainer="true"
+                                    android:layout_marginBottom="10dp"
+                                    android:visibility="gone"
+                                    tools:ignore="WebViewLayout" />
+                            </FrameLayout>
+
+                        </LinearLayout>
+
+                    </LinearLayout>
+
+
+                </com.google.android.material.appbar.CollapsingToolbarLayout>
+
+            </com.google.android.material.appbar.AppBarLayout>
+
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/appbar"
+                android:orientation="vertical"
+                app:layout_behavior="@string/appbar_scrolling_view_behavior"
+                android:background="@color/feedBackground">
+
+                <androidx.cardview.widget.CardView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    app:cardElevation="5dp"
+                    app:cardCornerRadius="5dp"
+                    android:layout_marginTop="5dp"
+                    app:cardBackgroundColor="@color/feedBackground"
+                    android:layout_marginBottom="5dp">
+                    <androidx.recyclerview.widget.RecyclerView
+                        android:id="@+id/rvCryptoTabs"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="10dp"
+                        android:layout_marginBottom="10dp"
+                        android:layout_marginStart="5dp"
+                        android:layout_marginEnd="5dp"
+                        />
+                </androidx.cardview.widget.CardView>
+
+                <com.appyhigh.newsfeedsdk.utils.NestedScrollableHost
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    app:layout_behavior="@string/appbar_scrolling_view_behavior">
+
+                    <androidx.viewpager2.widget.ViewPager2
+                        android:id="@+id/vpCryptoFeed"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        />
+                </com.appyhigh.newsfeedsdk.utils.NestedScrollableHost>
+
+                <ProgressBar
+                    android:id="@+id/vpLoading"
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:layout_gravity="center"
+                    android:indeterminateTint="@color/purple_500"
+                    tools:visibility="gone"
+                    tools:ignore="UnusedAttribute" />
+
+            </LinearLayout>
+        </androidx.coordinatorlayout.widget.CoordinatorLayout>
+
+    </LinearLayout>
+
+    <androidx.fragment.app.FragmentContainerView
+        android:id="@+id/chart_container"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:visibility="gone"
+        />
+
+
+</LinearLayout>

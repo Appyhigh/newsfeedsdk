@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <data>
+
+        <variable
+            name="feedSDK"
+            type="com.appyhigh.newsfeedsdk.FeedSdk" />
+
+        <variable
+            name="card"
+            type="com.appyhigh.newsfeedsdk.model.feeds.Card" />
+
+        <variable
+            name="listener"
+            type="com.appyhigh.newsfeedsdk.callbacks.PostViewsClickListener" />
+
+        <variable
+            name="position"
+            type="Integer" />
+        <import type="com.appyhigh.newsfeedsdk.R" />
+    </data>
+
+    <androidx.cardview.widget.CardView xmlns:tools="http://schemas.android.com/tools"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="10dp"
+        android:orientation="vertical"
+        app:cardBackgroundColor="#007DFA"
+        app:cardCornerRadius="5dp">
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:padding="20dp">
+
+            <androidx.appcompat.widget.AppCompatTextView
+                android:id="@+id/tvRateUs"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerHorizontal="true"
+                app:isBold="@{true}"
+                android:text='@{@string/enjoying+" "+feedSDK.Companion.appName+" ?"}'
+                android:textColor="@color/white"
+                android:textSize="16sp"
+                android:textStyle="bold" />
+
+            <androidx.appcompat.widget.AppCompatTextView
+                android:id="@+id/tvRateUsSubText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/tvRateUs"
+                android:layout_centerHorizontal="true"
+                android:text="@string/rate_us_to_share_your_feedback"
+                android:textColor="@color/white"
+                android:textSize="16sp" />
+
+            <androidx.appcompat.widget.AppCompatImageView
+                android:id="@+id/ivEmoji"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/tvRateUsSubText"
+                android:layout_centerHorizontal="true"
+                android:layout_marginTop="20dp"
+                app:srcCompat="@drawable/ic_emoji"
+                tools:ignore="VectorDrawableCompat" />
+
+            <RatingBar
+                android:id="@+id/ratingBar"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/ivEmoji"
+                android:layout_centerHorizontal="true"
+                android:layout_gravity="center"
+                android:layout_marginTop="10dp"
+                android:clickable="true"
+                android:focusable="true"
+                android:numStars="5"
+                android:progressBackgroundTint="@color/windowBackground"
+                android:stepSize="1.0"
+                android:theme="@style/RatingBar"
+                tools:targetApi="lollipop" />
+
+            <TextView
+                android:id="@+id/rateUs"
+                android:layout_width="150dp"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/ratingBar"
+                android:layout_centerHorizontal="true"
+                android:layout_gravity="center"
+                android:layout_marginTop="10dp"
+                android:layout_marginBottom="20dp"
+
+                android:background="#FFFFFF"
+                android:gravity="center"
+                android:onClick="@{ (v) -> listener.onRatingClicked(v, position)}"
+                android:padding="10dp"
+                android:text="@string/done"
+                android:textColor="@color/colorDarkBlue"
+                android:textSize="18sp" />
+
+
+        </RelativeLayout>
+
+    </androidx.cardview.widget.CardView>
+</layout>

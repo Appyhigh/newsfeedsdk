@@ -1,0 +1,173 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+
+        <variable
+            name="item"
+            type="com.appyhigh.newsfeedsdk.model.feeds.Item" />
+
+        <variable
+            name="listener"
+            type="com.appyhigh.newsfeedsdk.callbacks.ReelsClickListener" />
+
+        <variable
+            name="position"
+            type="Integer" />
+
+        <import type="com.appyhigh.newsfeedsdk.R" />
+    </data>
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_margin="5dp"
+        android:gravity="center"
+        android:onClick="@{(v) ->listener.onReelClicked(v, position)}"
+        android:orientation="vertical">
+        <FrameLayout
+            android:id="@+id/reelsLayout"
+            android:layout_width="120dp"
+            android:layout_height="235dp"
+            android:background="@color/feedBackground">
+
+            <androidx.cardview.widget.CardView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:cardElevation="0dp"
+                app:cardCornerRadius="10dp">
+                <androidx.appcompat.widget.AppCompatImageView
+                    android:id="@+id/reels_bg"
+                    android:layout_width="match_parent"
+                    android:layout_height="215dp"
+                    android:scaleType="centerCrop"
+                    app:imageUrl="@{item.content.mediaList[0]}"
+                    tools:ignore="ContentDescription" />
+
+                <androidx.appcompat.widget.AppCompatImageView
+                    android:layout_width="match_parent"
+                    android:layout_height="215dp"
+                    android:scaleType="center"
+                    app:srcCompat="@drawable/ic_reel_overlay" />
+            </androidx.cardview.widget.CardView>
+
+            <androidx.cardview.widget.CardView
+                android:id="@+id/cvProfilePic"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:elevation="10dp"
+                android:layout_marginBottom="5dp"
+                android:layout_gravity="center|bottom"
+                app:cardCornerRadius="40dp"
+                tools:ignore="UnusedAttribute">
+
+                <de.hdodenhof.circleimageview.CircleImageView
+                    android:id="@+id/publisherImage"
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
+                    android:scaleType="centerCrop"
+                    android:visibility="visible"
+                    tools:src="@drawable/placeholder"
+                    app:imageUrl="@{item.publisherProfilePic}"
+                    app:parentView='@{@id/cvProfilePic}'
+                    app:publisherName="@{item.publisherName}" />
+
+                <RelativeLayout
+                    android:id="@+id/rlImage"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:background="@drawable/text_bg_red"
+                    android:visibility="gone">
+
+                    <androidx.appcompat.widget.AppCompatTextView
+                        android:id="@+id/tvImage"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:gravity="center"
+                        android:text="A"
+
+                        android:textColor="@color/white"
+                        android:textSize="20sp" />
+                </RelativeLayout>
+            </androidx.cardview.widget.CardView>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="bottom|center_horizontal"
+                android:orientation="vertical"
+                android:visibility="gone"
+                android:padding="10dp">
+
+                <androidx.appcompat.widget.AppCompatTextView
+                    android:id="@+id/reels_title"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:ellipsize="end"
+                    android:textStyle="bold"
+
+                    app:isBold="@{true}"
+                    android:maxLines="2"
+                    android:text="Live news from news room, FOX News"
+                    android:textColor="@color/white"
+                    android:textSize="@dimen/explore_font"
+                    app:description="@{item.content.description}"
+                    app:title="@{item.content.title}" />
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_horizontal"
+                    android:layout_marginTop="10dp"
+                    android:orientation="horizontal"
+                    android:visibility="gone"
+                    tools:ignore="UseCompoundDrawables">
+
+                    <androidx.appcompat.widget.AppCompatImageView
+                        android:id="@+id/reels_company_logo"
+                        android:layout_width="15dp"
+                        android:layout_height="15dp"
+                        android:layout_gravity="center"
+                        app:srcCompat="@drawable/ic_instagram"
+                        tools:ignore="ContentDescription" />
+
+                    <TextView
+                        android:id="@+id/reels_views"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center"
+                        android:layout_marginStart="10dp"
+                        android:ellipsize="end"
+                        android:textStyle="bold"
+
+                        app:isBold="@{true}"
+                        android:maxLines="1"
+                        android:text="13 lakh views"
+                        android:textColor="#AFAFAF"
+                        android:textSize="@dimen/explore_font" />
+
+                </LinearLayout>
+
+            </LinearLayout>
+        </FrameLayout>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="12sp"
+            android:layout_marginBottom="10dp"
+            android:text="@{item.publisherName}"
+            android:textColor="@color/feedPrimaryTextColor"
+            tools:text="Sample"
+
+            android:gravity="center"
+            android:maxLines="1"
+            android:ellipsize="end"
+            android:layout_gravity="center"
+            tools:ignore="SmallSp" />
+    </LinearLayout>
+
+</layout>
