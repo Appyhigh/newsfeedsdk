@@ -176,7 +176,7 @@ public class GPSTracker extends Service implements LocationListener {
             @Override
             public void onClick(DialogInterface dialog, int which)
             {
-                Intent i = new Intent(android.provider.Settings.ACTION_APPLICATION_DETAILS_SETTINGS);
+                Intent i = new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS);
                 i.addCategory(Intent.CATEGORY_DEFAULT);
                 i.setData(Uri.parse("package:" + mContext.getPackageName()));
                 mContext.startActivity(i);

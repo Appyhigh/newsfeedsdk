@@ -236,55 +236,59 @@ class VideoFeed : LinearLayout, OnRefreshListener {
                             url: String,
                             timeStamp: Long
                         ) {
-                            storeData(presentUrl, presentTimeStamp)
-                            presentTimeStamp = timeStamp
-                            presentUrl = url
-                            adIndex += getFeedsResponse.adPlacement[0]
-                            pageNo += 1
-                            loadLayout?.visibility = View.GONE
-                            for (card in getFeedsResponse.cards) {
-                                card.cardType =
-                                    Constants.CardType.MEDIA_VIDEO_BIG.toString()
-                                        .lowercase(Locale.getDefault())
-                                newsFeedList.add(card)
-                            }
-                            if (FeedSdk.showAds) {
-                                try {
-                                    val adItem = Card()
-                                    adItem.cardType = Constants.AD_LARGE
-                                    newsFeedList.add(adIndex, adItem)
-                                    Log.d("Ad index", adIndex.toString())
-                                } catch (ex: Exception) {
-                                    ex.printStackTrace()
+                            Handler(Looper.getMainLooper()).post{
+                                storeData(presentUrl, presentTimeStamp)
+                                presentTimeStamp = timeStamp
+                                presentUrl = url
+                                adIndex += getFeedsResponse.adPlacement[0]
+                                pageNo += 1
+                                loadLayout?.visibility = View.GONE
+                                for (card in getFeedsResponse.cards) {
+                                    card.cardType =
+                                        Constants.CardType.MEDIA_VIDEO_BIG.toString()
+                                            .lowercase(Locale.getDefault())
+                                    newsFeedList.add(card)
                                 }
-                            }
-                            initNewsAdapter(newsFeedList)
-                            rvShortBytes?.apply {
-                                layoutManager = linearLayoutManager
-                                adapter = newsFeedAdapter
-                                itemAnimator = null
-                            }
-                            cardsMap["videofeed"] = newsFeedList
-                            val mSnapHelper: SnapHelper = PagerSnapHelper()
-                            mSnapHelper.attachToRecyclerView(rvShortBytes)
-                            setEndlessScrolling()
-                            rvShortBytes?.addOnScrollListener(object :
-                                RecyclerView.OnScrollListener() {
-
-                                override fun onScrolled(
-                                    recyclerView: RecyclerView,
-                                    dx: Int,
-                                    dy: Int
-                                ) {
-                                    super.onScrolled(recyclerView, dx, dy)
-                                    val newPos =
-                                        linearLayoutManager!!.findFirstCompletelyVisibleItemPosition()
-                                    if (newPos > -1 && newPos != currentPosition) {
-                                        togglePlaying(currentPosition, false)
-                                        togglePlaying(newPos, true)
+                                if (FeedSdk.showAds) {
+                                    try {
+                                        val adItem = Card()
+                                        adItem.cardType = Constants.AD_LARGE
+                                        newsFeedList.add(adIndex, adItem)
+                                        Log.d("Ad index", adIndex.toString())
+                                    } catch (ex: Exception) {
+                                        ex.printStackTrace()
                                     }
                                 }
-                            })
+                                initNewsAdapter(newsFeedList)
+                                rvShortBytes?.apply {
+                                    layoutManager = linearLayoutManager
+                                    adapter = newsFeedAdapter
+                                    itemAnimator = null
+                                }
+                                cardsMap["videofeed"] = newsFeedList
+                                rvShortBytes?.onFlingListener = null
+                                val mSnapHelper: SnapHelper = PagerSnapHelper()
+                                mSnapHelper.attachToRecyclerView(rvShortBytes)
+                                setEndlessScrolling()
+                                rvShortBytes?.addOnScrollListener(object :
+                                    RecyclerView.OnScrollListener() {
+
+                                    override fun onScrolled(
+                                        recyclerView: RecyclerView,
+                                        dx: Int,
+                                        dy: Int
+                                    ) {
+                                        super.onScrolled(recyclerView, dx, dy)
+                                        val newPos =
+                                            linearLayoutManager!!.findFirstCompletelyVisibleItemPosition()
+                                        if (newPos > -1 && newPos != currentPosition) {
+                                            togglePlaying(currentPosition, false)
+                                            togglePlaying(newPos, true)
+                                        }
+                                    }
+                                })
+                            }
+
                         }
                     })
             }
