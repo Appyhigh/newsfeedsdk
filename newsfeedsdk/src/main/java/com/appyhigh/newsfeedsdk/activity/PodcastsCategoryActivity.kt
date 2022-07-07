@@ -11,10 +11,7 @@ import com.appyhigh.newsfeedsdk.Constants
 import com.appyhigh.newsfeedsdk.FeedSdk
 import com.appyhigh.newsfeedsdk.R
 import com.appyhigh.newsfeedsdk.adapter.NewsFeedAdapter
-import com.appyhigh.newsfeedsdk.apicalls.ApiPodcast
-import com.appyhigh.newsfeedsdk.apicalls.ApiPostImpression
-import com.appyhigh.newsfeedsdk.apicalls.PodcastResponse
-import com.appyhigh.newsfeedsdk.apicalls.PodcastResponseListener
+import com.appyhigh.newsfeedsdk.apicalls.*
 import com.appyhigh.newsfeedsdk.apiclient.Endpoints
 import com.appyhigh.newsfeedsdk.callbacks.PostImpressionListener
 import com.appyhigh.newsfeedsdk.databinding.ActivityPodcastsCategoryBinding
@@ -49,7 +46,7 @@ class PodcastsCategoryActivity : AppCompatActivity() {
         val view = binding?.root
         setContentView(view)
         setFonts(view)
-        if(FeedSdk.showAds && Constants.checkFeedApp()){
+        if(ApiConfig().checkShowAds() && Constants.checkFeedApp()){
             showAdaptiveBanner(this, Constants.getHomeBannerAd(), binding!!.bannerAd)
         }
         PodcastMediaPlayer.setPodcastListener(view!!, "podcastCategory")

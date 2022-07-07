@@ -322,7 +322,6 @@ class FeedSdk {
         var isExploreInitializationSuccessful = false
         private var mSharePrefixText = ""
         var mFirebaseDynamicLink = ""
-        var mAdsModel: AdsModel? = AdsModel("", "", "", "", "", "", "", "", "", "")
         var onUserInitialized: ArrayList<OnUserInitialized?> = ArrayList()
         var onExploreInitialized: OnUserInitialized? = null
         var personalizationListener: PersonalizationListener? = null
@@ -333,7 +332,6 @@ class FeedSdk {
         var shareBody = ""
         var feedTargetActivity = ""
         var feedAppIcon = 0
-        var showAds = true
         var showFeedAdAtFirst = true
         var hasPluto = false
         var searchStickyBackground = "#337CFF"
@@ -390,8 +388,9 @@ class FeedSdk {
         setDeviceDetailsToLocal()
         initializeContentModified()
         spUtil!!.putString(Constants.NETWORK, checkAndSetNetworkType())
-        FeedSdk.showCricketNotification =
-            showCricketNotification == null || showCricketNotification
+        FeedSdk.showCricketNotification = showCricketNotification == null || showCricketNotification
+        val token = RSAKeyGenerator.getJwtToken(appId, userId)
+        token?.let { ApiConfig().configEncrypted(it) }
         getFirebasePushToken(object : FirebaseTokenListener {
             override fun onSuccess(token: String) {
                 LogDetail.LogDE("getFirebasePushToken", "getInterestsApiCall")
@@ -827,10 +826,6 @@ class FeedSdk {
         hideFilters = hide
     }
 
-    fun setShowAds(show: Boolean) {
-        showAds = show
-    }
-
     /**
      * Set prefix Share text for posts
      */
@@ -851,17 +846,6 @@ class FeedSdk {
 
     fun getFirebaseDynamicLink(): String {
         return mFirebaseDynamicLink
-    }
-
-    /**
-     * Set prefix Share text for posts
-     */
-    fun setAdsModel(adsModel: AdsModel) {
-        mAdsModel = adsModel
-    }
-
-    fun getAdsModel(): AdsModel? {
-        return mAdsModel
     }
 
     private fun initializeContentModified() {

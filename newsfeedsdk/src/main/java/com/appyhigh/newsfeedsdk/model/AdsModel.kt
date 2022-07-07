@@ -1,21 +1,55 @@
 package com.appyhigh.newsfeedsdk.model
 
-import android.view.View
 import android.widget.LinearLayout
-import androidx.lifecycle.Lifecycle
+import com.google.gson.annotations.Expose
+import com.google.gson.annotations.SerializedName
 
-data class
-AdsModel(
-    var feed_native: String,
-    var video_ad_native: String,
-    var search_page_native: String,
-    var search_footer_banner_intermediate:String,
-    var ad_id_between_article_native: String,
-    var ad_id_between_article_native_fallback: String,
-    var ad_id_article_end_native: String,
-    var ad_id_article_end_native_fallback: String,
-    var ad_id_post_interstitial: String,
-    var native_footer_banner: String
+data class AdsModel(
+    @SerializedName("plcmnt_id")
+    @Expose
+    val placementId: String = "",
+    @SerializedName("showInterstitialAfterPosts")
+    @Expose
+    val showInterstitialAfterPosts: Int = 3,
+    @SerializedName("showParentAdmobAds")
+    @Expose
+    val showParentAdmobAds: Boolean = false,
+    @SerializedName("showPrivateAds")
+    @Expose
+    val showPrivateAds: Boolean = false,
+    @SerializedName("video_native")
+    @Expose
+    val videoNative: ItemAdsModel = ItemAdsModel(),
+    @SerializedName("search_page_native")
+    @Expose
+    val searchPageNative: ItemAdsModel = ItemAdsModel(),
+    @SerializedName("search_footer_banner")
+    @Expose
+    val searchFooterBanner: ItemAdsModel = ItemAdsModel(),
+    @SerializedName("post_detail_article_top_native")
+    @Expose
+    val postDetailArticleTopNative: ItemAdsModel = ItemAdsModel(),
+    @SerializedName("post_detail_article_end_native")
+    @Expose
+    val postDetailArticleEndNative: ItemAdsModel = ItemAdsModel(),
+    @SerializedName("post_detail_footer_banner")
+    @Expose
+    val postDetailFooterBanner: ItemAdsModel = ItemAdsModel(),
+    @SerializedName("post_detail_interstitial")
+    @Expose
+    val postDetailInterstitial: ItemAdsModel = ItemAdsModel(),
+)
+
+data class ItemAdsModel(
+    @SerializedName("admob_id")
+    @Expose
+    val admobId: String = "",
+    @SerializedName("showAdmob")
+    @Expose
+    val showAdmob: Boolean = false,
+    @SerializedName("showPrivate")
+    @Expose
+    val showPrivate: Boolean = false
 )
 
 data class NativeAdItem(

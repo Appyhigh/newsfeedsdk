@@ -249,7 +249,7 @@ class VideoFeed : LinearLayout, OnRefreshListener {
                                             .lowercase(Locale.getDefault())
                                     newsFeedList.add(card)
                                 }
-                                if (FeedSdk.showAds) {
+                                if (ApiConfig().checkShowAds()) {
                                     try {
                                         val adItem = Card()
                                         adItem.cardType = Constants.AD_LARGE
@@ -411,7 +411,7 @@ class VideoFeed : LinearLayout, OnRefreshListener {
                                 .lowercase(Locale.getDefault())
                             newsFeedList.add(card)
                         }
-                        if (FeedSdk.showAds) {
+                        if (ApiConfig().checkShowAds()) {
                             val adItem = Card()
                             adItem.cardType = Constants.AD_LARGE
                             try {

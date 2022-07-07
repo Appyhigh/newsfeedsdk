@@ -13,6 +13,7 @@ import com.appyhigh.newsfeedsdk.Constants
 import com.appyhigh.newsfeedsdk.FeedSdk
 import com.appyhigh.newsfeedsdk.R
 import com.appyhigh.newsfeedsdk.adapter.NewsFeedAdapter
+import com.appyhigh.newsfeedsdk.apicalls.ApiConfig
 import com.appyhigh.newsfeedsdk.apicalls.ApiCrypto
 import com.appyhigh.newsfeedsdk.apicalls.ApiGetPostsByTag
 import com.appyhigh.newsfeedsdk.apicalls.ApiPostImpression
@@ -103,10 +104,10 @@ class CryptoLearnCommonFragment : Fragment() {
                 val adItem = Card()
                 adItem.cardType = Constants.AD
                 try{
-                    if(FeedSdk.showAds && newsFeedList.size>0 && newsFeedList[0].cardType!=Constants.AD){
+                    if(ApiConfig().checkShowAds() && newsFeedList.size>0 && newsFeedList[0].cardType!=Constants.AD){
                         newsFeedList.add(0, adItem)
                     }
-                    if(FeedSdk.showAds && newsFeedList.size>6) {
+                    if(ApiConfig().checkShowAds() && newsFeedList.size>6) {
                         newsFeedList.add(adIndex, adItem)
                     }
                 } catch (ex:Exception){
@@ -146,10 +147,10 @@ class CryptoLearnCommonFragment : Fragment() {
                         val adItem = Card()
                         adItem.cardType = Constants.AD
                         try{
-                            if(FeedSdk.showAds && newsFeedList.size>0 && newsFeedList[0].cardType!=Constants.AD){
+                            if(ApiConfig().checkShowAds() && newsFeedList.size>0 && newsFeedList[0].cardType!=Constants.AD){
                                 newsFeedList.add(0, adItem)
                             }
-                            if(FeedSdk.showAds && newsFeedList.size>6) {
+                            if(ApiConfig().checkShowAds() && newsFeedList.size>6) {
                                 newsFeedList.add(adIndex, adItem)
                             }
                         } catch (ex:Exception){
@@ -209,7 +210,7 @@ class CryptoLearnCommonFragment : Fragment() {
                         val newsFeedList = cryptoResponse.cards as ArrayList<Card>
                         adIndex += 6
                         adCheckerList.addAll(newsFeedList)
-                        if(FeedSdk.showAds) {
+                        if(ApiConfig().checkShowAds()) {
                             val adItem = Card()
                             adItem.cardType = Constants.AD
                             try {

@@ -3,11 +3,10 @@ package com.appyhigh.newsfeedsdk.apiclient
 import com.appyhigh.newsfeedsdk.Constants
 import com.appyhigh.newsfeedsdk.model.SearchStickyActionModel
 import com.appyhigh.newsfeedsdk.model.SearchStickyWidgetModel
+import com.appyhigh.newsfeedsdk.model.crypto.CryptoFinderResponse
 import io.reactivex.rxjava3.core.Observable
-import retrofit2.http.Body
-import retrofit2.http.GET
-import retrofit2.http.Header
-import retrofit2.http.POST
+import retrofit2.Response
+import retrofit2.http.*
 
 interface APISearchStickyInterface {
     @GET(Endpoints.GET_ICONS_NOTIFICATION)
@@ -31,4 +30,7 @@ interface APISearchStickyInterface {
         @Header(Constants.AUTHORIZATION) authorization: String?,
         @Body searchStickyActionModel: SearchStickyActionModel
     ): Observable<String?>?
+
+    @GET
+    fun findCryptoInTV(): Observable<Response<CryptoFinderResponse>>
 }

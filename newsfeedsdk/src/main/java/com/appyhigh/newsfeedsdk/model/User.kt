@@ -63,6 +63,9 @@ data class User(
     @SerializedName("state")
     var state: String? = null,
 
+    @SerializedName("state_code")
+    var stateCode: String? = null,
+
     @SerializedName("latitude")
     var latitude : Double? = null,
 

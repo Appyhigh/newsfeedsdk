@@ -6,17 +6,15 @@ import com.appyhigh.newsfeedsdk.Constants.COIN_ID_LIST
 import com.appyhigh.newsfeedsdk.Constants.GET
 import com.appyhigh.newsfeedsdk.Constants.cryptoWatchListMap
 import com.appyhigh.newsfeedsdk.FeedSdk
-import com.appyhigh.newsfeedsdk.apiclient.APIClient
+import com.appyhigh.newsfeedsdk.apiclient.APISearchStickyInterface
 import com.appyhigh.newsfeedsdk.apiclient.Endpoints
 import com.appyhigh.newsfeedsdk.encryption.AESCBCPKCS5Encryption
 import com.appyhigh.newsfeedsdk.encryption.AuthSocket
 import com.appyhigh.newsfeedsdk.encryption.LogDetail
 import com.appyhigh.newsfeedsdk.encryption.SessionUser
-import com.appyhigh.newsfeedsdk.model.CricketScheduleResponse
-import com.appyhigh.newsfeedsdk.model.InterestStringResponseModel
 import com.appyhigh.newsfeedsdk.model.crypto.ConvertorResponse
-import com.appyhigh.newsfeedsdk.model.crypto.CryptoSearchResponse
 import com.appyhigh.newsfeedsdk.model.crypto.CryptoFinderResponse
+import com.appyhigh.newsfeedsdk.model.crypto.CryptoSearchResponse
 import com.appyhigh.newsfeedsdk.model.feeds.Card
 import com.appyhigh.newsfeedsdk.utils.SpUtil
 import com.google.common.reflect.TypeToken
@@ -28,9 +26,12 @@ import com.google.gson.annotations.SerializedName
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import io.reactivex.rxjava3.schedulers.Schedulers
 import okhttp3.Call
+import okhttp3.OkHttpClient
 import org.json.JSONArray
 import org.json.JSONObject
 import retrofit2.Response
+import retrofit2.Retrofit
+import retrofit2.converter.gson.GsonConverterFactory
 import java.io.IOException
 import java.nio.charset.StandardCharsets
 
@@ -785,11 +786,15 @@ class ApiCrypto {
 
 
     fun findCrypto(symbol: String, findCryptoResponse: FindCryptoResponse) {
-        APIClient().getApiInterface()
-            ?.findCryptoInTV("https://symbol-search.tradingview.com/symbol_search/?text=$symbol&hl=2&exchange=&lang=en&type=crypto&domain=production")
-            ?.subscribeOn(Schedulers.io())
-            ?.observeOn(AndroidSchedulers.mainThread())
-            ?.subscribe({
+        val retrofit: Retrofit = Retrofit.Builder()
+            .baseUrl("https://symbol-search.tradingview.com/symbol_search/?text=$symbol&hl=2&exchange=&lang=en&type=crypto&domain=production")
+            .client(OkHttpClient())
+            .addConverterFactory(GsonConverterFactory.create())
+            .build()
+        retrofit.create(APISearchStickyInterface::class.java).findCryptoInTV()
+            .subscribeOn(Schedulers.io())
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribe({
                 try {
                     findCryptoResponse.onSuccess(it.body()!!)
                 } catch (ex: Exception) {

@@ -31,6 +31,7 @@ import com.appyhigh.newsfeedsdk.FeedSdk
 import com.appyhigh.newsfeedsdk.R
 import com.appyhigh.newsfeedsdk.activity.SettingsActivity
 import com.appyhigh.newsfeedsdk.activity.WebActivity
+import com.appyhigh.newsfeedsdk.apicalls.ApiConfig
 import com.appyhigh.newsfeedsdk.apicalls.ApiSearchSticky
 import com.appyhigh.newsfeedsdk.model.SearchStickyModel
 import com.appyhigh.newsfeedsdk.utils.AdUtilsSDK
@@ -266,7 +267,7 @@ class StickyNotificationService : Service(){
             val stickyTimerInterval = SpUtil.spUtilInstance!!.getLong("stickyTimerInterval", 300)
             myTimer.scheduleAtFixedRate(myTask, 0L, (stickyTimerInterval * 1000).toLong())
             try{
-                AdUtilsSDK().requestFeedAd(LinearLayout(applicationContext), R.layout.native_ad_feed_small, FeedSdk.mAdsModel?.search_page_native?:"", "searchSticky")
+                AdUtilsSDK().requestFeedAd(LinearLayout(applicationContext), R.layout.native_ad_feed_small, ApiConfig().getAdsModel().searchPageNative.admobId, "searchSticky")
             } catch (ex:Exception){}
         } catch (ex:Exception){
             ex.printStackTrace()

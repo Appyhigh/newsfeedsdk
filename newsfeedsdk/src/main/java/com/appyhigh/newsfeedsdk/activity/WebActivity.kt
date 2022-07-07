@@ -33,6 +33,7 @@ import com.appyhigh.newsfeedsdk.FeedSdk
 import com.appyhigh.newsfeedsdk.R
 import com.appyhigh.newsfeedsdk.adapter.WebPlatformListener
 import com.appyhigh.newsfeedsdk.adapter.WebPlatformsGridAdapter
+import com.appyhigh.newsfeedsdk.apicalls.ApiConfig
 import com.appyhigh.newsfeedsdk.apicalls.ApiSearchSticky
 import com.appyhigh.newsfeedsdk.databinding.ActivitySearchStickyWebBinding
 import com.appyhigh.newsfeedsdk.model.SearchStickyWidgetModel
@@ -68,13 +69,15 @@ class WebActivity : AppCompatActivity(), AdvancedWebView.Listener {
     private lateinit var trending_list: List<TrendingSearchItem>
     var historyList = ArrayList<WebHistoryModel>()
     val TAG = "WebActivity"
+    private val adsModel = ApiConfig().getAdsModel()
 
     @SuppressLint("SetJavaScriptEnabled")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivitySearchStickyWebBinding.inflate(layoutInflater)
         setContentView(binding!!.root)
-        AdUtilsSDK().requestFeedAd(binding!!.searchNativeAd, R.layout.native_ad_feed_small, FeedSdk.mAdsModel?.search_page_native?:"", "searchSticky")
+        AdUtilsSDK().requestFeedAd(binding!!.searchNativeAd, R.layout.native_ad_feed_small,
+            adsModel.searchPageNative.admobId, "searchSticky")
         setFonts(binding!!.root)
         SpUtil.spUtilInstance?.init(this)
         binding?.webview?.setListener(this, this)
@@ -105,10 +108,10 @@ class WebActivity : AppCompatActivity(), AdvancedWebView.Listener {
             binding?.appBar?.visibility = View.VISIBLE
             binding?.coLayout?.visibility = View.VISIBLE
             binding?.adContainer?.visibility = View.VISIBLE
-            if(FeedSdk.showAds){
+            if(ApiConfig().checkShowAds()){
                 val adView = AdView(this)
                 adView.adSize = AdSize.BANNER
-                adView.adUnitId = FeedSdk.mAdsModel?.search_footer_banner_intermediate?:""
+                adView.adUnitId = adsModel.searchFooterBanner.admobId
                 binding?.adContainer?.addView(adView)
                 val adRequest = AdRequest.Builder().build()
                 adView.loadAd(adRequest)

@@ -75,7 +75,7 @@ class PodcastsFragment : Fragment() {
                         val podcastList = podcastResponse.cards as ArrayList<Card>
                         val adItem = Card()
                         adItem.cardType = Constants.AD
-                        if(FeedSdk.showAds && FeedSdk.showFeedAdAtFirst && podcastList.size>0 && podcastList[0].cardType!=Constants.AD){
+                        if(ApiConfig().checkShowAds() && FeedSdk.showFeedAdAtFirst && podcastList.size>0 && podcastList[0].cardType!=Constants.AD){
                             podcastList.add(0, adItem)
                             podcastList.add(adIndex, adItem)
                         }
@@ -174,7 +174,7 @@ class PodcastsFragment : Fragment() {
                         adIndex += podcastResponse.adPlacement[0]
                         val podcastList = podcastResponse.cards as ArrayList<Card>
                         adCheckerList.addAll(podcastList)
-                        if(FeedSdk.showAds) {
+                        if(ApiConfig().checkShowAds()) {
                             val adItem = Card()
                             adItem.cardType = Constants.AD
                             try {

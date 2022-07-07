@@ -2,9 +2,9 @@ package com.appyhigh.newsfeedsdk.activity
 
 import android.annotation.SuppressLint
 import android.content.Context
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.view.View
+import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.appyhigh.newsfeedsdk.Constants
 import com.appyhigh.newsfeedsdk.Constants.FEED_TYPE
@@ -14,8 +14,8 @@ import com.appyhigh.newsfeedsdk.Constants.TAG
 import com.appyhigh.newsfeedsdk.Constants.bigBites
 import com.appyhigh.newsfeedsdk.Constants.cardsMap
 import com.appyhigh.newsfeedsdk.FeedSdk
-import com.appyhigh.newsfeedsdk.R
 import com.appyhigh.newsfeedsdk.adapter.NewsFeedAdapter
+import com.appyhigh.newsfeedsdk.apicalls.ApiConfig
 import com.appyhigh.newsfeedsdk.apicalls.ApiGetFeeds
 import com.appyhigh.newsfeedsdk.apicalls.ApiGetPostsByTag
 import com.appyhigh.newsfeedsdk.apicalls.ApiPostImpression
@@ -27,11 +27,9 @@ import com.appyhigh.newsfeedsdk.model.PostView
 import com.appyhigh.newsfeedsdk.model.feeds.Card
 import com.appyhigh.newsfeedsdk.model.feeds.GetFeedsResponse
 import com.appyhigh.newsfeedsdk.utils.EndlessScrolling
-import com.appyhigh.newsfeedsdk.utils.SpUtil
 import com.appyhigh.newsfeedsdk.utils.showAdaptiveBanner
 import com.google.gson.Gson
 import java.util.*
-import kotlin.collections.HashMap
 
 class FeedsActivity : AppCompatActivity() {
     private var postSource = "unknown"
@@ -56,7 +54,7 @@ class FeedsActivity : AppCompatActivity() {
         setContentView(view)
         Card.setFontFamily(binding?.title, true)
         Card.setFontFamily(binding?.noPosts, true)
-        if (FeedSdk.showAds && Constants.checkFeedApp()) {
+        if(ApiConfig().checkShowAds()) {
             showAdaptiveBanner(this, Constants.getHomeBannerAd(), binding!!.bannerAd)
         }
         binding?.backBtn?.setOnClickListener { onBackPressed() }

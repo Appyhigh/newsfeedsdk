@@ -11,6 +11,7 @@ import android.view.ViewGroup
 import androidx.databinding.DataBindingUtil
 import androidx.recyclerview.widget.RecyclerView
 import com.appyhigh.newsfeedsdk.Constants
+import com.appyhigh.newsfeedsdk.FeedSdk
 import com.appyhigh.newsfeedsdk.R
 import com.appyhigh.newsfeedsdk.apicalls.ApiPostImpression
 import com.appyhigh.newsfeedsdk.callbacks.InterestClickListener
@@ -59,7 +60,9 @@ class InterestAdapter(
             return
         }
         if(Constants.cricketLiveMatchURI.isNotEmpty()){
-            ApiPostImpression().addCricketPostImpression(context, Constants.cricketLiveMatchURI)
+            FeedSdk.spUtil?.getString(Constants.JWT_TOKEN)?.let {
+                ApiPostImpression().addCricketPostImpression(it, Constants.cricketLiveMatchURI)
+            }
         } else{
             Handler(Looper.getMainLooper()).postDelayed({ hitCricketPostImpression(context, tryCount+1) }, 5000)
         }

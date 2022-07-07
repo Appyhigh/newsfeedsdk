@@ -50,6 +50,7 @@ import com.appyhigh.newsfeedsdk.R
 import com.appyhigh.newsfeedsdk.activity.FeedsActivity
 import com.appyhigh.newsfeedsdk.activity.PublisherPageActivity
 import com.appyhigh.newsfeedsdk.adapter.*
+import com.appyhigh.newsfeedsdk.apicalls.ApiConfig
 import com.appyhigh.newsfeedsdk.apicalls.ApiCrypto
 import com.appyhigh.newsfeedsdk.apicalls.ApiUpdateUserPersonalization
 import com.appyhigh.newsfeedsdk.apiclient.Endpoints
@@ -500,7 +501,7 @@ data class Card(
             contentUrls: ArrayList<String>
         ) {
             Handler(Looper.getMainLooper()).postDelayed({
-                if (FeedSdk.showAds) {
+                if (ApiConfig().checkShowAds()) {
                     when (type) {
                         null -> {
                             requestFeedAd(
@@ -532,7 +533,7 @@ data class Card(
         @BindingAdapter("bindAdLarge", "contentUrls")
         fun loadAdLarge(view: LinearLayout, bindAdLarge: String?, contentUrls: ArrayList<String>) {
             Handler(Looper.getMainLooper()).postDelayed({
-                if (FeedSdk.showAds) {
+                if (ApiConfig().checkShowAds()) {
                     if (Constants.videoUnitAdFromSticky != "") {
                         requestVideoAd(
                             view,

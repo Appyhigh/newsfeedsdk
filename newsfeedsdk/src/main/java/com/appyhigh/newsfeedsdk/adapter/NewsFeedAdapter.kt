@@ -45,6 +45,7 @@ import com.appyhigh.newsfeedsdk.Constants.TAG
 import com.appyhigh.newsfeedsdk.FeedSdk
 import com.appyhigh.newsfeedsdk.R
 import com.appyhigh.newsfeedsdk.activity.*
+import com.appyhigh.newsfeedsdk.apicalls.ApiConfig
 import com.appyhigh.newsfeedsdk.apicalls.ApiCreateOrUpdateUser
 import com.appyhigh.newsfeedsdk.apicalls.ApiFollowPublihser
 import com.appyhigh.newsfeedsdk.apicalls.ApiReactPost
@@ -73,6 +74,7 @@ import com.google.android.play.core.tasks.Task
 import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.firebase.dynamiclinks.DynamicLink
 import com.google.firebase.dynamiclinks.FirebaseDynamicLinks
+import com.google.protobuf.Api
 import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.PlayerConstants
 import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.YouTubePlayer
 import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.listeners.AbstractYouTubePlayerListener
@@ -538,13 +540,13 @@ class NewsFeedAdapter(
                 val holder = mainHolder as AdViewHolder
                 holder.view.card = newsFeedList[position]
                 holder.view.contentUrls = getContentUrls(position)
-                holder.view.adUnit = FeedSdk.mAdsModel?.feed_native
+                holder.view.adUnit = ApiConfig().getAdsModel().videoNative.admobId
             }
             NATIVE_AD_LARGE -> {
                 val holder = mainHolder as LargeAdViewHolder
                 holder.view.card = newsFeedList[position]
                 holder.view.contentUrls = getContentUrls(position)
-                holder.view.adUnit = FeedSdk.mAdsModel?.video_ad_native
+                holder.view.adUnit = ApiConfig().getAdsModel().videoNative.admobId
             }
             RATING_CARD -> {
                 if(FeedSdk.isCryptoApp){
@@ -1390,7 +1392,9 @@ class NewsFeedAdapter(
             if(!isLiked){
                 newsFeedList.removeAt(position)
                 notifyItemRemoved(position)
-                ApiCreateOrUpdateUser().updateUserDislikeInterests(interest)
+                FeedSdk.spUtil?.getString(Constants.JWT_TOKEN)?.let {
+                    ApiCreateOrUpdateUser().updateUserDislikeInterests(it, interest)
+                }
             } else {
                 var interests = ""
                 for(likedInterest in Constants.userDetails!!.interests){
@@ -1399,7 +1403,9 @@ class NewsFeedAdapter(
                 interests+=interest
                 newsFeedList.removeAt(position)
                 notifyItemRemoved(position)
-                ApiCreateOrUpdateUser().updateUserInterests(interests)
+                FeedSdk.spUtil?.getString(Constants.JWT_TOKEN)?.let {
+                    ApiCreateOrUpdateUser().updateUserInterests(it, interests)
+                }
             }
         } catch (ex:Exception){
             ex.printStackTrace()

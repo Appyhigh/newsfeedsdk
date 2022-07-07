@@ -167,6 +167,7 @@ object Constants {
     const val DEVICE_DETAIL = "deviceDetail"
     const val POST = "POST"
     const val GET = "GET"
+    const val ADS_MODEL = "adsModel"
 
     var isChecked = true
     var impreesionModel: Impressions? = null

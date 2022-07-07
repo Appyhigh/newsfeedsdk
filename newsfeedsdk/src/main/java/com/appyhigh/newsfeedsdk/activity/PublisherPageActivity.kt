@@ -22,6 +22,7 @@ import com.appyhigh.newsfeedsdk.Constants.cardsMap
 import com.appyhigh.newsfeedsdk.FeedSdk
 import com.appyhigh.newsfeedsdk.R
 import com.appyhigh.newsfeedsdk.adapter.NewsFeedAdapter
+import com.appyhigh.newsfeedsdk.apicalls.ApiConfig
 import com.appyhigh.newsfeedsdk.apicalls.ApiFollowPublihser
 import com.appyhigh.newsfeedsdk.apicalls.ApiGetPublisherPosts
 import com.appyhigh.newsfeedsdk.apicalls.ApiPostImpression
@@ -64,7 +65,7 @@ class PublisherPageActivity : AppCompatActivity() {
         val view = binding?.root
         setContentView(view)
         setFonts(view)
-        if(FeedSdk.showAds && Constants.checkFeedApp()){
+        if(ApiConfig().checkShowAds() && Constants.checkFeedApp()){
             showAdaptiveBanner(this, Constants.getHomeBannerAd(), binding!!.bannerAd)
         }
         if (!intent.hasExtra(PUBLISHER_ID)) {

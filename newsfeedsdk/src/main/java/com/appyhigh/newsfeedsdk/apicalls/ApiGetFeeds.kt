@@ -3,7 +3,6 @@ package com.appyhigh.newsfeedsdk.apicalls
 import android.util.Log
 import com.appyhigh.newsfeedsdk.Constants
 import com.appyhigh.newsfeedsdk.FeedSdk
-import com.appyhigh.newsfeedsdk.apiclient.APIClient
 import com.appyhigh.newsfeedsdk.encryption.AESCBCPKCS5Encryption
 import com.appyhigh.newsfeedsdk.encryption.AuthSocket
 import com.appyhigh.newsfeedsdk.encryption.LogDetail
@@ -13,8 +12,6 @@ import com.appyhigh.newsfeedsdk.utils.SpUtil
 import com.google.common.reflect.TypeToken
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
-import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
-import io.reactivex.rxjava3.schedulers.Schedulers
 import okhttp3.Call
 import org.json.JSONArray
 import org.json.JSONObject
@@ -23,7 +20,6 @@ import java.io.IOException
 import java.nio.charset.StandardCharsets
 
 class ApiGetFeeds {
-    private var spUtil = SpUtil.spUtilInstance
 
     fun getFeedsEncrypted(
         apiUrl: String,
@@ -230,39 +226,6 @@ class ApiGetFeeds {
             }
         })
     }
-
-//    fun getRegionalFeeds(
-//        latitude: Double?,
-//        longitude: Double?,
-//        stateCode: String,
-//        pageSkip: Int,
-//        feedsResponseListener: GetFeedsResponseListener
-//    ) {
-//        APIClient().getApiInterface()
-//            ?.getRegionalFeeds(
-//                spUtil?.getString(Constants.JWT_TOKEN),
-//                latitude,
-//                longitude,
-//                stateCode,
-//                pageSkip
-//            )?.subscribeOn(Schedulers.io())
-//            ?.observeOn(AndroidSchedulers.mainThread())
-//            ?.subscribe(
-//                {
-//                    try {
-//                        feedsResponseListener.onSuccess(
-//                            it.body()!!,
-//                            it.raw().request.url.toString(),
-//                            it.raw().sentRequestAtMillis
-//                        )
-//                    } catch (ex: Exception) {
-//                        ex.printStackTrace()
-//                    }
-//                }, {
-//                    it?.let { error -> handleApiError(error) }
-//                }
-//            )
-//    }
 
 
     fun getFeedsForFirstPostIdEncrypted(

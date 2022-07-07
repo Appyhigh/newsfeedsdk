@@ -41,10 +41,7 @@ import com.appyhigh.newsfeedsdk.FeedSdk
 import com.appyhigh.newsfeedsdk.R
 import com.appyhigh.newsfeedsdk.adapter.FeedCommentAdapter
 import com.appyhigh.newsfeedsdk.adapter.FeedNextPostAdapter
-import com.appyhigh.newsfeedsdk.apicalls.ApiCommentPost
-import com.appyhigh.newsfeedsdk.apicalls.ApiGetPostDetails
-import com.appyhigh.newsfeedsdk.apicalls.ApiPostImpression
-import com.appyhigh.newsfeedsdk.apicalls.ApiReactPost
+import com.appyhigh.newsfeedsdk.apicalls.*
 import com.appyhigh.newsfeedsdk.apiclient.Endpoints
 import com.appyhigh.newsfeedsdk.callbacks.FeedReactionListener
 import com.appyhigh.newsfeedsdk.callbacks.GlideCallbackListener
@@ -106,6 +103,7 @@ class PostNativeDetailActivity : AppCompatActivity() {
     private var adUtilsSdk = AdUtilsSDK()
     var timer: Timer? = null
     var nativeTimer: Timer? = null
+    var adsModel = ApiConfig().getAdsModel()
 
     class LoadAdTask(var function: () -> (Unit)) : TimerTask() {
         override fun run() {
@@ -338,7 +336,7 @@ class PostNativeDetailActivity : AppCompatActivity() {
 
     override fun onResume() {
         super.onResume()
-        if (FeedSdk.showAds) {
+        if(ApiConfig().checkShowAds()) {
             startBannerTimer()
             startNativeTimer()
         }
@@ -347,11 +345,11 @@ class PostNativeDetailActivity : AppCompatActivity() {
 
     private fun showAds() {
         try {
-            if (FeedSdk.showAds) {
-                if (Constants.nativePageCount > 3) {
+            if (ApiConfig().checkShowAds() && adsModel.postDetailInterstitial.showAdmob) {
+                if (Constants.nativePageCount > adsModel.showInterstitialAfterPosts) {
                     loadInterstitialAd(
                         this,
-                        FeedSdk.mAdsModel!!.ad_id_post_interstitial,
+                        adsModel.postDetailInterstitial.admobId,
                         object : InterstitialAdUtilLoadCallback {
                             override fun onAdFailedToLoad(
                                 adError: LoadAdError,
@@ -406,36 +404,16 @@ class PostNativeDetailActivity : AppCompatActivity() {
         adUtilsSdk.requestFeedAdWithoutInbuiltTimer(
             btwArticleLayout!!,
             R.layout.native_ad_feed,
-            FeedSdk.mAdsModel!!.ad_id_between_article_native,
+            adsModel.postDetailArticleTopNative.admobId,
             "postNativeDetailBetween",
             object : LoadNativeAdListener {
                 override fun onAdLoadFailed() {
                     Log.d(TAG, "onAdLoadFailed: ")
-                    FirebaseAnalytics.getInstance(this@PostNativeDetailActivity)
-                        .logEvent("FeedNativeBtwArticleFailure", null)
-                    adUtilsSdk.requestFeedAdWithoutInbuiltTimer(
-                        btwArticleLayout!!,
-                        R.layout.native_ad_feed,
-                        FeedSdk.mAdsModel!!.ad_id_between_article_native_fallback,
-                        "postNativeDetailBetween",
-                        object : LoadNativeAdListener {
-                            override fun onAdLoadFailed() {
-                                FirebaseAnalytics.getInstance(this@PostNativeDetailActivity)
-                                    .logEvent("FeedNativeBtwArticleFallbackFailure", null)
-                            }
-
-                            override fun onAdLoadSuccess() {
-                                FirebaseAnalytics.getInstance(this@PostNativeDetailActivity)
-                                    .logEvent("FeedNativeBtwArticleFallbackSuccess", null)
-                            }
-
-                        }
-                    )
+                    FirebaseAnalytics.getInstance(this@PostNativeDetailActivity).logEvent("FeedNativeBtwArticleFailure", null)
                 }
 
                 override fun onAdLoadSuccess() {
-                    FirebaseAnalytics.getInstance(this@PostNativeDetailActivity)
-                        .logEvent("FeedNativeBtwArticleSuccess", null)
+                    FirebaseAnalytics.getInstance(this@PostNativeDetailActivity).logEvent("FeedNativeBtwArticleSuccess", null)
                 }
 
             })
@@ -444,36 +422,16 @@ class PostNativeDetailActivity : AppCompatActivity() {
                 adUtilsSdk.requestFeedAdWithoutInbuiltTimer(
                     binding!!.articleEndNative,
                     R.layout.native_ad_feed,
-                    FeedSdk.mAdsModel!!.ad_id_article_end_native,
+                    adsModel.postDetailArticleEndNative.admobId,
                     "postNativeDetailEnd",
                     object : LoadNativeAdListener {
                         override fun onAdLoadFailed() {
                             Log.d(TAG, "onAdLoadFailed: ")
-                            FirebaseAnalytics.getInstance(this@PostNativeDetailActivity)
-                                .logEvent("FeedNativeEndArticleFailure", null)
-                            adUtilsSdk.requestFeedAdWithoutInbuiltTimer(
-                                binding!!.articleEndNative,
-                                R.layout.native_ad_feed,
-                                FeedSdk.mAdsModel!!.ad_id_article_end_native,
-                                "postNativeDetailEnd",
-                                object : LoadNativeAdListener {
-                                    override fun onAdLoadFailed() {
-                                        FirebaseAnalytics.getInstance(this@PostNativeDetailActivity)
-                                            .logEvent("FeedNativeEndArticleFallbackFailure", null)
-                                    }
-
-                                    override fun onAdLoadSuccess() {
-                                        FirebaseAnalytics.getInstance(this@PostNativeDetailActivity)
-                                            .logEvent("FeedNativeEndArticleFallbackSuccess", null)
-                                    }
-
-                                }
-                            )
+                            FirebaseAnalytics.getInstance(this@PostNativeDetailActivity).logEvent("FeedNativeEndArticleFailure", null)
                         }
 
                         override fun onAdLoadSuccess() {
-                            FirebaseAnalytics.getInstance(this@PostNativeDetailActivity)
-                                .logEvent("FeedNativeEndArticleSuccess", null)
+                            FirebaseAnalytics.getInstance(this@PostNativeDetailActivity).logEvent("FeedNativeEndArticleSuccess", null)
                         }
 
                     })
@@ -742,7 +700,7 @@ class PostNativeDetailActivity : AppCompatActivity() {
     @SuppressLint("SetJavaScriptEnabled", "ResourceType")
     private fun formatHtmlView(description: String) {
         try {
-            if (FeedSdk.showAds) {
+            if (ApiConfig().checkShowAds()) {
                 binding!!.nativeBtwArticle.addView(btwArticleLayout)
             }
             val document = Jsoup.parse(description).body()
@@ -1365,7 +1323,7 @@ class PostNativeDetailActivity : AppCompatActivity() {
             Log.d(TAG, "showAdaptiveBanner: ")
             try {
                 val adView = AdView(this)
-                adView.adUnitId = FeedSdk.mAdsModel!!.native_footer_banner
+                adView.adUnitId = adsModel.postDetailFooterBanner.admobId
                 adView.adListener = object : AdListener() {
                     override fun onAdLoaded() {
                         super.onAdLoaded()

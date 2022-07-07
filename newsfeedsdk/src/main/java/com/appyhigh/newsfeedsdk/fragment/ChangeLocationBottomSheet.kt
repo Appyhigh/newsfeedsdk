@@ -20,6 +20,7 @@ import com.appyhigh.newsfeedsdk.R
 import com.appyhigh.newsfeedsdk.adapter.ChangeLocationAdapter
 import com.appyhigh.newsfeedsdk.apicalls.ApiExplore
 import com.appyhigh.newsfeedsdk.apicalls.ApiUpdateUserPersonalization
+import com.appyhigh.newsfeedsdk.apiclient.Endpoints
 import com.appyhigh.newsfeedsdk.callbacks.LocationClickListener
 import com.appyhigh.newsfeedsdk.databinding.LayoutSelectLocationBinding
 import com.appyhigh.newsfeedsdk.model.StateListResponse
@@ -74,16 +75,20 @@ class ChangeLocationBottomSheet : BottomSheetDialogFragment() {
         Constants.setFontFamily(etSearch)
         Card.setFontFamily(binding?.currLocation)
         if(Constants.stateMap.isEmpty()){
-            ApiExplore().getStateList(
-                object : ApiExplore.StateResponseListener{
-                    override fun onSuccess(response: StateListResponse, url: String, timeStamp: Long) {
-                        response.cards[0].items.forEach {
-                            Constants.stateMap[it.state] = it.stateCode
+            FeedSdk.spUtil?.getString(Constants.JWT_TOKEN)?.let {
+                ApiExplore().getStateListEncrypted(
+                    Endpoints.GET_STATE_LIST_ENCRYPTED,
+                    it,
+                    object : ApiExplore.StateResponseListener{
+                        override fun onSuccess(response: StateListResponse, url: String, timeStamp: Long) {
+                            response.cards[0].items.forEach {
+                                Constants.stateMap[it.state] = it.stateCode
+                            }
+                            setData()
                         }
-                        setData()
                     }
-                }
-            )
+                )
+            }
         }else {
             setData()
         }
@@ -153,21 +158,24 @@ class ChangeLocationBottomSheet : BottomSheetDialogFragment() {
     override fun onDismiss(dialog: DialogInterface) {
         super.onDismiss(dialog)
         if(isChanged){
-            ApiUpdateUserPersonalization().updateUserState(
-                tvCurrLocation?.text!!.toString(),
-                object : ApiUpdateUserPersonalization.UpdatePersonalizationListener{
-                    override fun onSuccess() {
-                        for(listener in SpUtil.onRefreshListeners){
-                            listener.value.onRefreshNeeded()
+            FeedSdk.spUtil?.getString(Constants.JWT_TOKEN)?.let {
+                ApiUpdateUserPersonalization().updateUserState(
+                    it,
+                    tvCurrLocation?.text!!.toString(),
+                    object : ApiUpdateUserPersonalization.UpdatePersonalizationListener{
+                        override fun onSuccess() {
+                            for(listener in SpUtil.onRefreshListeners){
+                                listener.value.onRefreshNeeded()
+                            }
                         }
-                    }
 
-                    override fun onFailure() {
-                        Constants.Toaster.show(FeedSdk.mContext!!,"Please try again")
-                    }
+                        override fun onFailure() {
+                            Constants.Toaster.show(FeedSdk.mContext!!,"Please try again")
+                        }
 
-                }
-            )
+                    }
+                )
+            }
             SpUtil.spUtilInstance?.putString(LOCATION_DEF, tvCurrLocation!!.text as String)
         }
     }

@@ -5,9 +5,7 @@ import com.appyhigh.newsfeedsdk.Constants
 import com.appyhigh.newsfeedsdk.FeedSdk
 import com.appyhigh.newsfeedsdk.apiclient.APISearchStickyClient
 import com.appyhigh.newsfeedsdk.model.SearchStickyActionModel
-import com.appyhigh.newsfeedsdk.model.SearchStickyWidgetModel
 import com.appyhigh.newsfeedsdk.utils.SpUtil
-import com.google.gson.Gson
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import io.reactivex.rxjava3.schedulers.Schedulers
 

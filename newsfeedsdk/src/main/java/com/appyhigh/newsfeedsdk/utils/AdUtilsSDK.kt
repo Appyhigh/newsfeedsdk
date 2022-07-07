@@ -15,6 +15,7 @@ import com.appyhigh.newsfeedsdk.Constants
 import com.appyhigh.newsfeedsdk.FeedSdk
 import com.appyhigh.newsfeedsdk.R
 import com.appyhigh.newsfeedsdk.activity.LoadNativeAdListener
+import com.appyhigh.newsfeedsdk.apicalls.ApiConfig
 import com.appyhigh.newsfeedsdk.model.NativeAdItem
 import com.google.android.gms.ads.*
 import com.google.android.gms.ads.nativead.NativeAd
@@ -121,7 +122,7 @@ class AdUtilsSDK {
 
     @SuppressLint("InflateParams")
     fun requestFeedAdWithoutInbuiltTimer(view: LinearLayout, @LayoutRes layoutId: Int, adUnit:String, screen: String="category", loadNativeAdListener: LoadNativeAdListener?){
-        if(!FeedSdk.showAds && screen!="searchSticky"){
+        if(!ApiConfig().checkShowAds() && screen!="searchSticky"){
             return
         }
         var unifiedNative: NativeAd? = null
@@ -194,7 +195,7 @@ class AdUtilsSDK {
 
     @SuppressLint("InflateParams")
     fun requestFeedAd(view: LinearLayout, @LayoutRes layoutId: Int, adUnit:String, screen: String="category", fromTimer:Boolean = false){
-        if(!FeedSdk.showAds && screen!="searchSticky"){
+        if(!ApiConfig().checkShowAds() && screen!="searchSticky"){
             return
         }
         var unifiedNative: NativeAd? = null

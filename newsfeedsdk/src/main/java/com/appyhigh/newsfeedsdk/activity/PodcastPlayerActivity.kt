@@ -24,6 +24,7 @@ import com.appyhigh.newsfeedsdk.Constants.setDrawableColor
 import com.appyhigh.newsfeedsdk.FeedSdk
 import com.appyhigh.newsfeedsdk.R
 import com.appyhigh.newsfeedsdk.apicalls.ApiCommentPost
+import com.appyhigh.newsfeedsdk.apicalls.ApiConfig
 import com.appyhigh.newsfeedsdk.apicalls.ApiGetPostDetails
 import com.appyhigh.newsfeedsdk.apicalls.ApiReactPost
 import com.appyhigh.newsfeedsdk.apiclient.Endpoints
@@ -74,7 +75,7 @@ class PodcastPlayerActivity : AppCompatActivity() {
         val view = binding?.root
         setContentView(view)
         setFonts()
-        if(FeedSdk.showAds && Constants.checkFeedApp()){
+        if(ApiConfig().checkShowAds() && Constants.checkFeedApp()){
             showAdaptiveBanner(this, Constants.getHomeBannerAd(), binding!!.bannerAd)
         }
         position = intent.getIntExtra(Constants.POSITION, 0)

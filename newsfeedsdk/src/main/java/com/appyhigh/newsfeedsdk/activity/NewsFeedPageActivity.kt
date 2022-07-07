@@ -45,10 +45,7 @@ import com.appyhigh.newsfeedsdk.Constants.postDetailCards
 import com.appyhigh.newsfeedsdk.Constants.setDrawableColor
 import com.appyhigh.newsfeedsdk.FeedSdk
 import com.appyhigh.newsfeedsdk.R
-import com.appyhigh.newsfeedsdk.apicalls.ApiCommentPost
-import com.appyhigh.newsfeedsdk.apicalls.ApiGetPostDetails
-import com.appyhigh.newsfeedsdk.apicalls.ApiPostImpression
-import com.appyhigh.newsfeedsdk.apicalls.ApiReactPost
+import com.appyhigh.newsfeedsdk.apicalls.*
 import com.appyhigh.newsfeedsdk.apiclient.Endpoints
 import com.appyhigh.newsfeedsdk.callbacks.FeedReactionListener
 import com.appyhigh.newsfeedsdk.callbacks.GlideCallbackListener
@@ -135,8 +132,8 @@ class NewsFeedPageActivity : AppCompatActivity() {
         exo_fullscreen_button?.visibility = View.GONE
         details_close_button?.visibility = View.GONE
         Constants.postDetailPageNo = 0
-        if (FeedSdk.showAds) {
-            showAdaptiveBanner(this, Constants.getHomeBannerAd(), binding!!.bannerAd)
+        if (ApiConfig().checkShowAds()) {
+            showAdaptiveBanner(this, ApiConfig().getAdsModel().postDetailFooterBanner.admobId, binding!!.bannerAd)
         }
         if (intent.hasExtra(INTEREST)) {
             postDetailCards = ArrayList()

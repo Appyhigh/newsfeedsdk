@@ -20,6 +20,7 @@ import com.appyhigh.newsfeedsdk.BuildConfig
 import com.appyhigh.newsfeedsdk.Constants
 import com.appyhigh.newsfeedsdk.FeedSdk
 import com.appyhigh.newsfeedsdk.R
+import com.appyhigh.newsfeedsdk.apicalls.ApiConfig
 import com.appyhigh.newsfeedsdk.model.NativeAdItem
 import com.google.android.gms.ads.*
 import com.google.android.gms.ads.VideoController.VideoLifecycleCallbacks
@@ -134,7 +135,7 @@ fun populateUnifiedNativeAdView(nativeAd: NativeAd, adView: NativeAdView) {
 @SuppressLint("InflateParams")
 fun requestFeedAd(view: LinearLayout, @LayoutRes layoutId: Int, adUnit:String, showNew: Boolean = false,
                   screen: String="category", contentUrls: ArrayList<String>,  fromTimer: Boolean = false){
-    if(!FeedSdk.showAds){
+    if(!ApiConfig().checkShowAds()){
         return
     }
     Log.d("AdUtils", "requestFeedAd: "+ adUnit+"  screen "+screen)
@@ -224,7 +225,7 @@ fun requestFeedAd(view: LinearLayout, @LayoutRes layoutId: Int, adUnit:String, s
 @SuppressLint("InflateParams")
 fun requestVideoAd(view: LinearLayout, @LayoutRes layoutId: Int, adUnit:String, showNew: Boolean = false,
                    screen: String="videofeed", contentUrls: ArrayList<String>, fromTimer: Boolean = false){
-    if(!FeedSdk.showAds){
+    if(!ApiConfig().checkShowAds()){
         return
     }
     if(!fromTimer)

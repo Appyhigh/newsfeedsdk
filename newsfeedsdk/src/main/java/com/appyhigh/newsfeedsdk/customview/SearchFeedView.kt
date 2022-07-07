@@ -215,7 +215,7 @@ class SearchFeedView : LinearLayout, OnRefreshListener {
                                 }
                                 newsFeedList.add(card)
                             }
-                            if (FeedSdk.showAds) {
+                            if (ApiConfig().checkShowAds()) {
                                 try {
                                     val adItem = Card()
                                     adItem.cardType = Constants.AD
@@ -363,7 +363,7 @@ class SearchFeedView : LinearLayout, OnRefreshListener {
                             }
                             newsFeedList.add(card)
                         }
-                        if (FeedSdk.showAds) {
+                        if (ApiConfig().checkShowAds()) {
                             val adItem = Card()
                             adItem.cardType = Constants.AD
                             try {
