@@ -107,7 +107,7 @@ class ApiUserDetails {
             allDetails.add(Constants.USER_DETAIL, SessionUser.Instance().userDetails)
             allDetails.add(Constants.DEVICE_DETAIL, SessionUser.Instance().deviceDetails)
         } catch (e: Exception) {
-            e.printStackTrace()
+            LogDetail.LogEStack(e)
         }
         LogDetail.LogDE("Test Data", allDetails.toString())
         val publicKey = SessionUser.Instance().publicKey
@@ -160,7 +160,7 @@ class ApiUserDetails {
      */
     private fun handleApiError(throwable: Throwable) {
         throwable.message?.let {
-            Log.e(ApiCreateOrUpdateUser::class.java.simpleName, "handleApiError: $it")
+            LogDetail.LogDE(ApiCreateOrUpdateUser::class.java.simpleName, "handleApiError: $it")
         }
     }
 
@@ -183,7 +183,7 @@ fun addTopic(subscribe: Boolean) {
                     if (!task.isSuccessful) {
                         msg = "not subscribed to $topic"
                     }
-                    Log.d("FeedSdk", msg)
+                    LogDetail.LogD("FeedSdk", msg)
                 }
         } else {
             FirebaseMessaging.getInstance().unsubscribeFromTopic(topic)
@@ -192,11 +192,11 @@ fun addTopic(subscribe: Boolean) {
                     if (!task.isSuccessful) {
                         msg = "not unsubscribed to $topic"
                     }
-                    Log.d("FeedSdk", msg)
+                    LogDetail.LogD("FeedSdk", msg)
                 }
         }
     } catch (e: Exception) {
-        e.printStackTrace()
-        Log.e("FeedSdk", "firebaseUnSubscribeToTopic: " + e)
+        LogDetail.LogEStack(e)
+        LogDetail.LogDE("FeedSdk", "firebaseUnSubscribeToTopic: " + e)
     }
 }

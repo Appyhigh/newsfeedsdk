@@ -9,13 +9,31 @@ import android.content.pm.PackageManager
 import android.content.res.ColorStateList
 import android.content.res.Configuration
 import android.graphics.Color
+import android.graphics.Typeface
 import android.net.ConnectivityManager
 import android.net.NetworkCapabilities
+import android.os.Build
+import android.os.Bundle
+import android.os.Handler
+import android.os.HandlerThread
 import android.provider.Settings
 import android.telephony.TelephonyManager
 import android.util.Log
+import android.view.LayoutInflater
+import android.view.View
+import android.widget.FrameLayout
+import android.widget.TextView
 import androidx.annotation.RequiresApi
+import androidx.appcompat.app.AppCompatDelegate
+import androidx.appcompat.widget.AppCompatImageView
+import androidx.core.content.ContextCompat
+import androidx.core.provider.FontRequest
+import androidx.core.provider.FontsContractCompat
+import androidx.fragment.app.FragmentManager
 import androidx.lifecycle.Lifecycle
+import androidx.work.ExistingWorkPolicy
+import androidx.work.OneTimeWorkRequestBuilder
+import androidx.work.WorkManager
 import com.appyhigh.newsfeedsdk.Constants.APP_NAME
 import com.appyhigh.newsfeedsdk.Constants.FEED_APP_ICON
 import com.appyhigh.newsfeedsdk.Constants.FEED_TARGET_ACTIVITY
@@ -23,9 +41,19 @@ import com.appyhigh.newsfeedsdk.Constants.IS_STICKY_NOTIFICATION_ON
 import com.appyhigh.newsfeedsdk.Constants.IS_STICKY_SERVICE_ON
 import com.appyhigh.newsfeedsdk.Constants.NEWS_FEED_APP_ID
 import com.appyhigh.newsfeedsdk.Constants.STICKY_NOTIFICATION
+import com.appyhigh.newsfeedsdk.Constants.USER_ID
 import com.appyhigh.newsfeedsdk.activity.*
 import com.appyhigh.newsfeedsdk.apicalls.*
+import com.appyhigh.newsfeedsdk.apiclient.Endpoints
+import com.appyhigh.newsfeedsdk.apiclient.Endpoints.GET_INTERESTS_ENCRYPTED
+import com.appyhigh.newsfeedsdk.apiclient.Endpoints.GET_LANGUAGES_ENCRYPTED
+import com.appyhigh.newsfeedsdk.apiclient.Endpoints.UPDATE_USER_ENCRYPTED
 import com.appyhigh.newsfeedsdk.callbacks.PersonalizationListener
+import com.appyhigh.newsfeedsdk.encryption.AuthSocket
+import com.appyhigh.newsfeedsdk.encryption.LogDetail
+import com.appyhigh.newsfeedsdk.encryption.SessionUser
+import com.appyhigh.newsfeedsdk.fragment.AddInterestBottomSheet
+import com.appyhigh.newsfeedsdk.model.*
 import com.appyhigh.newsfeedsdk.model.feeds.Card
 import com.appyhigh.newsfeedsdk.service.NotificationCricketService
 import com.appyhigh.newsfeedsdk.service.StickyNotificationService
@@ -35,6 +63,10 @@ import com.appyhigh.newsfeedsdk.utils.SocketConnection.initSocketConnection
 import com.appyhigh.newsfeedsdk.utils.SocketConnection.isSocketConnected
 import com.appyhigh.newsfeedsdk.utils.SocketConnection.isSocketListenersNotificationSet
 import com.appyhigh.newsfeedsdk.utils.SocketConnection.setSocketListenersNotification
+import com.google.android.material.bottomnavigation.BottomNavigationItemView
+import com.google.android.material.bottomnavigation.BottomNavigationMenuView
+import com.google.android.material.bottomnavigation.BottomNavigationView
+import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.firebase.messaging.FirebaseMessaging
 import com.google.firebase.remoteconfig.FirebaseRemoteConfig
 import com.jaredrummler.android.device.DeviceName
@@ -42,54 +74,11 @@ import org.json.JSONObject
 import java.text.SimpleDateFormat
 import java.util.*
 import java.util.concurrent.TimeUnit
-import kotlin.collections.ArrayList
-import android.graphics.Typeface
-import android.os.*
-import android.net.Network
-import android.net.NetworkRequest
-import android.os.Bundle
-import android.os.HandlerThread
-import android.view.LayoutInflater
-import android.view.View
-import android.widget.FrameLayout
-import android.widget.TextView
-import androidx.appcompat.app.AppCompatDelegate
-import androidx.appcompat.widget.AppCompatImageView
-import androidx.core.content.ContextCompat
-import androidx.core.provider.FontRequest
-import androidx.core.provider.FontsContractCompat
-import androidx.fragment.app.FragmentManager
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
-import androidx.work.*
-import com.appyhigh.newsfeedsdk.Constants.USER_ID
-import com.appyhigh.newsfeedsdk.apiclient.Endpoints
-import com.appyhigh.newsfeedsdk.apiclient.Endpoints.GET_FEEDS_ENCRYPTED
-import com.appyhigh.newsfeedsdk.apiclient.Endpoints.GET_INTERESTS_APPWISE_ENCRYPTED
-import com.appyhigh.newsfeedsdk.apiclient.Endpoints.GET_INTERESTS_ENCRYPTED
-import com.appyhigh.newsfeedsdk.apiclient.Endpoints.GET_LANGUAGES_ENCRYPTED
-import com.appyhigh.newsfeedsdk.apiclient.Endpoints.UPDATE_USER_ENCRYPTED
-import com.appyhigh.newsfeedsdk.apiclient.Endpoints.USER_DETAILS_ENCRYPTED
-import com.appyhigh.newsfeedsdk.encryption.AuthSocket
-import com.appyhigh.newsfeedsdk.encryption.LogDetail
-import com.appyhigh.newsfeedsdk.encryption.SessionUser
-import com.appyhigh.newsfeedsdk.customview.NewsFeedList
-import com.appyhigh.newsfeedsdk.fragment.AddInterestBottomSheet
-import com.appyhigh.newsfeedsdk.model.*
-import com.google.common.reflect.TypeToken
-import com.google.android.material.bottomnavigation.BottomNavigationItemView
-import com.google.android.material.bottomnavigation.BottomNavigationMenuView
-import com.google.android.material.bottomnavigation.BottomNavigationView
-import com.google.firebase.analytics.FirebaseAnalytics
-import com.google.gson.Gson
-import com.google.gson.GsonBuilder
-import org.json.JSONArray
-import kotlin.collections.HashMap
 
 class FeedSdk {
     companion object {
         fun handleIntent(context: Context, intentData: Intent): Boolean {
-            Log.d("cricHouse", "handleIntent: " + intentData.extras.toString())
+            LogDetail.LogD("cricHouse", "handleIntent: " + intentData.extras.toString())
             if (intentData.hasExtra("page") && intentData.hasExtra("push_source")
                 && intentData.getStringExtra("push_source") == "feedsdk"
             ) {
@@ -218,7 +207,7 @@ class FeedSdk {
                             context.startActivity(intent)
                         }
                     } catch (e: java.lang.Exception) {
-                        e.printStackTrace()
+                        LogDetail.LogEStack(e)
                     }
                 }
             } else {
@@ -301,7 +290,7 @@ class FeedSdk {
                 }
                 FontsContractCompat.requestFont(context, request, callback, mHandler)
             } catch (ex: Exception) {
-                ex.printStackTrace()
+                LogDetail.LogEStack(ex)
             }
         }
 
@@ -359,7 +348,7 @@ class FeedSdk {
         context: Context, lifecycle: Lifecycle, versionCode: String, versionName: String,
         user: User? = null, showCricketNotification: Boolean? = true, isDark: Boolean? = false
     ) {
-        Log.d("FeedSdk", "initializeSdk")
+        LogDetail.LogD("FeedSdk", "initializeSdk")
         if (font == null && !isFontDownloading)
             applyFont(context, "Roboto", false)
         onUserInitialized = ArrayList()
@@ -384,6 +373,7 @@ class FeedSdk {
         getAppNameFromManifest()
         getFeedTargetActivityFromManifest()
         getFeedAppIconFromManifest()
+        LogDetail.init(context)
         setUserId()
         setDeviceDetailsToLocal()
         initializeContentModified()
@@ -420,7 +410,7 @@ class FeedSdk {
             }
 
             override fun onFailure() {
-                Log.e(logTag, "Failed to generate Firebase Push Token")
+                LogDetail.LogDE(logTag, "Failed to generate Firebase Push Token")
                 apiGetInterests()
                 sendPostImpressions()
                 setDataFromFirebase()
@@ -459,7 +449,7 @@ class FeedSdk {
                 AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM)
             }
         } catch (ex: Exception) {
-            ex.printStackTrace()
+            LogDetail.LogEStack(ex)
         }
     }
 
@@ -528,7 +518,7 @@ class FeedSdk {
             }
             itemView
         } catch (ex: Exception) {
-            ex.printStackTrace()
+            LogDetail.LogEStack(ex)
             null
         }
     }
@@ -539,7 +529,7 @@ class FeedSdk {
                 parentNudgeView!!.visibility = View.GONE
             }
         } catch (ex: Exception) {
-            ex.printStackTrace()
+            LogDetail.LogEStack(ex)
         }
     }
 
@@ -659,7 +649,7 @@ class FeedSdk {
                             param.onFailure()
                         }
                     } catch (ex: Exception) {
-                        ex.printStackTrace()
+                        LogDetail.LogEStack(ex)
                         param.onSuccess("")
                     }
                 }.addOnFailureListener {
@@ -680,7 +670,7 @@ class FeedSdk {
             val activeNetworkInfo = connectivityManager.activeNetworkInfo
             return activeNetworkInfo != null && activeNetworkInfo.isConnected
         } catch (ex: Exception) {
-            ex.printStackTrace()
+            LogDetail.LogEStack(ex)
             return false
         }
     }
@@ -753,12 +743,6 @@ class FeedSdk {
         )
         val bundle = ai?.metaData
         appId = bundle?.getString(NEWS_FEED_APP_ID)!!.toString()
-//        val tempId = bundle?.get(NEWS_FEED_APP_ID)!!.toString()
-//        if(tempId.contains("E")){
-//            val tempIds = tempId.split("E")
-//            val result = BigDecimal(tempIds[0].toDouble() * Math.exp(tempIds[1].toDouble()))
-//            Log.d(TAG, "getAppIdFromManifest: "+result)
-//        }
     }
 
     private fun getAppNameFromManifest() {
@@ -805,7 +789,7 @@ class FeedSdk {
         try {
             RSAKeyGenerator.getNewJwtToken(appId, userId)
         } catch (ex: Exception) {
-            ex.printStackTrace()
+            LogDetail.LogEStack(ex)
         }
     }
 
@@ -918,7 +902,7 @@ class FeedSdk {
                     } catch (ex: Exception) {
                     }
                 } catch (e: java.lang.Exception) {
-                    e.printStackTrace()
+                    LogDetail.LogEStack(e)
                 }
             }
     }
@@ -951,7 +935,7 @@ class FeedSdk {
                 }
             }
         } catch (ex: Exception) {
-            ex.printStackTrace()
+            LogDetail.LogEStack(ex)
         }
     }
 
@@ -965,7 +949,7 @@ class FeedSdk {
                 mContext!!.stopStickyNotificationService()
             }
         } catch (ex: Exception) {
-            ex.printStackTrace()
+            LogDetail.LogEStack(ex)
         }
     }
 
@@ -1005,7 +989,7 @@ class FeedSdk {
                                 )
                             }
                             //                    call+=1
-                            //                    Log.d("check777", "onSuccess: "+call*10000)
+                            //                    LogDetail.LogD("check777", "onSuccess: "+call*10000)
                             //                    val socketWorkRequest = OneTimeWorkRequestBuilder<SocketWorker>()
                             //                        .setInitialDelay((call*10000).toLong(), TimeUnit.MILLISECONDS)
                             //                        .build()
@@ -1053,13 +1037,13 @@ class FeedSdk {
                         } else {
                             try {
                                 //            var scoreObject = JSONObject("{\"data\":{\"filename\":\"innz11252021205688\",\"Status\":\"PlayInProgress\",\"Equation\":\"NewZealandtrailby256runs\",\"Innings\":{\"First\":{\"BattingteamId\":\"4\",\"BowlingteamId\":\"5\",\"BattingteamImage\":\"https:\\/\\/cricketimage.blob.core.windows.net\\/teams\\/4.png\",\"BowlingteamImage\":\"https:\\/\\/cricketimage.blob.core.windows.net\\/teams\\/5.png\",\"BattingteamShort\":\"IND\",\"BowlingteamShort\":\"NZ\",\"Battingteam\":\"India\",\"Bowlingteam\":\"NewZealand\",\"Runs\":\"345\",\"Wickets\":\"10\",\"Overs\":\"111.1\",\"Runrate\":\"3.1\"},\"Second\":{\"BattingteamId\":\"5\",\"BowlingteamId\":\"4\",\"BattingteamImage\":\"https:\\/\\/cricketimage.blob.core.windows.net\\/teams\\/5.png\",\"BowlingteamImage\":\"https:\\/\\/cricketimage.blob.core.windows.net\\/teams\\/4.png\",\"BattingteamShort\":\"NZ\",\"BowlingteamShort\":\"IND\",\"Battingteam\":\"NewZealand\",\"Bowlingteam\":\"India\",\"Runs\":\"89\",\"Wickets\":\"0\",\"Overs\":\"33.2\",\"Runrate\":\"2.67\"},\"Third\":{\"BattingteamId\":\"4\",\"BowlingteamId\":\"5\",\"BattingteamImage\":\"https:\\/\\/cricketimage.blob.core.windows.net\\/teams\\/4.png\",\"BowlingteamImage\":\"https:\\/\\/cricketimage.blob.core.windows.net\\/teams\\/5.png\",\"BattingteamShort\":\"IND\",\"BowlingteamShort\":\"NZ\",\"Battingteam\":\"India\",\"Bowlingteam\":\"NewZealand\",\"Runs\":\"345\",\"Wickets\":\"10\",\"Overs\":\"111.1\",\"Runrate\":\"3.1\"},\"Fourth\":{\"BattingteamId\":\"5\",\"BowlingteamId\":\"4\",\"BattingteamImage\":\"https:\\/\\/cricketimage.blob.core.windows.net\\/teams\\/5.png\",\"BowlingteamImage\":\"https:\\/\\/cricketimage.blob.core.windows.net\\/teams\\/4.png\",\"BattingteamShort\":\"NZ\",\"BowlingteamShort\":\"IND\",\"Battingteam\":\"NewZealand\",\"Bowlingteam\":\"India\",\"Runs\":\"89\",\"Wickets\":\"0\",\"Overs\":\"33.2\",\"Runrate\":\"2.67\"}},\"TourName\":\"NewZealandtourofIndia,2021\"}}")
-                                //            Log.d("TAG", "onBindViewHolder: "+scoreObject.toString());
+                                //            LogDetail.LogD("TAG", "onBindViewHolder: "+scoreObject.toString());
                                 //
                                 //            mContext?.startNotificationCricketService(scoreObject)
                                 //            var scoreObject = JSONObject("{\"data\":{\"filename\":\"sapk04102021200557\",\"status\":\"play in progress\",\"Equation\":\"pakistan need 34 runs in 17 balls at 12 rpo\",\"Innings\"" +
                                 //                    ":{\"First\":{\"battingteamid\":\"7\",\"bowlingteamid\":\"6\",\"BattingteamImage\":\"https:\\/\\/cricketimage.blob.core.windows.net\\/teams\\/7.png\",\"BowlingteamImage\":\"https:\\/\\/cricketimage.blob.core.windows.net\\/teams\\/6.png\",\"BattingteamShort\":\"sa\",\"BowlingteamShort\":\"pak\",\"battingteam\":\"south africa\",\"bowlingteam\":\"pakistan\",\"Runs\":\"188\",\"Wickets\":\"6\",\"Overs\":\"20.0\",\"Runrate\":\"9.40\",\"Allottedovers\":\"20\"}," +
                                 //                    "\"Second\":{\"battingteamid\":\"6\",\"bowlingteamid\":\"7\",\"BattingteamImage\":\"https:\\/\\/cricketimage.blob.core.windows.net\\/teams\\/6.png\",\"BowlingteamImage\":\"https:\\/\\/cricketimage.blob.core.windows.net\\/teams\\/7.png\",\"battingteamshort\":\"pak\",\"BowlingteamShort\":\"sa\",\"battingteam\":\"pakistan\",\"bowlingteam\":\"south africa\",\"Runs\":\"155\",\"Wickets\":\"5\",\"Overs\":\"17.1\",\"Runrate\":\"9.02\",\"Allottedovers\":\"20\"}},\"Tourname\":\"pakistan tour of south africa, 2021\"}}");
-                                //            Log.d("TAG", "onBindViewHolder: "+scoreObject.toString());
+                                //            LogDetail.LogD("TAG", "onBindViewHolder: "+scoreObject.toString());
                                 //            mContext?.startNotificationCricketService(scoreObject);
                                 spUtil?.putBoolean("dismissCricket", false)
                                 if (!isSocketListenersNotificationSet()) {
@@ -1083,7 +1067,7 @@ class FeedSdk {
                                                             )
                                                         }
                                                     } catch (ex: Exception) {
-                                                        ex.printStackTrace()
+                                                        LogDetail.LogEStack(ex)
                                                     }
                                             }
                                         }
@@ -1093,7 +1077,7 @@ class FeedSdk {
                                     initSocketConnection()
                                 }
                             } catch (e: java.lang.Exception) {
-                                e.printStackTrace()
+                                LogDetail.LogEStack(e)
                             }
                         }
                     }

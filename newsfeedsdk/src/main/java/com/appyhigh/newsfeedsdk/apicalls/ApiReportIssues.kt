@@ -77,7 +77,7 @@ class ApiReportIssues {
 
     private fun handleApiError(throwable: Throwable) {
         throwable.message?.let {
-            Log.e(ApiReportIssues::class.java.simpleName, "handleApiError: $it")
+            LogDetail.LogDE(ApiReportIssues::class.java.simpleName, "handleApiError: $it")
         }
     }
 }

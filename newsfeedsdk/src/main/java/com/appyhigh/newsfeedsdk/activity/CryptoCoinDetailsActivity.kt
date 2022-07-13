@@ -30,6 +30,7 @@ import com.appyhigh.newsfeedsdk.apiclient.Endpoints
 import com.appyhigh.newsfeedsdk.callbacks.OnRefreshListener
 import com.appyhigh.newsfeedsdk.callbacks.TabSelectedListener
 import com.appyhigh.newsfeedsdk.databinding.ActivityCryptoCoinDetailsBinding
+import com.appyhigh.newsfeedsdk.encryption.LogDetail
 import com.appyhigh.newsfeedsdk.fragment.ChartFragment
 import com.appyhigh.newsfeedsdk.fragment.CryptoCoinFragment
 import com.appyhigh.newsfeedsdk.model.crypto.CryptoFinderResponse
@@ -182,7 +183,7 @@ class CryptoCoinDetailsActivity : AppCompatActivity() {
     fun setData(card: Card, position: Int) {
         try {
             val myFormatter = DecimalFormat("#,##,###.##")
-            Log.d("CARD_ITEMS", card.toString())
+            LogDetail.LogD("CARD_ITEMS", card.toString())
             when (card.cardType) {
                 "coin_title" -> {
                     binding!!.coinId.text = card.items[0].coinName
@@ -316,7 +317,7 @@ class CryptoCoinDetailsActivity : AppCompatActivity() {
                 }
             }
         } catch (ex: Exception) {
-            ex.printStackTrace()
+            LogDetail.LogEStack(ex)
         }
     }
 
@@ -336,7 +337,7 @@ class CryptoCoinDetailsActivity : AppCompatActivity() {
                 setNewChartData(interval)
             }
         } catch (ex:Exception){
-            ex.printStackTrace()
+            LogDetail.LogEStack(ex)
         }
     }
 
@@ -375,7 +376,7 @@ class CryptoCoinDetailsActivity : AppCompatActivity() {
                             }
                             SpUtil.cryptoEventsListener?.onCoinDetailDateChanged(coinId, graphTabs[position].value!!)
                         } catch (ex:Exception){
-                            ex.printStackTrace()
+                            LogDetail.LogEStack(ex)
                         }
                     }
                 }
@@ -436,8 +437,8 @@ class CryptoCoinDetailsActivity : AppCompatActivity() {
 
     private fun setNewChartData(interval: String) {
         val html = HtmlHelper.getSmallScreenHtml(coinSymbol, interval, FeedSdk.sdkTheme)
-        Log.d("COIN_ID", coinSymbol)
-        Log.d("HTML_SCRIPT", html)
+        LogDetail.LogD("COIN_ID", coinSymbol)
+        LogDetail.LogD("HTML_SCRIPT", html)
         chartView.loadDataWithBaseURL(null, html, "text/html", "utf-8", null)
         binding!!.chartLayout.visibility = View.VISIBLE
     }

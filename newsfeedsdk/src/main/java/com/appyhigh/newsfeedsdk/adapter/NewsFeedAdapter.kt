@@ -53,6 +53,7 @@ import com.appyhigh.newsfeedsdk.apiclient.Endpoints
 import com.appyhigh.newsfeedsdk.callbacks.*
 import com.appyhigh.newsfeedsdk.customview.NewsFeedList
 import com.appyhigh.newsfeedsdk.databinding.*
+import com.appyhigh.newsfeedsdk.encryption.LogDetail
 import com.appyhigh.newsfeedsdk.fragment.AddInterestBottomSheet
 import com.appyhigh.newsfeedsdk.fragment.CryptoAlertPriceFragment
 import com.appyhigh.newsfeedsdk.fragment.FeedMenuBottomSheetFragment
@@ -540,13 +541,11 @@ class NewsFeedAdapter(
                 val holder = mainHolder as AdViewHolder
                 holder.view.card = newsFeedList[position]
                 holder.view.contentUrls = getContentUrls(position)
-                holder.view.adUnit = ApiConfig().getAdsModel().videoNative.admobId
             }
             NATIVE_AD_LARGE -> {
                 val holder = mainHolder as LargeAdViewHolder
                 holder.view.card = newsFeedList[position]
                 holder.view.contentUrls = getContentUrls(position)
-                holder.view.adUnit = ApiConfig().getAdsModel().videoNative.admobId
             }
             RATING_CARD -> {
                 if(FeedSdk.isCryptoApp){
@@ -966,7 +965,7 @@ class NewsFeedAdapter(
                 getContentPostUrl(position+1)?.let { contentUrls.add(it) }
             }
         } catch (ex:Exception){
-            ex.printStackTrace()
+            LogDetail.LogEStack(ex)
         }
         return contentUrls
     }
@@ -982,7 +981,7 @@ class NewsFeedAdapter(
                 return content.url!!
             } else return null
         } catch (ex:Exception){
-            ex.printStackTrace()
+            LogDetail.LogEStack(ex)
             return null
         }
     }
@@ -1056,7 +1055,7 @@ class NewsFeedAdapter(
                     }
                 }
             } catch (ex: java.lang.Exception) {
-                ex.printStackTrace()
+                LogDetail.LogEStack(ex)
             }
             v.context.startActivity(intent)
             Handler(Looper.getMainLooper()).postDelayed({
@@ -1125,7 +1124,7 @@ class NewsFeedAdapter(
                 )
             }
         } catch (e: Exception) {
-            e.printStackTrace()
+            LogDetail.LogEStack(e)
         }
     }
 
@@ -1155,7 +1154,7 @@ class NewsFeedAdapter(
             }
 
         } catch (ex: java.lang.Exception) {
-            ex.printStackTrace()
+            LogDetail.LogEStack(ex)
         }
         reactionCount?.let {
             try{
@@ -1174,7 +1173,7 @@ class NewsFeedAdapter(
                     tvLikes.text = likeCount.toString()
                 }
             } catch (ex:Exception){
-                ex.printStackTrace()
+                LogDetail.LogEStack(ex)
             }
         }
         val ivLike: AppCompatImageView = v.findViewById(R.id.ivLike)
@@ -1207,7 +1206,7 @@ class NewsFeedAdapter(
                     ivLike.setColorFilter(ContextCompat.getColor(ivLike.context, R.color.feedSecondaryTintColor))
                 }
             } catch (ex:Exception){
-                ex.printStackTrace()
+                LogDetail.LogEStack(ex)
             }
         }
 
@@ -1408,7 +1407,7 @@ class NewsFeedAdapter(
                 }
             }
         } catch (ex:Exception){
-            ex.printStackTrace()
+            LogDetail.LogEStack(ex)
         }
     }
 
@@ -1465,7 +1464,7 @@ class NewsFeedAdapter(
                         }
                     }
                     .addOnFailureListener { e ->
-                        e.printStackTrace()
+                        LogDetail.LogEStack(e)
                         try {
                             if (isWhatsApp) {
                                 val whatsAppIntent = Intent(Intent.ACTION_SEND)
@@ -1512,7 +1511,7 @@ class NewsFeedAdapter(
                         }
                     }
             } catch (e: Exception) {
-                e.printStackTrace()
+                LogDetail.LogEStack(e)
             }
             Handler(Looper.getMainLooper()).postDelayed({
                 onSomethingClicked = false
@@ -1556,7 +1555,7 @@ class NewsFeedAdapter(
                     }
                 }
             } catch (ex: java.lang.Exception) {
-                ex.printStackTrace()
+                LogDetail.LogEStack(ex)
             }
             val link: String = FeedSdk.mFirebaseDynamicLink + "?feed_id=" + card.items[0].postId!!
             try {
@@ -1613,7 +1612,7 @@ class NewsFeedAdapter(
                         }
                     }
                     .addOnFailureListener { e ->
-                        e.printStackTrace()
+                        LogDetail.LogEStack(e)
                         try {
                             if (isWhatsApp) {
                                 val whatsAppIntent = Intent(Intent.ACTION_SEND)
@@ -1658,7 +1657,7 @@ class NewsFeedAdapter(
                         }
                     }
             } catch (e: Exception) {
-                e.printStackTrace()
+                LogDetail.LogEStack(e)
             }
             Handler(Looper.getMainLooper()).postDelayed({
                 onSomethingClicked = false
@@ -1719,7 +1718,7 @@ class NewsFeedAdapter(
 
     @Suppress("DEPRECATION")
     override fun onViewAttachedToWindow(v: View, position: Int) {
-        Log.d("onViewAttached", "onViewAttachedToWindow")
+        LogDetail.LogD("onViewAttached", "onViewAttachedToWindow")
         try{
             if (v is StyledPlayerView) {
                 Handler(Looper.getMainLooper()).postDelayed({
@@ -1735,13 +1734,13 @@ class NewsFeedAdapter(
                 }, 100)
             }
         } catch (ex:Exception){
-            ex.printStackTrace()
+            LogDetail.LogEStack(ex)
         }
     }
 
     @Suppress("DEPRECATION")
     override fun onViewDetachedFromWindow(v: View, position: Int) {
-        Log.d("onViewDetached", "onViewDetachedFromWindow")
+        LogDetail.LogD("onViewDetached", "onViewDetachedFromWindow")
         if (v is StyledPlayerView) {
             v.player?.playWhenReady = false
             try {
@@ -1761,7 +1760,7 @@ class NewsFeedAdapter(
                     )
                 }
             } catch (ex:Exception){
-                ex.printStackTrace()
+                LogDetail.LogEStack(ex)
             }
         }
     }
@@ -1837,7 +1836,7 @@ class NewsFeedAdapter(
                 duration
             )
         } catch (e: Exception) {
-            e.printStackTrace()
+            LogDetail.LogEStack(e)
         }
     }
 
@@ -1849,7 +1848,7 @@ class NewsFeedAdapter(
                 }
             }
         }catch (ex: Exception){
-            ex.printStackTrace()
+            LogDetail.LogEStack(ex)
         }
     }
 
@@ -1865,13 +1864,13 @@ class NewsFeedAdapter(
                 }
             })
         } catch (e: Exception) {
-            e.printStackTrace()
+            LogDetail.LogEStack(e)
         }
     }
 
     fun pausePlayer(holder: BigVideoViewHolder) {
         try {
-            Log.d("Check", "pausePlayer " + holder.view.position)
+            LogDetail.LogD("Check", "pausePlayer " + holder.view.position)
             if (holder.view.llYoutubeView.visibility == View.VISIBLE){
                 youtubePlayerView.keys.forEach {
                     youtubePlayerView[it]?.getYouTubePlayerWhenReady(object: YouTubePlayerCallback {
@@ -1897,18 +1896,18 @@ class NewsFeedAdapter(
                         duration
                     )
                 } catch (ex:Exception){
-                    ex.printStackTrace()
+                    LogDetail.LogEStack(ex)
                 }
             }
         } catch (e: Exception) {
-            e.printStackTrace()
+            LogDetail.LogEStack(e)
         }
     }
 
     fun playVideo(holder: BigVideoViewHolder, position: Int) {
         Handler(Looper.getMainLooper()).postDelayed({
             try {
-                Log.d("ISPLAYING", "position: $position == ${holder.view.position}")
+                LogDetail.LogD("ISPLAYING", "position: $position == ${holder.view.position}")
                 if (holder.view.llYoutubeView.visibility == View.VISIBLE){
                     youtubePlayerView.keys.forEach {
                         if (it == position){
@@ -1929,7 +1928,7 @@ class NewsFeedAdapter(
                     }
                 }else {
                     holder.view.llYoutubeView.removeAllViewsInLayout()
-                    Log.d("Check", "playVideo " + holder.view.position)
+                    LogDetail.LogD("Check", "playVideo " + holder.view.position)
                     AudioTracker.init(holder.itemView.context, "Reels", AudioTracker.REELS, newsFeedList[holder.bindingAdapterPosition].items[0].postId,object : AudioTrackerListener{
                         override fun onSuccess() {
                             holder.view.newsItemVideo.player?.playWhenReady = true
@@ -1941,7 +1940,7 @@ class NewsFeedAdapter(
                     })
                 }
             } catch (e: Exception) {
-                e.printStackTrace()
+                LogDetail.LogEStack(e)
             }
         }, 100)
     }
@@ -1954,7 +1953,7 @@ class NewsFeedAdapter(
         try {
             llYoutubeView.removeAllViews()
         }catch (e: java.lang.Exception){
-            e.printStackTrace()
+            LogDetail.LogEStack(e)
         }
 
         youtubePlayerView[position] = YouTubePlayerView(mContext)
@@ -2055,7 +2054,7 @@ class NewsFeedAdapter(
                 totalDuration
             )
         } catch (ex:Exception){
-            ex.printStackTrace()
+            LogDetail.LogEStack(ex)
         }
     }
 

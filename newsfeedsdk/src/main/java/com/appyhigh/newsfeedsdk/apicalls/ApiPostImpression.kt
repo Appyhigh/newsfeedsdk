@@ -89,7 +89,7 @@ class ApiPostImpression {
                 allDetails.add(Constants.USER_DETAIL, SessionUser.Instance().userDetails)
                 allDetails.add(Constants.DEVICE_DETAIL, SessionUser.Instance().deviceDetails)
             } catch (e: Exception) {
-                e.printStackTrace()
+                LogDetail.LogEStack(e)
             }
 
             val publicKey = SessionUser.Instance().publicKey
@@ -110,7 +110,7 @@ class ApiPostImpression {
                     try {
                         sharedPrefs.edit().clear().apply()
                     } catch (ex: Exception) {
-                        ex.printStackTrace()
+                        LogDetail.LogEStack(ex)
                     }
                     Constants.isImpressionApiHit = false
                 }
@@ -128,7 +128,7 @@ class ApiPostImpression {
                 }
             })
         } else {
-            Log.d("addPostImpressions", "Nothing to post yet!")
+            LogDetail.LogD("addPostImpressions", "Nothing to post yet!")
         }
     }
 
@@ -172,7 +172,7 @@ class ApiPostImpression {
                 allDetails.add(Constants.USER_DETAIL, SessionUser.Instance().userDetails)
                 allDetails.add(Constants.DEVICE_DETAIL, SessionUser.Instance().deviceDetails)
             } catch (e: Exception) {
-                e.printStackTrace()
+                LogDetail.LogEStack(e)
             }
 
             val publicKey = SessionUser.Instance().publicKey
@@ -203,7 +203,7 @@ class ApiPostImpression {
                 }
             })
         } catch (ex: Exception) {
-            ex.printStackTrace()
+            LogDetail.LogEStack(ex)
         }
     }
 

@@ -2,7 +2,6 @@ package com.appyhigh.newsfeedsdk.encryption;
 
 import android.content.Intent;
 
-import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 
 import java.util.LinkedHashMap;
@@ -135,7 +134,7 @@ public class SessionUser {
             sessionDetails.addProperty("sha1", sha1);
             sessionDetails.addProperty("uniqueId", appId);
         } catch (Exception e) {
-            e.printStackTrace();
+            LogDetail.LogEStack(e);
         }
 
         return sessionDetails;
@@ -153,7 +152,7 @@ public class SessionUser {
             deviceDetails.addProperty("userLongitude", userLongitude);
             deviceDetails.addProperty("userFCM", userFCM);
         } catch (Exception e) {
-            e.printStackTrace();
+            LogDetail.LogEStack(e);
         }
 
         return deviceDetails;

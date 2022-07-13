@@ -58,7 +58,7 @@ class ApiCricketSchedule {
             allDetails.add(Constants.USER_DETAIL, SessionUser.Instance().userDetails)
             allDetails.add(Constants.DEVICE_DETAIL, SessionUser.Instance().deviceDetails)
         } catch (e: Exception) {
-            e.printStackTrace()
+            LogDetail.LogEStack(e)
         }
         LogDetail.LogDE("Test Data", allDetails.toString())
         val publicKey = SessionUser.Instance().publicKey
@@ -102,7 +102,7 @@ class ApiCricketSchedule {
 //                                cricketScheduleResponse.body()?.cards = filteredLiveMatches
 //                            }
 //                        } catch (ex: Exception) {
-//                            ex.printStackTrace()
+//                            LogDetail.LogEStack(ex)
 //                        }
 //                        Constants.liveMatchResponse = cricketScheduleResponse.body()
 //                        Constants.cricketLiveMatchURI =
@@ -156,7 +156,7 @@ class ApiCricketSchedule {
             allDetails.add(Constants.USER_DETAIL, SessionUser.Instance().userDetails)
             allDetails.add(Constants.DEVICE_DETAIL, SessionUser.Instance().deviceDetails)
         } catch (e: Exception) {
-            e.printStackTrace()
+            LogDetail.LogEStack(e)
         }
         LogDetail.LogDE("Test Data", allDetails.toString())
         val publicKey = SessionUser.Instance().publicKey
@@ -201,7 +201,7 @@ class ApiCricketSchedule {
      */
     private fun handleApiError(throwable: Throwable) {
         throwable.message?.let {
-            Log.e(ApiCreateOrUpdateUser::class.java.simpleName, "handleApiError: $it")
+            LogDetail.LogDE(ApiCreateOrUpdateUser::class.java.simpleName, "handleApiError: $it")
         }
     }
 

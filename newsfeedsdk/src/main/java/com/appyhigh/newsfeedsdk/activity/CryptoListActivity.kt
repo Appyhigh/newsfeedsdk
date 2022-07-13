@@ -16,6 +16,7 @@ import com.appyhigh.newsfeedsdk.apicalls.ApiCrypto
 import com.appyhigh.newsfeedsdk.apiclient.Endpoints
 import com.appyhigh.newsfeedsdk.callbacks.OnRefreshListener
 import com.appyhigh.newsfeedsdk.databinding.ActivityCryptoDetailsBinding
+import com.appyhigh.newsfeedsdk.encryption.LogDetail
 import com.appyhigh.newsfeedsdk.model.PostView
 import com.appyhigh.newsfeedsdk.model.crypto.CryptoSearchResponse
 import com.appyhigh.newsfeedsdk.model.feeds.Card
@@ -23,8 +24,6 @@ import com.appyhigh.newsfeedsdk.model.feeds.Item
 import com.appyhigh.newsfeedsdk.utils.EndlessScrolling
 import com.appyhigh.newsfeedsdk.utils.PodcastMediaPlayer
 import com.appyhigh.newsfeedsdk.utils.SpUtil
-import kotlin.collections.ArrayList
-import kotlin.collections.HashMap
 
 
 class CryptoListActivity : AppCompatActivity(), ApiCrypto.CryptoSearchListener {
@@ -158,7 +157,7 @@ class CryptoListActivity : AppCompatActivity(), ApiCrypto.CryptoSearchListener {
                 binding?.rvPosts?.addOnScrollListener(endlessScrolling!!)
             }
         } catch (e: Exception) {
-            e.printStackTrace()
+            LogDetail.LogEStack(e)
         }
     }
 

@@ -1,7 +1,10 @@
 package com.appyhigh.newsfeedsdk.activity
 
 import android.annotation.SuppressLint
-import android.content.*
+import android.content.ActivityNotFoundException
+import android.content.Context
+import android.content.ContextWrapper
+import android.content.Intent
 import android.graphics.drawable.Drawable
 import android.net.Uri
 import android.os.Bundle
@@ -30,9 +33,13 @@ import com.appyhigh.newsfeedsdk.apicalls.ApiReactPost
 import com.appyhigh.newsfeedsdk.apiclient.Endpoints
 import com.appyhigh.newsfeedsdk.callbacks.FeedReactionListener
 import com.appyhigh.newsfeedsdk.databinding.ActivityPodcastPlayerBinding
+import com.appyhigh.newsfeedsdk.encryption.LogDetail
 import com.appyhigh.newsfeedsdk.fragment.NonNativeCommentBottomSheet
 import com.appyhigh.newsfeedsdk.fragment.ReportIssueDialogFragment
-import com.appyhigh.newsfeedsdk.model.*
+import com.appyhigh.newsfeedsdk.model.FeedComment
+import com.appyhigh.newsfeedsdk.model.FeedCommentResponseWrapper
+import com.appyhigh.newsfeedsdk.model.Post
+import com.appyhigh.newsfeedsdk.model.PostDetailsModel
 import com.appyhigh.newsfeedsdk.model.feeds.Card
 import com.appyhigh.newsfeedsdk.utils.*
 import com.bumptech.glide.Glide
@@ -75,7 +82,7 @@ class PodcastPlayerActivity : AppCompatActivity() {
         val view = binding?.root
         setContentView(view)
         setFonts()
-        if(ApiConfig().checkShowAds() && Constants.checkFeedApp()){
+        if(ApiConfig().checkShowAds(this) && Constants.checkFeedApp()){
             showAdaptiveBanner(this, Constants.getHomeBannerAd(), binding!!.bannerAd)
         }
         position = intent.getIntExtra(Constants.POSITION, 0)
@@ -353,7 +360,7 @@ class PodcastPlayerActivity : AppCompatActivity() {
                 binding?.tvLikes?.setDrawableColor(ContextCompat.getColor(this, R.color.feedSecondaryTintColor))
             }
         } catch (ex:Exception){
-            ex.printStackTrace()
+            LogDetail.LogEStack(ex)
         }
         if(interest!="unknown" || !intent.hasExtra(POST_ID)){
             val reactionsCount = podcastCard!!.items[0].reactionsCount!!
@@ -402,7 +409,7 @@ class PodcastPlayerActivity : AppCompatActivity() {
                         cardsMap[interest]!![position] = card
                     }
                 } catch (e: Exception) {
-                    e.printStackTrace()
+                    LogDetail.LogEStack(e)
                 }
                 likes -= 1
                 binding?.tvLikes?.setDrawableColor(ContextCompat.getColor(this, R.color.feedSecondaryTintColor))
@@ -418,7 +425,7 @@ class PodcastPlayerActivity : AppCompatActivity() {
                         cardsMap[interest]!![position] = card
                     }
                 } catch (e: Exception) {
-                    e.printStackTrace()
+                    LogDetail.LogEStack(e)
                 }
                 likes += 1
                 binding?.tvLikes?.setDrawableColor(ContextCompat.getColor(this, R.color.purple_500))
@@ -516,7 +523,7 @@ class PodcastPlayerActivity : AppCompatActivity() {
                         }
                     }
                     .addOnFailureListener { e ->
-                        e.printStackTrace()
+                        LogDetail.LogEStack(e)
                         try {
                             if (isWhatsApp) {
                                 val whatsAppIntent = Intent(Intent.ACTION_SEND)
@@ -569,7 +576,7 @@ class PodcastPlayerActivity : AppCompatActivity() {
                         }
                     }
             } catch (e: Exception) {
-                e.printStackTrace()
+                LogDetail.LogEStack(e)
             }
         } else {
             try {
@@ -611,7 +618,7 @@ class PodcastPlayerActivity : AppCompatActivity() {
                         }
                     }
                     .addOnFailureListener { e: Exception ->
-                        e.printStackTrace()
+                        LogDetail.LogEStack(e)
                         try {
                             if (isWhatsApp) {
                                 val whatsAppIntent = Intent(Intent.ACTION_SEND)
@@ -664,7 +671,7 @@ class PodcastPlayerActivity : AppCompatActivity() {
                         }
                     }
             } catch (e: Exception) {
-                e.printStackTrace()
+                LogDetail.LogEStack(e)
             }
         }
     }
@@ -697,7 +704,7 @@ class PodcastPlayerActivity : AppCompatActivity() {
             }
             binding?.tvComments!!.text = commentsCount.toString()
         } catch (e: Exception) {
-            e.printStackTrace()
+            LogDetail.LogEStack(e)
         }
         feedCommentResponse.result?.comment?.let {
             nonNativeCommentBottomSheet?.updateComments(

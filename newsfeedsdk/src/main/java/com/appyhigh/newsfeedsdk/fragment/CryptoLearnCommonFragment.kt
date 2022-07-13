@@ -3,15 +3,13 @@ package com.appyhigh.newsfeedsdk.fragment
 import android.annotation.SuppressLint
 import android.content.Context
 import android.os.Bundle
-import android.util.Log
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.appyhigh.newsfeedsdk.Constants
 import com.appyhigh.newsfeedsdk.FeedSdk
-import com.appyhigh.newsfeedsdk.R
 import com.appyhigh.newsfeedsdk.adapter.NewsFeedAdapter
 import com.appyhigh.newsfeedsdk.apicalls.ApiConfig
 import com.appyhigh.newsfeedsdk.apicalls.ApiCrypto
@@ -20,16 +18,13 @@ import com.appyhigh.newsfeedsdk.apicalls.ApiPostImpression
 import com.appyhigh.newsfeedsdk.apiclient.Endpoints
 import com.appyhigh.newsfeedsdk.callbacks.PostImpressionListener
 import com.appyhigh.newsfeedsdk.databinding.FragmentCryptoLearnCommonBinding
+import com.appyhigh.newsfeedsdk.encryption.LogDetail
 import com.appyhigh.newsfeedsdk.model.PostImpressionsModel
 import com.appyhigh.newsfeedsdk.model.PostView
 import com.appyhigh.newsfeedsdk.model.feeds.Card
 import com.appyhigh.newsfeedsdk.model.feeds.GetFeedsResponse
-import com.appyhigh.newsfeedsdk.model.feeds.Item
 import com.appyhigh.newsfeedsdk.utils.EndlessScrolling
-import com.appyhigh.newsfeedsdk.utils.SpUtil
 import com.google.gson.Gson
-import java.util.ArrayList
-import java.util.HashMap
 
 
 /**
@@ -88,7 +83,7 @@ class CryptoLearnCommonFragment : Fragment() {
                     )
                     postImpressions[card.items[0].postId!!] = postView
                 } catch (ex: Exception){
-                    ex.printStackTrace()
+                    LogDetail.LogEStack(ex)
                 }
             }
         }
@@ -104,14 +99,14 @@ class CryptoLearnCommonFragment : Fragment() {
                 val adItem = Card()
                 adItem.cardType = Constants.AD
                 try{
-                    if(ApiConfig().checkShowAds() && newsFeedList.size>0 && newsFeedList[0].cardType!=Constants.AD){
+                    if(ApiConfig().checkShowAds(requireContext()) && newsFeedList.size>0 && newsFeedList[0].cardType!=Constants.AD){
                         newsFeedList.add(0, adItem)
                     }
-                    if(ApiConfig().checkShowAds() && newsFeedList.size>6) {
+                    if(ApiConfig().checkShowAds(requireContext()) && newsFeedList.size>6) {
                         newsFeedList.add(adIndex, adItem)
                     }
                 } catch (ex:Exception){
-                    ex.printStackTrace()
+                    LogDetail.LogEStack(ex)
                 }
                 newsFeedAdapter = NewsFeedAdapter(newsFeedList, null, interest, null, postImpressionListener)
                 binding?.rvLearnPosts?.apply {
@@ -147,14 +142,14 @@ class CryptoLearnCommonFragment : Fragment() {
                         val adItem = Card()
                         adItem.cardType = Constants.AD
                         try{
-                            if(ApiConfig().checkShowAds() && newsFeedList.size>0 && newsFeedList[0].cardType!=Constants.AD){
+                            if(ApiConfig().checkShowAds(requireContext()) && newsFeedList.size>0 && newsFeedList[0].cardType!=Constants.AD){
                                 newsFeedList.add(0, adItem)
                             }
-                            if(ApiConfig().checkShowAds() && newsFeedList.size>6) {
+                            if(ApiConfig().checkShowAds(requireContext()) && newsFeedList.size>6) {
                                 newsFeedList.add(adIndex, adItem)
                             }
                         } catch (ex:Exception){
-                            ex.printStackTrace()
+                            LogDetail.LogEStack(ex)
                         }
                         if(newsFeedList.isEmpty()){
                             binding!!.noPosts.visibility = View.VISIBLE
@@ -187,7 +182,7 @@ class CryptoLearnCommonFragment : Fragment() {
                 binding!!.rvLearnPosts.addOnScrollListener(endlessScrolling!!)
             }
         } catch (e: Exception) {
-            e.printStackTrace()
+            LogDetail.LogEStack(e)
         }
     }
 
@@ -210,23 +205,23 @@ class CryptoLearnCommonFragment : Fragment() {
                         val newsFeedList = cryptoResponse.cards as ArrayList<Card>
                         adIndex += 6
                         adCheckerList.addAll(newsFeedList)
-                        if(ApiConfig().checkShowAds()) {
+                        if(ApiConfig().checkShowAds(requireContext())) {
                             val adItem = Card()
                             adItem.cardType = Constants.AD
                             try {
                                 if (adCheckerList.size > adIndex) {
                                     newsFeedList.add(adIndex - ((pageNo - 1) * 10), adItem)
                                     adCheckerList.add(adIndex, adItem)
-                                    Log.d("Ad index", (adIndex - ((pageNo - 1) * 10)).toString())
+                                    LogDetail.LogD("Ad index", (adIndex - ((pageNo - 1) * 10)).toString())
                                 }
                                 if (adIndex + 6 < adCheckerList.size) {
                                     adIndex += 6
                                     newsFeedList.add(adIndex - ((pageNo - 1) * 10), adItem)
                                     adCheckerList.add(adIndex, adItem)
-                                    Log.d("Ad index", (adIndex - ((pageNo - 1) * 10)).toString())
+                                    LogDetail.LogD("Ad index", (adIndex - ((pageNo - 1) * 10)).toString())
                                 }
                             } catch (e: java.lang.Exception) {
-                                e.printStackTrace()
+                                LogDetail.LogEStack(e)
                             }
                         }
                         newsFeedAdapter?.updateList(newsFeedList, interest, pageNo, presentUrl, presentTimeStamp)
@@ -292,7 +287,7 @@ class CryptoLearnCommonFragment : Fragment() {
                 )
             }
         } catch (ex:java.lang.Exception){
-            ex.printStackTrace()
+            LogDetail.LogEStack(ex)
         }
     }
 

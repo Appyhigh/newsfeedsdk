@@ -7,7 +7,7 @@ import android.media.AudioManager
 import android.os.Build
 import android.os.Handler
 import android.os.Looper
-import android.util.Log
+import com.appyhigh.newsfeedsdk.encryption.LogDetail
 
 class AudioTracker {
     companion object {
@@ -26,7 +26,7 @@ class AudioTracker {
             listener = AudioManager.OnAudioFocusChangeListener {
                 when (it) {
                     AudioManager.AUDIOFOCUS_LOSS -> {
-                        Log.d(TAG, "AUDIOFOCUS_LOSS $context")
+                        LogDetail.LogD(TAG, "AUDIOFOCUS_LOSS $context")
                         for(model in audioTrackerListeners){
                             if(model.value.type != presentRequestType){
                                 model.value.listener.onFailure()
@@ -34,12 +34,12 @@ class AudioTracker {
                         }
                     }
                     AudioManager.AUDIOFOCUS_LOSS_TRANSIENT -> {
-                        Log.d(TAG, "AUDIOFOCUS_LOSS_TRANSIENT")
+                        LogDetail.LogD(TAG, "AUDIOFOCUS_LOSS_TRANSIENT")
                     }
                     AudioManager.AUDIOFOCUS_GAIN -> {
-                        Log.d(TAG, "AUDIOFOCUS_GAIN $context")
+                        LogDetail.LogD(TAG, "AUDIOFOCUS_GAIN $context")
                     }
-                    AudioManager.AUDIOFOCUS_LOSS_TRANSIENT_CAN_DUCK -> Log.d(TAG, "AUDIOFOCUS_LOSS_TRANSIENT_CAN_DUCK")
+                    AudioManager.AUDIOFOCUS_LOSS_TRANSIENT_CAN_DUCK -> LogDetail.LogD(TAG, "AUDIOFOCUS_LOSS_TRANSIENT_CAN_DUCK")
                 }
             }
             val result = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {

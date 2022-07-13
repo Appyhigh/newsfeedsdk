@@ -4,7 +4,6 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.graphics.Rect
 import android.util.AttributeSet
-import android.util.Log
 import android.view.View
 import android.widget.LinearLayout
 import android.widget.ProgressBar
@@ -20,16 +19,14 @@ import com.appyhigh.newsfeedsdk.callbacks.AdShownListener
 import com.appyhigh.newsfeedsdk.callbacks.OnRefreshListener
 import com.appyhigh.newsfeedsdk.callbacks.PostImpressionListener
 import com.appyhigh.newsfeedsdk.callbacks.VideoPlayerListener
+import com.appyhigh.newsfeedsdk.encryption.LogDetail
 import com.appyhigh.newsfeedsdk.model.*
 import com.appyhigh.newsfeedsdk.model.feeds.Card
 import com.appyhigh.newsfeedsdk.model.feeds.GetFeedsResponse
 import com.appyhigh.newsfeedsdk.utils.EndlessScrolling
-import com.appyhigh.newsfeedsdk.utils.SpUtil
 import com.google.android.exoplayer2.ui.StyledPlayerView
 import com.google.gson.Gson
 import java.util.*
-import kotlin.collections.ArrayList
-import kotlin.collections.HashMap
 
 class SearchFeedView : LinearLayout, OnRefreshListener {
     private var mUserDetails: UserResponse? = null
@@ -215,14 +212,14 @@ class SearchFeedView : LinearLayout, OnRefreshListener {
                                 }
                                 newsFeedList.add(card)
                             }
-                            if (ApiConfig().checkShowAds()) {
+                            if (ApiConfig().checkShowAds(context)) {
                                 try {
                                     val adItem = Card()
                                     adItem.cardType = Constants.AD
                                     newsFeedList.add(adIndex, adItem)
-                                    Log.d("Ad index", adIndex.toString())
+                                    LogDetail.LogD("Ad index", adIndex.toString())
                                 } catch (ex: Exception) {
-                                    ex.printStackTrace()
+                                    LogDetail.LogEStack(ex)
                                 }
                             }
                             newsFeedAdapter =
@@ -278,7 +275,7 @@ class SearchFeedView : LinearLayout, OnRefreshListener {
                                                     postView
                                                 )
                                             } catch (ex: java.lang.Exception) {
-                                                ex.printStackTrace()
+                                                LogDetail.LogEStack(ex)
                                             }
                                         }
                                     })
@@ -321,7 +318,7 @@ class SearchFeedView : LinearLayout, OnRefreshListener {
                 rvPosts?.addOnScrollListener(endlessScrolling!!)
             }
         } catch (e: Exception) {
-            e.printStackTrace()
+            LogDetail.LogEStack(e)
         }
     }
 
@@ -363,21 +360,21 @@ class SearchFeedView : LinearLayout, OnRefreshListener {
                             }
                             newsFeedList.add(card)
                         }
-                        if (ApiConfig().checkShowAds()) {
+                        if (ApiConfig().checkShowAds(context)) {
                             val adItem = Card()
                             adItem.cardType = Constants.AD
                             try {
                                 if (newsFeedList.size > adIndex) {
                                     newsFeedList.add(adIndex, adItem)
-                                    Log.d("Ad index", (adIndex).toString())
+                                    LogDetail.LogD("Ad index", (adIndex).toString())
                                 }
                                 if (adIndex + getFeedsResponse.adPlacement[0] < newsFeedList.size) {
                                     adIndex += getFeedsResponse.adPlacement[0]
                                     newsFeedList.add(adIndex, adItem)
-                                    Log.d("Ad index", (adIndex).toString())
+                                    LogDetail.LogD("Ad index", (adIndex).toString())
                                 }
                             } catch (e: java.lang.Exception) {
-                                e.printStackTrace()
+                                LogDetail.LogEStack(e)
                             }
                         }
                         newsFeedAdapter?.updateList(
@@ -426,7 +423,7 @@ class SearchFeedView : LinearLayout, OnRefreshListener {
                 )
             }
         } catch (ex: java.lang.Exception) {
-            ex.printStackTrace()
+            LogDetail.LogEStack(ex)
         }
     }
 

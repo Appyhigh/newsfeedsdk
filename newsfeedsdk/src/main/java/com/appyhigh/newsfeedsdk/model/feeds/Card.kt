@@ -8,7 +8,6 @@ import android.graphics.Color
 import android.graphics.Typeface
 import android.graphics.drawable.BitmapDrawable
 import android.graphics.drawable.Drawable
-import android.graphics.fonts.FontStyle
 import android.net.Uri
 import android.os.Handler
 import android.os.Looper
@@ -25,13 +24,13 @@ import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.webkit.WebView
 import android.widget.*
 import androidx.appcompat.widget.AppCompatImageView
 import androidx.appcompat.widget.AppCompatSeekBar
 import androidx.appcompat.widget.AppCompatTextView
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.content.ContextCompat
-import androidx.core.content.res.ResourcesCompat
 import androidx.core.graphics.drawable.toBitmap
 import androidx.core.text.HtmlCompat
 import androidx.core.text.parseAsHtml
@@ -53,8 +52,10 @@ import com.appyhigh.newsfeedsdk.adapter.*
 import com.appyhigh.newsfeedsdk.apicalls.ApiConfig
 import com.appyhigh.newsfeedsdk.apicalls.ApiCrypto
 import com.appyhigh.newsfeedsdk.apicalls.ApiUpdateUserPersonalization
+import com.appyhigh.newsfeedsdk.apicalls.ConfigAdRequestListener
 import com.appyhigh.newsfeedsdk.apiclient.Endpoints
 import com.appyhigh.newsfeedsdk.callbacks.*
+import com.appyhigh.newsfeedsdk.encryption.LogDetail
 import com.appyhigh.newsfeedsdk.model.Interest
 import com.appyhigh.newsfeedsdk.utils.*
 import com.appyhigh.newsfeedsdk.utils.SpUtil.Companion.eventsListener
@@ -84,7 +85,6 @@ import java.text.DecimalFormat
 import java.text.ParseException
 import java.text.SimpleDateFormat
 import java.util.*
-import kotlin.collections.ArrayList
 
 
 data class Card(
@@ -161,7 +161,7 @@ data class Card(
                                 tvPublisher.visibility = View.GONE
                                 view.setImageDrawable(drawable)
                             } catch (ex: Exception) {
-                                ex.printStackTrace()
+                                LogDetail.LogEStack(ex)
                             }
                         }
 
@@ -192,7 +192,7 @@ data class Card(
             try {
                 publishedOnText = getTime(time)
             } catch (e: ParseException) {
-                e.printStackTrace()
+                LogDetail.LogEStack(e)
             }
             view.text = publishedOnText
         }
@@ -229,7 +229,7 @@ data class Card(
                         view.context.startActivity(intent)
                     }
                 } catch (ex: Exception) {
-                    ex.printStackTrace()
+                    LogDetail.LogEStack(ex)
                 }
             }
         }
@@ -322,7 +322,7 @@ data class Card(
                                         BitmapDrawable(view.context.resources, bitmap)
                                     view.setImageDrawable(drawable)
                                     view.background = bitmapDrawable
-                                    Log.d(
+                                    LogDetail.LogD(
                                         "ImageBlur",
                                         "onSuccess: " + drawable.intrinsicWidth + " " + drawable.intrinsicHeight
                                     )
@@ -345,7 +345,7 @@ data class Card(
                                     view.setImageDrawable(drawable)
                                 }
                             } catch (ex: Exception) {
-                                ex.printStackTrace()
+                                LogDetail.LogEStack(ex)
                             }
                         }
 
@@ -372,7 +372,7 @@ data class Card(
                                                     )
                                                 }
                                             } catch (ex: Exception) {
-                                                ex.printStackTrace()
+                                                LogDetail.LogEStack(ex)
                                             }
                                         }
 
@@ -388,7 +388,7 @@ data class Card(
                     RequestOptions().override(300)
                 )
             } catch (ex: Exception) {
-                ex.printStackTrace()
+                LogDetail.LogEStack(ex)
             }
         }
 
@@ -469,7 +469,7 @@ data class Card(
                     )
                 }
             } catch (ex: Exception) {
-                ex.printStackTrace()
+                LogDetail.LogEStack(ex)
             }
             view.setImageDrawable(
                 Converters().getDisplayImage(
@@ -496,62 +496,52 @@ data class Card(
         @BindingAdapter(value = ["bindAd", "type", "contentUrls"], requireAll = true)
         fun loadAd(
             view: LinearLayout,
-            bindAd: String?,
+            bindAd: Boolean = true,
             type: String?,
             contentUrls: ArrayList<String>
         ) {
             Handler(Looper.getMainLooper()).postDelayed({
-                if (ApiConfig().checkShowAds()) {
-                    when (type) {
-                        null -> {
-                            requestFeedAd(
-                                view,
-                                R.layout.native_ad_feed,
-                                bindAd!!,
-                                true,
-                                "category",
-                                contentUrls
-                            )
-                        }
-                        else -> {
-                            requestFeedAd(
-                                view,
-                                R.layout.native_ad_feed,
-                                type,
-                                true,
-                                "category",
-                                contentUrls
-                            )
-                        }
+                ApiConfig().requestAd(view.context, "feed_native", object : ConfigAdRequestListener{
+                    override fun onPrivateAdSuccess(webView: WebView) {
+                        view.removeAllViews()
+                        view.addView(webView)
                     }
-                }
 
+                    override fun onAdmobAdSuccess(adId: String) {
+                        requestFeedAd(view, R.layout.native_ad_feed, adId, true, "category", contentUrls)
+                    }
+
+                    override fun onAdHide() {
+                        view.visibility = View.GONE
+                    }
+
+                })
             }, 1000)
         }
 
         @JvmStatic
         @BindingAdapter("bindAdLarge", "contentUrls")
-        fun loadAdLarge(view: LinearLayout, bindAdLarge: String?, contentUrls: ArrayList<String>) {
+        fun loadAdLarge(view: LinearLayout, bindAdLarge: Boolean = true, contentUrls: ArrayList<String>) {
             Handler(Looper.getMainLooper()).postDelayed({
-                if (ApiConfig().checkShowAds()) {
-                    if (Constants.videoUnitAdFromSticky != "") {
-                        requestVideoAd(
-                            view,
-                            R.layout.native_ad_large,
-                            Constants.videoUnitAdFromSticky,
-                            true, "videofeed", contentUrls
-                        )
-                    } else {
-                        requestVideoAd(
-                            view,
-                            R.layout.native_ad_large,
-                            bindAdLarge!!,
-                            true,
-                            "videofeed",
-                            contentUrls
-                        )
+                ApiConfig().requestAd(view.context, "video_native", object : ConfigAdRequestListener{
+                    override fun onPrivateAdSuccess(webView: WebView) {
+                        view.removeAllViews()
+                        view.addView(webView)
                     }
-                }
+
+                    override fun onAdmobAdSuccess(adId: String) {
+                        if (Constants.videoUnitAdFromSticky != "") {
+                            requestVideoAd(view, R.layout.native_ad_large, Constants.videoUnitAdFromSticky, true, "videofeed", contentUrls)
+                        } else {
+                            requestVideoAd(view, R.layout.native_ad_large, adId, true, "videofeed", contentUrls)
+                        }
+                    }
+
+                    override fun onAdHide() {
+                        view.visibility = View.GONE
+                    }
+
+                })
             }, 1000)
         }
 
@@ -608,7 +598,7 @@ data class Card(
                     view.layoutParams = layoutParams
                 }
             } catch (ex: Exception) {
-                ex.printStackTrace()
+                LogDetail.LogEStack(ex)
             }
             view.player = simpleExoPlayer
             val uri = Uri.parse(videoUrl)
@@ -630,7 +620,7 @@ data class Card(
                             .into(iv)
                         view.visibility = View.GONE
                     } catch (ex: Exception) {
-                        ex.printStackTrace()
+                        LogDetail.LogEStack(ex)
                     }
                 }
 
@@ -797,7 +787,7 @@ data class Card(
                 try {
                     llYoutubeView.removeAllViews()
                 } catch (e: java.lang.Exception) {
-                    e.printStackTrace()
+                    LogDetail.LogEStack(e)
                 }
                 llYoutubeView.visibility = View.GONE
                 view.visibility = View.VISIBLE
@@ -817,9 +807,9 @@ data class Card(
                     override fun onPlayerError(error: PlaybackException) {
                         super.onPlayerError(error)
                         try {
-                            Log.e("videoUrl", videoUrl)
+                            LogDetail.LogDE("videoUrl", videoUrl)
                         } catch (e: java.lang.Exception) {
-                            e.printStackTrace()
+                            LogDetail.LogEStack(e)
                         }
                     }
 
@@ -828,7 +818,7 @@ data class Card(
                             try {
                                 llYoutubeView.removeAllViews()
                             } catch (e: java.lang.Exception) {
-                                e.printStackTrace()
+                                LogDetail.LogEStack(e)
                             }
                             listener.onVideoEnded(position, simpleExoPlayer.duration)
                             simpleExoPlayer.seekTo(0)
@@ -1062,7 +1052,7 @@ data class Card(
                     updateInterest(view, interestList)
                     Handler(Looper.getMainLooper()).postDelayed({ view.isEnabled = true }, 1000)
                 } catch (ex: Exception) {
-                    ex.printStackTrace()
+                    LogDetail.LogEStack(ex)
                 }
             }
         }
@@ -1093,14 +1083,14 @@ data class Card(
                                             listener.value.onRefreshNeeded()
                                     }
                                 } catch (ex: Exception) {
-                                    ex.printStackTrace()
+                                    LogDetail.LogEStack(ex)
                                 }
                             }
                         }
                     )
                 }
             } catch (ex: Exception) {
-                ex.printStackTrace()
+                LogDetail.LogEStack(ex)
             }
 
         }
@@ -1134,7 +1124,7 @@ data class Card(
                                 )
                             }
                         } catch (ex: java.lang.Exception) {
-                            ex.printStackTrace()
+                            LogDetail.LogEStack(ex)
                         }
                         val intent =
                             Intent(flexboxLayout.context, FeedsActivity::class.java)
@@ -1151,7 +1141,7 @@ data class Card(
                     }
                 }
             } catch (e: Exception) {
-                e.printStackTrace()
+                LogDetail.LogEStack(e)
             }
         }
 
@@ -1189,7 +1179,7 @@ data class Card(
                     textView.text = result
                 }
             } catch (ex: Exception) {
-                ex.printStackTrace()
+                LogDetail.LogEStack(ex)
             }
         }
 
@@ -1365,7 +1355,7 @@ data class Card(
                     linksLayout.visibility = View.GONE
                 }
             } catch (ex: java.lang.Exception) {
-                ex.printStackTrace()
+                LogDetail.LogEStack(ex)
             }
         }
 
@@ -1403,7 +1393,9 @@ data class Card(
                             ApiCrypto().modifyCryptoAlertEncrypted(
                                 Endpoints.CRYPTO_ALERT_MODIFY_ENCRYPTED,
                                 it1,
-                                item.alertId, "sent", object : ApiCrypto.CryptoAlertResponseListener{
+                                item.alertId,
+                                "sent",
+                                object : ApiCrypto.CryptoAlertResponseListener {
                                     override fun onSuccess() {
                                         alertSwitch.setImageResource(R.drawable.ic_crypto_alert_off)
                                     }
@@ -1414,7 +1406,9 @@ data class Card(
                             ApiCrypto().modifyCryptoAlertEncrypted(
                                 Endpoints.CRYPTO_ALERT_MODIFY_ENCRYPTED,
                                 it1,
-                                item.alertId, "pending", object : ApiCrypto.CryptoAlertResponseListener{
+                                item.alertId,
+                                "pending",
+                                object : ApiCrypto.CryptoAlertResponseListener {
                                     override fun onSuccess() {
                                         alertSwitch.setImageResource(R.drawable.ic_crypto_alert_on)
                                     }
@@ -1427,7 +1421,7 @@ data class Card(
                         ApiCrypto().deleteCryptoAlertEncrypted(
                             Endpoints.CRYPTO_ALERT_DELETE_ENCRYPTED,
                             it1,
-                            item.alertId, object : ApiCrypto.CryptoAlertResponseListener{
+                            item.alertId, object : ApiCrypto.CryptoAlertResponseListener {
                                 override fun onSuccess() {
                                     SpUtil.alertRefreshListener?.onRefreshNeeded()
                                 }
@@ -1526,7 +1520,7 @@ data class Card(
                 lastUpdated.text = covidItem.lastUpdatedOn
                 source.text = covidItem.source
             } catch (ex: Exception) {
-                ex.printStackTrace()
+                LogDetail.LogEStack(ex)
             }
 
         }
@@ -1590,7 +1584,7 @@ data class Card(
                     todayFullyVaccinated.text = myFormatter.format(covidData.today.vaccinated2)
                 }
             } catch (ex: Exception) {
-                ex.printStackTrace()
+                LogDetail.LogEStack(ex)
             }
         }
 
@@ -1644,22 +1638,22 @@ data class Card(
                     }
                 }
             } catch (ex: java.lang.Exception) {
-                ex.printStackTrace()
+                LogDetail.LogEStack(ex)
                 return "1 day ago"
             }
         }
 
         @JvmStatic
         @BindingAdapter(value = ["isBold"], requireAll = false)
-        fun setFontFamily(view: TextView?, isBold:Boolean = false) {
+        fun setFontFamily(view: TextView?, isBold: Boolean = false) {
             try {
-                if(isBold){
+                if (isBold) {
                     view!!.setTypeface(FeedSdk.font, Typeface.BOLD)
-                } else{
+                } else {
                     view!!.typeface = FeedSdk.font
                 }
             } catch (ex: java.lang.Exception) {
-                ex.printStackTrace()
+                LogDetail.LogEStack(ex)
             }
         }
 
@@ -1673,22 +1667,31 @@ data class Card(
                     view.visibility = View.VISIBLE
                 }
             } catch (ex: java.lang.Exception) {
-                ex.printStackTrace()
+                LogDetail.LogEStack(ex)
             }
         }
 
         @JvmStatic
         @BindingAdapter(value = ["likeInterest", "isTitle"], requireAll = true)
-        fun setYouMayLikeInterests(view: AppCompatTextView, likeInterest: String, isTitle:Boolean) {
-            try{
-               if(isTitle){
-                    view.text = view.context.getString(R.string.you_may_like_interests_title, likeInterest)
-               } else {
-                   val randomLike = Random().nextInt(100 - (80 + 1))+80
-                   view.text = view.context.getString(R.string.you_may_like_interests_body, randomLike.toString()+"%", likeInterest)
-               }
-            } catch (ex:java.lang.Exception){
-                ex.printStackTrace()
+        fun setYouMayLikeInterests(
+            view: AppCompatTextView,
+            likeInterest: String,
+            isTitle: Boolean
+        ) {
+            try {
+                if (isTitle) {
+                    view.text =
+                        view.context.getString(R.string.you_may_like_interests_title, likeInterest)
+                } else {
+                    val randomLike = Random().nextInt(100 - (80 + 1)) + 80
+                    view.text = view.context.getString(
+                        R.string.you_may_like_interests_body,
+                        randomLike.toString() + "%",
+                        likeInterest
+                    )
+                }
+            } catch (ex: java.lang.Exception) {
+                LogDetail.LogEStack(ex)
             }
         }
 

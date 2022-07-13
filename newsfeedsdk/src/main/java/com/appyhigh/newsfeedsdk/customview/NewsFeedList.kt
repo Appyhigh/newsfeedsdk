@@ -6,12 +6,10 @@ import android.content.Intent
 import android.os.Handler
 import android.os.Looper
 import android.util.AttributeSet
-import android.util.Log
 import android.view.ContextThemeWrapper
 import android.view.View
 import android.widget.LinearLayout
 import android.widget.ProgressBar
-import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.AppCompatImageView
 import androidx.core.view.GravityCompat
 import androidx.drawerlayout.widget.DrawerLayout
@@ -35,6 +33,7 @@ import com.appyhigh.newsfeedsdk.apiclient.Endpoints
 import com.appyhigh.newsfeedsdk.callbacks.InterestSelectedListener
 import com.appyhigh.newsfeedsdk.callbacks.OnRefreshListener
 import com.appyhigh.newsfeedsdk.callbacks.PersonalizeCallListener
+import com.appyhigh.newsfeedsdk.encryption.LogDetail
 import com.appyhigh.newsfeedsdk.fragment.*
 import com.appyhigh.newsfeedsdk.model.Interest
 import com.appyhigh.newsfeedsdk.model.InterestResponseModel
@@ -46,12 +45,8 @@ import com.appyhigh.newsfeedsdk.utils.PodcastMediaPlayer
 import com.appyhigh.newsfeedsdk.utils.SpUtil
 import com.appyhigh.newsfeedsdk.utils.SpUtil.Companion.eventsListener
 import com.appyhigh.newsfeedsdk.utils.SpUtil.Companion.personalizeCallListener
-import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import com.google.android.material.navigation.NavigationView
 import java.util.*
-import kotlin.collections.ArrayList
-import kotlin.collections.HashMap
-import kotlin.collections.LinkedHashMap
 
 
 class NewsFeedList : LinearLayout, PersonalizeCallListener, OnRefreshListener {
@@ -95,12 +90,12 @@ class NewsFeedList : LinearLayout, PersonalizeCallListener, OnRefreshListener {
 
     private fun initSDK() {
         if (FeedSdk.isSdkInitializationSuccessful) {
-            Log.d("FeedSdk", "if isSdkInitializationSuccessful")
+            LogDetail.LogD("FeedSdk", "if isSdkInitializationSuccessful")
             initView()
         } else {
             FeedSdk().setListener(object : FeedSdk.OnUserInitialized {
                 override fun onInitSuccess() {
-                    Log.d("FeedSdk", "else onInitSuccess")
+                    LogDetail.LogD("FeedSdk", "else onInitSuccess")
                     initView()
                 }
             })
@@ -263,7 +258,7 @@ class NewsFeedList : LinearLayout, PersonalizeCallListener, OnRefreshListener {
                FeedSdk.languagesList = selectedLanguagesList
            }
        }catch (e:Exception){
-           e.printStackTrace()
+           LogDetail.LogEStack(e)
        }
     }
 
@@ -346,7 +341,7 @@ class NewsFeedList : LinearLayout, PersonalizeCallListener, OnRefreshListener {
         selectedInterestsList: ArrayList<Interest>,
         isSelectedInterestsEmpty: Boolean
     ) {
-        Log.d("TAG", "getInterestsOrder: start")
+        LogDetail.LogD("TAG", "getInterestsOrder: start")
         var interests = ""
         var pos = 0
         if (selectedInterestsList.isEmpty()) {
@@ -359,9 +354,9 @@ class NewsFeedList : LinearLayout, PersonalizeCallListener, OnRefreshListener {
                 selectedInterestsList[i].keyId
             }
         }
-        Log.d("TAG", "getInterestsOrder: end")
+        LogDetail.LogD("TAG", "getInterestsOrder: end")
         FeedSdk.spUtil?.getString(Constants.JWT_TOKEN)?.let {
-            Log.d("TAG", "getInterestsOrder: api called")
+            LogDetail.LogD("TAG", "getInterestsOrder: api called")
             ApiGetInterests().getInterestsAppWiseEncrypted(
                 Endpoints.GET_INTERESTS_APPWISE_ENCRYPTED,
                 it,
@@ -379,7 +374,7 @@ class NewsFeedList : LinearLayout, PersonalizeCallListener, OnRefreshListener {
                                 }
 
                             } catch (ex:Exception){
-                                ex.printStackTrace()
+                                LogDetail.LogEStack(ex)
                             }
                         }
                         if(Constants.userDetails?.showRegionalField == true) {
@@ -416,7 +411,7 @@ class NewsFeedList : LinearLayout, PersonalizeCallListener, OnRefreshListener {
                                     }
                                 }
                             } catch (ex:Exception){
-                                ex.printStackTrace()
+                                LogDetail.LogEStack(ex)
                             }
                             loadLayout?.visibility = GONE
                             val distinctList = newInterestList.distinct().toList()
@@ -456,14 +451,14 @@ class NewsFeedList : LinearLayout, PersonalizeCallListener, OnRefreshListener {
                                         rvInterests?.scrollToPosition(position)
                                     }
                                 } catch (e: Exception) {
-                                    e.printStackTrace()
+                                    LogDetail.LogEStack(e)
                                 }
                                 try {
                                     if (eventsListener != null) {
                                         eventsListener!!.onFeedCategoryClick(newInterestList[position].label!!)
                                     }
                                 } catch (ex: java.lang.Exception) {
-                                    ex.printStackTrace()
+                                    LogDetail.LogEStack(ex)
                                 }
                             }
                         })
@@ -489,7 +484,7 @@ class NewsFeedList : LinearLayout, PersonalizeCallListener, OnRefreshListener {
                                 }, 1000)
                             }
                         } catch (ex:Exception){
-                            ex.printStackTrace()
+                            LogDetail.LogEStack(ex)
                         }
                     }
                 })
@@ -554,7 +549,7 @@ class NewsFeedList : LinearLayout, PersonalizeCallListener, OnRefreshListener {
             val touchSlop = touchSlopField.get(recyclerView) as Int
             touchSlopField.set(recyclerView, touchSlop * 6) //6 is empirical value
         } catch (ex: java.lang.Exception) {
-            ex.printStackTrace()
+            LogDetail.LogEStack(ex)
         }
     }
 
@@ -569,7 +564,7 @@ class NewsFeedList : LinearLayout, PersonalizeCallListener, OnRefreshListener {
                     fragment.stopVideoPlayback()
             }
         } catch (e: java.lang.Exception) {
-            e.printStackTrace()
+            LogDetail.LogEStack(e)
         }
     }
 
@@ -582,7 +577,7 @@ class NewsFeedList : LinearLayout, PersonalizeCallListener, OnRefreshListener {
                 }
             }
         } catch (e: java.lang.Exception) {
-            e.printStackTrace()
+            LogDetail.LogEStack(e)
         }
     }
 
@@ -596,7 +591,7 @@ class NewsFeedList : LinearLayout, PersonalizeCallListener, OnRefreshListener {
         try {
             initSDK()
         } catch (ex: java.lang.Exception) {
-            ex.printStackTrace()
+            LogDetail.LogEStack(ex)
         }
     }
 
@@ -620,7 +615,7 @@ class NewsFeedList : LinearLayout, PersonalizeCallListener, OnRefreshListener {
                 }
             }
         } catch (ex: Exception) {
-            ex.printStackTrace()
+            LogDetail.LogEStack(ex)
         }
     }
 

@@ -4,8 +4,8 @@ import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import com.appyhigh.newsfeedsdk.Constants
 import com.appyhigh.newsfeedsdk.R
-import com.appyhigh.newsfeedsdk.adapter.CryptoSearchItem
 import com.appyhigh.newsfeedsdk.callbacks.BackPressListener
+import com.appyhigh.newsfeedsdk.encryption.LogDetail
 import com.appyhigh.newsfeedsdk.fragment.CryptoAlertListFragment
 import com.appyhigh.newsfeedsdk.fragment.CryptoAlertSelectFragment
 import com.appyhigh.newsfeedsdk.utils.SpUtil
@@ -28,7 +28,7 @@ class CryptoMainAlertActivity : AppCompatActivity(), BackPressListener {
                     .commit()
             }
         } catch (ex: Exception){
-            ex.printStackTrace()
+            LogDetail.LogEStack(ex)
         }
     }
 

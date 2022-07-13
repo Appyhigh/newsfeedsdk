@@ -17,6 +17,7 @@ data class AdsModel(
     @SerializedName("showPrivateAds")
     @Expose
     val showPrivateAds: Boolean = false,
+    val feedNative:ItemAdsModel = ItemAdsModel("", showAdmob = false, showPrivate = true),
     @SerializedName("video_native")
     @Expose
     val videoNative: ItemAdsModel = ItemAdsModel(),

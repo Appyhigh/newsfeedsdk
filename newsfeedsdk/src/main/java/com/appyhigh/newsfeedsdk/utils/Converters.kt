@@ -3,14 +3,14 @@ package com.appyhigh.newsfeedsdk.utils
 import android.annotation.SuppressLint
 import android.content.Context
 import android.graphics.drawable.Drawable
-import android.util.Log
 import androidx.core.content.ContextCompat
 import com.appyhigh.newsfeedsdk.Constants
 import com.appyhigh.newsfeedsdk.R
+import com.appyhigh.newsfeedsdk.encryption.LogDetail
 
 class Converters {
     fun getDisplayImageForPlatForm(platformType: String, context: Context): Drawable? {
-        Log.d("platform", platformType)
+        LogDetail.LogD("platform", platformType)
         return try{
             when (platformType) {
                 "instagram" -> ContextCompat.getDrawable(context, R.drawable.ic_instagram)

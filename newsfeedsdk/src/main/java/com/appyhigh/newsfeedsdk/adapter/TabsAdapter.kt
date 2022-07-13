@@ -17,6 +17,7 @@ import com.appyhigh.newsfeedsdk.callbacks.TabSelectedListener
 import com.appyhigh.newsfeedsdk.databinding.ItemCricketTabBinding
 import com.appyhigh.newsfeedsdk.databinding.ItemCryptoLearnTabBinding
 import com.appyhigh.newsfeedsdk.databinding.ItemCryptoTabBinding
+import com.appyhigh.newsfeedsdk.encryption.LogDetail
 import com.appyhigh.newsfeedsdk.model.feeds.Item
 
 class TabsAdapter(
@@ -149,7 +150,7 @@ class TabsAdapter(
             currentPosition = position
             notifyDataSetChanged()
         } catch (ex:Exception){
-            ex.printStackTrace()
+            LogDetail.LogEStack(ex)
         }
     }
 

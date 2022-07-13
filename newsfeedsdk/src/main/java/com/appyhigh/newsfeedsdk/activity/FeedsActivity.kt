@@ -22,6 +22,7 @@ import com.appyhigh.newsfeedsdk.apicalls.ApiPostImpression
 import com.appyhigh.newsfeedsdk.apiclient.Endpoints
 import com.appyhigh.newsfeedsdk.callbacks.PostImpressionListener
 import com.appyhigh.newsfeedsdk.databinding.ActivityFeedsBinding
+import com.appyhigh.newsfeedsdk.encryption.LogDetail
 import com.appyhigh.newsfeedsdk.model.PostImpressionsModel
 import com.appyhigh.newsfeedsdk.model.PostView
 import com.appyhigh.newsfeedsdk.model.feeds.Card
@@ -54,7 +55,7 @@ class FeedsActivity : AppCompatActivity() {
         setContentView(view)
         Card.setFontFamily(binding?.title, true)
         Card.setFontFamily(binding?.noPosts, true)
-        if(ApiConfig().checkShowAds()) {
+        if(ApiConfig().checkShowAds(this)) {
             showAdaptiveBanner(this, Constants.getHomeBannerAd(), binding!!.bannerAd)
         }
         binding?.backBtn?.setOnClickListener { onBackPressed() }
@@ -64,7 +65,7 @@ class FeedsActivity : AppCompatActivity() {
             tag = intent.getStringExtra(TAG) ?: "unknown"
             interest = intent.getStringExtra(INTEREST) ?: "unknown"
         } catch (ex: Exception) {
-            ex.printStackTrace()
+            LogDetail.LogEStack(ex)
         }
         binding!!.title.text = tag
         postImpressionListener = object : PostImpressionListener {
@@ -86,7 +87,7 @@ class FeedsActivity : AppCompatActivity() {
                     )
                     postImpressions[card.items[0].postId!!] = postView
                 } catch (ex: java.lang.Exception) {
-                    ex.printStackTrace()
+                    LogDetail.LogEStack(ex)
                 }
             }
         }
@@ -231,7 +232,7 @@ class FeedsActivity : AppCompatActivity() {
                 }
             }
         } catch (e: Exception) {
-            e.printStackTrace()
+            LogDetail.LogEStack(e)
         }
     }
 
@@ -263,7 +264,7 @@ class FeedsActivity : AppCompatActivity() {
                 binding?.recyclerView?.addOnScrollListener(endlessScrolling!!)
             }
         } catch (e: Exception) {
-            e.printStackTrace()
+            LogDetail.LogEStack(e)
         }
     }
 
@@ -288,7 +289,7 @@ class FeedsActivity : AppCompatActivity() {
                 )
             }
         } catch (ex: java.lang.Exception) {
-            ex.printStackTrace()
+            LogDetail.LogEStack(ex)
         }
     }
 }

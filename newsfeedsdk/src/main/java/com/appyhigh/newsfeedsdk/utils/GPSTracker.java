@@ -1,17 +1,11 @@
 package com.appyhigh.newsfeedsdk.utils;
 
-import java.io.IOException;
-import java.util.List;
-import java.util.Locale;
-
-import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.app.Service;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.pm.PackageManager;
 import android.location.Address;
 import android.location.Geocoder;
 import android.location.Location;
@@ -21,9 +15,12 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.provider.Settings;
-import android.util.Log;
 
-import androidx.core.app.ActivityCompat;
+import com.appyhigh.newsfeedsdk.encryption.LogDetail;
+
+import java.io.IOException;
+import java.util.List;
+import java.util.Locale;
 
 /**
  * Create this Class from tutorial :
@@ -93,7 +90,7 @@ public class GPSTracker extends Service implements LocationListener {
             if (isGPSEnabled) {
                 this.isGPSTrackingEnabled = true;
 
-                Log.d(TAG, "Application use GPS Service");
+                LogDetail.LogD(TAG, "Application use GPS Service");
 
                 /*
                  * This provider determines location using
@@ -106,7 +103,7 @@ public class GPSTracker extends Service implements LocationListener {
             } else if (isNetworkEnabled) { // Try to get location if you Network Service is enabled
                 this.isGPSTrackingEnabled = true;
 
-                Log.d(TAG, "Application use Network State to get GPS coordinates");
+                LogDetail.LogD(TAG, "Application use Network State to get GPS coordinates");
 
                 /*
                  * This provider determines location based on
@@ -134,8 +131,8 @@ public class GPSTracker extends Service implements LocationListener {
         }
         catch (Exception e)
         {
-            //e.printStackTrace();
-            Log.e(TAG, "Impossible to connect to LocationManager", e);
+            //LogDetail.LogEStack(e);
+            LogDetail.LogDE(TAG, "Impossible to connect to LocationManager", e);
         }
     }
 
@@ -249,8 +246,8 @@ public class GPSTracker extends Service implements LocationListener {
 
                 return addresses;
             } catch (IOException e) {
-                //e.printStackTrace();
-                Log.e(TAG, "Impossible to connect to Geocoder", e);
+                //LogDetail.LogEStack(e);
+                LogDetail.LogDE(TAG, "Impossible to connect to Geocoder", e);
             }
         }
 

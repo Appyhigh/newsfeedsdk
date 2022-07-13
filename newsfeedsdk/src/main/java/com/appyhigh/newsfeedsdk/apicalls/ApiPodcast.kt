@@ -93,7 +93,7 @@ class ApiPodcast {
                         getFeedsResponse.raw().sentRequestAtMillis
                     )
                 } catch (ex: Exception) {
-                    ex.printStackTrace()
+                    LogDetail.LogEStack(ex)
                 }
 
             }
@@ -169,7 +169,7 @@ class ApiPodcast {
                         getFeedsResponse.raw().sentRequestAtMillis
                     )
                 } catch (ex: Exception) {
-                    ex.printStackTrace()
+                    LogDetail.LogEStack(ex)
                 }
 
             }
@@ -244,7 +244,7 @@ class ApiPodcast {
                         getFeedsResponse.raw().sentRequestAtMillis
                     )
                 } catch (ex: Exception) {
-                    ex.printStackTrace()
+                    LogDetail.LogEStack(ex)
                 }
 
             }
@@ -269,7 +269,7 @@ class ApiPodcast {
  */
 private fun handleApiError(throwable: Throwable) {
     throwable.message?.let {
-        Log.e(ApiPodcast::class.java.simpleName, "handleApiError: $it")
+        LogDetail.LogDE(ApiPodcast::class.java.simpleName, "handleApiError: $it")
     }
 }
 

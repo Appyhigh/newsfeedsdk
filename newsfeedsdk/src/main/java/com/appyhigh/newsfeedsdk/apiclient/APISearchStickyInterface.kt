@@ -1,6 +1,8 @@
 package com.appyhigh.newsfeedsdk.apiclient
 
 import com.appyhigh.newsfeedsdk.Constants
+import com.appyhigh.newsfeedsdk.model.PrivateAdRequest
+import com.appyhigh.newsfeedsdk.model.PrivateAdResponse
 import com.appyhigh.newsfeedsdk.model.SearchStickyActionModel
 import com.appyhigh.newsfeedsdk.model.SearchStickyWidgetModel
 import com.appyhigh.newsfeedsdk.model.crypto.CryptoFinderResponse
@@ -33,4 +35,13 @@ interface APISearchStickyInterface {
 
     @GET
     fun findCryptoInTV(): Observable<Response<CryptoFinderResponse>>
+
+    @POST(".")
+    fun getMobAvenue(@Body privateAdRequest: PrivateAdRequest): Observable<Response<PrivateAdResponse>>
+
+    @GET
+    fun hitEUrl(@Url url: String): Observable<String?>?
+
+    @GET
+    fun hitNUrl(@Url url: String): Observable<String?>?
 }

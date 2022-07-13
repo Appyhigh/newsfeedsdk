@@ -23,13 +23,13 @@ import com.appyhigh.newsfeedsdk.apicalls.ApiUpdateUserPersonalization
 import com.appyhigh.newsfeedsdk.apiclient.Endpoints
 import com.appyhigh.newsfeedsdk.callbacks.LocationClickListener
 import com.appyhigh.newsfeedsdk.databinding.LayoutSelectLocationBinding
+import com.appyhigh.newsfeedsdk.encryption.LogDetail
 import com.appyhigh.newsfeedsdk.model.StateListResponse
 import com.appyhigh.newsfeedsdk.model.feeds.Card
 import com.appyhigh.newsfeedsdk.utils.SpUtil
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
-import kotlin.collections.ArrayList
 
 const val LOCATION_DEF = "location_def"
 
@@ -106,7 +106,7 @@ class ChangeLocationBottomSheet : BottomSheetDialogFragment() {
                 tvCurrLocation?.text = currLocation
                 list.remove(currLocation)
             } catch (ex:Exception){
-                ex.printStackTrace()
+                LogDetail.LogEStack(ex)
             }
         } else {
             tvCurrLocation?.text = getString(R.string.location_msg)
@@ -150,7 +150,7 @@ class ChangeLocationBottomSheet : BottomSheetDialogFragment() {
                 }
 
             } catch (ex: Exception) {
-                ex.printStackTrace()
+                LogDetail.LogEStack(ex)
             }
         }
     }

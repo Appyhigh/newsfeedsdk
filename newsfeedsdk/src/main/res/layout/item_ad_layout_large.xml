@@ -10,10 +10,6 @@
             type="com.appyhigh.newsfeedsdk.model.feeds.Card" />
 
         <variable
-            name="ad_unit"
-            type="String" />
-
-        <variable
             name="contentUrls"
             type="ArrayList&lt;String>" />
 
@@ -27,7 +23,7 @@
         android:layout_height="match_parent"
         android:minHeight="237dp"
         android:orientation="vertical"
-        app:bindAdLarge="@{ad_unit}"
+        app:bindAdLarge="@{true}"
         app:contentUrls="@{contentUrls}"
         android:gravity="center"
         android:background="@color/black"

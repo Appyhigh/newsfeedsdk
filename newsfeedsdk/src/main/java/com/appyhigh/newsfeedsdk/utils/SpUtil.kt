@@ -8,7 +8,6 @@ import android.content.Intent
 import android.content.IntentSender
 import android.content.SharedPreferences
 import android.content.pm.PackageManager
-import android.util.Log
 import androidx.core.content.ContextCompat
 import com.appyhigh.newsfeedsdk.Constants
 import com.appyhigh.newsfeedsdk.Constants.IS_GEO_POINTS_UPDATED
@@ -57,7 +56,7 @@ class SpUtil private constructor() {
                 mPref = mContext!!.getSharedPreferences("NEWSSDK", Context.MODE_PRIVATE)
             }
         } catch (ex: Exception) {
-            ex.printStackTrace()
+            LogDetail.LogEStack(ex)
         }
     }
 
@@ -117,10 +116,10 @@ class SpUtil private constructor() {
                         FeedSdk.spUtil?.getString(Constants.JWT_TOKEN)?.let { token -> updateGEOPoints(token, it.lat, it.lon) }
                     }
                 } catch (ex:Exception){
-                    ex.printStackTrace()
+                    LogDetail.LogEStack(ex)
                 }
             }, {
-                it.printStackTrace()
+                LogDetail.LogEStack(it)
             })
         }
 
@@ -200,12 +199,12 @@ class SpUtil private constructor() {
 
                         }
                         .addOnFailureListener {
-                            Log.d("TAG", "getGEOPoints: error " + it.message)
-                            it.printStackTrace()
+                            LogDetail.LogD("TAG", "getGEOPoints: error " + it.message)
+                            LogDetail.LogEStack(it)
                         }
                 }
             } catch (ex: Exception) {
-                ex.printStackTrace()
+                LogDetail.LogEStack(ex)
             }
         }
 
@@ -227,7 +226,7 @@ class SpUtil private constructor() {
                 allDetails.add(Constants.USER_DETAIL, SessionUser.Instance().userDetails)
                 allDetails.add(Constants.DEVICE_DETAIL, SessionUser.Instance().deviceDetails)
             } catch (e: Exception) {
-                e.printStackTrace()
+                LogDetail.LogEStack(e)
             }
             LogDetail.LogDE("Test Data", allDetails.toString())
             val publicKey = SessionUser.Instance().publicKey
@@ -265,7 +264,7 @@ class SpUtil private constructor() {
             editor.putString(key, value)
             editor.commit()
         } catch (ex:Exception){
-            ex.printStackTrace()
+            LogDetail.LogEStack(ex)
         }
     }
 
@@ -275,7 +274,7 @@ class SpUtil private constructor() {
             editor.putLong(key, value)
             editor.commit()
         } catch (ex:Exception){
-            ex.printStackTrace()
+            LogDetail.LogEStack(ex)
         }
     }
 
@@ -285,7 +284,7 @@ class SpUtil private constructor() {
             editor.putInt(key, value)
             editor.commit()
         } catch (ex:Exception){
-            ex.printStackTrace()
+            LogDetail.LogEStack(ex)
         }
     }
 
@@ -295,7 +294,7 @@ class SpUtil private constructor() {
             editor.putBoolean(key, value)
             editor.commit()
         } catch (ex:Exception){
-            ex.printStackTrace()
+            LogDetail.LogEStack(ex)
         }
     }
 
@@ -311,7 +310,7 @@ class SpUtil private constructor() {
         return try {
             mPref!!.getBoolean(key, def)
         } catch (ex:Exception){
-            ex.printStackTrace()
+            LogDetail.LogEStack(ex)
             def
         }
     }
@@ -320,7 +319,7 @@ class SpUtil private constructor() {
         return try {
             mPref!!.getString(key, "")
         } catch (ex:Exception){
-            ex.printStackTrace()
+            LogDetail.LogEStack(ex)
             ""
         }
     }
@@ -329,7 +328,7 @@ class SpUtil private constructor() {
         return try {
             mPref!!.getString(key, def)
         } catch (ex:Exception){
-            ex.printStackTrace()
+            LogDetail.LogEStack(ex)
             def
         }
     }
@@ -342,7 +341,7 @@ class SpUtil private constructor() {
         return try {
             mPref!!.getLong(key, defInt.toLong())
         } catch (ex:Exception){
-            ex.printStackTrace()
+            LogDetail.LogEStack(ex)
             defInt.toLong()
         }
     }

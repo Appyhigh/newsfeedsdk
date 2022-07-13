@@ -5,13 +5,13 @@ import android.graphics.Typeface
 import android.os.Parcelable
 import android.widget.LinearLayout
 import android.widget.TextView
-import androidx.appcompat.widget.AppCompatButton
 import androidx.appcompat.widget.AppCompatImageView
 import androidx.appcompat.widget.AppCompatTextView
 import androidx.core.content.ContextCompat
 import androidx.databinding.BindingAdapter
 import com.appyhigh.newsfeedsdk.FeedSdk
 import com.appyhigh.newsfeedsdk.R
+import com.appyhigh.newsfeedsdk.encryption.LogDetail
 import com.bumptech.glide.Glide
 import com.google.gson.annotations.SerializedName
 import kotlinx.parcelize.Parcelize
@@ -115,7 +115,7 @@ data class Interest(
                     view.setTextColor(ContextCompat.getColor(view.context, R.color.purple_500))
                 }
             } catch (ex: Exception) {
-                ex.printStackTrace()
+                LogDetail.LogEStack(ex)
             }
         }
 
@@ -129,7 +129,7 @@ data class Interest(
                    view.setImageResource(R.drawable.ic_pin_not_selected)
                }
             } catch (ex: Exception) {
-                ex.printStackTrace()
+                LogDetail.LogEStack(ex)
             }
         }
 

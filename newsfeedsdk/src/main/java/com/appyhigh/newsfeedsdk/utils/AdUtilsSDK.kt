@@ -5,17 +5,15 @@ import android.app.Activity
 import android.graphics.Typeface
 import android.os.Handler
 import android.os.Looper
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.widget.*
 import androidx.annotation.LayoutRes
-import androidx.core.content.res.ResourcesCompat
 import com.appyhigh.newsfeedsdk.Constants
 import com.appyhigh.newsfeedsdk.FeedSdk
 import com.appyhigh.newsfeedsdk.R
 import com.appyhigh.newsfeedsdk.activity.LoadNativeAdListener
-import com.appyhigh.newsfeedsdk.apicalls.ApiConfig
+import com.appyhigh.newsfeedsdk.encryption.LogDetail
 import com.appyhigh.newsfeedsdk.model.NativeAdItem
 import com.google.android.gms.ads.*
 import com.google.android.gms.ads.nativead.NativeAd
@@ -122,12 +120,12 @@ class AdUtilsSDK {
 
     @SuppressLint("InflateParams")
     fun requestFeedAdWithoutInbuiltTimer(view: LinearLayout, @LayoutRes layoutId: Int, adUnit:String, screen: String="category", loadNativeAdListener: LoadNativeAdListener?){
-        if(!ApiConfig().checkShowAds() && screen!="searchSticky"){
+        if(screen!="searchSticky"){
             return
         }
         var unifiedNative: NativeAd? = null
         var unifiedNativeAdView: NativeAdView? = null
-        Log.d("AdUtilsSDK", "requestFeedAd: "+ adUnit+"  screen "+screen)
+        LogDetail.LogD("AdUtilsSDK", "requestFeedAd: "+ adUnit+"  screen "+screen)
         try {
             Constants.nativeAdLifecycleCallbacks[view] = NativeAdItem(view, layoutId, adUnit, false, screen)
             try {
@@ -139,7 +137,7 @@ class AdUtilsSDK {
                             unifiedNativeAdView!!
                         )
                     } catch (e: Exception) {
-                        e.printStackTrace()
+                        LogDetail.LogEStack(e)
                     }
                     view.removeAllViews()
                     view.addView(unifiedNativeAdView)
@@ -158,7 +156,7 @@ class AdUtilsSDK {
                                     unifiedNativeAdView!!
                                 )
                             } catch (e: Exception) {
-                                e.printStackTrace()
+                                LogDetail.LogEStack(e)
                             }
                             view.removeAllViews()
                             view.addView(unifiedNativeAdView)
@@ -188,19 +186,19 @@ class AdUtilsSDK {
             } catch (e: Exception) {
             }
         } catch (e: Exception) {
-            Log.d("FeedNativeAd", "requestFeedAd: crashed "+screen)
-            e.printStackTrace()
+            LogDetail.LogD("FeedNativeAd", "requestFeedAd: crashed "+screen)
+            LogDetail.LogEStack(e)
         }
     }
 
     @SuppressLint("InflateParams")
     fun requestFeedAd(view: LinearLayout, @LayoutRes layoutId: Int, adUnit:String, screen: String="category", fromTimer:Boolean = false){
-        if(!ApiConfig().checkShowAds() && screen!="searchSticky"){
+        if(screen!="searchSticky"){
             return
         }
         var unifiedNative: NativeAd? = null
         var unifiedNativeAdView: NativeAdView? = null
-        Log.d("AdUtilsSDK", "requestFeedAd: "+ adUnit+"  screen "+screen)
+        LogDetail.LogD("AdUtilsSDK", "requestFeedAd: "+ adUnit+"  screen "+screen)
         if (!fromTimer)
             checkAndStartTimer()
         try {
@@ -220,7 +218,7 @@ class AdUtilsSDK {
                                     unifiedNativeAdView!!
                                 )
                             } catch (e: Exception) {
-                                e.printStackTrace()
+                                LogDetail.LogEStack(e)
                             }
                             view.removeAllViews()
                             view.addView(unifiedNativeAdView)
@@ -242,8 +240,8 @@ class AdUtilsSDK {
             } catch (e: Exception) {
             }
         } catch (e: Exception) {
-            Log.d("FeedNativeAd", "requestFeedAd: crashed "+screen)
-            e.printStackTrace()
+            LogDetail.LogD("FeedNativeAd", "requestFeedAd: crashed "+screen)
+            LogDetail.LogEStack(e)
         }
     }
 
@@ -258,7 +256,7 @@ class AdUtilsSDK {
                 }
                 fixedRateTimer("nativeAdTimer", false, interval, interval) {
                     try{
-                        Log.d(TAG, "checkAndStartTimer: ")
+                        LogDetail.LogD(TAG, "checkAndStartTimer: ")
                         for(ad in Constants.nativeAdLifecycleCallbacks.values){
                             Handler(Looper.getMainLooper()).post {
                                 try{
@@ -268,17 +266,17 @@ class AdUtilsSDK {
                                         Constants.nativeAdLifecycleCallbacks.remove(ad.view)
                                     }
                                 } catch (ex:Exception){
-                                    ex.printStackTrace()
+                                    LogDetail.LogEStack(ex)
                                 }
                             }
                         }
                     } catch (ex:Exception){
-                        ex.printStackTrace()
+                        LogDetail.LogEStack(ex)
                     }
                 }
             }
         } catch (ex:Exception){
-            ex.printStackTrace()
+            LogDetail.LogEStack(ex)
         }
     }
 

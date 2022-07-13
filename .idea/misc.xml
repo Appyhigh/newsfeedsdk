@@ -17,6 +17,7 @@
         <entry key="newsfeedsdk/src/main/res/layout/activity_crypto_coin_details.xml" value="0.2203125" />
         <entry key="newsfeedsdk/src/main/res/layout/activity_feed_language.xml" value="0.21458333333333332" />
         <entry key="newsfeedsdk/src/main/res/layout/activity_news_feed_page.xml" value="0.4225461655768795" />
+        <entry key="newsfeedsdk/src/main/res/layout/activity_post_native_detail.xml" value="0.2203125" />
         <entry key="newsfeedsdk/src/main/res/layout/activity_publisher_page.xml" value="0.15353260869565216" />
         <entry key="newsfeedsdk/src/main/res/layout/activity_pwa_cricket_tabs.xml" value="0.2006079027355623" />
         <entry key="newsfeedsdk/src/main/res/layout/activity_search_sticky_web.xml" value="0.13802083333333334" />
@@ -27,6 +28,8 @@
         <entry key="newsfeedsdk/src/main/res/layout/fragment_cricket_pwa.xml" value="0.2006079027355623" />
         <entry key="newsfeedsdk/src/main/res/layout/fragment_crypto_alert_list.xml" value="0.2203125" />
         <entry key="newsfeedsdk/src/main/res/layout/fragment_crypto_learn_common.xml" value="0.2203125" />
+        <entry key="newsfeedsdk/src/main/res/layout/item_ad_layout.xml" value="0.2203125" />
+        <entry key="newsfeedsdk/src/main/res/layout/item_ad_layout_large.xml" value="0.2203125" />
         <entry key="newsfeedsdk/src/main/res/layout/item_crypo_coin_alert.xml" value="0.2203125" />
         <entry key="newsfeedsdk/src/main/res/layout/item_feed_big.xml" value="0.2203125" />
         <entry key="newsfeedsdk/src/main/res/layout/item_feed_covid_tracker.xml" value="0.32653985507246375" />

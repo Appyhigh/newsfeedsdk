@@ -119,7 +119,7 @@ class ApiCrypto {
                         )
                     }
                 } catch (ex: Exception) {
-                    ex.printStackTrace()
+                    LogDetail.LogEStack(ex)
                 }
             }
 
@@ -136,7 +136,7 @@ class ApiCrypto {
                 if (page_number == 1) {
                     try {
                         val res = SpUtil.spUtilInstance!!.getString("crypto_home_response", "")
-                        Log.d("CryptoHome", "getCryptoHome: " + res)
+                        LogDetail.LogD("CryptoHome", "getCryptoHome: " + res)
                         if (!res.isNullOrEmpty()) {
                             val gson = Gson()
                             val response: CryptoResponse =
@@ -144,7 +144,7 @@ class ApiCrypto {
                             cryptoResponseListener.onSuccess(response, "", 0)
                         }
                     } catch (ex: Exception) {
-                        ex.printStackTrace()
+                        LogDetail.LogEStack(ex)
                     }
                 }
             }
@@ -180,7 +180,7 @@ class ApiCrypto {
             allDetails.add(Constants.USER_DETAIL, SessionUser.Instance().userDetails)
             allDetails.add(Constants.DEVICE_DETAIL, SessionUser.Instance().deviceDetails)
         } catch (e: Exception) {
-            e.printStackTrace()
+            LogDetail.LogEStack(e)
         }
         LogDetail.LogDE("Test Data", allDetails.toString())
         val publicKey = SessionUser.Instance().publicKey
@@ -213,7 +213,7 @@ class ApiCrypto {
                         cryptoResponse.raw().sentRequestAtMillis
                     )
                 } catch (ex: Exception) {
-                    ex.printStackTrace()
+                    LogDetail.LogEStack(ex)
                 }
             }
 
@@ -264,7 +264,7 @@ class ApiCrypto {
             allDetails.add(Constants.USER_DETAIL, SessionUser.Instance().userDetails)
             allDetails.add(Constants.DEVICE_DETAIL, SessionUser.Instance().deviceDetails)
         } catch (e: Exception) {
-            e.printStackTrace()
+            LogDetail.LogEStack(e)
         }
         LogDetail.LogDE("Test Data", allDetails.toString())
         val publicKey = SessionUser.Instance().publicKey
@@ -296,7 +296,7 @@ class ApiCrypto {
                         cryptoResponse.raw().sentRequestAtMillis
                     )
                 } catch (ex: Exception) {
-                    ex.printStackTrace()
+                    LogDetail.LogEStack(ex)
                 }
             }
 
@@ -335,7 +335,7 @@ class ApiCrypto {
             allDetails.add(Constants.USER_DETAIL, SessionUser.Instance().userDetails)
             allDetails.add(Constants.DEVICE_DETAIL, SessionUser.Instance().deviceDetails)
         } catch (e: Exception) {
-            e.printStackTrace()
+            LogDetail.LogEStack(e)
         }
         LogDetail.LogDE("Test Data", allDetails.toString())
         val publicKey = SessionUser.Instance().publicKey
@@ -413,7 +413,7 @@ class ApiCrypto {
             allDetails.add(Constants.USER_DETAIL, SessionUser.Instance().userDetails)
             allDetails.add(Constants.DEVICE_DETAIL, SessionUser.Instance().deviceDetails)
         } catch (e: Exception) {
-            e.printStackTrace()
+            LogDetail.LogEStack(e)
         }
         LogDetail.LogDE("Test Data", allDetails.toString())
         val publicKey = SessionUser.Instance().publicKey
@@ -476,7 +476,7 @@ class ApiCrypto {
             allDetails.add(Constants.USER_DETAIL, SessionUser.Instance().userDetails)
             allDetails.add(Constants.DEVICE_DETAIL, SessionUser.Instance().deviceDetails)
         } catch (e: Exception) {
-            e.printStackTrace()
+            LogDetail.LogEStack(e)
         }
         LogDetail.LogDE("Test Data", allDetails.toString())
         val publicKey = SessionUser.Instance().publicKey
@@ -532,7 +532,7 @@ class ApiCrypto {
             allDetails.add(Constants.USER_DETAIL, SessionUser.Instance().userDetails)
             allDetails.add(Constants.DEVICE_DETAIL, SessionUser.Instance().deviceDetails)
         } catch (e: Exception) {
-            e.printStackTrace()
+            LogDetail.LogEStack(e)
         }
         LogDetail.LogDE("Test Data", allDetails.toString())
         val publicKey = SessionUser.Instance().publicKey
@@ -606,7 +606,7 @@ class ApiCrypto {
             allDetails.add(Constants.USER_DETAIL, SessionUser.Instance().userDetails)
             allDetails.add(Constants.DEVICE_DETAIL, SessionUser.Instance().deviceDetails)
         } catch (e: Exception) {
-            e.printStackTrace()
+            LogDetail.LogEStack(e)
         }
         val publicKey = SessionUser.Instance().publicKey
         LogDetail.LogDE("Test Data", allDetails.toString())
@@ -671,7 +671,7 @@ class ApiCrypto {
             allDetails.add(Constants.USER_DETAIL, SessionUser.Instance().userDetails)
             allDetails.add(Constants.DEVICE_DETAIL, SessionUser.Instance().deviceDetails)
         } catch (e: Exception) {
-            e.printStackTrace()
+            LogDetail.LogEStack(e)
         }
         LogDetail.LogDE("Test Data", allDetails.toString())
         val publicKey = SessionUser.Instance().publicKey
@@ -699,7 +699,7 @@ class ApiCrypto {
                 try {
                     cryptoConvertorResponseListener.onSuccess(cryptoResponse!!.body()!!)
                 } catch (ex: Exception) {
-                    ex.printStackTrace()
+                    LogDetail.LogEStack(ex)
                 }
             }
 
@@ -738,7 +738,7 @@ class ApiCrypto {
             allDetails.add(Constants.USER_DETAIL, SessionUser.Instance().userDetails)
             allDetails.add(Constants.DEVICE_DETAIL, SessionUser.Instance().deviceDetails)
         } catch (e: Exception) {
-            e.printStackTrace()
+            LogDetail.LogEStack(e)
         }
         LogDetail.LogDE("Test Data", allDetails.toString())
         val publicKey = SessionUser.Instance().publicKey
@@ -766,7 +766,7 @@ class ApiCrypto {
                 try {
                     cryptoConvertorResponseListener.onSuccess(cryptoResponse!!.body()!!)
                 } catch (ex: Exception) {
-                    ex.printStackTrace()
+                    LogDetail.LogEStack(ex)
                 }
             }
 
@@ -798,10 +798,10 @@ class ApiCrypto {
                 try {
                     findCryptoResponse.onSuccess(it.body()!!)
                 } catch (ex: Exception) {
-                    ex.printStackTrace()
+                    LogDetail.LogEStack(ex)
                 }
             }, {
-                it.printStackTrace()
+                LogDetail.LogEStack(it)
                 handleApiError(it)
             })
     }
@@ -811,7 +811,7 @@ class ApiCrypto {
      */
     private fun handleApiError(throwable: Throwable) {
         throwable.message?.let {
-            Log.e(ApiCrypto::class.java.simpleName, "handleApiError: $it")
+            LogDetail.LogDE(ApiCrypto::class.java.simpleName, "handleApiError: $it")
         }
     }
 

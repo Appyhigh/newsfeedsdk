@@ -8,10 +8,8 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.GridLayoutManager
-import androidx.recyclerview.widget.LinearLayoutManager
 import com.appyhigh.newsfeedsdk.Constants
 import com.appyhigh.newsfeedsdk.FeedSdk
-import com.appyhigh.newsfeedsdk.R
 import com.appyhigh.newsfeedsdk.adapter.NewsFeedAdapter
 import com.appyhigh.newsfeedsdk.apicalls.ApiPodcast
 import com.appyhigh.newsfeedsdk.apicalls.ApiPostImpression
@@ -20,14 +18,12 @@ import com.appyhigh.newsfeedsdk.apicalls.PodcastResponseListener
 import com.appyhigh.newsfeedsdk.apiclient.Endpoints
 import com.appyhigh.newsfeedsdk.callbacks.PostImpressionListener
 import com.appyhigh.newsfeedsdk.databinding.FragmentCryptoPodcastsBinding
-import com.appyhigh.newsfeedsdk.databinding.FragmentPodcastsBinding
+import com.appyhigh.newsfeedsdk.encryption.LogDetail
 import com.appyhigh.newsfeedsdk.model.PostImpressionsModel
 import com.appyhigh.newsfeedsdk.model.PostView
 import com.appyhigh.newsfeedsdk.model.feeds.Card
 import com.appyhigh.newsfeedsdk.utils.EndlessScrolling
-import com.appyhigh.newsfeedsdk.utils.SpUtil
 import com.google.gson.Gson
-import java.util.ArrayList
 
 /**
  * A simple [Fragment] subclass.
@@ -112,7 +108,7 @@ class CryptoPodcastsFragment : Fragment() {
                                         )
                                         postImpressions[card.items[0].postId!!] = postView
                                     } catch (ex: Exception){
-                                        ex.printStackTrace()
+                                        LogDetail.LogEStack(ex)
                                     }
                                 }
                             }, presentUrl, presentTimeStamp)
@@ -156,7 +152,7 @@ class CryptoPodcastsFragment : Fragment() {
                 binding.rvPosts.addOnScrollListener(endlessScrolling!!)
             }
         } catch (e: Exception) {
-            e.printStackTrace()
+            LogDetail.LogEStack(e)
         }
     }
 
@@ -231,7 +227,7 @@ class CryptoPodcastsFragment : Fragment() {
                 )
             }
         } catch (ex:java.lang.Exception){
-            ex.printStackTrace()
+            LogDetail.LogEStack(ex)
         }
     }
 

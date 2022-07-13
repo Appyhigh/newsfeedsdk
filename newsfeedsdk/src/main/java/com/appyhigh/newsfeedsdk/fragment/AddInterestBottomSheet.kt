@@ -26,6 +26,7 @@ import com.appyhigh.newsfeedsdk.apicalls.ApiUserDetails
 import com.appyhigh.newsfeedsdk.apiclient.Endpoints
 import com.appyhigh.newsfeedsdk.callbacks.NewInterestClickListener
 import com.appyhigh.newsfeedsdk.databinding.LayoutIntrestSelectBinding
+import com.appyhigh.newsfeedsdk.encryption.LogDetail
 import com.appyhigh.newsfeedsdk.model.Interest
 import com.appyhigh.newsfeedsdk.model.InterestResponseModel
 import com.appyhigh.newsfeedsdk.model.User
@@ -36,8 +37,6 @@ import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import java.util.*
-import kotlin.collections.ArrayList
-import kotlin.collections.HashMap
 
 const val isFirstUse="ISFIRSTUSE"
 
@@ -67,7 +66,7 @@ class AddInterestBottomSheet :
             ft.add(this, tag)
             ft.commitAllowingStateLoss()
         } catch (e: IllegalStateException) {
-            e.printStackTrace()
+            LogDetail.LogEStack(e)
         }
     }
 
@@ -131,7 +130,7 @@ class AddInterestBottomSheet :
                 }
 
             } catch (ex: Exception) {
-                ex.printStackTrace()
+                LogDetail.LogEStack(ex)
             }
         }
         FeedSdk.spUtil?.getString(Constants.JWT_TOKEN)?.let {
@@ -253,7 +252,7 @@ class AddInterestBottomSheet :
                             try{
                                 Constants.Toaster.show(requireContext(),"Please try again")
                             } catch (ex:Exception){
-                                ex.printStackTrace()
+                                LogDetail.LogEStack(ex)
                             }
                         }
 

@@ -10,17 +10,14 @@ import android.graphics.Typeface
 import android.os.Handler
 import android.os.Looper
 import android.util.DisplayMetrics
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.widget.*
 import androidx.annotation.LayoutRes
-import androidx.core.content.res.ResourcesCompat
-import com.appyhigh.newsfeedsdk.BuildConfig
 import com.appyhigh.newsfeedsdk.Constants
 import com.appyhigh.newsfeedsdk.FeedSdk
 import com.appyhigh.newsfeedsdk.R
-import com.appyhigh.newsfeedsdk.apicalls.ApiConfig
+import com.appyhigh.newsfeedsdk.encryption.LogDetail
 import com.appyhigh.newsfeedsdk.model.NativeAdItem
 import com.google.android.gms.ads.*
 import com.google.android.gms.ads.VideoController.VideoLifecycleCallbacks
@@ -135,10 +132,7 @@ fun populateUnifiedNativeAdView(nativeAd: NativeAd, adView: NativeAdView) {
 @SuppressLint("InflateParams")
 fun requestFeedAd(view: LinearLayout, @LayoutRes layoutId: Int, adUnit:String, showNew: Boolean = false,
                   screen: String="category", contentUrls: ArrayList<String>,  fromTimer: Boolean = false){
-    if(!ApiConfig().checkShowAds()){
-        return
-    }
-    Log.d("AdUtils", "requestFeedAd: "+ adUnit+"  screen "+screen)
+    LogDetail.LogD("AdUtils", "requestFeedAd: "+ adUnit+"  screen "+screen)
     if(!fromTimer)
         checkAndStartTimer(contentUrls)
     try {
@@ -149,7 +143,7 @@ fun requestFeedAd(view: LinearLayout, @LayoutRes layoutId: Int, adUnit:String, s
             try {
                 populateUnifiedNativeAdView(unifiedNative!!, unifiedNativeAdView!!)
             } catch (e: Exception) {
-                e.printStackTrace()
+                LogDetail.LogEStack(e)
             }
             view.removeAllViews()
             view.addView(unifiedNativeAdView)
@@ -177,7 +171,7 @@ fun requestFeedAd(view: LinearLayout, @LayoutRes layoutId: Int, adUnit:String, s
                                     unifiedNativeAdView!!
                                 )
                             } catch (e: Exception) {
-                                e.printStackTrace()
+                                LogDetail.LogEStack(e)
                             }
                             view.removeAllViews()
                             view.addView(unifiedNativeAdView)
@@ -213,21 +207,18 @@ fun requestFeedAd(view: LinearLayout, @LayoutRes layoutId: Int, adUnit:String, s
                     adLoader.loadAd(AdRequest.Builder().build())
                 }
             } catch (e: Exception) {
-                e.printStackTrace()
+                LogDetail.LogEStack(e)
             }
         }
     } catch (e: Exception) {
-        Log.d("FeedNativeAd", "requestFeedAd: crashed "+screen)
-        e.printStackTrace()
+        LogDetail.LogD("FeedNativeAd", "requestFeedAd: crashed "+screen)
+        LogDetail.LogEStack(e)
     }
 }
 
 @SuppressLint("InflateParams")
 fun requestVideoAd(view: LinearLayout, @LayoutRes layoutId: Int, adUnit:String, showNew: Boolean = false,
                    screen: String="videofeed", contentUrls: ArrayList<String>, fromTimer: Boolean = false){
-    if(!ApiConfig().checkShowAds()){
-        return
-    }
     if(!fromTimer)
         checkAndStartTimer(contentUrls)
     try {
@@ -238,7 +229,7 @@ fun requestVideoAd(view: LinearLayout, @LayoutRes layoutId: Int, adUnit:String, 
             try {
                 populateUnifiedNativeAdView(videoUnifiedNative!!, videoUnifiedNativeAdView!!)
             } catch (e: Exception) {
-                e.printStackTrace()
+                LogDetail.LogEStack(e)
             }
             view.removeAllViews()
             view.addView(videoUnifiedNativeAdView)
@@ -263,7 +254,7 @@ fun requestVideoAd(view: LinearLayout, @LayoutRes layoutId: Int, adUnit:String, 
                                     videoUnifiedNativeAdView!!
                                 )
                             } catch (e: Exception) {
-                                e.printStackTrace()
+                                LogDetail.LogEStack(e)
                             }
                             view.removeAllViews()
                             view.addView(videoUnifiedNativeAdView)
@@ -297,11 +288,11 @@ fun requestVideoAd(view: LinearLayout, @LayoutRes layoutId: Int, adUnit:String, 
                     adLoader.loadAd(AdRequest.Builder().build())
                 }
             } catch (e: Exception) {
-                e.printStackTrace()
+                LogDetail.LogEStack(e)
             }
         }
     } catch (e: Exception) {
-        e.printStackTrace()
+        LogDetail.LogEStack(e)
     }
 }
 
@@ -323,32 +314,32 @@ fun loadInterstitialAd(
         adRequest,
         object : InterstitialAdLoadCallback() {
             override fun onAdFailedToLoad(adError: LoadAdError) {
-                Log.d(TAG, adError.message)
+                LogDetail.LogD(TAG, adError.message)
                 mInterstitialAd = null
                 interstitialAdUtilLoadCallback?.onAdFailedToLoad(adError, mInterstitialAd)
             }
 
             override fun onAdLoaded(interstitialAd: InterstitialAd) {
-                Log.d(TAG, "Ad was loaded.")
+                LogDetail.LogD(TAG, "Ad was loaded.")
                 mInterstitialAd = interstitialAd
                 interstitialAdUtilLoadCallback?.onAdLoaded(interstitialAd)
 
                 mInterstitialAd?.fullScreenContentCallback =
                     object : FullScreenContentCallback() {
                         override fun onAdDismissedFullScreenContent() {
-                            Log.d(TAG, "Ad was dismissed.")
+                            LogDetail.LogD(TAG, "Ad was dismissed.")
                             interstitialAdUtilLoadCallback?.onAdDismissedFullScreenContent()
                         }
 
                         override fun onAdFailedToShowFullScreenContent(adError: AdError?) {
-                            Log.d(TAG, "Ad failed to show.")
+                            LogDetail.LogD(TAG, "Ad failed to show.")
                             interstitialAdUtilLoadCallback?.onAdFailedToShowFullScreenContent(
                                 adError,
                             )
                         }
 
                         override fun onAdShowedFullScreenContent() {
-                            Log.d(TAG, "Ad showed fullscreen content.")
+                            LogDetail.LogD(TAG, "Ad showed fullscreen content.")
                             mInterstitialAd = null
                             interstitialAdUtilLoadCallback?.onAdShowedFullScreenContent()
                         }
@@ -384,7 +375,7 @@ fun showAdaptiveBanner(context: Context, adUnit: String, bannerAd: LinearLayout)
         adView.adSize = adSize
         adView.loadAd(adRequest)
     } catch (ex:java.lang.Exception){
-        ex.printStackTrace()
+        LogDetail.LogEStack(ex)
     }
 }
 
@@ -398,7 +389,7 @@ private fun getAdSize(context: Context): AdSize? {
         val adWidth = (widthPixels / density).toInt()
         return AdSize.getCurrentOrientationAnchoredAdaptiveBannerAdSize(context, adWidth)
     } catch (ex:Exception){
-        ex.printStackTrace()
+        LogDetail.LogEStack(ex)
         return null
     }
 }
@@ -413,7 +404,7 @@ private fun checkAndStartTimer(contentUrls: ArrayList<String>){
             }
             fixedRateTimer("nativeAdTimer", false, interval, interval) {
                 try{
-                    Log.d(TAG, "checkAndStartTimer: ")
+                    LogDetail.LogD(TAG, "checkAndStartTimer: ")
                     for(ad in Constants.nativeAdLifecycleCallbacks.values){
                         Handler(Looper.getMainLooper()).post {
                             try{
@@ -427,17 +418,17 @@ private fun checkAndStartTimer(contentUrls: ArrayList<String>){
                                     Constants.nativeAdLifecycleCallbacks.remove(ad.view)
                                 }
                             } catch (ex:Exception){
-                                ex.printStackTrace()
+                                LogDetail.LogEStack(ex)
                             }
                         }
                     }
                 } catch (ex:Exception){
-                    ex.printStackTrace()
+                    LogDetail.LogEStack(ex)
                 }
             }
         }
     } catch (ex:Exception){
-        ex.printStackTrace()
+        LogDetail.LogEStack(ex)
     }
 }
 

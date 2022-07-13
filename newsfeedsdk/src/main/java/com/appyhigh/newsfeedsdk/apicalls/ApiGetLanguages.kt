@@ -47,7 +47,7 @@ class ApiGetLanguages {
                 allDetails.add(USER_DETAIL, SessionUser.Instance().userDetails)
                 allDetails.add(DEVICE_DETAIL, SessionUser.Instance().deviceDetails)
             } catch (e: Exception) {
-                e.printStackTrace()
+                LogDetail.LogEStack(e)
             }
             LogDetail.LogDE("Test Data", main.toString())
             val publicKey = SessionUser.Instance().publicKey
@@ -105,7 +105,7 @@ class ApiGetLanguages {
      */
     private fun handleApiError(throwable: Throwable) {
         throwable.message?.let {
-            Log.e(ApiCreateOrUpdateUser::class.java.simpleName, "handleApiError: $it")
+            LogDetail.LogDE(ApiCreateOrUpdateUser::class.java.simpleName, "handleApiError: $it")
         }
     }
 

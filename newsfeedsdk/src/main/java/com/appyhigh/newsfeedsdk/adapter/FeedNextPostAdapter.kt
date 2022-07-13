@@ -13,6 +13,7 @@ import com.appyhigh.newsfeedsdk.R
 import com.appyhigh.newsfeedsdk.callbacks.GlideCallbackListener
 import com.appyhigh.newsfeedsdk.callbacks.OnRelatedPostClickListener
 import com.appyhigh.newsfeedsdk.databinding.ItemRelatedNativePostBinding
+import com.appyhigh.newsfeedsdk.encryption.LogDetail
 import com.appyhigh.newsfeedsdk.model.PostDetailsModel
 import com.squareup.picasso.Callback
 import com.squareup.picasso.Picasso
@@ -54,7 +55,7 @@ class FeedNextPostAdapter(private var posts:ArrayList<PostDetailsModel.NextPost>
                     try{
                         holder.view.image.setImageDrawable(drawable)
                     } catch (ex:Exception){
-                        ex.printStackTrace()
+                        LogDetail.LogEStack(ex)
                     }
                 }
 
@@ -82,7 +83,7 @@ class FeedNextPostAdapter(private var posts:ArrayList<PostDetailsModel.NextPost>
             }
             holder.view.publisherPostedTime.text = getTime(post.publishedOn)
         } catch (ex:Exception){
-            ex.printStackTrace()
+            LogDetail.LogEStack(ex)
         }
     }
 

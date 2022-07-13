@@ -69,7 +69,7 @@ class ApiCreateOrUpdateUser {
             allDetails.add(USER_DETAIL, SessionUser.Instance().userDetails)
             allDetails.add(DEVICE_DETAIL, SessionUser.Instance().deviceDetails)
         } catch (e: Exception) {
-            e.printStackTrace()
+            LogDetail.LogEStack(e)
         }
         LogDetail.LogDE("Test Data", allDetails.toString())
         val publicKey = SessionUser.Instance().publicKey
@@ -124,7 +124,7 @@ class ApiCreateOrUpdateUser {
             allDetails.add(USER_DETAIL, SessionUser.Instance().userDetails)
             allDetails.add(DEVICE_DETAIL, SessionUser.Instance().deviceDetails)
         } catch (e: Exception) {
-            e.printStackTrace()
+            LogDetail.LogEStack(e)
         }
         LogDetail.LogDE("Test Data", allDetails.toString())
         val publicKey = SessionUser.Instance().publicKey
@@ -180,7 +180,7 @@ class ApiCreateOrUpdateUser {
             allDetails.add(USER_DETAIL, SessionUser.Instance().userDetails)
             allDetails.add(DEVICE_DETAIL, SessionUser.Instance().deviceDetails)
         } catch (e: Exception) {
-            e.printStackTrace()
+            LogDetail.LogEStack(e)
         }
         LogDetail.LogDE("Test Data", allDetails.toString())
         val publicKey = SessionUser.Instance().publicKey
@@ -204,7 +204,7 @@ class ApiCreateOrUpdateUser {
 
             override fun onSuccess(apiUrl: String?, response: String?) {
                 LogDetail.LogDE("ApiCreateOrUpdateUser $apiUrl", response.toString())
-                Log.d("UpdateUser", "updated crypto watchlist")
+                LogDetail.LogD("UpdateUser", "updated crypto watchlist")
                 SpUtil.cryptoWatchListUpdateListener?.onCryptoWatchListUpdated(Constants.cryptoWatchList)
             }
 
@@ -231,7 +231,7 @@ class ApiCreateOrUpdateUser {
             allDetails.add(USER_DETAIL, SessionUser.Instance().userDetails)
             allDetails.add(DEVICE_DETAIL, SessionUser.Instance().deviceDetails)
         } catch (e: Exception) {
-            e.printStackTrace()
+            LogDetail.LogEStack(e)
         }
         LogDetail.LogDE("Test Data", allDetails.toString())
         val publicKey = SessionUser.Instance().publicKey
@@ -276,7 +276,7 @@ class ApiCreateOrUpdateUser {
             allDetails.add(USER_DETAIL, SessionUser.Instance().userDetails)
             allDetails.add(DEVICE_DETAIL, SessionUser.Instance().deviceDetails)
         } catch (e: Exception) {
-            e.printStackTrace()
+            LogDetail.LogEStack(e)
         }
         LogDetail.LogDE("Test Data", allDetails.toString())
         val publicKey = SessionUser.Instance().publicKey
@@ -327,7 +327,7 @@ class ApiCreateOrUpdateUser {
      * Handle create user response
      */
     private fun handleCreateUserResponse() {
-        Log.d("FeedSdk", "handleCreateUserResponse")
+        LogDetail.LogD("FeedSdk", "handleCreateUserResponse")
         FeedSdk.onExploreInitialized?.onInitSuccess()
         for (userIntialiser in FeedSdk.onUserInitialized) {
             userIntialiser?.onInitSuccess()

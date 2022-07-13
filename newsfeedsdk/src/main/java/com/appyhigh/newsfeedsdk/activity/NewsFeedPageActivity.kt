@@ -12,11 +12,9 @@ import android.net.Uri
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
-import android.text.Html
 import android.text.SpannableStringBuilder
 import android.text.Spanned
 import android.text.method.LinkMovementMethod
-import android.util.Log
 import android.view.View
 import android.view.ViewGroup
 import android.view.ViewTreeObserver.OnGlobalLayoutListener
@@ -50,6 +48,7 @@ import com.appyhigh.newsfeedsdk.apiclient.Endpoints
 import com.appyhigh.newsfeedsdk.callbacks.FeedReactionListener
 import com.appyhigh.newsfeedsdk.callbacks.GlideCallbackListener
 import com.appyhigh.newsfeedsdk.databinding.ActivityNewsFeedPageBinding
+import com.appyhigh.newsfeedsdk.encryption.LogDetail
 import com.appyhigh.newsfeedsdk.fragment.NonNativeCommentBottomSheet
 import com.appyhigh.newsfeedsdk.model.*
 import com.appyhigh.newsfeedsdk.model.feeds.Card
@@ -80,7 +79,6 @@ import com.squareup.picasso.Picasso
 import java.text.ParseException
 import java.text.SimpleDateFormat
 import java.util.*
-import kotlin.collections.ArrayList
 
 
 class NewsFeedPageActivity : AppCompatActivity() {
@@ -132,9 +130,20 @@ class NewsFeedPageActivity : AppCompatActivity() {
         exo_fullscreen_button?.visibility = View.GONE
         details_close_button?.visibility = View.GONE
         Constants.postDetailPageNo = 0
-        if (ApiConfig().checkShowAds()) {
-            showAdaptiveBanner(this, ApiConfig().getAdsModel().postDetailFooterBanner.admobId, binding!!.bannerAd)
-        }
+        ApiConfig().requestAd(this, "post_detail_footer_banner", object : ConfigAdRequestListener{
+            override fun onPrivateAdSuccess(webView: WebView) {
+                binding!!.bannerAd.removeAllViews()
+                binding!!.bannerAd.addView(webView)
+            }
+
+            override fun onAdmobAdSuccess(adId: String) {
+                showAdaptiveBanner(this@NewsFeedPageActivity, adId, binding!!.bannerAd)
+            }
+
+            override fun onAdHide() {
+                binding!!.bannerAd.visibility = View.GONE
+            }
+        }, true)
         if (intent.hasExtra(INTEREST)) {
             postDetailCards = ArrayList()
         }
@@ -180,7 +189,7 @@ class NewsFeedPageActivity : AppCompatActivity() {
                     )
                 }
             } catch (ex: java.lang.Exception) {
-                ex.printStackTrace()
+                LogDetail.LogEStack(ex)
             }
             nonNativeCommentBottomSheet = NonNativeCommentBottomSheet(
                 comments,
@@ -200,7 +209,7 @@ class NewsFeedPageActivity : AppCompatActivity() {
                 FeedSdk.areContentsModified[intent.getStringExtra(Constants.SCREEN_TYPE)!!] = true
             } catch (ex: Exception) {
                 FeedSdk.areContentsModified[Constants.FEED] = true
-                ex.printStackTrace()
+                LogDetail.LogEStack(ex)
             }
             try {
                 if (eventsListener != null) {
@@ -213,7 +222,7 @@ class NewsFeedPageActivity : AppCompatActivity() {
                     )
                 }
             } catch (ex: java.lang.Exception) {
-                ex.printStackTrace()
+                LogDetail.LogEStack(ex)
             }
             if (!reacted.equals("none", ignoreCase = true) && !reacted.equals("false", ignoreCase = true)) {
                 reacted = "none"
@@ -232,7 +241,7 @@ class NewsFeedPageActivity : AppCompatActivity() {
                     postDetailCards[pos].post?.reactionCount?.likeCount = likeCount
                     postDetailCards[pos].post?.isReacted = ReactionType.NONE.toString()
                 } catch (e: Exception) {
-                    e.printStackTrace()
+                    LogDetail.LogEStack(e)
                 }
                 likes -= 1
                 binding?.newsItemStats?.setText("$likes Likes & $commentsCount Comments")
@@ -253,7 +262,7 @@ class NewsFeedPageActivity : AppCompatActivity() {
                     postDetailCards[pos].post?.reactionCount?.likeCount = likeCount
                     postDetailCards[pos].post?.isReacted = ReactionType.LIKE.toString()
                 } catch (e: Exception) {
-                    e.printStackTrace()
+                    LogDetail.LogEStack(e)
                 }
                 likes += 1
                 binding?.newsItemStats?.text = "$likes Likes  & $commentsCount Comments"
@@ -348,7 +357,7 @@ class NewsFeedPageActivity : AppCompatActivity() {
                 getDynamicLink(this, intent)
             }
         } catch (ex: Exception) {
-            ex.printStackTrace()
+            LogDetail.LogEStack(ex)
         }
     }
 
@@ -358,7 +367,7 @@ class NewsFeedPageActivity : AppCompatActivity() {
                 val deepLink: Uri?
                 if (pendingDynamicLinkData != null) {
                     deepLink = pendingDynamicLinkData.link
-                    Log.d("Firebase", deepLink.toString())
+                    LogDetail.LogD("Firebase", deepLink.toString())
                     val intent = getIntent()
                     val data = intent.data ?: return@OnSuccessListener
                     if (data.toString().lowercase(Locale.getDefault()).contains(FEED_ID)) {
@@ -376,7 +385,7 @@ class NewsFeedPageActivity : AppCompatActivity() {
                     }
                 }
             })
-            .addOnFailureListener { e -> e.printStackTrace() }
+            .addOnFailureListener { e -> LogDetail.LogEStack(e) }
     }
 
     private fun postComment(comment: String) {
@@ -436,7 +445,7 @@ class NewsFeedPageActivity : AppCompatActivity() {
                         true
                 } catch (ex: Exception) {
                     FeedSdk.areContentsModified[Constants.FEED] = true
-                    ex.printStackTrace()
+                    LogDetail.LogEStack(ex)
                 }
                 if (cardsMap[interest] != null) {
                     val card = cardsMap[interest]!![position]
@@ -451,7 +460,7 @@ class NewsFeedPageActivity : AppCompatActivity() {
                 postDetailCards[pos].post?.appComments = commentsCount
                 binding?.newsItemStats!!.text = "$likes Likes  & $commentsCount Comments"
             } catch (e: Exception) {
-                e.printStackTrace()
+                LogDetail.LogEStack(e)
             }
             feedCommentResponse.result?.comment?.let {
                 nonNativeCommentBottomSheet?.updateComments(
@@ -523,14 +532,14 @@ class NewsFeedPageActivity : AppCompatActivity() {
                 binding?.tvLikes?.setDrawableColor(ContextCompat.getColor(this, R.color.feedSecondaryTintColor))
             }
         } catch (ex:Exception){
-            ex.printStackTrace()
+            LogDetail.LogEStack(ex)
         }
         try {
             publishedOn = getTime(publishedOn)
-            Log.d("PublishedOn", publishedOn)
+            LogDetail.LogD("PublishedOn", publishedOn)
         } catch (e: ParseException) {
-            Log.d("PublishedOn", e.message.toString())
-            e.printStackTrace()
+            LogDetail.LogD("PublishedOn", e.message.toString())
+            LogDetail.LogEStack(e)
         }
         if (Converters().getDisplayImageForPlatForm(
                 postDetailsModel.post?.platform!!.lowercase(
@@ -601,7 +610,7 @@ class NewsFeedPageActivity : AppCompatActivity() {
                             try {
                                 binding!!.ivPublisherImage.setImageDrawable(drawable)
                             } catch (ex: Exception) {
-                                ex.printStackTrace()
+                                LogDetail.LogEStack(ex)
                             }
                         }
 
@@ -622,7 +631,7 @@ class NewsFeedPageActivity : AppCompatActivity() {
                                     .into(binding!!.ivPublisherImage, object : Callback {
                                         @SuppressLint("LogNotTimber")
                                         override fun onSuccess() {
-                                            Log.d("TAG", "onSuccess: Picasso " + logoUrl)
+                                            LogDetail.LogD("TAG", "onSuccess: Picasso " + logoUrl)
                                         }
 
                                         override fun onError(e: java.lang.Exception?) {
@@ -664,7 +673,7 @@ class NewsFeedPageActivity : AppCompatActivity() {
                         try {
                             binding!!.ivPublisherImage.setImageDrawable(drawable)
                         } catch (ex: Exception) {
-                            ex.printStackTrace()
+                            LogDetail.LogEStack(ex)
                         }
                     }
 
@@ -674,7 +683,7 @@ class NewsFeedPageActivity : AppCompatActivity() {
                             .noFade()
                             .into(binding!!.ivPublisherImage, object : Callback {
                                 override fun onSuccess() {
-                                    Log.d("TAG", "onSuccess: Picasso " + logoUrl)
+                                    LogDetail.LogD("TAG", "onSuccess: Picasso " + logoUrl)
                                 }
 
                                 override fun onError(e: java.lang.Exception?) {
@@ -764,7 +773,7 @@ class NewsFeedPageActivity : AppCompatActivity() {
                             try {
                                 binding?.newsPageImage?.setImageDrawable(drawable)
                             } catch (ex: Exception) {
-                                ex.printStackTrace()
+                                LogDetail.LogEStack(ex)
                             }
                         }
 
@@ -822,7 +831,7 @@ class NewsFeedPageActivity : AppCompatActivity() {
                                 try {
                                     binding?.relatedVideoImage?.setImageDrawable(drawable)
                                 } catch (ex: Exception) {
-                                    ex.printStackTrace()
+                                    LogDetail.LogEStack(ex)
                                 }
                             }
 
@@ -844,7 +853,7 @@ class NewsFeedPageActivity : AppCompatActivity() {
                                 try {
                                     binding?.relatedPostImage?.setImageDrawable(drawable)
                                 } catch (ex: Exception) {
-                                    ex.printStackTrace()
+                                    LogDetail.LogEStack(ex)
                                 }
                             }
 
@@ -857,7 +866,7 @@ class NewsFeedPageActivity : AppCompatActivity() {
                 }
             }
         } catch (ex: Exception) {
-            ex.printStackTrace()
+            LogDetail.LogEStack(ex)
         }
     }
 
@@ -884,7 +893,7 @@ class NewsFeedPageActivity : AppCompatActivity() {
     }
 
     private fun handleError(throwable: Throwable) {
-        throwable.printStackTrace()
+        LogDetail.LogEStack(throwable)
         binding?.progressBar?.visibility = View.GONE
         Toast.makeText(this, "Some issue occured, please try after sometime", Toast.LENGTH_SHORT)
             .show()
@@ -951,13 +960,13 @@ class NewsFeedPageActivity : AppCompatActivity() {
                             try{
                                 binding!!.playController.visibility = View.GONE
                             } catch (ex:Exception){
-                                ex.printStackTrace()
+                                LogDetail.LogEStack(ex)
                             }},4000)
                     } else{
                         binding!!.playController.visibility = View.GONE
                     }
                 } catch (ex:Exception){
-                    ex.printStackTrace()
+                    LogDetail.LogEStack(ex)
                 }
             }
             binding!!.forwardVideo.setOnClickListener { simpleExoPlayer!!.seekTo(simpleExoPlayer!!.currentPosition + (10 * 1000)) }
@@ -979,7 +988,7 @@ class NewsFeedPageActivity : AppCompatActivity() {
                             try {
                                 binding!!.playVideo.setImageResource(R.drawable.ic_podcast_play_white)
                                 simpleExoPlayer?.playWhenReady = false
-                            } catch (ex:Exception){ ex.printStackTrace() }
+                            } catch (ex:Exception){ LogDetail.LogEStack(ex) }
                         }
                     })
                 }
@@ -991,7 +1000,7 @@ class NewsFeedPageActivity : AppCompatActivity() {
                 override fun onFailure() {
                     try {
                         simpleExoPlayer?.playWhenReady = false
-                    } catch (ex:Exception){ ex.printStackTrace() }
+                    } catch (ex:Exception){ LogDetail.LogEStack(ex) }
                 }
             })
         }
@@ -1072,7 +1081,7 @@ class NewsFeedPageActivity : AppCompatActivity() {
                     )
                 }
             } catch (ex: java.lang.Exception) {
-                ex.printStackTrace()
+                LogDetail.LogEStack(ex)
             }
         } else {
             try {
@@ -1086,7 +1095,7 @@ class NewsFeedPageActivity : AppCompatActivity() {
                     )
                 }
             } catch (ex: java.lang.Exception) {
-                ex.printStackTrace()
+                LogDetail.LogEStack(ex)
             }
         }
         val link = FeedSdk.mFirebaseDynamicLink + "?feed_id=" + id
@@ -1137,7 +1146,7 @@ class NewsFeedPageActivity : AppCompatActivity() {
                         }
                     }
                     .addOnFailureListener { e ->
-                        e.printStackTrace()
+                        LogDetail.LogEStack(e)
                         try {
                             if (isWhatsApp) {
                                 val whatsAppIntent = Intent(Intent.ACTION_SEND)
@@ -1190,7 +1199,7 @@ class NewsFeedPageActivity : AppCompatActivity() {
                         }
                     }
             } catch (e: Exception) {
-                e.printStackTrace()
+                LogDetail.LogEStack(e)
             }
         } else {
             try {
@@ -1232,7 +1241,7 @@ class NewsFeedPageActivity : AppCompatActivity() {
                         }
                     }
                     .addOnFailureListener { e: Exception ->
-                        e.printStackTrace()
+                        LogDetail.LogEStack(e)
                         try {
                             if (isWhatsApp) {
                                 val whatsAppIntent = Intent(Intent.ACTION_SEND)
@@ -1285,7 +1294,7 @@ class NewsFeedPageActivity : AppCompatActivity() {
                         }
                     }
             } catch (e: Exception) {
-                e.printStackTrace()
+                LogDetail.LogEStack(e)
             }
         }
     }
@@ -1568,7 +1577,7 @@ class NewsFeedPageActivity : AppCompatActivity() {
                 )
             }
         } catch (ex: java.lang.Exception) {
-            ex.printStackTrace()
+            LogDetail.LogEStack(ex)
         }
     }
 

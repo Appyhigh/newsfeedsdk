@@ -4,30 +4,29 @@ import static com.appyhigh.newsfeedsdk.Constants.AUTHORIZATION;
 import static com.appyhigh.newsfeedsdk.Constants.COUNTRY_CODE;
 import static com.appyhigh.newsfeedsdk.Constants.FEED_TYPE;
 import static com.appyhigh.newsfeedsdk.Constants.INTERESTS;
+import static com.appyhigh.newsfeedsdk.Constants.NEWS_FEED_APP_ID;
 import static com.appyhigh.newsfeedsdk.Constants.PAGE_NUMBER;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
+import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.Signature;
 import android.os.Build;
+import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.util.Base64;
-import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import com.appyhigh.newsfeedsdk.FeedSdk;
-import com.appyhigh.newsfeedsdk.apicalls.ApiCreateOrUpdateUser;
-import com.appyhigh.newsfeedsdk.apicalls.ResponseListener;
 import com.appyhigh.newsfeedsdk.model.User;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 
-import org.jetbrains.annotations.NotNull;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -36,28 +35,23 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import java.security.SecureRandom;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
 
 import javax.net.ssl.HostnameVerifier;
-import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLSession;
 import javax.net.ssl.TrustManager;
 import javax.net.ssl.X509TrustManager;
 
-import io.socket.client.IO;
 import io.socket.client.Socket;
 import io.socket.emitter.Emitter;
 import okhttp3.Call;
 import okhttp3.Callback;
 import okhttp3.FormBody;
 import okhttp3.OkHttpClient;
-
 import okhttp3.Request;
 import okhttp3.RequestBody;
 import okhttp3.Response;
-import okhttp3.WebSocket;
 
 
 public class AuthSocket {
@@ -144,17 +138,27 @@ public class AuthSocket {
         this.license = license;
     }
 
+    private String getAppIdFromManifest(Context context){
+        try {
+            ApplicationInfo ai = context.getPackageManager().getApplicationInfo(context.getPackageName(), PackageManager.GET_META_DATA);
+            Bundle bundle = ai.metaData;
+            return bundle.getString(NEWS_FEED_APP_ID);
+        } catch (Exception e) {
+            LogDetail.LogEStack(e);
+            return "";
+        }
+    }
+
     public void start(Context context, AuthenticationSuccess authenticationSuccess) {
         try {
             this.authenticationSuccess = authenticationSuccess;
             if (this.license == null || this.license.equals("")) {
-                Log.e("Auth Session", "You must set a license before calling start(...)");
+                LogDetail.LogDE("Auth Session", "You must set a license before calling start(...)");
                 return;
             }
             this.started = true;
             mContext = context;
-
-            SessionUser.Instance().setAppId("1941598539");
+            SessionUser.Instance().setAppId(getAppIdFromManifest(context));
             SessionUser.Instance().setSdkId("com.appyhigh.mylibrary");
 
             final PackageInfo info = context.getPackageManager().getPackageInfo(context.getPackageName(), 0);
@@ -189,64 +193,110 @@ public class AuthSocket {
             instanceEncryption = new AESCBCPKCS5Encryption().getInstance(encryptionKey.trim());
             instanceEncryption.updateKEY_IV(encryptionKey.trim());
             LogDetail.LogD(TAG, " initializeSocket " + SERVER_IP);
+//
+//            clearSocket();
+//
+//            SSLContext sc = SSLContext.getInstance("TLS");
+//            sc.init(null, trustAllCerts, new SecureRandom());
 
-            clearSocket();
+//            OkHttpClient okHttpClient = new OkHttpClient.Builder()
+//                    .hostnameVerifier(new RelaxedHostNameVerifier())
+//                    .sslSocketFactory(sc.getSocketFactory(), tmr)
+//                    .build(); // default settings for all sockets
 
-            SSLContext sc = SSLContext.getInstance("TLS");
-            sc.init(null, trustAllCerts, new SecureRandom());
+//            IO.setDefaultOkHttpWebSocketFactory((WebSocket.Factory) okHttpClient);
+//            IO.setDefaultOkHttpCallFactory((Call.Factory) okHttpClient);
+//            //IO.setDefaultSSLContext(sc);
+//            //HttpsURLConnection.setDefaultHostnameVerifier(new RelaxedHostNameVerifier());
+//
+//            IO.Options opts = new IO.Options();
+//            opts.forceNew = false;
+//            opts.reconnection = true;
+//            opts.reconnectionDelay = 3000;
+//            opts.reconnectionDelayMax = 6000;
+//            opts.reconnectionAttempts = 9999;
+//            //opts.sslContext = sc;
+//            opts.callFactory = (Call.Factory) okHttpClient;
+//            opts.webSocketFactory = (WebSocket.Factory) okHttpClient;
+//            opts.secure = true;
+//            opts.upgrade = true;
+//            opts.path = SERVER_PATH;
+//            String[] transports = {io.socket.engineio.client.transports.WebSocket.NAME};
+//            opts.transports = transports;
+//            mSocket = IO.socket(SERVER_IP, opts);
+//            mSocket.on(Socket.EVENT_CONNECT, onConnect);
+//            mSocket.on(Socket.EVENT_DISCONNECT, onDisconnect);
+//            mSocket.on(Socket.EVENT_CONNECT_ERROR, onConnectError);
+//            //mSocket.on(Socket.EVENT_CONNECT_TIMEOUT, onConnectTimeOut);
+//            mSocket.on(AuthSocket.SOCKET_EMIT_CONFIG_REQUEST, onConfigRequest);
+//            mSocket.on(AuthSocket.SOCKET_EMIT_CONFIG_RESPONSE, onConfigResponse);
+//            mSocket.on(AuthSocket.SOCKET_EMIT_CONFIG_ERROR_RESPONSE, onConfigError);
+//            mSocket.connect();
 
-            OkHttpClient okHttpClient = new OkHttpClient.Builder()
-                    .hostnameVerifier(new RelaxedHostNameVerifier())
-                    .sslSocketFactory(sc.getSocketFactory(), tmr)
-                    .build(); // default settings for all sockets
-
-            IO.setDefaultOkHttpWebSocketFactory((WebSocket.Factory) okHttpClient);
-            IO.setDefaultOkHttpCallFactory((Call.Factory) okHttpClient);
-            //IO.setDefaultSSLContext(sc);
-            //HttpsURLConnection.setDefaultHostnameVerifier(new RelaxedHostNameVerifier());
-
-            IO.Options opts = new IO.Options();
-            opts.forceNew = false;
-            opts.reconnection = true;
-            opts.reconnectionDelay = 3000;
-            opts.reconnectionDelayMax = 6000;
-            opts.reconnectionAttempts = 9999;
-            //opts.sslContext = sc;
-            opts.callFactory = (Call.Factory) okHttpClient;
-            opts.webSocketFactory = (WebSocket.Factory) okHttpClient;
-            opts.secure = true;
-            opts.upgrade = true;
-            opts.path = SERVER_PATH;
-            String[] transports = {io.socket.engineio.client.transports.WebSocket.NAME};
-            opts.transports = transports;
-            mSocket = IO.socket(SERVER_IP, opts);
-            mSocket.on(Socket.EVENT_CONNECT, onConnect);
-            mSocket.on(Socket.EVENT_DISCONNECT, onDisconnect);
-            mSocket.on(Socket.EVENT_CONNECT_ERROR, onConnectError);
-            //mSocket.on(Socket.EVENT_CONNECT_TIMEOUT, onConnectTimeOut);
-            mSocket.on(AuthSocket.SOCKET_EMIT_CONFIG_REQUEST, onConfigRequest);
-            mSocket.on(AuthSocket.SOCKET_EMIT_CONFIG_RESPONSE, onConfigResponse);
-            mSocket.on(AuthSocket.SOCKET_EMIT_CONFIG_ERROR_RESPONSE, onConfigError);
-            mSocket.connect();
+            verifyUser();
 
         } catch (Exception e) {
-            e.printStackTrace();
+            LogDetail.LogEStack(e);
         }
     }
 
-    public Socket getSocket() {
-        return mSocket;
-    }
+    private void verifyUser() {
+        LogDetail.LogD("SERVER_IP", SERVER_IP);
+        JsonObject allDetails = new JsonObject();
 
-    public void clearSocket() {
-        if (mSocket != null) {
-            if (mSocket.connected()) {
-                mSocket.disconnect();
+        try {
+            allDetails.add("userDetail", SessionUser.Instance().getUserDetails());
+            allDetails.add("deviceDetail", SessionUser.Instance().getDeviceDetails());
+        } catch (Exception e) {
+            LogDetail.LogEStack(e);
+        }
+
+        //Data to be converted to string
+        LogDetail.LogDE("DATA - > ", allDetails.toString());
+
+        //Encrypting String
+        String initialIEncryptionString = instanceEncryption.encrypt(allDetails.toString().getBytes(StandardCharsets.UTF_8)) + "." + license;
+        LogDetail.LogDE("ENCRYPTED TEXT - ", initialIEncryptionString);
+
+        verifyData(initialIEncryptionString, new com.appyhigh.newsfeedsdk.apicalls.ResponseListener() {
+            @Override
+            public void onSuccess(@Nullable String apiUrl, @Nullable JSONObject response) {
+                LogDetail.LogDE("verify", response.toString());
             }
 
-            mSocket = null;
-        }
+            @Override
+            public void onSuccess(@Nullable String apiUrl, @Nullable JSONArray response) {
+                LogDetail.LogDE("verify", response.toString());
+            }
+
+            @Override
+            public void onSuccess(@Nullable String apiUrl, @Nullable String response) {
+                LogDetail.LogDE("verify", response.toString());
+            }
+
+            @Override
+            public void onError(@NonNull Call call, @NonNull IOException e) {
+
+            }
+        });
+
+        //Emitting socket -- Config Request
+//        mSocket.emit(SOCKET_EMIT_CONFIG_REQUEST, initialIEncryptionString);
     }
+
+//    public Socket getSocket() {
+//        return mSocket;
+//    }
+
+//    public void clearSocket() {
+//        if (mSocket != null) {
+//            if (mSocket.connected()) {
+//                mSocket.disconnect();
+//            }
+//
+//            mSocket = null;
+//        }
+//    }
 
     //GET SHA1 Key for Application
     static String getSHA1(Context context, String key) {
@@ -287,16 +337,13 @@ public class AuthSocket {
         return "";
     }
 
-
-    //API Calling Using Encrypted Data
-    public void postData(String sendingData, com.appyhigh.newsfeedsdk.apicalls.ResponseListener responseListener) {
+    public void verifyData(String sendingData, com.appyhigh.newsfeedsdk.apicalls.ResponseListener responseListener) {
         OkHttpClient client = new OkHttpClient();
         RequestBody formBody = new FormBody.Builder()
                 .add("data", sendingData)
                 .build();
-        LogDetail.LogD("auth-token", SessionUser.Instance().getToken());
         Request request = new Request.Builder()
-                .url("https://encrypt.apyhi.com/list/data")   //URL
+                .url("http://104.161.92.74:8231/api/verify")   //URL
                 .header("auth-token", SessionUser.Instance().getToken())
                 .post(formBody)
                 .build();
@@ -306,7 +353,108 @@ public class AuthSocket {
 
             @Override
             public void onFailure(@NonNull Call call, @NonNull IOException e) {
-                e.printStackTrace();
+                LogDetail.LogEStack(e);
+                responseListener.onError(call, e);
+            }
+
+            @Override
+            public void onResponse(@NonNull Call call, @NonNull Response response) {
+                LogDetail.LogD("API RESPONSE - ", response.toString());
+                if (response.isSuccessful()) {
+                    try {
+                        assert response.body() != null;
+                        String encryptedResponse = response.body().string();//new Gson().toJson(args[0]).replaceAll("('|\")", "");
+
+                        JSONObject rb = new JSONObject(encryptedResponse);
+                        LogDetail.LogDE("TAG_", rb.toString());
+                        String[] data = rb.getString("encyptedData").split("\\.", 2);
+
+                        if (data[1].equals(license)) {
+                            LogDetail.LogD(TAG, " Equals LICENSE KEY ");
+                            LogDetail.println(data[0]);
+
+                            String initialIDecryptionString = instanceEncryption.decrypt(data[0].getBytes());
+
+                            LogDetail.LogDE(TAG + "--dec", initialIDecryptionString);
+
+                            try {
+                                JSONObject jsonObject = new JSONObject(initialIDecryptionString);
+                                //EVENTNAME - Can be used for VERSION CONTROL
+                                String eventName = jsonObject.getString("eventName");
+
+                                //TODO Manage Version Response
+                                switch (eventName) {
+                                    case "versionSuccess":
+                                        LogDetail.LogDE("Version - ", "This is Latest");
+                                        break;
+                                    case "versionCanBeUpdated":
+                                        LogDetail.LogDE("Version - ", "This version can be updated");
+                                        break;
+                                    case "versionHasToBeUpdated":
+                                        LogDetail.LogDE("Version - ", "This version Has to be updated");
+                                        break;
+                                    case "versionSystemMaintenance":
+                                        LogDetail.LogDE("Version - ", "Server is Under Maintenance");
+                                        break;
+                                    case "versionNoLongerSupported":
+                                        LogDetail.LogDE("Version - ", "This Version is no Longer Supported");
+                                        break;
+                                    default:
+                                        LogDetail.LogDE("Version - ", "This version is Not compatible");
+                                        break;
+                                }
+
+                                String versionResponse = String.valueOf(jsonObject.getJSONObject("versionResponse"));
+                                String jwtTokenDetails = String.valueOf(jsonObject.getJSONObject("jwtTokenDetails"));
+
+                                //This Object can be used in case of EventNames other than versionSuccess
+                                JSONObject versionObject = new JSONObject(versionResponse);
+
+                                JSONObject jwtTokenDetailsObject = new JSONObject(jwtTokenDetails);
+
+                                instanceEncryption.updateKEY_IV(jsonObject.getString("privateKey"));
+                                SessionUser.Instance().setPublicKey(jsonObject.getString("publicKey"));
+                                SessionUser.Instance().setToken(jwtTokenDetailsObject.getString("token"));
+                                SessionUser.Instance().addPairToMap(jsonObject.getString("publicKey"), jsonObject.getString("privateKey"));
+                                authenticationSuccess.onAuthSuccess();
+                            } catch (JSONException e) {
+                                LogDetail.LogEStack(e);
+                            }
+
+
+                        }
+                    } catch ( Exception e) {
+                        LogDetail.LogEStack(e);
+                    }
+
+                }else {
+                    LogDetail.LogD(TAG, "onResponse: "+call.request());
+                }
+            }
+
+        });
+    }
+
+
+    //API Calling Using Encrypted Data
+    public void postData(String sendingData, com.appyhigh.newsfeedsdk.apicalls.ResponseListener responseListener) {
+        OkHttpClient client = new OkHttpClient();
+        RequestBody formBody = new FormBody.Builder()
+                .add("data", sendingData)
+                .build();
+        LogDetail.LogD("auth-token", SessionUser.Instance().getToken());
+        Request request = new Request.Builder()
+                .url("http://104.161.92.74:8231/api/data")   //URL
+                .header("auth-token", SessionUser.Instance().getToken())
+                .post(formBody)
+                .build();
+
+
+        client.newCall(request).enqueue(new Callback() {
+
+            @Override
+            public void onFailure(@NonNull Call call, @NonNull IOException e) {
+                LogDetail.LogEStack(e);
                 responseListener.onError(call, e);
             }
 
@@ -326,10 +474,13 @@ public class AuthSocket {
                         LogDetail.LogD("Decrypted Response  => ", DecryptedText);
                         JSONObject RespJson = new JSONObject(DecryptedText);
                         LogDetail.LogD("Decrypted Response API URL  => ", RespJson.getString("apiURL"));
+
+
+                        JSONObject jwtTokenDetails = new JSONObject(String.valueOf(RespJson.getJSONObject("jwtTokenDetails")));
                         JSONObject encryptionData = new JSONObject(String.valueOf(RespJson.getJSONObject("encryptionData")));
                         SessionUser.Instance().addPairToMap(encryptionData.getString("publicKey"), encryptionData.getString("privateKey"));
                         SessionUser.Instance().setPublicKey(encryptionData.getString("publicKey"));
-                        SessionUser.Instance().setToken(encryptionData.getString("token"));
+                        SessionUser.Instance().setToken(jwtTokenDetails.getString("token"));
 
                         new Handler(Looper.getMainLooper()).post(() -> {
                             JSONObject dataJSON;
@@ -360,81 +511,61 @@ public class AuthSocket {
                         });
 
                     } catch (IOException | JSONException e) {
-                        e.printStackTrace();
+                        LogDetail.LogEStack(e);
                     }
 
                 }else {
-                    Log.d(TAG, "onResponse: "+call.request());
+                    LogDetail.LogD(TAG, "onResponse: "+call.request());
                 }
             }
 
         });
     }
 
-    //Socket Emitters
-    Emitter.Listener onConnect = new Emitter.Listener() {
-        @Override
-        public void call(Object... args) {
-            LogDetail.LogD("SERVER_IP", SERVER_IP);
-            LogDetail.LogD(TAG, " Connect " + new Gson().toJson(args));
+//    //Socket Emitters
+//    Emitter.Listener onConnect = new Emitter.Listener() {
+//        @Override
+//        public void call(Object... args) {
+//
+//
+//        }
+//    };
 
-            JsonObject allDetails = new JsonObject();
+//    Emitter.Listener onDisconnect = new Emitter.Listener() {
+//        @Override
+//        public void call(Object... args) {
+//            LogDetail.LogD(TAG, " Disconnect " + new Gson().toJson(args));
+//            if (getSocket() != null) {
+//                getSocket().disconnect();
+//            }
+//        }
+//    };
 
-            try {
-                allDetails.add("userDetail", SessionUser.Instance().getUserDetails());
-                allDetails.add("deviceDetail", SessionUser.Instance().getDeviceDetails());
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
+//    Emitter.Listener onConnectError = new Emitter.Listener() {
+//        @Override
+//        public void call(Object... args) {
+//            LogDetail.LogD(TAG, " Error " + new Gson().toJson(args));
+//            //Toast.makeText(CoLabFileProvider.Instance().getmContext(), "AUTH_CONNECT_ERROR", Toast.LENGTH_SHORT).show();
+//            if (getSocket() != null) {
+//                getSocket().disconnect();
+//            }
+//        }
+//    };
 
-            //Data to be converted to string
-            LogDetail.LogDE("DATA - > ", allDetails.toString());
-
-            //Encrypting String
-            String initialIEncryptionString = instanceEncryption.encrypt(allDetails.toString().getBytes(StandardCharsets.UTF_8)) + "." + license;
-            LogDetail.LogDE("ENCRYPTED TEXT - ", initialIEncryptionString);
-
-            //Emitting socket -- Config Request
-            mSocket.emit(SOCKET_EMIT_CONFIG_REQUEST, initialIEncryptionString);
-
-        }
-    };
-
-    Emitter.Listener onDisconnect = new Emitter.Listener() {
-        @Override
-        public void call(Object... args) {
-            LogDetail.LogD(TAG, " Disconnect " + new Gson().toJson(args));
-            if (getSocket() != null) {
-                getSocket().disconnect();
-            }
-        }
-    };
-
-    Emitter.Listener onConnectError = new Emitter.Listener() {
-        @Override
-        public void call(Object... args) {
-            LogDetail.LogD(TAG, " Error " + new Gson().toJson(args));
-            //Toast.makeText(CoLabFileProvider.Instance().getmContext(), "AUTH_CONNECT_ERROR", Toast.LENGTH_SHORT).show();
-            if (getSocket() != null) {
-                getSocket().disconnect();
-            }
-        }
-    };
-
-    Emitter.Listener onConnectTimeOut = new Emitter.Listener() {
-        @Override
-        public void call(Object... args) {
-            LogDetail.LogD(TAG, " TimeOut " + new Gson().toJson(args));
-        }
-    };
-
-    Emitter.Listener onConfigRequest = new Emitter.Listener() {
-        @Override
-        public void call(Object... args) {
-            LogDetail.LogD(TAG, " ConfigRequest ");
-
-        }
-    };
+//    Emitter.Listener onConnectTimeOut = new Emitter.Listener() {
+//        @Override
+//        public void call(Object... args) {
+//            LogDetail.LogD(TAG, " TimeOut " + new Gson().toJson(args));
+//        }
+//    };
+//
+//    Emitter.Listener onConfigRequest = new Emitter.Listener() {
+//        @Override
+//        public void call(Object... args) {
+//            LogDetail.LogD(TAG, " ConfigRequest ");
+//
+//        }
+//    };
 
     Emitter.Listener onConfigResponse = new Emitter.Listener() {
         @Override
@@ -494,7 +625,7 @@ public class AuthSocket {
                     SessionUser.Instance().addPairToMap(encryptionObject.getString("publicKey"), encryptionObject.getString("privateKey"));
                     authenticationSuccess.onAuthSuccess();
                 } catch (JSONException e) {
-                    e.printStackTrace();
+                    LogDetail.LogEStack(e);
                 }
 
 
@@ -552,7 +683,7 @@ public class AuthSocket {
             allDetails.add("userDetail", SessionUser.Instance().getUserDetails());
             allDetails.add("deviceDetail", SessionUser.Instance().getDeviceDetails());
         } catch (Exception e) {
-            e.printStackTrace();
+            LogDetail.LogEStack(e);
         }
 
         String SendingData = instanceEncryption.encrypt(allDetails.toString().getBytes(StandardCharsets.UTF_8)) + "." + SessionUser.Instance().getPublicKey();
@@ -589,7 +720,7 @@ public class AuthSocket {
             allDetails.add("userDetail", SessionUser.Instance().getUserDetails());
             allDetails.add("deviceDetail", SessionUser.Instance().getDeviceDetails());
         } catch (Exception e) {
-            e.printStackTrace();
+            LogDetail.LogEStack(e);
         }
 
         String SendingData = instanceEncryption.encrypt(allDetails.toString().getBytes(StandardCharsets.UTF_8)) + "." + SessionUser.Instance().getPublicKey();
@@ -621,7 +752,7 @@ public class AuthSocket {
             allDetails.add("userDetail", SessionUser.Instance().getUserDetails());
             allDetails.add("deviceDetail", SessionUser.Instance().getDeviceDetails());
         } catch (Exception e) {
-            e.printStackTrace();
+            LogDetail.LogEStack(e);
         }
 
         String SendingData = instanceEncryption.encrypt(allDetails.toString().getBytes(StandardCharsets.UTF_8)) + "." + SessionUser.Instance().getPublicKey();
@@ -652,7 +783,7 @@ public class AuthSocket {
             allDetails.add("userDetail", SessionUser.Instance().getUserDetails());
             allDetails.add("deviceDetail", SessionUser.Instance().getDeviceDetails());
         } catch (Exception e) {
-            e.printStackTrace();
+            LogDetail.LogEStack(e);
         }
 
         String SendingData = instanceEncryption.encrypt(allDetails.toString().getBytes(StandardCharsets.UTF_8)) + "." + SessionUser.Instance().getPublicKey();
@@ -683,7 +814,7 @@ public class AuthSocket {
             allDetails.add("userDetail", SessionUser.Instance().getUserDetails());
             allDetails.add("deviceDetail", SessionUser.Instance().getDeviceDetails());
         } catch (Exception e) {
-            e.printStackTrace();
+            LogDetail.LogEStack(e);
         }
 
         String SendingData = instanceEncryption.encrypt(allDetails.toString().getBytes(StandardCharsets.UTF_8)) + "." + SessionUser.Instance().getPublicKey();
@@ -714,7 +845,7 @@ public class AuthSocket {
             allDetails.add("userDetail", SessionUser.Instance().getUserDetails());
             allDetails.add("deviceDetail", SessionUser.Instance().getDeviceDetails());
         } catch (Exception e) {
-            e.printStackTrace();
+            LogDetail.LogEStack(e);
         }
 
         String SendingData = instanceEncryption.encrypt(allDetails.toString().getBytes(StandardCharsets.UTF_8)) + "." + SessionUser.Instance().getPublicKey();

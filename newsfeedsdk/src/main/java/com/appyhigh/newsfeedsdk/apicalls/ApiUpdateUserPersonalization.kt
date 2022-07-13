@@ -132,7 +132,7 @@ class ApiUpdateUserPersonalization {
             allDetails.add(Constants.USER_DETAIL, SessionUser.Instance().userDetails)
             allDetails.add(Constants.DEVICE_DETAIL, SessionUser.Instance().deviceDetails)
         } catch (e: Exception) {
-            e.printStackTrace()
+            LogDetail.LogEStack(e)
         }
         LogDetail.LogDE("Test Data", allDetails.toString())
         val publicKey = SessionUser.Instance().publicKey
@@ -172,7 +172,7 @@ class ApiUpdateUserPersonalization {
      */
     private fun handleApiError(throwable: Throwable) {
         throwable.message?.let {
-            Log.e(ApiUpdateUserPersonalization::class.java.simpleName, "handleApiError: $it")
+            LogDetail.LogDE(ApiUpdateUserPersonalization::class.java.simpleName, "handleApiError: $it")
         }
     }
 }

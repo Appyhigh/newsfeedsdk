@@ -13,19 +13,15 @@ import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
 import android.text.TextUtils
-import android.util.Log
-import android.view.*
+import android.view.Gravity
+import android.view.View
 import android.view.inputmethod.EditorInfo
 import android.view.inputmethod.InputMethodManager
 import android.webkit.WebView
 import android.webkit.WebViewClient
 import android.widget.*
-import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
-import androidx.appcompat.app.AppCompatDelegate
 import androidx.core.content.ContextCompat
-import androidx.core.content.res.ResourcesCompat
-import androidx.core.os.postDelayed
 import androidx.core.view.setPadding
 import com.appyhigh.newsfeedsdk.Constants
 import com.appyhigh.newsfeedsdk.Constants.WEB_HISTORY
@@ -35,7 +31,9 @@ import com.appyhigh.newsfeedsdk.adapter.WebPlatformListener
 import com.appyhigh.newsfeedsdk.adapter.WebPlatformsGridAdapter
 import com.appyhigh.newsfeedsdk.apicalls.ApiConfig
 import com.appyhigh.newsfeedsdk.apicalls.ApiSearchSticky
+import com.appyhigh.newsfeedsdk.apicalls.ConfigAdRequestListener
 import com.appyhigh.newsfeedsdk.databinding.ActivitySearchStickyWebBinding
+import com.appyhigh.newsfeedsdk.encryption.LogDetail
 import com.appyhigh.newsfeedsdk.model.SearchStickyWidgetModel
 import com.appyhigh.newsfeedsdk.model.feeds.Card
 import com.appyhigh.newsfeedsdk.utils.AdUtilsSDK
@@ -59,7 +57,6 @@ import org.simpleframework.xml.core.Persister
 import retrofit2.Retrofit
 import retrofit2.converter.simplexml.SimpleXmlConverterFactory
 import java.util.*
-import kotlin.collections.ArrayList
 
 
 class WebActivity : AppCompatActivity(), AdvancedWebView.Listener {
@@ -69,15 +66,27 @@ class WebActivity : AppCompatActivity(), AdvancedWebView.Listener {
     private lateinit var trending_list: List<TrendingSearchItem>
     var historyList = ArrayList<WebHistoryModel>()
     val TAG = "WebActivity"
-    private val adsModel = ApiConfig().getAdsModel()
 
     @SuppressLint("SetJavaScriptEnabled")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivitySearchStickyWebBinding.inflate(layoutInflater)
         setContentView(binding!!.root)
-        AdUtilsSDK().requestFeedAd(binding!!.searchNativeAd, R.layout.native_ad_feed_small,
-            adsModel.searchPageNative.admobId, "searchSticky")
+        ApiConfig().requestAd(this, "search_page_native", object : ConfigAdRequestListener {
+            override fun onPrivateAdSuccess(webView: WebView) {
+                binding?.searchNativeAd?.removeAllViews()
+                binding?.searchNativeAd?.addView(webView)
+            }
+
+            override fun onAdmobAdSuccess(adId: String) {
+                AdUtilsSDK().requestFeedAd(binding!!.searchNativeAd, R.layout.native_ad_feed_small, adId, "searchSticky")
+            }
+
+            override fun onAdHide() {
+                binding?.searchNativeAd?.visibility = View.GONE
+            }
+
+        })
         setFonts(binding!!.root)
         SpUtil.spUtilInstance?.init(this)
         binding?.webview?.setListener(this, this)
@@ -108,14 +117,26 @@ class WebActivity : AppCompatActivity(), AdvancedWebView.Listener {
             binding?.appBar?.visibility = View.VISIBLE
             binding?.coLayout?.visibility = View.VISIBLE
             binding?.adContainer?.visibility = View.VISIBLE
-            if(ApiConfig().checkShowAds()){
-                val adView = AdView(this)
-                adView.adSize = AdSize.BANNER
-                adView.adUnitId = adsModel.searchFooterBanner.admobId
-                binding?.adContainer?.addView(adView)
-                val adRequest = AdRequest.Builder().build()
-                adView.loadAd(adRequest)
-            }
+            ApiConfig().requestAd(this, "search_footer_banner", object : ConfigAdRequestListener {
+                override fun onPrivateAdSuccess(webView: WebView) {
+                    binding?.adContainer?.removeAllViews()
+                    binding?.adContainer?.addView(webView)
+                }
+
+                override fun onAdmobAdSuccess(adId: String) {
+                    val adView = AdView(this@WebActivity)
+                    adView.adSize = AdSize.BANNER
+                    adView.adUnitId = adId
+                    binding?.adContainer?.addView(adView)
+                    val adRequest = AdRequest.Builder().build()
+                    adView.loadAd(adRequest)
+                }
+
+                override fun onAdHide() {
+                    binding?.adContainer?.visibility = View.GONE
+                }
+
+            }, true)
             setSocialData()
             setSearchBar()
         } else {
@@ -174,7 +195,7 @@ class WebActivity : AppCompatActivity(), AdvancedWebView.Listener {
                     }
                     SpUtil.spUtilInstance!!.putBoolean("isSourceGoogle", isSourceGoogle)
                 } catch (ex:Exception){
-                    ex.printStackTrace()
+                    LogDetail.LogEStack(ex)
                 }
             }
 
@@ -341,7 +362,7 @@ class WebActivity : AppCompatActivity(), AdvancedWebView.Listener {
                 ).show()
             }
         } catch (ex:Exception){
-            ex.printStackTrace()
+            LogDetail.LogEStack(ex)
         }
     }
 
@@ -375,7 +396,7 @@ class WebActivity : AppCompatActivity(), AdvancedWebView.Listener {
                     logFirebase(searchData, searchEngine)
                     ApiSearchSticky().userActionSearch(searchData)
                 } catch (ex: Exception) {
-                    ex.printStackTrace()
+                    LogDetail.LogEStack(ex)
                 }
             }
             binding?.root?.viewTreeObserver?.addOnGlobalLayoutListener {
@@ -392,7 +413,7 @@ class WebActivity : AppCompatActivity(), AdvancedWebView.Listener {
                         binding?.socialLayout?.visibility = View.VISIBLE
                     }
                 } catch (ex: Exception) {
-                    ex.printStackTrace()
+                    LogDetail.LogEStack(ex)
                 }
             }
             binding?.search!!.setOnEditorActionListener(TextView.OnEditorActionListener { v, actionId, event ->
@@ -405,7 +426,7 @@ class WebActivity : AppCompatActivity(), AdvancedWebView.Listener {
             showTrendingSearches()
             showHistoryItems()
         } catch (ex:Exception){
-            ex.printStackTrace()
+            LogDetail.LogEStack(ex)
         }
     }
 
@@ -429,7 +450,7 @@ class WebActivity : AppCompatActivity(), AdvancedWebView.Listener {
                     binding?.gridOptions?.adapter = webPlatformsGridAdapter
                     binding?.gridOptions?.isExpanded = true
                 } catch (ex:Exception){
-                    ex.printStackTrace()
+                    LogDetail.LogEStack(ex)
                 }
             }
 
@@ -496,7 +517,7 @@ class WebActivity : AppCompatActivity(), AdvancedWebView.Listener {
                         }
                     } catch (e: Exception) {
                         binding!!.recentSearchCl.visibility = View.GONE
-                        Log.d(TAG, "openSearchEngine: " + e.localizedMessage)
+                        LogDetail.LogD(TAG, "openSearchEngine: " + e.localizedMessage)
                     }
                 }
             } else {
@@ -504,7 +525,7 @@ class WebActivity : AppCompatActivity(), AdvancedWebView.Listener {
             }
         } catch (ex:Exception){
             binding!!.recentSearchCl.visibility = View.GONE
-            ex.printStackTrace()
+            LogDetail.LogEStack(ex)
         }
     }
 
@@ -590,13 +611,13 @@ class WebActivity : AppCompatActivity(), AdvancedWebView.Listener {
                     vert_ll.addView(tv)
                     binding!!.trendingPbar.visibility = View.GONE
                 }
-                Log.d(TAG, "showTrendingSearches: "+binding!!.trendingLl.childCount)
+                LogDetail.LogD(TAG, "showTrendingSearches: "+binding!!.trendingLl.childCount)
                 if (binding!!.trendingLl.childCount < 2) {
                     binding!!.trendingLl.addView(vert_ll)
                 }
             }, {
                 trendingHide()
-                it.printStackTrace()
+                LogDetail.LogEStack(it)
             })
 
     }
@@ -619,7 +640,7 @@ class WebActivity : AppCompatActivity(), AdvancedWebView.Listener {
             val imm = getSystemService(INPUT_METHOD_SERVICE) as InputMethodManager
             imm.hideSoftInputFromWindow(binding?.search?.windowToken, 0)
         } catch (ex:Exception){
-            ex.printStackTrace()
+            LogDetail.LogEStack(ex)
         }
     }
 

@@ -18,20 +18,20 @@ import com.appyhigh.newsfeedsdk.FeedSdk
 import com.appyhigh.newsfeedsdk.R
 import com.appyhigh.newsfeedsdk.adapter.LanguageAdapter
 import com.appyhigh.newsfeedsdk.adapter.NewInterestAdapter
-import com.appyhigh.newsfeedsdk.adapter.PreferenceAdapter
 import com.appyhigh.newsfeedsdk.apicalls.ApiGetInterests
 import com.appyhigh.newsfeedsdk.apicalls.ApiGetLanguages
 import com.appyhigh.newsfeedsdk.apicalls.ApiUserDetails
-import com.appyhigh.newsfeedsdk.callbacks.NewInterestClickListener
 import com.appyhigh.newsfeedsdk.apiclient.Endpoints
 import com.appyhigh.newsfeedsdk.callbacks.PersonalizeCallback
-import com.appyhigh.newsfeedsdk.model.*
+import com.appyhigh.newsfeedsdk.encryption.LogDetail
+import com.appyhigh.newsfeedsdk.model.Interest
+import com.appyhigh.newsfeedsdk.model.InterestResponseModel
+import com.appyhigh.newsfeedsdk.model.Language
+import com.appyhigh.newsfeedsdk.model.UserResponse
 import com.appyhigh.newsfeedsdk.model.feeds.Card
-import com.appyhigh.newsfeedsdk.utils.SpUtil
 import com.google.android.flexbox.FlexboxLayoutManager
 import com.google.android.flexbox.JustifyContent
 import java.util.*
-import kotlin.collections.ArrayList
 
 class PersonalizeFragment : Fragment() {
     private var pos = 0
@@ -184,7 +184,7 @@ class PersonalizeFragment : Fragment() {
                 }
                 preferenceAdapter.updateData(filteredList as ArrayList<Interest>)
             } catch (ex: Exception) {
-                ex.printStackTrace()
+                LogDetail.LogEStack(ex)
             }
         }
         preferenceAdapter.updateData(list as ArrayList<Interest>)

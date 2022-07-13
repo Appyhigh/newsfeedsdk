@@ -18,17 +18,15 @@ import com.appyhigh.newsfeedsdk.apicalls.ApiGetInterests
 import com.appyhigh.newsfeedsdk.apicalls.ApiUpdateUserPersonalization
 import com.appyhigh.newsfeedsdk.apicalls.ApiUserDetails
 import com.appyhigh.newsfeedsdk.apiclient.Endpoints
+import com.appyhigh.newsfeedsdk.encryption.LogDetail
 import com.appyhigh.newsfeedsdk.model.Interest
 import com.appyhigh.newsfeedsdk.model.InterestResponseModel
 import com.appyhigh.newsfeedsdk.model.UserResponse
 import com.appyhigh.newsfeedsdk.model.feeds.Card
-import com.appyhigh.newsfeedsdk.utils.SpUtil
 import com.google.android.flexbox.FlexboxLayoutManager
 import com.google.android.flexbox.JustifyContent
 import retrofit2.Retrofit
 import java.util.*
-import kotlin.collections.ArrayList
-import kotlin.collections.HashMap
 
 class AddInterestsActivity : AppCompatActivity() {
     private lateinit var flexLayoutManager: FlexboxLayoutManager
@@ -100,7 +98,7 @@ class AddInterestsActivity : AppCompatActivity() {
                     }
                     interestChooserAdapter.updateData(filteredList as ArrayList<Interest>)
                 } catch (ex: Exception) {
-                    ex.printStackTrace()
+                    LogDetail.LogEStack(ex)
                 }
             }
 
