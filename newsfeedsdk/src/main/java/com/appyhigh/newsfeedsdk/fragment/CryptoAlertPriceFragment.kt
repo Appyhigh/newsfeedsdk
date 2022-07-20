@@ -106,8 +106,9 @@ class CryptoAlertPriceFragment : Fragment() {
                     it1,
                     coinId, upperThreshold, lowerThreshold, object : ApiCrypto.CryptoAlertResponseListener{
                         override fun onSuccess() {
-                            parentFragmentManager.popBackStackImmediate(null, FragmentManager.POP_BACK_STACK_INCLUSIVE);
-                            parentFragmentManager.beginTransaction()
+                            val parentManager = parentFragmentManager
+                            parentManager.popBackStackImmediate(null, FragmentManager.POP_BACK_STACK_INCLUSIVE);
+                            parentManager.beginTransaction()
                                 .add(R.id.baseFragment, CryptoAlertListFragment.newInstance())
                                 .disallowAddToBackStack()
                                 .commit()

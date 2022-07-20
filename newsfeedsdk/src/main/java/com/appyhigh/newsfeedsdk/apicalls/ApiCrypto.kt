@@ -1,10 +1,9 @@
 package com.appyhigh.newsfeedsdk.apicalls
 
-import android.util.Log
 import com.appyhigh.newsfeedsdk.Constants
-import com.appyhigh.newsfeedsdk.Constants.COIN_ID_LIST
 import com.appyhigh.newsfeedsdk.Constants.GET
 import com.appyhigh.newsfeedsdk.Constants.cryptoWatchListMap
+import com.appyhigh.newsfeedsdk.Constants.notNull
 import com.appyhigh.newsfeedsdk.FeedSdk
 import com.appyhigh.newsfeedsdk.apiclient.APISearchStickyInterface
 import com.appyhigh.newsfeedsdk.apiclient.Endpoints
@@ -23,6 +22,7 @@ import com.google.gson.GsonBuilder
 import com.google.gson.JsonObject
 import com.google.gson.annotations.Expose
 import com.google.gson.annotations.SerializedName
+import hu.akarnokd.rxjava3.retrofit.RxJava3CallAdapterFactory
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import io.reactivex.rxjava3.schedulers.Schedulers
 import okhttp3.Call
@@ -71,13 +71,15 @@ class ApiCrypto {
         keys.add(Constants.WATCHLIST)
         keys.add(Constants.CURRENCY)
         keys.add(Constants.PAGE_NUMBER)
-        keys.add(Constants.FEED_TYPE)
 
         val values = ArrayList<String?>()
         values.add(watchlist)
         values.add(currency)
         values.add(page_number.toString())
-        values.add(feedType)
+        feedType.notNull {
+            keys.add(Constants.FEED_TYPE)
+            values.add(it)
+        }
 
         val allDetails = BaseAPICallObject().getBaseObjectWithAuth(GET, apiUrl, token, keys, values)
 
@@ -95,7 +97,7 @@ class ApiCrypto {
 
         AuthSocket.Instance().postData(sendingData, object : ResponseListener {
             override fun onSuccess(apiUrl: String?, response: JSONObject?) {
-                LogDetail.LogDE("ApiGetInterests $apiUrl", response.toString())
+                LogDetail.LogDE("ApiGetCrypto $apiUrl", response.toString())
                 val gson: Gson = GsonBuilder().create()
                 val cryptoResponseBase: CryptoResponse =
                     gson.fromJson(
@@ -124,15 +126,15 @@ class ApiCrypto {
             }
 
             override fun onSuccess(apiUrl: String?, response: JSONArray?) {
-                LogDetail.LogDE("ApiGetInterests $apiUrl", response.toString())
+                LogDetail.LogDE("ApiGetCrypto $apiUrl", response.toString())
             }
 
             override fun onSuccess(apiUrl: String?, response: String?) {
-                LogDetail.LogDE("ApiGetInterests $apiUrl", response.toString())
+                LogDetail.LogDE("ApiGetCrypto $apiUrl", response.toString())
             }
 
             override fun onError(call: Call, e: IOException) {
-                LogDetail.LogDE("ApiGetInterests $apiUrl", e.toString())
+                LogDetail.LogDE("ApiGetCrypto $apiUrl", e.toString())
                 if (page_number == 1) {
                     try {
                         val res = SpUtil.spUtilInstance!!.getString("crypto_home_response", "")
@@ -161,27 +163,23 @@ class ApiCrypto {
     ) {
         val currency =
             if (FeedSdk.sdkCountryCode == null || FeedSdk.sdkCountryCode!!.lowercase() == "in") "inr" else "usd"
-        val allDetails = JsonObject()
-        val main = JsonObject()
-        main.addProperty(Constants.API_URl, apiUrl)
-        main.addProperty(Constants.API_METHOD, Constants.GET)
-        main.addProperty(Constants.API_INTERNAL, SessionUser.Instance().apiInternal)
-        val dataJO = JsonObject()
-        dataJO.addProperty(Constants.WATCHLIST, watchlist)
-        dataJO.addProperty(Constants.ORDER, order)
-        dataJO.addProperty(Constants.CURRENCY, currency)
-        dataJO.addProperty(Constants.PAGE_NUMBER, page_number)
-        main.add(Constants.API_DATA, dataJO)
-        val headerJO = JsonObject()
-        headerJO.addProperty(Constants.AUTHORIZATION, token)
-        main.add(Constants.API_HEADER, headerJO)
-        try {
-            allDetails.add(Constants.API_CALLING, main)
-            allDetails.add(Constants.USER_DETAIL, SessionUser.Instance().userDetails)
-            allDetails.add(Constants.DEVICE_DETAIL, SessionUser.Instance().deviceDetails)
-        } catch (e: Exception) {
-            LogDetail.LogEStack(e)
+        val keys = ArrayList<String?>()
+        val values = ArrayList<String?>()
+        watchlist.notNull {
+            keys.add(Constants.WATCHLIST)
+            values.add(it)
         }
+        order.notNull {
+            keys.add(Constants.ORDER)
+            values.add(it)
+        }
+        keys.add(Constants.CURRENCY)
+        keys.add(Constants.PAGE_NUMBER)
+        values.add(currency)
+        values.add(page_number.toString())
+
+        val allDetails = BaseAPICallObject().getBaseObjectWithAuth(GET, apiUrl, token, keys, values)
+
         LogDetail.LogDE("Test Data", allDetails.toString())
         val publicKey = SessionUser.Instance().publicKey
         val instanceEncryption = AESCBCPKCS5Encryption().getInstance(
@@ -196,7 +194,7 @@ class ApiCrypto {
 
         AuthSocket.Instance().postData(sendingData, object : ResponseListener {
             override fun onSuccess(apiUrl: String?, response: JSONObject?) {
-                LogDetail.LogDE("ApiGetInterests $apiUrl", response.toString())
+                LogDetail.LogDE("ApiGetCryptoDetails $apiUrl", response.toString())
                 val gson: Gson = GsonBuilder().create()
                 val cryptoResponseBase: CryptoDetailsResponse =
                     gson.fromJson(
@@ -218,15 +216,15 @@ class ApiCrypto {
             }
 
             override fun onSuccess(apiUrl: String?, response: JSONArray?) {
-                LogDetail.LogDE("ApiGetInterests $apiUrl", response.toString())
+                LogDetail.LogDE("ApiGetCrypto $apiUrl", response.toString())
             }
 
             override fun onSuccess(apiUrl: String?, response: String?) {
-                LogDetail.LogDE("ApiGetInterests $apiUrl", response.toString())
+                LogDetail.LogDE("ApiGetCrypto $apiUrl", response.toString())
             }
 
             override fun onError(call: Call, e: IOException) {
-                LogDetail.LogDE("ApiGetInterests $apiUrl", e.toString())
+                LogDetail.LogDE("ApiGetCrypto $apiUrl", e.toString())
             }
         })
     }
@@ -243,29 +241,31 @@ class ApiCrypto {
     ) {
         val currency =
             if (FeedSdk.sdkCountryCode == null || FeedSdk.sdkCountryCode!!.lowercase() == "in") "inr" else "usd"
-        val allDetails = JsonObject()
-        val main = JsonObject()
-        main.addProperty(Constants.API_URl, apiUrl)
-        main.addProperty(Constants.API_METHOD, Constants.GET)
-        main.addProperty(Constants.API_INTERNAL, SessionUser.Instance().apiInternal)
-        val dataJO = JsonObject()
-        dataJO.addProperty(Constants.COIN_ID, coinId)
-        dataJO.addProperty(Constants.TAB, tab)
-        dataJO.addProperty("start", start)
-        dataJO.addProperty("end", end)
-        dataJO.addProperty(Constants.CURRENCY, currency)
-        dataJO.addProperty(Constants.FEED_TYPE, feedType)
-        main.add(Constants.API_DATA, dataJO)
-        val headerJO = JsonObject()
-        headerJO.addProperty(Constants.AUTHORIZATION, token)
-        main.add(Constants.API_HEADER, headerJO)
-        try {
-            allDetails.add(Constants.API_CALLING, main)
-            allDetails.add(Constants.USER_DETAIL, SessionUser.Instance().userDetails)
-            allDetails.add(Constants.DEVICE_DETAIL, SessionUser.Instance().deviceDetails)
-        } catch (e: Exception) {
-            LogDetail.LogEStack(e)
+        val keys = ArrayList<String?>()
+        val values = ArrayList<String?>()
+        tab.notNull {
+            keys.add(Constants.TAB)
+            values.add(it)
         }
+        start.notNull {
+            keys.add("start")
+            values.add(it.toString())
+        }
+        end.notNull {
+            keys.add("end")
+            values.add(it.toString())
+        }
+        feedType.notNull {
+            keys.add(Constants.FEED_TYPE)
+            values.add(it)
+        }
+        keys.add(Constants.COIN_ID)
+        keys.add(Constants.CURRENCY)
+        values.add(coinId)
+        values.add(currency)
+
+        val allDetails = BaseAPICallObject().getBaseObjectWithAuth(GET, apiUrl, token, keys, values)
+
         LogDetail.LogDE("Test Data", allDetails.toString())
         val publicKey = SessionUser.Instance().publicKey
         val instanceEncryption = AESCBCPKCS5Encryption().getInstance(
@@ -280,7 +280,7 @@ class ApiCrypto {
 
         AuthSocket.Instance().postData(sendingData, object : ResponseListener {
             override fun onSuccess(apiUrl: String?, response: JSONObject?) {
-                LogDetail.LogDE("ApiGetInterests $apiUrl", response.toString())
+                LogDetail.LogDE("ApiGetCryptoCoinDetails $apiUrl", response.toString())
                 val gson: Gson = GsonBuilder().create()
                 val cryptoResponseBase: CryptoResponse =
                     gson.fromJson(
@@ -301,15 +301,15 @@ class ApiCrypto {
             }
 
             override fun onSuccess(apiUrl: String?, response: JSONArray?) {
-                LogDetail.LogDE("ApiGetInterests $apiUrl", response.toString())
+                LogDetail.LogDE("ApiGetCrypto $apiUrl", response.toString())
             }
 
             override fun onSuccess(apiUrl: String?, response: String?) {
-                LogDetail.LogDE("ApiGetInterests $apiUrl", response.toString())
+                LogDetail.LogDE("ApiGetCrypto $apiUrl", response.toString())
             }
 
             override fun onError(call: Call, e: IOException) {
-                LogDetail.LogDE("ApiGetInterests $apiUrl", e.toString())
+                LogDetail.LogDE("ApiGetCrypto $apiUrl", e.toString())
             }
         })
 
@@ -320,23 +320,7 @@ class ApiCrypto {
         token: String,
         listener: CryptoResponseListener
     ) {
-        val allDetails = JsonObject()
-        val main = JsonObject()
-        main.addProperty(Constants.API_URl, apiUrl)
-        main.addProperty(Constants.API_METHOD, Constants.GET)
-        main.addProperty(Constants.API_INTERNAL, SessionUser.Instance().apiInternal)
-        val dataJO = JsonObject()
-        main.add(Constants.API_DATA, dataJO)
-        val headerJO = JsonObject()
-        headerJO.addProperty(Constants.AUTHORIZATION, token)
-        main.add(Constants.API_HEADER, headerJO)
-        try {
-            allDetails.add(Constants.API_CALLING, main)
-            allDetails.add(Constants.USER_DETAIL, SessionUser.Instance().userDetails)
-            allDetails.add(Constants.DEVICE_DETAIL, SessionUser.Instance().deviceDetails)
-        } catch (e: Exception) {
-            LogDetail.LogEStack(e)
-        }
+        val allDetails = BaseAPICallObject().getBaseObjectWithAuth(GET, apiUrl, token, ArrayList(), ArrayList())
         LogDetail.LogDE("Test Data", allDetails.toString())
         val publicKey = SessionUser.Instance().publicKey
         val instanceEncryption = AESCBCPKCS5Encryption().getInstance(
@@ -351,7 +335,7 @@ class ApiCrypto {
 
         AuthSocket.Instance().postData(sendingData, object : ResponseListener {
             override fun onSuccess(apiUrl: String?, response: JSONObject?) {
-                LogDetail.LogDE("ApiGetInterests $apiUrl", response.toString())
+                LogDetail.LogDE("ApiGetCryptoAlertView $apiUrl", response.toString())
                 val gson: Gson = GsonBuilder().create()
                 val cryptoResponseBase: CryptoResponse =
                     gson.fromJson(
@@ -368,15 +352,15 @@ class ApiCrypto {
             }
 
             override fun onSuccess(apiUrl: String?, response: JSONArray?) {
-                LogDetail.LogDE("ApiGetInterests $apiUrl", response.toString())
+                LogDetail.LogDE("ApiGetCrypto $apiUrl", response.toString())
             }
 
             override fun onSuccess(apiUrl: String?, response: String?) {
-                LogDetail.LogDE("ApiGetInterests $apiUrl", response.toString())
+                LogDetail.LogDE("ApiGetCrypto $apiUrl", response.toString())
             }
 
             override fun onError(call: Call, e: IOException) {
-                LogDetail.LogDE("ApiGetInterests $apiUrl", e.toString())
+                LogDetail.LogDE("ApiGetCrypto $apiUrl", e.toString())
             }
         })
 
@@ -396,13 +380,17 @@ class ApiCrypto {
         val allDetails = JsonObject()
         val main = JsonObject()
         main.addProperty(Constants.API_URl, apiUrl)
-        main.addProperty(Constants.API_METHOD, Constants.GET)
+        main.addProperty(Constants.API_METHOD, Constants.POST)
         main.addProperty(Constants.API_INTERNAL, SessionUser.Instance().apiInternal)
         val dataJO = JsonObject()
         dataJO.addProperty("coin_id", coinId)
         dataJO.addProperty("currency", currency)
-        dataJO.addProperty("upper_threshold", upperThreshold)
-        dataJO.addProperty("lower_threshold", lowerThreshold)
+        upperThreshold.notNull {
+            dataJO.addProperty("upper_threshold", upperThreshold)
+        }
+        lowerThreshold.notNull {
+            dataJO.addProperty("lower_threshold", lowerThreshold)
+        }
         main.add(Constants.API_DATA, dataJO)
 
         val headerJO = JsonObject()
@@ -429,20 +417,20 @@ class ApiCrypto {
 
         AuthSocket.Instance().postData(sendingData, object : ResponseListener {
             override fun onSuccess(apiUrl: String?, response: JSONObject?) {
-                LogDetail.LogDE("ApiGetInterests $apiUrl", response.toString())
+                LogDetail.LogDE("ApiGetCrypto $apiUrl", response.toString())
                 listener.onSuccess()
             }
 
             override fun onSuccess(apiUrl: String?, response: JSONArray?) {
-                LogDetail.LogDE("ApiGetInterests $apiUrl", response.toString())
+                LogDetail.LogDE("ApiGetCrypto $apiUrl", response.toString())
             }
 
             override fun onSuccess(apiUrl: String?, response: String?) {
-                LogDetail.LogDE("ApiGetInterests $apiUrl", response.toString())
+                LogDetail.LogDE("ApiGetCrypto $apiUrl", response.toString())
             }
 
             override fun onError(call: Call, e: IOException) {
-                LogDetail.LogDE("ApiGetInterests $apiUrl", e.toString())
+                LogDetail.LogDE("ApiGetCrypto $apiUrl", e.toString())
             }
         })
     }
@@ -460,7 +448,7 @@ class ApiCrypto {
         val allDetails = JsonObject()
         val main = JsonObject()
         main.addProperty(Constants.API_URl, apiUrl)
-        main.addProperty(Constants.API_METHOD, Constants.GET)
+        main.addProperty(Constants.API_METHOD, Constants.POST)
         main.addProperty(Constants.API_INTERNAL, SessionUser.Instance().apiInternal)
         val dataJO = JsonObject()
         dataJO.addProperty("alert_id", alertId)
@@ -492,20 +480,20 @@ class ApiCrypto {
 
         AuthSocket.Instance().postData(sendingData, object : ResponseListener {
             override fun onSuccess(apiUrl: String?, response: JSONObject?) {
-                LogDetail.LogDE("ApiGetInterests $apiUrl", response.toString())
+                LogDetail.LogDE("ApiGetCrypto $apiUrl", response.toString())
                 listener.onSuccess()
             }
 
             override fun onSuccess(apiUrl: String?, response: JSONArray?) {
-                LogDetail.LogDE("ApiGetInterests $apiUrl", response.toString())
+                LogDetail.LogDE("ApiGetCrypto $apiUrl", response.toString())
             }
 
             override fun onSuccess(apiUrl: String?, response: String?) {
-                LogDetail.LogDE("ApiGetInterests $apiUrl", response.toString())
+                LogDetail.LogDE("ApiGetCrypto $apiUrl", response.toString())
             }
 
             override fun onError(call: Call, e: IOException) {
-                LogDetail.LogDE("ApiGetInterests $apiUrl", e.toString())
+                LogDetail.LogDE("ApiGetCrypto $apiUrl", e.toString())
             }
         })
     }
@@ -518,7 +506,7 @@ class ApiCrypto {
         val allDetails = JsonObject()
         val main = JsonObject()
         main.addProperty(Constants.API_URl, apiUrl)
-        main.addProperty(Constants.API_METHOD, Constants.GET)
+        main.addProperty(Constants.API_METHOD, Constants.POST)
         main.addProperty(Constants.API_INTERNAL, SessionUser.Instance().apiInternal)
         val dataJO = JsonObject()
         dataJO.addProperty("alert_id", alertId)
@@ -548,20 +536,20 @@ class ApiCrypto {
 
         AuthSocket.Instance().postData(sendingData, object : ResponseListener {
             override fun onSuccess(apiUrl: String?, response: JSONObject?) {
-                LogDetail.LogDE("ApiGetInterests $apiUrl", response.toString())
+                LogDetail.LogDE("ApiGetCrypto $apiUrl", response.toString())
                 listener.onSuccess()
             }
 
             override fun onSuccess(apiUrl: String?, response: JSONArray?) {
-                LogDetail.LogDE("ApiGetInterests $apiUrl", response.toString())
+                LogDetail.LogDE("ApiGetCrypto $apiUrl", response.toString())
             }
 
             override fun onSuccess(apiUrl: String?, response: String?) {
-                LogDetail.LogDE("ApiGetInterests $apiUrl", response.toString())
+                LogDetail.LogDE("ApiGetCrypto $apiUrl", response.toString())
             }
 
             override fun onError(call: Call, e: IOException) {
-                LogDetail.LogDE("ApiGetInterests $apiUrl", e.toString())
+                LogDetail.LogDE("ApiGetCrypto $apiUrl", e.toString())
             }
         })
     }
@@ -589,27 +577,15 @@ class ApiCrypto {
         token: String,
         query: String, listener: CryptoSearchListener
     ) {
-        val allDetails = JsonObject()
-        val main = JsonObject()
-        main.addProperty(Constants.API_URl, apiUrl)
-        main.addProperty(Constants.API_METHOD, Constants.GET)
-        main.addProperty(Constants.API_INTERNAL, SessionUser.Instance().apiInternal)
-        val dataJO = JsonObject()
-        dataJO.addProperty("coin", query)
-        main.add(Constants.API_DATA, dataJO)
+        val keys = ArrayList<String?>()
+        keys.add("coin")
 
-        val headerJO = JsonObject()
-        headerJO.addProperty(Constants.AUTHORIZATION, token)
-        main.add(Constants.API_HEADER, headerJO)
-        try {
-            allDetails.add(Constants.API_CALLING, main)
-            allDetails.add(Constants.USER_DETAIL, SessionUser.Instance().userDetails)
-            allDetails.add(Constants.DEVICE_DETAIL, SessionUser.Instance().deviceDetails)
-        } catch (e: Exception) {
-            LogDetail.LogEStack(e)
-        }
-        val publicKey = SessionUser.Instance().publicKey
+        val values = ArrayList<String?>()
+        values.add(query)
+        val allDetails = BaseAPICallObject().getBaseObjectWithAuth(GET, apiUrl, token, keys, values)
+
         LogDetail.LogDE("Test Data", allDetails.toString())
+        val publicKey = SessionUser.Instance().publicKey
         val instanceEncryption = AESCBCPKCS5Encryption().getInstance(
             SessionUser.Instance().getPrivateKey(publicKey)
         )
@@ -622,7 +598,7 @@ class ApiCrypto {
 
         AuthSocket.Instance().postData(sendingData, object : ResponseListener {
             override fun onSuccess(apiUrl: String?, response: JSONObject?) {
-                LogDetail.LogDE("ApiGetInterests $apiUrl", response.toString())
+                LogDetail.LogDE("searchCryptoCoinsEncrypted $apiUrl", response.toString())
                 val gson: Gson = GsonBuilder().create()
                 val cryptoResponseBase: CryptoSearchResponse =
                     gson.fromJson(
@@ -635,15 +611,24 @@ class ApiCrypto {
             }
 
             override fun onSuccess(apiUrl: String?, response: JSONArray?) {
-                LogDetail.LogDE("ApiGetInterests $apiUrl", response.toString())
+                LogDetail.LogDE("searchCryptoCoinsEncrypted $apiUrl", response.toString())
+                val gson: Gson = GsonBuilder().create()
+                val cryptoResponseBase: CryptoSearchResponse =
+                    gson.fromJson(
+                        response.toString(),
+                        object : TypeToken<CryptoSearchResponse>() {}.type
+                    )
+                val cryptoResponse: Response<CryptoSearchResponse> =
+                    Response.success(cryptoResponseBase)
+                listener.onSuccess(cryptoResponse.body()!!)
             }
 
             override fun onSuccess(apiUrl: String?, response: String?) {
-                LogDetail.LogDE("ApiGetInterests $apiUrl", response.toString())
+                LogDetail.LogDE("ApiGetCrypto $apiUrl", response.toString())
             }
 
             override fun onError(call: Call, e: IOException) {
-                LogDetail.LogDE("ApiGetInterests $apiUrl", e.toString())
+                LogDetail.LogDE("ApiGetCrypto $apiUrl", e.toString())
             }
         })
     }
@@ -654,25 +639,14 @@ class ApiCrypto {
         token: String?,
         cryptoConvertorResponseListener: CryptoConvertorResponseListener
     ) {
-        val allDetails = JsonObject()
-        val main = JsonObject()
-        main.addProperty(Constants.API_URl, apiUrl)
-        main.addProperty(Constants.API_METHOD, Constants.GET)
-        main.addProperty(Constants.API_INTERNAL, SessionUser.Instance().apiInternal)
-        val dataJO = JsonObject()
-        dataJO.addProperty(COIN_ID_LIST, coinId)
-        main.add(Constants.API_DATA, dataJO)
+        val keys = ArrayList<String?>()
+        keys.add(Constants.COIN_ID_LIST)
 
-        val headerJO = JsonObject()
-        headerJO.addProperty(Constants.AUTHORIZATION, token)
-        main.add(Constants.API_HEADER, headerJO)
-        try {
-            allDetails.add(Constants.API_CALLING, main)
-            allDetails.add(Constants.USER_DETAIL, SessionUser.Instance().userDetails)
-            allDetails.add(Constants.DEVICE_DETAIL, SessionUser.Instance().deviceDetails)
-        } catch (e: Exception) {
-            LogDetail.LogEStack(e)
-        }
+        val values = ArrayList<String?>()
+        values.add(coinId)
+
+        val allDetails = BaseAPICallObject().getBaseObjectWithAuth(GET, apiUrl, token.toString(), keys, values)
+
         LogDetail.LogDE("Test Data", allDetails.toString())
         val publicKey = SessionUser.Instance().publicKey
         val instanceEncryption = AESCBCPKCS5Encryption().getInstance(
@@ -687,7 +661,7 @@ class ApiCrypto {
 
         AuthSocket.Instance().postData(sendingData, object : ResponseListener {
             override fun onSuccess(apiUrl: String?, response: JSONObject?) {
-                LogDetail.LogDE("ApiGetInterests $apiUrl", response.toString())
+                LogDetail.LogDE("ApiGetCrypto $apiUrl", response.toString())
                 val gson: Gson = GsonBuilder().create()
                 val cryptoResponseBase: ConvertorResponse =
                     gson.fromJson(
@@ -704,15 +678,15 @@ class ApiCrypto {
             }
 
             override fun onSuccess(apiUrl: String?, response: JSONArray?) {
-                LogDetail.LogDE("ApiGetInterests $apiUrl", response.toString())
+                LogDetail.LogDE("ApiGetCrypto $apiUrl", response.toString())
             }
 
             override fun onSuccess(apiUrl: String?, response: String?) {
-                LogDetail.LogDE("ApiGetInterests $apiUrl", response.toString())
+                LogDetail.LogDE("ApiGetCrypto $apiUrl", response.toString())
             }
 
             override fun onError(call: Call, e: IOException) {
-                LogDetail.LogDE("ApiGetInterests $apiUrl", e.toString())
+                LogDetail.LogDE("ApiGetCrypto $apiUrl", e.toString())
             }
         })
     }
@@ -722,24 +696,8 @@ class ApiCrypto {
         token: String?,
         cryptoConvertorResponseListener: CryptoConvertorResponseListener
     ) {
-        val allDetails = JsonObject()
-        val main = JsonObject()
-        main.addProperty(Constants.API_URl, apiUrl)
-        main.addProperty(Constants.API_METHOD, Constants.GET)
-        main.addProperty(Constants.API_INTERNAL, SessionUser.Instance().apiInternal)
-        val dataJO = JsonObject()
-        main.add(Constants.API_DATA, dataJO)
+        val allDetails = BaseAPICallObject().getBaseObjectWithAuth(GET, apiUrl, token.toString(), ArrayList(), ArrayList())
 
-        val headerJO = JsonObject()
-        headerJO.addProperty(Constants.AUTHORIZATION, token)
-        main.add(Constants.API_HEADER, headerJO)
-        try {
-            allDetails.add(Constants.API_CALLING, main)
-            allDetails.add(Constants.USER_DETAIL, SessionUser.Instance().userDetails)
-            allDetails.add(Constants.DEVICE_DETAIL, SessionUser.Instance().deviceDetails)
-        } catch (e: Exception) {
-            LogDetail.LogEStack(e)
-        }
         LogDetail.LogDE("Test Data", allDetails.toString())
         val publicKey = SessionUser.Instance().publicKey
         val instanceEncryption = AESCBCPKCS5Encryption().getInstance(
@@ -754,7 +712,7 @@ class ApiCrypto {
 
         AuthSocket.Instance().postData(sendingData, object : ResponseListener {
             override fun onSuccess(apiUrl: String?, response: JSONObject?) {
-                LogDetail.LogDE("ApiGetInterests $apiUrl", response.toString())
+                LogDetail.LogDE("ApiGetCrypto $apiUrl", response.toString())
                 val gson: Gson = GsonBuilder().create()
                 val cryptoResponseBase: ConvertorResponse =
                     gson.fromJson(
@@ -771,15 +729,15 @@ class ApiCrypto {
             }
 
             override fun onSuccess(apiUrl: String?, response: JSONArray?) {
-                LogDetail.LogDE("ApiGetInterests $apiUrl", response.toString())
+                LogDetail.LogDE("ApiGetCrypto $apiUrl", response.toString())
             }
 
             override fun onSuccess(apiUrl: String?, response: String?) {
-                LogDetail.LogDE("ApiGetInterests $apiUrl", response.toString())
+                LogDetail.LogDE("ApiGetCrypto $apiUrl", response.toString())
             }
 
             override fun onError(call: Call, e: IOException) {
-                LogDetail.LogDE("ApiGetInterests $apiUrl", e.toString())
+                LogDetail.LogDE("ApiGetCrypto $apiUrl", e.toString())
             }
         })
     }
@@ -788,6 +746,7 @@ class ApiCrypto {
     fun findCrypto(symbol: String, findCryptoResponse: FindCryptoResponse) {
         val retrofit: Retrofit = Retrofit.Builder()
             .baseUrl("https://symbol-search.tradingview.com/symbol_search/?text=$symbol&hl=2&exchange=&lang=en&type=crypto&domain=production")
+            .addCallAdapterFactory(RxJava3CallAdapterFactory.create())
             .client(OkHttpClient())
             .addConverterFactory(GsonConverterFactory.create())
             .build()

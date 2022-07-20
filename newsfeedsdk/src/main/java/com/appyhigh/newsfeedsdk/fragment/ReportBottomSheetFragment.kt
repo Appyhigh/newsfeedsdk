@@ -66,6 +66,9 @@ class ReportBottomSheetFragment : BottomSheetDialogFragment() {
                 R.id.violent -> {
                     reportString = view.findViewById<RadioButton>(R.id.violent).text.toString()
                 }
+                R.id.violation -> {
+                    reportString = view.findViewById<RadioButton>(R.id.violation).text.toString()
+                }
                 R.id.obscene -> {
                     reportString = view.findViewById<RadioButton>(R.id.obscene).text.toString()
                 }
@@ -132,6 +135,7 @@ class ReportBottomSheetFragment : BottomSheetDialogFragment() {
     private fun setFonts(view: View?){
         Card.setFontFamily(view?.findViewById(R.id.fakeNews))
         Card.setFontFamily(view?.findViewById(R.id.violent))
+        Card.setFontFamily(view?.findViewById(R.id.violation))
         Card.setFontFamily(view?.findViewById(R.id.obscene))
         Card.setFontFamily(view?.findViewById(R.id.other))
         Card.setFontFamily(view?.findViewById(R.id.btnSave), true)

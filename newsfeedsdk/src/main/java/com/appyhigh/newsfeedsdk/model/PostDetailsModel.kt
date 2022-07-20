@@ -1,8 +1,6 @@
 package com.appyhigh.newsfeedsdk.model
 
 import com.google.gson.annotations.SerializedName
-import java.util.*
-import kotlin.collections.ArrayList
 
 
 data class PostDetailsModel(
@@ -54,6 +52,9 @@ data class PostDetailsModel(
 
         @SerializedName("publisher_profile_pic")
         var publisherProfilePic: String? = null,
+
+        @SerializedName("publisher_contact_us")
+        var publisherContactUs: String? = null,
 
         @SerializedName("language_string")
         var languageString: String? = null,

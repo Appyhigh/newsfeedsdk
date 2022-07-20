@@ -723,12 +723,14 @@ class FeedSdk {
      * Fetch device details and set to local store
      */
     private fun setDeviceDetailsToLocal() {
-        DeviceName.with(mContext).request { info, _ ->
-            spUtil!!.putString(
-                Constants.DEVICE_MODEL,
-                info.manufacturer.toString() + " " + info.marketName + " " + info.model
-            )
-        }
+        try {
+            DeviceName.with(mContext).request { info, _ ->
+                spUtil!!.putString(
+                    Constants.DEVICE_MODEL,
+                    info.manufacturer.toString() + " " + info.marketName + " " + info.model
+                )
+            }
+        } catch (ex:Exception){ LogDetail.LogEStack(ex) }
     }
 
 

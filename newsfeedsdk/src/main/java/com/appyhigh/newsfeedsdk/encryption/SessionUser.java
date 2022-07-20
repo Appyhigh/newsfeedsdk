@@ -13,17 +13,17 @@ public class SessionUser {
     private String publicKey = "";
 
     private String DeviceId = "111234567890qwertyuiop";
-    private String appId = "com.appyhigh.sampleencryption";
+    private String appId = "";
     private String sdkId = "com.appyhigh.sdk";
     private String versionCode = "1";
     private String versionName = "v1.0.0";
     private String platform = "android";
-    private String app_versionCode = "1";
-    private String app_versionName = "v1.0.0";
-    private String os_version = "12";
-    private String network = "WiFi";
-    private String manufacturer = "Google";
-    private String device_model = "Pixel 6A";
+    private String app_versionCode = "";
+    private String app_versionName = "";
+    private String os_version = "";
+    private String network = "";
+    private String manufacturer = "";
+    private String device_model = "";
     private String sha1 = "7unB9QIzrWyuIDS3haUSpnrq7Fk=";
 
 

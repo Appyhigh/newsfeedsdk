@@ -43,6 +43,7 @@ import com.appyhigh.newsfeedsdk.callbacks.GlideCallbackListener
 import com.appyhigh.newsfeedsdk.callbacks.OnRelatedPostClickListener
 import com.appyhigh.newsfeedsdk.databinding.ActivityPostNativeDetailBinding
 import com.appyhigh.newsfeedsdk.encryption.LogDetail
+import com.appyhigh.newsfeedsdk.fragment.FeedMenuBottomSheetFragment
 import com.appyhigh.newsfeedsdk.fragment.NonNativeCommentBottomSheet
 import com.appyhigh.newsfeedsdk.model.*
 import com.appyhigh.newsfeedsdk.model.feeds.Card
@@ -165,6 +166,18 @@ class PostNativeDetailActivity : AppCompatActivity() {
             }
         }
         binding?.backBtn?.setOnClickListener { onBackPressed() }
+
+        binding?.newsItemMoreOption?.setOnClickListener {
+            try{
+                val reportBottomSheet = FeedMenuBottomSheetFragment.newInstance(
+                    presentPostDetailsModel?.post?.publisherContactUs?:"",
+                    postId!!
+                )
+                reportBottomSheet.show(supportFragmentManager, "reportBottomSheet")
+            } catch (ex:Exception){
+                LogDetail.LogEStack(ex)
+            }
+        }
         binding?.tvCommentsExplore?.setOnClickListener {
             try {
                 if (SpUtil.eventsListener != null) {

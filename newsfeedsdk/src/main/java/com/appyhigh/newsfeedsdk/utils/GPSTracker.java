@@ -131,8 +131,7 @@ public class GPSTracker extends Service implements LocationListener {
         }
         catch (Exception e)
         {
-            //LogDetail.LogEStack(e);
-            LogDetail.LogDE(TAG, "Impossible to connect to LocationManager", e);
+            LogDetail.LogDE(TAG, "Impossible to connect to LocationManager");
         }
     }
 

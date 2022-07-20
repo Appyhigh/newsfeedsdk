@@ -18,7 +18,6 @@ import android.text.TextUtils
 import android.text.method.LinkMovementMethod
 import android.text.style.URLSpan
 import android.text.util.Linkify
-import android.util.Log
 import android.util.TypedValue
 import android.view.Gravity
 import android.view.LayoutInflater
@@ -767,22 +766,6 @@ data class Card(
                 view.visibility = View.GONE
                 llYoutubeView.visibility = View.VISIBLE
                 listener.setUpYoutubeVideo(view, position, youtubeUrl)
-                llYoutubeView.setOnClickListener {
-                    if (mute.visibility == View.GONE) {
-                        mute.visibility = View.VISIBLE
-                        if (Constants.isMuted) {
-                            mute.setImageResource(R.drawable.ic_feed_mute)
-                        } else {
-                            mute.setImageResource(R.drawable.ic_feed_unmute)
-                        }
-                        Handler(Looper.getMainLooper()).postDelayed(
-                            { (view.parent as ConstraintLayout).performClick() },
-                            3000
-                        )
-                    } else {
-                        mute.visibility = View.GONE
-                    }
-                }
             } else {
                 try {
                     llYoutubeView.removeAllViews()

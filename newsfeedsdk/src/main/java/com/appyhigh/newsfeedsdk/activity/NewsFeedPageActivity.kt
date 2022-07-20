@@ -49,6 +49,7 @@ import com.appyhigh.newsfeedsdk.callbacks.FeedReactionListener
 import com.appyhigh.newsfeedsdk.callbacks.GlideCallbackListener
 import com.appyhigh.newsfeedsdk.databinding.ActivityNewsFeedPageBinding
 import com.appyhigh.newsfeedsdk.encryption.LogDetail
+import com.appyhigh.newsfeedsdk.fragment.FeedMenuBottomSheetFragment
 import com.appyhigh.newsfeedsdk.fragment.NonNativeCommentBottomSheet
 import com.appyhigh.newsfeedsdk.model.*
 import com.appyhigh.newsfeedsdk.model.feeds.Card
@@ -72,6 +73,7 @@ import com.google.firebase.dynamiclinks.ShortDynamicLink
 import com.google.gson.Gson
 import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.YouTubePlayer
 import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.listeners.AbstractYouTubePlayerListener
+import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.listeners.YouTubePlayerCallback
 import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.listeners.YouTubePlayerFullScreenListener
 import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.utils.loadOrCueVideo
 import com.squareup.picasso.Callback
@@ -156,6 +158,17 @@ class NewsFeedPageActivity : AppCompatActivity() {
         binding?.ivBack?.setOnClickListener { onBackPressed() }
         if (postDetailCards.isNotEmpty() && position > 0) {
             binding?.prevCard?.visibility = View.VISIBLE
+        }
+        binding?.newsItemMoreOption?.setOnClickListener {
+            try{
+                val reportBottomSheet = FeedMenuBottomSheetFragment.newInstance(
+                    presentPostDetailsModel?.post?.publisherContactUs?:"",
+                    postId!!
+                )
+                reportBottomSheet.show(supportFragmentManager, "reportBottomSheet")
+            } catch (ex:Exception){
+                LogDetail.LogEStack(ex)
+            }
         }
         binding?.prevCard?.setOnClickListener {
             if (postDetailCards.size > position) {
@@ -425,11 +438,13 @@ class NewsFeedPageActivity : AppCompatActivity() {
                     }
 
                     override fun onFailure() {
-                        Toast.makeText(
-                            this@NewsFeedPageActivity,
-                            getString(R.string.error_some_issue_occurred),
-                            Toast.LENGTH_SHORT
-                        ).show()
+                        Handler(Looper.getMainLooper()).post {
+                            Toast.makeText(
+                                this@NewsFeedPageActivity,
+                                getString(R.string.error_some_issue_occurred),
+                                Toast.LENGTH_SHORT
+                            ).show()
+                        }
                         finish()
                     }
                 })
@@ -706,6 +721,12 @@ class NewsFeedPageActivity : AppCompatActivity() {
                 binding?.newsPageImage!!.visibility = View.GONE
                 binding?.newsPageVideoYoutube!!.visibility = View.VISIBLE
                 lifecycle.addObserver(binding?.newsPageVideoYoutube!!)
+                binding?.newsPageVideoYoutube!!.getYouTubePlayerWhenReady(object : YouTubePlayerCallback{
+                    override fun onYouTubePlayer(youTubePlayer: YouTubePlayer) {
+                        youtubePlayer = youTubePlayer
+                        youTubePlayer.loadVideo(youtubeVideoId!!, playbackPosition.toFloat())
+                    }
+                })
                 binding?.newsPageVideoYoutube!!.addFullScreenListener(object :
                     YouTubePlayerFullScreenListener {
                     override fun onYouTubePlayerEnterFullScreen() {

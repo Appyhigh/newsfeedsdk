@@ -12,7 +12,6 @@ import android.os.Build
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -26,7 +25,6 @@ import androidx.core.content.ContextCompat
 import androidx.core.text.HtmlCompat
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.FragmentActivity
-import androidx.fragment.app.FragmentManager
 import androidx.recyclerview.widget.RecyclerView
 import com.appyhigh.newsfeedsdk.Constants
 import com.appyhigh.newsfeedsdk.Constants.AD
@@ -45,7 +43,6 @@ import com.appyhigh.newsfeedsdk.Constants.TAG
 import com.appyhigh.newsfeedsdk.FeedSdk
 import com.appyhigh.newsfeedsdk.R
 import com.appyhigh.newsfeedsdk.activity.*
-import com.appyhigh.newsfeedsdk.apicalls.ApiConfig
 import com.appyhigh.newsfeedsdk.apicalls.ApiCreateOrUpdateUser
 import com.appyhigh.newsfeedsdk.apicalls.ApiFollowPublihser
 import com.appyhigh.newsfeedsdk.apicalls.ApiReactPost
@@ -75,15 +72,12 @@ import com.google.android.play.core.tasks.Task
 import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.firebase.dynamiclinks.DynamicLink
 import com.google.firebase.dynamiclinks.FirebaseDynamicLinks
-import com.google.protobuf.Api
 import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.PlayerConstants
 import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.YouTubePlayer
 import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.listeners.AbstractYouTubePlayerListener
 import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.listeners.YouTubePlayerCallback
 import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.views.YouTubePlayerView
 import java.util.*
-import kotlin.collections.ArrayList
-import kotlin.collections.HashMap
 
 class NewsFeedAdapter(
     private var newsFeedList: ArrayList<Card>,
@@ -1962,10 +1956,10 @@ class NewsFeedAdapter(
             observeYoutubePlayer(youtubePlay)
         }
 
-        val youtubeUI = youtubePlay?.getPlayerUiController()
-        youtubeUI?.apply {
-            showUi(false)
-        }
+//        val youtubeUI = youtubePlay?.ui()
+//        youtubeUI?.apply {
+//            showUi(false)
+//        }
         youtubePlay?.setOnClickListener {
             if (mute.visibility == View.GONE) {
                 mute.visibility = View.VISIBLE
@@ -1982,8 +1976,10 @@ class NewsFeedAdapter(
                 mute.visibility = View.GONE
             }
         }
+        var currentYouTubePlayer: YouTubePlayer?=null
         youtubePlay?.addYouTubePlayerListener(object : AbstractYouTubePlayerListener() {
             override fun onReady(youTubePlayer: YouTubePlayer) {
+                currentYouTubePlayer = youTubePlayer
                 youTubePlayer.cueVideo(youtubeUrl, 0f)
                 (view.parent as ConstraintLayout).setOnClickListener {
                     if (mute.visibility == View.GONE) {
@@ -2036,6 +2032,23 @@ class NewsFeedAdapter(
             }
         })
 
+        llYoutubeView.setOnClickListener {
+            currentYouTubePlayer?.loadVideo(youtubeUrl, 0f)
+            if (mute.visibility == View.GONE) {
+                mute.visibility = View.VISIBLE
+                if (Constants.isMuted) {
+                    mute.setImageResource(R.drawable.ic_feed_mute)
+                } else {
+                    mute.setImageResource(R.drawable.ic_feed_unmute)
+                }
+                Handler(Looper.getMainLooper()).postDelayed(
+                    { (view.parent as ConstraintLayout).performClick() },
+                    3000
+                )
+            } else {
+                mute.visibility = View.GONE
+            }
+        }
         llYoutubeView.addView(youtubePlay)
     }
 

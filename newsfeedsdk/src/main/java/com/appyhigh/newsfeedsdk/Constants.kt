@@ -586,6 +586,10 @@ object Constants {
         }
     }
 
+    fun <T : Any> T?.notNull(f: (it: T) -> Unit) {
+        if (this != null) f(this)
+    }
+
     fun getInterestsString(interests: List<String>?): String? {
         var interestsString = ""
         try {

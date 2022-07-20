@@ -33,7 +33,7 @@ interface APISearchStickyInterface {
         @Body searchStickyActionModel: SearchStickyActionModel
     ): Observable<String?>?
 
-    @GET
+    @GET(".")
     fun findCryptoInTV(): Observable<Response<CryptoFinderResponse>>
 
     @POST(".")

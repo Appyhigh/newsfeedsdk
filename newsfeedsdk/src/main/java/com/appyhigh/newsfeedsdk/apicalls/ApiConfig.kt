@@ -52,6 +52,7 @@ class ApiConfig {
                     override fun onSuccess(privateAdResponse: PrivateAdResponse) {
                         privateAdResponse.creative?.let {
                             val webView = WebView(context)
+//                            val htmlString = "<body style=\"margin: 0 auto;\">$it</body>"
                             webView.loadDataWithBaseURL(null, it, "text/html", "utf-8", null)
                             listener.onPrivateAdSuccess(webView)
                             ApiPrivateAds().hitAdUrls(privateAdResponse.eUrl?:"", privateAdResponse.nUrl?:"")

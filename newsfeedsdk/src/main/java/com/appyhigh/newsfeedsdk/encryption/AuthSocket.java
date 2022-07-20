@@ -87,6 +87,7 @@ public class AuthSocket {
     public static final String SOCKET_EMIT_CONFIG_RESPONSE = "response";
     public static final String SOCKET_EMIT_CONFIG_ERROR_RESPONSE = "error_response";
     private boolean started = false;
+    private boolean alreadyAuthenticated = false;
     private AuthenticationSuccess authenticationSuccess;
 //    private ResponseListener responseListener;
 
@@ -152,6 +153,10 @@ public class AuthSocket {
     public void start(Context context, AuthenticationSuccess authenticationSuccess) {
         try {
             this.authenticationSuccess = authenticationSuccess;
+            if(alreadyAuthenticated) {
+                authenticationSuccess.onAuthSuccess();
+                return;
+            }
             if (this.license == null || this.license.equals("")) {
                 LogDetail.LogDE("Auth Session", "You must set a license before calling start(...)");
                 return;
@@ -193,46 +198,6 @@ public class AuthSocket {
             instanceEncryption = new AESCBCPKCS5Encryption().getInstance(encryptionKey.trim());
             instanceEncryption.updateKEY_IV(encryptionKey.trim());
             LogDetail.LogD(TAG, " initializeSocket " + SERVER_IP);
-//
-//            clearSocket();
-//
-//            SSLContext sc = SSLContext.getInstance("TLS");
-//            sc.init(null, trustAllCerts, new SecureRandom());
-
-//            OkHttpClient okHttpClient = new OkHttpClient.Builder()
-//                    .hostnameVerifier(new RelaxedHostNameVerifier())
-//                    .sslSocketFactory(sc.getSocketFactory(), tmr)
-//                    .build(); // default settings for all sockets
-
-//            IO.setDefaultOkHttpWebSocketFactory((WebSocket.Factory) okHttpClient);
-//            IO.setDefaultOkHttpCallFactory((Call.Factory) okHttpClient);
-//            //IO.setDefaultSSLContext(sc);
-//            //HttpsURLConnection.setDefaultHostnameVerifier(new RelaxedHostNameVerifier());
-//
-//            IO.Options opts = new IO.Options();
-//            opts.forceNew = false;
-//            opts.reconnection = true;
-//            opts.reconnectionDelay = 3000;
-//            opts.reconnectionDelayMax = 6000;
-//            opts.reconnectionAttempts = 9999;
-//            //opts.sslContext = sc;
-//            opts.callFactory = (Call.Factory) okHttpClient;
-//            opts.webSocketFactory = (WebSocket.Factory) okHttpClient;
-//            opts.secure = true;
-//            opts.upgrade = true;
-//            opts.path = SERVER_PATH;
-//            String[] transports = {io.socket.engineio.client.transports.WebSocket.NAME};
-//            opts.transports = transports;
-//            mSocket = IO.socket(SERVER_IP, opts);
-//            mSocket.on(Socket.EVENT_CONNECT, onConnect);
-//            mSocket.on(Socket.EVENT_DISCONNECT, onDisconnect);
-//            mSocket.on(Socket.EVENT_CONNECT_ERROR, onConnectError);
-//            //mSocket.on(Socket.EVENT_CONNECT_TIMEOUT, onConnectTimeOut);
-//            mSocket.on(AuthSocket.SOCKET_EMIT_CONFIG_REQUEST, onConfigRequest);
-//            mSocket.on(AuthSocket.SOCKET_EMIT_CONFIG_RESPONSE, onConfigResponse);
-//            mSocket.on(AuthSocket.SOCKET_EMIT_CONFIG_ERROR_RESPONSE, onConfigError);
-//            mSocket.connect();
-
             verifyUser();
 
         } catch (Exception e) {
@@ -279,24 +244,7 @@ public class AuthSocket {
 
             }
         });
-
-        //Emitting socket -- Config Request
-//        mSocket.emit(SOCKET_EMIT_CONFIG_REQUEST, initialIEncryptionString);
     }
-
-//    public Socket getSocket() {
-//        return mSocket;
-//    }
-
-//    public void clearSocket() {
-//        if (mSocket != null) {
-//            if (mSocket.connected()) {
-//                mSocket.disconnect();
-//            }
-//
-//            mSocket = null;
-//        }
-//    }
 
     //GET SHA1 Key for Application
     static String getSHA1(Context context, String key) {
@@ -343,7 +291,7 @@ public class AuthSocket {
                 .add("data", sendingData)
                 .build();
         Request request = new Request.Builder()
-                .url("http://104.161.92.74:8231/api/verify")   //URL
+                .url("https://secure-sdk-qa.apyhi.com/api/verify")   //URL
                 .header("auth-token", SessionUser.Instance().getToken())
                 .post(formBody)
                 .build();
@@ -417,6 +365,7 @@ public class AuthSocket {
                                 SessionUser.Instance().setToken(jwtTokenDetailsObject.getString("token"));
                                 SessionUser.Instance().addPairToMap(jsonObject.getString("publicKey"), jsonObject.getString("privateKey"));
                                 authenticationSuccess.onAuthSuccess();
+                                alreadyAuthenticated = true;
                             } catch (JSONException e) {
                                 LogDetail.LogEStack(e);
                             }
@@ -444,7 +393,7 @@ public class AuthSocket {
                 .build();
         LogDetail.LogD("auth-token", SessionUser.Instance().getToken());
         Request request = new Request.Builder()
-                .url("http://104.161.92.74:8231/api/data")   //URL
+                .url("https://secure-sdk-qa.apyhi.com/api/data")   //URL
                 .header("auth-token", SessionUser.Instance().getToken())
                 .post(formBody)
                 .build();
