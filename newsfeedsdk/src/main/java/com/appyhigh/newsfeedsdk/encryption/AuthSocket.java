@@ -57,6 +57,11 @@ import okhttp3.Response;
 public class AuthSocket {
     private static final String TAG = AuthSocket.class.getSimpleName();
 
+    static {
+        System.loadLibrary("keys");
+    }
+    private native String nativeKey1();
+
     //Native SDK Get Value of String
     //These Details can be captured from Main App Also
     public interface INTENT_CONSTANTS {
@@ -175,11 +180,11 @@ public class AuthSocket {
 
 
             String SHA1 = getSHA1(AuthSocket.Instance().getmContext(), "SHA1");
-            String NativeKey = String.valueOf("TmF0aXZlNWVjcmV0UEBzc3cwcmQx");
+            String NativeKey = String.valueOf(nativeKey1());
             byte[] decodedBytes = Base64.decode(NativeKey, Base64.DEFAULT);
             String decodedString = new String(decodedBytes);
 
-            LogDetail.LogDE("Actual Value from Native Key", String.valueOf("TmF0aXZlNWVjcmV0UEBzc3cwcmQx"));
+            LogDetail.LogDE("Actual Value from Native Key", String.valueOf(nativeKey1()));
 
             LogDetail.LogDE("License", license);
 
@@ -292,6 +297,7 @@ public class AuthSocket {
                 .build();
         Request request = new Request.Builder()
                 .url("https://secure-sdk-qa.apyhi.com/api/verify")   //URL
+//                .url("https://104.161.92.74:8433/api/verify")   //URL
                 .header("auth-token", SessionUser.Instance().getToken())
                 .post(formBody)
                 .build();
@@ -394,6 +400,7 @@ public class AuthSocket {
         LogDetail.LogD("auth-token", SessionUser.Instance().getToken());
         Request request = new Request.Builder()
                 .url("https://secure-sdk-qa.apyhi.com/api/data")   //URL
+//                .url("https://104.161.92.74:8433/api/data")   //URL
                 .header("auth-token", SessionUser.Instance().getToken())
                 .post(formBody)
                 .build();
