@@ -9,7 +9,6 @@ import android.os.Build
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -32,6 +31,7 @@ import com.appyhigh.newsfeedsdk.apicalls.ApiCreateOrUpdateUser
 import com.appyhigh.newsfeedsdk.apiclient.Endpoints
 import com.appyhigh.newsfeedsdk.callbacks.PWATabSelectedListener
 import com.appyhigh.newsfeedsdk.databinding.FragmentCricketPwaBinding
+import com.appyhigh.newsfeedsdk.encryption.LogDetail
 import com.appyhigh.newsfeedsdk.model.feeds.Card
 import com.appyhigh.newsfeedsdk.utils.RSAKeyGenerator
 import com.appyhigh.newsfeedsdk.utils.SpUtil
@@ -66,7 +66,7 @@ class CricketPWAFragment : Fragment(), AdvancedWebView.Listener, PWATabSelectedL
     override fun onTabClicked(filename: String) {
         if(fileName == filename){
             binding.noInternet.visibility=View.GONE
-            Log.d("webtest", "onViewCreated: "+keyId+" "+link)
+            LogDetail.LogD("webtest", "onViewCreated: "+keyId+" "+link)
             binding.webview.loadUrl(link)
             Constants.pwaWebViews[pwaLink] = binding.webview
         }
@@ -95,7 +95,7 @@ class CricketPWAFragment : Fragment(), AdvancedWebView.Listener, PWATabSelectedL
                 prevWeb = view.findViewById(prevWebView.id)
                 alreadyExists = true
             } catch (ex:Exception){
-                ex.printStackTrace()
+                LogDetail.LogEStack(ex)
             }
         } else{
             binding.webview.visibility = View.VISIBLE
@@ -144,7 +144,7 @@ class CricketPWAFragment : Fragment(), AdvancedWebView.Listener, PWATabSelectedL
                 isloaded = true
                 try{
                     val newIntent = Intent(requireContext(), PWACricketTabsActivity::class.java)
-                    Log.d("webtest", "onOverrideUrl: " + url)
+                    LogDetail.LogD("webtest", "onOverrideUrl: " + url)
                     if (url != link) {
                         if (!Constants.isNetworkAvailable(requireContext())) {
                             binding.webview.visibility = View.GONE
@@ -228,7 +228,7 @@ class CricketPWAFragment : Fragment(), AdvancedWebView.Listener, PWATabSelectedL
                         }
                     }
                 } catch (ex:Exception){
-                    ex.printStackTrace()
+                    LogDetail.LogEStack(ex)
                     return true
                 }
             }
@@ -243,7 +243,7 @@ class CricketPWAFragment : Fragment(), AdvancedWebView.Listener, PWATabSelectedL
 //            Constants.pwaWebViews.remove(filename)
         } else if(keyId!="live_matches"){
             binding.noInternet.visibility=View.GONE
-            Log.d("webtest", "onViewCreated: "+keyId+" "+link)
+            LogDetail.LogD("webtest", "onViewCreated: "+keyId+" "+link)
             binding.webview.loadUrl(link)
             Constants.pwaWebViews[pwaLink] = binding.webview
         }
@@ -257,7 +257,7 @@ class CricketPWAFragment : Fragment(), AdvancedWebView.Listener, PWATabSelectedL
                 requireActivity().finish()
             }
         } catch (ex:Exception){
-            ex.printStackTrace()
+            LogDetail.LogEStack(ex)
         }
     }
 
@@ -293,7 +293,7 @@ class CricketPWAFragment : Fragment(), AdvancedWebView.Listener, PWATabSelectedL
                     turnNotification)
             }
         } catch (ex:java.lang.Exception){
-            ex.printStackTrace()
+            LogDetail.LogEStack(ex)
         }
         return true
     }
@@ -317,7 +317,7 @@ class CricketPWAFragment : Fragment(), AdvancedWebView.Listener, PWATabSelectedL
                 )
             }
         } catch (ex:java.lang.Exception){
-            ex.printStackTrace()
+            LogDetail.LogEStack(ex)
         }
     }
 
@@ -370,7 +370,7 @@ class CricketPWAFragment : Fragment(), AdvancedWebView.Listener, PWATabSelectedL
                     }
                 }
                 .addOnFailureListener { e ->
-                    e.printStackTrace()
+                    LogDetail.LogEStack(e)
                     try {
                         if (isWhatsApp=="true") {
                             val whatsAppIntent = Intent(Intent.ACTION_SEND)
@@ -398,7 +398,7 @@ class CricketPWAFragment : Fragment(), AdvancedWebView.Listener, PWATabSelectedL
                     }
                 }
         } catch (e: Exception) {
-            e.printStackTrace()
+            LogDetail.LogEStack(e)
         }
     }
 
@@ -425,7 +425,7 @@ class CricketPWAFragment : Fragment(), AdvancedWebView.Listener, PWATabSelectedL
             intent.putExtra(Constants.POST_ID, postId)
             startActivity(intent)
         } catch (ex:java.lang.Exception){
-            ex.printStackTrace()
+            LogDetail.LogEStack(ex)
         }
     }
 
@@ -450,8 +450,8 @@ class CricketPWAFragment : Fragment(), AdvancedWebView.Listener, PWATabSelectedL
         if(isloaded){
             isloaded = false
             val cookies = CookieManager.getInstance().getCookie(url)
-            Log.d("webtest", keyId)
-            Log.d("webtest", "All the cookies in a string:$cookies")
+            LogDetail.LogD("webtest", keyId)
+            LogDetail.LogD("webtest", "All the cookies in a string:$cookies")
             if(!alreadyExists) {
                 binding.progress.visibility = View.GONE
             } else{
@@ -479,7 +479,7 @@ class CricketPWAFragment : Fragment(), AdvancedWebView.Listener, PWATabSelectedL
     }
 
     override fun onExternalPageRequest(url: String?) {
-        Log.d("tag", "onExternalPageRequest: "+url)
+        LogDetail.LogD("tag", "onExternalPageRequest: "+url)
     }
 
     fun Uri.addUriParameter(key: String, newValue: String): Uri =

@@ -3,21 +3,14 @@ package com.appyhigh.newsfeedsdk.apicalls
 import android.util.Log
 import com.appyhigh.newsfeedsdk.Constants
 import com.appyhigh.newsfeedsdk.FeedSdk
-import com.appyhigh.newsfeedsdk.apiclient.APIClient
 import com.appyhigh.newsfeedsdk.encryption.AESCBCPKCS5Encryption
 import com.appyhigh.newsfeedsdk.encryption.AuthSocket
 import com.appyhigh.newsfeedsdk.encryption.LogDetail
 import com.appyhigh.newsfeedsdk.encryption.SessionUser
-import com.appyhigh.newsfeedsdk.model.FeedResponseModel
-import com.appyhigh.newsfeedsdk.model.Language
-import com.appyhigh.newsfeedsdk.model.explore.ExploreResponseModel
 import com.appyhigh.newsfeedsdk.model.feeds.GetFeedsResponse
-import com.appyhigh.newsfeedsdk.utils.SpUtil
 import com.google.common.reflect.TypeToken
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
-import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
-import io.reactivex.rxjava3.schedulers.Schedulers
 import okhttp3.Call
 import org.json.JSONArray
 import org.json.JSONObject
@@ -96,7 +89,7 @@ class ApiGetPostsByTag {
                        getFeedsResponse.raw().sentRequestAtMillis
                    )
                }catch (e:Exception){
-                   e.printStackTrace()
+                   LogDetail.LogEStack(e)
                }
             }
 
@@ -121,7 +114,7 @@ class ApiGetPostsByTag {
      */
     private fun handleApiError(throwable: Throwable) {
         throwable.message?.let {
-            Log.e(ApiCreateOrUpdateUser::class.java.simpleName, "handleApiError: $it")
+            LogDetail.LogDE(ApiCreateOrUpdateUser::class.java.simpleName, "handleApiError: $it")
         }
     }
 

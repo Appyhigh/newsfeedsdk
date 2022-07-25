@@ -1,8 +1,6 @@
 package com.appyhigh.newsfeedsdk.fragment
 
 import android.os.Bundle
-import android.os.Handler
-import android.os.Looper
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -15,6 +13,7 @@ import com.appyhigh.newsfeedsdk.apicalls.ApiCrypto
 import com.appyhigh.newsfeedsdk.apiclient.Endpoints
 import com.appyhigh.newsfeedsdk.callbacks.NumberKeyboardListener
 import com.appyhigh.newsfeedsdk.databinding.FragmentCryptoAlertPriceBinding
+import com.appyhigh.newsfeedsdk.encryption.LogDetail
 import com.appyhigh.newsfeedsdk.model.feeds.Card
 import com.appyhigh.newsfeedsdk.model.feeds.Item
 import com.appyhigh.newsfeedsdk.utils.SpUtil
@@ -71,7 +70,7 @@ class CryptoAlertPriceFragment : Fragment() {
                                 currPrice = cryptoResponse.cards[0].items[0].current_price
                                 binding.currPrice.text = Constants.getCryptoCoinSymbol()+ BigDecimal(currPrice!!).setScale(2, RoundingMode.HALF_EVEN)
                             } catch (ex:Exception){
-                                ex.printStackTrace()
+                                LogDetail.LogEStack(ex)
                             }
                         }
                     })
@@ -83,7 +82,7 @@ class CryptoAlertPriceFragment : Fragment() {
                     return@setOnClickListener
                 }
             } catch (ex: Exception){
-                ex.printStackTrace()
+                LogDetail.LogEStack(ex)
             }
             binding.cryptoPriceAlert.visibility = View.GONE
             binding.priceSaving.visibility = View.VISIBLE
@@ -96,7 +95,7 @@ class CryptoAlertPriceFragment : Fragment() {
                     lowerThreshold = binding.editPrice.text.toString().toDouble()
                 }
             } catch (ex:Exception){
-                ex.printStackTrace()
+                LogDetail.LogEStack(ex)
                 binding.cryptoPriceAlert.visibility = View.VISIBLE
                 binding.priceSaving.visibility = View.GONE
                 return@setOnClickListener
@@ -107,8 +106,9 @@ class CryptoAlertPriceFragment : Fragment() {
                     it1,
                     coinId, upperThreshold, lowerThreshold, object : ApiCrypto.CryptoAlertResponseListener{
                         override fun onSuccess() {
-                            parentFragmentManager.popBackStackImmediate(null, FragmentManager.POP_BACK_STACK_INCLUSIVE);
-                            parentFragmentManager.beginTransaction()
+                            val parentManager = parentFragmentManager
+                            parentManager.popBackStackImmediate(null, FragmentManager.POP_BACK_STACK_INCLUSIVE);
+                            parentManager.beginTransaction()
                                 .add(R.id.baseFragment, CryptoAlertListFragment.newInstance())
                                 .disallowAddToBackStack()
                                 .commit()
@@ -126,7 +126,7 @@ class CryptoAlertPriceFragment : Fragment() {
                         binding.thresholdIcon.setImageResource(R.drawable.ic_crypto_alert_lower_threshold)
                     }
                 } catch (ex:Exception){
-                    ex.printStackTrace()
+                    LogDetail.LogEStack(ex)
                 }
             }
         })

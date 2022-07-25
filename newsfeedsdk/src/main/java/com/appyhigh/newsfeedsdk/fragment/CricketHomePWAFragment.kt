@@ -45,6 +45,7 @@ import com.appyhigh.newsfeedsdk.apicalls.ApiGetLanguages
 import com.appyhigh.newsfeedsdk.apicalls.ApiUserDetails
 import com.appyhigh.newsfeedsdk.apiclient.Endpoints
 import com.appyhigh.newsfeedsdk.callbacks.OnRefreshListener
+import com.appyhigh.newsfeedsdk.encryption.LogDetail
 import com.appyhigh.newsfeedsdk.model.Language
 import com.appyhigh.newsfeedsdk.model.UserResponse
 import com.google.firebase.analytics.FirebaseAnalytics
@@ -95,12 +96,12 @@ class CricketHomePWAFragment : Fragment(), AdvancedWebView.Listener, OnRefreshLi
                else
                    "$pwaLink?platform=$platform&language=$languages"
                binding.noInternet.visibility=View.GONE
-//            Log.d("webtest", "onViewCreated: "+keyId+" "+link)
+//            LogDetail.LogD("webtest", "onViewCreated: "+keyId+" "+link)
                binding.webview.loadUrl(link)
-               Log.d("webtest", "setWebView: $link")
+               LogDetail.LogD("webtest", "setWebView: $link")
                Constants.pwaWebViews[pwaLink] = binding.webview
            } catch (ex:java.lang.Exception){
-               ex.printStackTrace()
+               LogDetail.LogEStack(ex)
            }
        }
     }
@@ -152,7 +153,7 @@ class CricketHomePWAFragment : Fragment(), AdvancedWebView.Listener, OnRefreshLi
                 prevWeb = view.findViewById(prevWebView.id)
                 alreadyExists = true
             } catch (ex:Exception){
-                ex.printStackTrace()
+                LogDetail.LogEStack(ex)
             }
         } else{
             binding.webview.visibility = View.VISIBLE
@@ -203,13 +204,13 @@ class CricketHomePWAFragment : Fragment(), AdvancedWebView.Listener, OnRefreshLi
         val gson = Gson()
         cookieManager.setCookie(link, "token="+ RSAKeyGenerator.getNewJwtToken(FeedSdk.appId, FeedSdk.userId) ?: "")
         cookieManager.setCookie(link, "user_info="+ gson.toJson(Constants.userDetails))
-        Log.d("webtest", "setWebView: $link")
+        LogDetail.LogD("webtest", "setWebView: $link")
         binding.webview.webViewClient = object : WebViewClient() {
             override fun shouldOverrideUrlLoading(view: WebView, url: String): Boolean {
                 isloaded = true
                 try{
                     val newIntent = Intent(requireContext(), PWACricketTabsActivity::class.java)
-                    Log.d("webtest", "onOverrideUrl: " + url)
+                    LogDetail.LogD("webtest", "onOverrideUrl: " + url)
                     if (url != link) {
                         if (!Constants.isNetworkAvailable(requireContext())) {
                             binding.webview.visibility = View.GONE
@@ -293,7 +294,7 @@ class CricketHomePWAFragment : Fragment(), AdvancedWebView.Listener, OnRefreshLi
                         }
                     }
                 } catch (ex:Exception){
-                    ex.printStackTrace()
+                    LogDetail.LogEStack(ex)
                     return true
                 }
             }
@@ -308,7 +309,7 @@ class CricketHomePWAFragment : Fragment(), AdvancedWebView.Listener, OnRefreshLi
 //            Constants.pwaWebViews.remove(filename)
         } else{
             binding.noInternet.visibility=View.GONE
-//            Log.d("webtest", "onViewCreated: "+keyId+" "+link)
+//            LogDetail.LogD("webtest", "onViewCreated: "+keyId+" "+link)
             binding.webview.loadUrl(link)
             Constants.pwaWebViews[pwaLink] = binding.webview
         }
@@ -350,7 +351,7 @@ class CricketHomePWAFragment : Fragment(), AdvancedWebView.Listener, OnRefreshLi
                     turnNotification, true)
             }
         } catch (ex:java.lang.Exception){
-            ex.printStackTrace()
+            LogDetail.LogEStack(ex)
         }
         return true
     }
@@ -374,7 +375,7 @@ class CricketHomePWAFragment : Fragment(), AdvancedWebView.Listener, OnRefreshLi
                 )
             }
         } catch (ex:java.lang.Exception){
-            ex.printStackTrace()
+            LogDetail.LogEStack(ex)
         }
     }
 
@@ -427,7 +428,7 @@ class CricketHomePWAFragment : Fragment(), AdvancedWebView.Listener, OnRefreshLi
                     }
                 }
                 .addOnFailureListener { e ->
-                    e.printStackTrace()
+                    LogDetail.LogEStack(e)
                     try {
                         if (isWhatsApp=="true") {
                             val whatsAppIntent = Intent(Intent.ACTION_SEND)
@@ -455,7 +456,7 @@ class CricketHomePWAFragment : Fragment(), AdvancedWebView.Listener, OnRefreshLi
                     }
                 }
         } catch (e: Exception) {
-            e.printStackTrace()
+            LogDetail.LogEStack(e)
         }
     }
 
@@ -488,7 +489,7 @@ class CricketHomePWAFragment : Fragment(), AdvancedWebView.Listener, OnRefreshLi
             intent.putExtra(Constants.POST_ID, postId)
             startActivity(intent)
         } catch (ex:java.lang.Exception){
-            ex.printStackTrace()
+            LogDetail.LogEStack(ex)
             alreadyLoaded = false
         }
     }
@@ -514,8 +515,8 @@ class CricketHomePWAFragment : Fragment(), AdvancedWebView.Listener, OnRefreshLi
         if(isloaded){
             isloaded = false
             val cookies = CookieManager.getInstance().getCookie(url)
-            Log.d("webtest", keyId)
-            Log.d("webtest", "All the cookies in a string:$cookies")
+            LogDetail.LogD("webtest", keyId)
+            LogDetail.LogD("webtest", "All the cookies in a string:$cookies")
             if(!alreadyExists) {
                 binding.progress.visibility = View.GONE
             } else{
@@ -543,7 +544,7 @@ class CricketHomePWAFragment : Fragment(), AdvancedWebView.Listener, OnRefreshLi
     }
 
     override fun onExternalPageRequest(url: String?) {
-        Log.d("tag", "onExternalPageRequest: "+url)
+        LogDetail.LogD("tag", "onExternalPageRequest: "+url)
     }
 
     private fun setUpLanguages(view: View) {

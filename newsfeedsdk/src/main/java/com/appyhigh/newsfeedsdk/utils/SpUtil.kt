@@ -8,29 +8,38 @@ import android.content.Intent
 import android.content.IntentSender
 import android.content.SharedPreferences
 import android.content.pm.PackageManager
-import android.util.Log
 import androidx.core.content.ContextCompat
 import com.appyhigh.newsfeedsdk.Constants
 import com.appyhigh.newsfeedsdk.Constants.IS_GEO_POINTS_UPDATED
 import com.appyhigh.newsfeedsdk.FeedSdk
 import com.appyhigh.newsfeedsdk.adapter.CryptoWatchListUpdateListener
 import com.appyhigh.newsfeedsdk.apicalls.ApiUserDetails
-import com.appyhigh.newsfeedsdk.apiclient.APIClient
+import com.appyhigh.newsfeedsdk.apicalls.ResponseListener
+import com.appyhigh.newsfeedsdk.apiclient.Endpoints
 import com.appyhigh.newsfeedsdk.callbacks.*
+import com.appyhigh.newsfeedsdk.encryption.AESCBCPKCS5Encryption
+import com.appyhigh.newsfeedsdk.encryption.AuthSocket
+import com.appyhigh.newsfeedsdk.encryption.LogDetail
+import com.appyhigh.newsfeedsdk.encryption.SessionUser
 import com.appyhigh.newsfeedsdk.model.IPDetailsModel
-import com.appyhigh.newsfeedsdk.model.UpdateGEOPointsRequest
 import com.google.android.gms.common.api.ApiException
 import com.google.android.gms.common.api.ResolvableApiException
 import com.google.android.gms.location.*
 import com.google.android.gms.tasks.Task
+import com.google.gson.JsonObject
 import hu.akarnokd.rxjava3.retrofit.RxJava3CallAdapterFactory
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.schedulers.Schedulers
+import okhttp3.Call
 import okhttp3.OkHttpClient
+import org.json.JSONArray
+import org.json.JSONObject
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import retrofit2.http.GET
+import java.io.IOException
+import java.nio.charset.StandardCharsets
 
 
 class SpUtil private constructor() {
@@ -47,7 +56,7 @@ class SpUtil private constructor() {
                 mPref = mContext!!.getSharedPreferences("NEWSSDK", Context.MODE_PRIVATE)
             }
         } catch (ex: Exception) {
-            ex.printStackTrace()
+            LogDetail.LogEStack(ex)
         }
     }
 
@@ -104,13 +113,13 @@ class SpUtil private constructor() {
                 .subscribe({
                 try{
                     if(!it.lon.isNaN() && !it.lat.isNaN()){
-                        updateGEOPoints(it.lat, it.lon)
+                        FeedSdk.spUtil?.getString(Constants.JWT_TOKEN)?.let { token -> updateGEOPoints(token, it.lat, it.lon) }
                     }
                 } catch (ex:Exception){
-                    ex.printStackTrace()
+                    LogDetail.LogEStack(ex)
                 }
             }, {
-                it.printStackTrace()
+                LogDetail.LogEStack(it)
             })
         }
 
@@ -180,7 +189,7 @@ class SpUtil private constructor() {
                         .addOnSuccessListener {
                             // GPS location can be null if GPS is switched off
                             if (it != null) {
-                                updateGEOPoints(it.latitude, it.longitude)
+                                FeedSdk.spUtil?.getString(Constants.JWT_TOKEN)?.let { token -> updateGEOPoints(token, it.latitude, it.longitude) }
                             } else {
                                 if(!isPopupAlreadyOpen) {
                                     isPopupAlreadyOpen = true
@@ -190,37 +199,62 @@ class SpUtil private constructor() {
 
                         }
                         .addOnFailureListener {
-                            Log.d("TAG", "getGEOPoints: error " + it.message)
-                            it.printStackTrace()
+                            LogDetail.LogD("TAG", "getGEOPoints: error " + it.message)
+                            LogDetail.LogEStack(it)
                         }
                 }
             } catch (ex: Exception) {
-                ex.printStackTrace()
+                LogDetail.LogEStack(ex)
             }
         }
 
-        private fun updateGEOPoints(lat: Double, lon: Double){
-            val geoPoints = UpdateGEOPointsRequest(lat, lon)
-            val apiInterface = APIClient().getApiInterface()
-            var userResponse: Observable<String?>? = null
-            if (FeedSdk.userId != null && FeedSdk.userId != "") {
-                userResponse = apiInterface?.updateUser(
-                    spUtilInstance!!.getString(Constants.JWT_TOKEN),
-                    geoPoints
-                )
-                userResponse?.subscribeOn(Schedulers.newThread())
-                    ?.observeOn(AndroidSchedulers.mainThread())
-                    ?.subscribe({ s: String? ->
-                        spUtilInstance!!.putBoolean(
-                            IS_GEO_POINTS_UPDATED,
-                            true
-                        )
-                        personalizeCallListener?.onGEOPointsUpdate()
-                    },
-                        { throwable: Throwable? ->
-                            Log.d("TAG", "updateGEOPoints: error " + throwable?.message)
-                        })
+        private fun updateGEOPoints(token:String, lat: Double, lon: Double){
+            val allDetails = JsonObject()
+            val main = JsonObject()
+            main.addProperty(Constants.API_URl, Endpoints.UPDATE_USER_ENCRYPTED)
+            main.addProperty(Constants.API_METHOD, Constants.POST)
+            main.addProperty(Constants.API_INTERNAL, SessionUser.Instance().apiInternal)
+            val dataJO = JsonObject()
+            dataJO.addProperty("latitude", lat)
+            dataJO.addProperty("longitude", lon)
+            main.add(Constants.API_DATA, dataJO)
+            val headerJO = JsonObject()
+            headerJO.addProperty(Constants.AUTHORIZATION, token)
+            main.add(Constants.API_HEADER, headerJO)
+            try {
+                allDetails.add(Constants.API_CALLING, main)
+                allDetails.add(Constants.USER_DETAIL, SessionUser.Instance().userDetails)
+                allDetails.add(Constants.DEVICE_DETAIL, SessionUser.Instance().deviceDetails)
+            } catch (e: Exception) {
+                LogDetail.LogEStack(e)
             }
+            LogDetail.LogDE("Test Data", allDetails.toString())
+            val publicKey = SessionUser.Instance().publicKey
+            val instanceEncryption = AESCBCPKCS5Encryption().getInstance(
+                SessionUser.Instance().getPrivateKey(publicKey)
+            )
+            val sendingData: String = instanceEncryption.encrypt(allDetails.toString().toByteArray(
+                StandardCharsets.UTF_8)) + "." + publicKey
+            LogDetail.LogD("Test Data Encrypted -> ", sendingData)
+            AuthSocket.Instance().postData(sendingData, object : ResponseListener {
+                override fun onSuccess(apiUrl: String?, response: JSONObject?) {
+                    LogDetail.LogDE("ApiCreateOrUpdateUser $apiUrl", response.toString())
+                }
+
+                override fun onSuccess(apiUrl: String?, response: JSONArray?) {
+                    LogDetail.LogDE("ApiCreateOrUpdateUser $apiUrl", response.toString())
+                }
+
+                override fun onSuccess(apiUrl: String?, response: String?) {
+                    LogDetail.LogDE("ApiCreateOrUpdateUser $apiUrl", response.toString())
+                    spUtilInstance!!.putBoolean(IS_GEO_POINTS_UPDATED, true)
+                    personalizeCallListener?.onGEOPointsUpdate()
+                }
+
+                override fun onError(call: Call, e: IOException) {
+                    LogDetail.LogDE("ApiCreateOrUpdateUser ${Endpoints.UPDATE_USER_ENCRYPTED}", e.toString())
+                }
+            })
         }
     }
 
@@ -230,7 +264,7 @@ class SpUtil private constructor() {
             editor.putString(key, value)
             editor.commit()
         } catch (ex:Exception){
-            ex.printStackTrace()
+            LogDetail.LogEStack(ex)
         }
     }
 
@@ -240,7 +274,7 @@ class SpUtil private constructor() {
             editor.putLong(key, value)
             editor.commit()
         } catch (ex:Exception){
-            ex.printStackTrace()
+            LogDetail.LogEStack(ex)
         }
     }
 
@@ -250,7 +284,7 @@ class SpUtil private constructor() {
             editor.putInt(key, value)
             editor.commit()
         } catch (ex:Exception){
-            ex.printStackTrace()
+            LogDetail.LogEStack(ex)
         }
     }
 
@@ -260,7 +294,7 @@ class SpUtil private constructor() {
             editor.putBoolean(key, value)
             editor.commit()
         } catch (ex:Exception){
-            ex.printStackTrace()
+            LogDetail.LogEStack(ex)
         }
     }
 
@@ -276,7 +310,7 @@ class SpUtil private constructor() {
         return try {
             mPref!!.getBoolean(key, def)
         } catch (ex:Exception){
-            ex.printStackTrace()
+            LogDetail.LogEStack(ex)
             def
         }
     }
@@ -285,7 +319,7 @@ class SpUtil private constructor() {
         return try {
             mPref!!.getString(key, "")
         } catch (ex:Exception){
-            ex.printStackTrace()
+            LogDetail.LogEStack(ex)
             ""
         }
     }
@@ -294,7 +328,7 @@ class SpUtil private constructor() {
         return try {
             mPref!!.getString(key, def)
         } catch (ex:Exception){
-            ex.printStackTrace()
+            LogDetail.LogEStack(ex)
             def
         }
     }
@@ -307,7 +341,7 @@ class SpUtil private constructor() {
         return try {
             mPref!!.getLong(key, defInt.toLong())
         } catch (ex:Exception){
-            ex.printStackTrace()
+            LogDetail.LogEStack(ex)
             defInt.toLong()
         }
     }

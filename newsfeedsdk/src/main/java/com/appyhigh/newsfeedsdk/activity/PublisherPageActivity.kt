@@ -22,6 +22,7 @@ import com.appyhigh.newsfeedsdk.Constants.cardsMap
 import com.appyhigh.newsfeedsdk.FeedSdk
 import com.appyhigh.newsfeedsdk.R
 import com.appyhigh.newsfeedsdk.adapter.NewsFeedAdapter
+import com.appyhigh.newsfeedsdk.apicalls.ApiConfig
 import com.appyhigh.newsfeedsdk.apicalls.ApiFollowPublihser
 import com.appyhigh.newsfeedsdk.apicalls.ApiGetPublisherPosts
 import com.appyhigh.newsfeedsdk.apicalls.ApiPostImpression
@@ -29,12 +30,12 @@ import com.appyhigh.newsfeedsdk.apiclient.Endpoints
 import com.appyhigh.newsfeedsdk.callbacks.GlideCallbackListener
 import com.appyhigh.newsfeedsdk.callbacks.PostImpressionListener
 import com.appyhigh.newsfeedsdk.databinding.ActivityPublisherPageBinding
+import com.appyhigh.newsfeedsdk.encryption.LogDetail
 import com.appyhigh.newsfeedsdk.fragment.FeedMenuBottomSheetFragment
 import com.appyhigh.newsfeedsdk.model.PostImpressionsModel
 import com.appyhigh.newsfeedsdk.model.PostView
 import com.appyhigh.newsfeedsdk.model.feeds.Card
 import com.appyhigh.newsfeedsdk.model.feeds.GetFeedsResponse
-import com.appyhigh.newsfeedsdk.utils.SpUtil
 import com.appyhigh.newsfeedsdk.utils.showAdaptiveBanner
 import com.google.gson.Gson
 import com.squareup.picasso.Callback
@@ -64,7 +65,7 @@ class PublisherPageActivity : AppCompatActivity() {
         val view = binding?.root
         setContentView(view)
         setFonts(view)
-        if(FeedSdk.showAds && Constants.checkFeedApp()){
+        if(ApiConfig().checkShowAds(this) && Constants.checkFeedApp()){
             showAdaptiveBanner(this, Constants.getHomeBannerAd(), binding!!.bannerAd)
         }
         if (!intent.hasExtra(PUBLISHER_ID)) {
@@ -132,7 +133,7 @@ class PublisherPageActivity : AppCompatActivity() {
                                                 )
                                                 postImpressions.put(card.items[0].postId!!,postView)
                                             } catch (ex:java.lang.Exception){
-                                                ex.printStackTrace()
+                                                LogDetail.LogEStack(ex)
                                             }
                                         }
                                     })
@@ -184,7 +185,7 @@ class PublisherPageActivity : AppCompatActivity() {
                     FeedSdk.areContentsModified[intent.getStringExtra(Constants.SCREEN_TYPE)!!] = true
                 }
             } catch (ex:Exception){
-                ex.printStackTrace()
+                LogDetail.LogEStack(ex)
             }
 //            binding?.followBtn!!.visibility = View.GONE
 //            binding?.profileFollowBtn!!.visibility = View.GONE
@@ -210,7 +211,7 @@ class PublisherPageActivity : AppCompatActivity() {
                     }
                 }
             } catch (ex:Exception){
-                ex.printStackTrace()
+                LogDetail.LogEStack(ex)
             }
             FeedSdk.spUtil?.getString(Constants.JWT_TOKEN)?.let { it1 ->
                 ApiFollowPublihser().followPublisherEncrypted(
@@ -279,7 +280,7 @@ class PublisherPageActivity : AppCompatActivity() {
                     try{
                         binding?.publishProfilePic?.setImageDrawable(drawable)
                     } catch (ex:Exception){
-                        ex.printStackTrace()
+                        LogDetail.LogEStack(ex)
                     }
                 }
 
@@ -307,7 +308,7 @@ class PublisherPageActivity : AppCompatActivity() {
                     try{
                         binding?.profilePic?.setImageDrawable(drawable)
                     } catch (ex:Exception){
-                        ex.printStackTrace()
+                        LogDetail.LogEStack(ex)
                     }
                 }
 
@@ -374,7 +375,7 @@ class PublisherPageActivity : AppCompatActivity() {
                 }
             }
         } catch (e: Exception) {
-            e.printStackTrace()
+            LogDetail.LogEStack(e)
         }
     }
 
@@ -396,7 +397,7 @@ class PublisherPageActivity : AppCompatActivity() {
                 binding?.profileFollowBtn!!.setTextColor(Color.WHITE)
             }
         } catch (ex:Exception){
-            ex.printStackTrace()
+            LogDetail.LogEStack(ex)
         }
     }
 
@@ -420,7 +421,7 @@ class PublisherPageActivity : AppCompatActivity() {
                 )
             }
         } catch (ex:java.lang.Exception){
-            ex.printStackTrace()
+            LogDetail.LogEStack(ex)
         }
     }
 

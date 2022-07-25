@@ -18,12 +18,11 @@ import com.appyhigh.newsfeedsdk.apiclient.Endpoints
 import com.appyhigh.newsfeedsdk.callbacks.TabSelectedListener
 import com.appyhigh.newsfeedsdk.customview.NewsFeedList
 import com.appyhigh.newsfeedsdk.databinding.ActivityPwaCricketTabsBinding
+import com.appyhigh.newsfeedsdk.encryption.LogDetail
 import com.appyhigh.newsfeedsdk.fragment.CricketPWAFragment
 import com.appyhigh.newsfeedsdk.fragment.PagerFragment
 import com.appyhigh.newsfeedsdk.model.CricketScheduleResponse
-import com.appyhigh.newsfeedsdk.model.feeds.Card
 import com.appyhigh.newsfeedsdk.model.feeds.Item
-import java.text.FieldPosition
 
 class PWACricketTabsActivity : AppCompatActivity() {
 
@@ -109,7 +108,7 @@ class PWACricketTabsActivity : AppCompatActivity() {
                                         (fragmentList[newsTab] as PagerFragment).stopVideoPlayback()
                                     }
                                 } catch (ex: Exception) {
-                                    ex.printStackTrace()
+                                    LogDetail.LogEStack(ex)
                                 }
                                 moveTab(tabsAdapter, position)
                             }
@@ -147,7 +146,7 @@ class PWACricketTabsActivity : AppCompatActivity() {
             }
             tabsAdapter?.onTabCanged(position)
         } catch (ex: Exception) {
-            ex.printStackTrace()
+            LogDetail.LogEStack(ex)
         }
     }
 
@@ -176,7 +175,7 @@ class PWACricketTabsActivity : AppCompatActivity() {
                 (fragmentList[currentPos] as CricketPWAFragment).onBackPressed()
             }
         } catch (ex: Exception) {
-            ex.printStackTrace()
+            LogDetail.LogEStack(ex)
         }
     }
 }

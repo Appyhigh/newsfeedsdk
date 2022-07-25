@@ -2,14 +2,12 @@ package com.appyhigh.newsfeedsdk.apicalls
 
 import android.util.Log
 import com.appyhigh.newsfeedsdk.Constants
-import com.appyhigh.newsfeedsdk.apiclient.APIClient
-import com.appyhigh.newsfeedsdk.model.StateListResponse
 import com.appyhigh.newsfeedsdk.encryption.AESCBCPKCS5Encryption
 import com.appyhigh.newsfeedsdk.encryption.AuthSocket
 import com.appyhigh.newsfeedsdk.encryption.LogDetail
 import com.appyhigh.newsfeedsdk.encryption.SessionUser
+import com.appyhigh.newsfeedsdk.model.StateListResponse
 import com.appyhigh.newsfeedsdk.model.explore.ExploreResponseModel
-import com.appyhigh.newsfeedsdk.utils.SpUtil
 import com.google.common.reflect.TypeToken
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
@@ -19,11 +17,9 @@ import org.json.JSONObject
 import retrofit2.Response
 import java.io.IOException
 import java.nio.charset.StandardCharsets
-import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
-import io.reactivex.rxjava3.schedulers.Schedulers
 
 class ApiExplore {
-    private var spUtil = SpUtil.spUtilInstance
+
     fun exploreEncrypted(
         apiUrl: String,
         token: String,
@@ -95,23 +91,53 @@ class ApiExplore {
 
     }
 
-    fun getStateList(
+    fun getStateListEncrypted(
+        apiUrl: String,
+        token: String,
         listener: StateResponseListener
     ){
-        APIClient().getApiInterface()
-            ?.getStateList(
-                spUtil!!.getString(Constants.JWT_TOKEN)
+        val allDetails = BaseAPICallObject().getBaseObjectWithAuth(Constants.GET, apiUrl, token, ArrayList(), ArrayList())
+        LogDetail.LogDE("Test Data", allDetails.toString())
+        val publicKey = SessionUser.Instance().publicKey
+        val instanceEncryption = AESCBCPKCS5Encryption().getInstance(
+            SessionUser.Instance().getPrivateKey(publicKey)
+        )
+        val sendingData: String = instanceEncryption.encrypt(
+            allDetails.toString().toByteArray(
+                StandardCharsets.UTF_8
             )
-            ?.subscribeOn(Schedulers.io())
-            ?.observeOn(AndroidSchedulers.mainThread())
-            ?.subscribe(
-                {
-                    it?.let { listener.onSuccess(it.body()!!,it.raw().request.url.toString(),it.raw().sentRequestAtMillis) }
-                },
-                {
-                    it?.let { handleApiError(it) }
-                }
-            )
+        ) + "." + publicKey
+        LogDetail.LogD("Data to be Sent -> ", sendingData)
+
+        AuthSocket.Instance().postData(sendingData, object : ResponseListener {
+            override fun onSuccess(apiUrl: String?, response: JSONObject?) {
+                LogDetail.LogDE("ApiExplore $apiUrl", response.toString())
+                val gson: Gson = GsonBuilder().create()
+                val stateResponseBase: StateListResponse =
+                    gson.fromJson(
+                        response.toString(),
+                        object : TypeToken<StateListResponse>() {}.type
+                    )
+                val stateResponse: Response<StateListResponse> = Response.success(stateResponseBase)
+                listener.onSuccess(
+                    stateResponse.body()!!,
+                    stateResponse.raw().request.url.toString(),
+                    stateResponse.raw().sentRequestAtMillis
+                )
+            }
+
+            override fun onSuccess(apiUrl: String?, response: JSONArray?) {
+                LogDetail.LogDE("ApiExplore $apiUrl", response.toString())
+            }
+
+            override fun onSuccess(apiUrl: String?, response: String?) {
+                LogDetail.LogDE("ApiExplore $apiUrl", response.toString())
+            }
+
+            override fun onError(call: Call, e: IOException) {
+                LogDetail.LogDE("ApiExplore $apiUrl", e.toString())
+            }
+        })
     }
 
 
@@ -120,7 +146,7 @@ class ApiExplore {
      */
     private fun handleApiError(throwable: Throwable) {
         throwable.message?.let {
-            Log.e(ApiCreateOrUpdateUser::class.java.simpleName, "handleApiError: $it")
+            LogDetail.LogDE(ApiCreateOrUpdateUser::class.java.simpleName, "handleApiError: $it")
         }
     }
 

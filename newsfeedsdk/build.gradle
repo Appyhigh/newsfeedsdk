@@ -48,6 +48,14 @@ android {
         dataBinding true
         viewBinding = true
     }
+
+
+    externalNativeBuild {
+        ndkBuild {
+            path 'src/main/jni/Android.mk'
+        }
+    }
+
 }
 
 dependencies {
@@ -113,13 +121,14 @@ dependencies {
     //video players
     //Exoplayer
     implementation 'com.google.android.exoplayer:exoplayer:2.17.1'
-    implementation 'com.pierfrancescosoffritti.androidyoutubeplayer:core:10.0.5'
+    implementation 'com.pierfrancescosoffritti.androidyoutubeplayer:core:11.0.1'
 
     //ads
     compileOnly 'com.google.android.gms:play-services-ads:20.2.0'
 
     //flexbox
     implementation "com.google.android:flexbox:2.0.1"
+//    implementation 'com.google.android.flexbox:flexbox:3.0.0'
 
     testImplementation 'junit:junit:4.+'
     androidTestImplementation 'androidx.test.ext:junit:1.1.2'

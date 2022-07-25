@@ -9,9 +9,6 @@
             name="card"
             type="com.appyhigh.newsfeedsdk.model.feeds.Card" />
 
-        <variable
-            name="ad_unit"
-            type="String" />
 
         <variable
             name="contentUrls"
@@ -28,7 +25,7 @@
         android:minHeight="237dp"
         android:background="@color/feedSecondaryBackground"
         android:orientation="vertical"
-        app:bindAd="@{ad_unit}"
+        app:bindAd="@{true}"
         app:contentUrls="@{contentUrls}"
         app:type="@{card.items[0].id}"
         android:gravity="center"

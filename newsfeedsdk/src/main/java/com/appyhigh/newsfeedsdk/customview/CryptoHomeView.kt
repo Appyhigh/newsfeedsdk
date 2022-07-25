@@ -1,10 +1,7 @@
 package com.appyhigh.newsfeedsdk.customview
 
 import android.content.Context
-import android.os.Handler
-import android.os.Looper
 import android.util.AttributeSet
-import android.util.Log
 import android.view.View
 import android.widget.LinearLayout
 import android.widget.ProgressBar
@@ -19,10 +16,10 @@ import com.appyhigh.newsfeedsdk.apicalls.ApiUserDetails
 import com.appyhigh.newsfeedsdk.apiclient.Endpoints
 import com.appyhigh.newsfeedsdk.callbacks.OnRefreshListener
 import com.appyhigh.newsfeedsdk.callbacks.PersonalizeCallListener
+import com.appyhigh.newsfeedsdk.encryption.LogDetail
 import com.appyhigh.newsfeedsdk.model.UserResponse
 import com.appyhigh.newsfeedsdk.model.feeds.Card
 import com.appyhigh.newsfeedsdk.utils.SpUtil
-import java.util.*
 
 class CryptoHomeView : LinearLayout, PersonalizeCallListener, OnRefreshListener {
 
@@ -52,12 +49,12 @@ class CryptoHomeView : LinearLayout, PersonalizeCallListener, OnRefreshListener 
 
     private fun initSDK() {
         if (FeedSdk.isSdkInitializationSuccessful) {
-            Log.d(TAG, "if isSdkInitializationSuccessful")
+            LogDetail.LogD(TAG, "if isSdkInitializationSuccessful")
             initView()
         } else {
             FeedSdk().setListener(object : FeedSdk.OnUserInitialized {
                 override fun onInitSuccess() {
-                    Log.d(TAG, "else onInitSuccess")
+                    LogDetail.LogD(TAG, "else onInitSuccess")
                     initView()
                 }
             })
@@ -145,7 +142,7 @@ class CryptoHomeView : LinearLayout, PersonalizeCallListener, OnRefreshListener 
                 }
             }
         } catch (ex:Exception){
-            ex.printStackTrace()
+            LogDetail.LogEStack(ex)
         }
     }
 

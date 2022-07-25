@@ -14,13 +14,14 @@ import android.os.Build
 import android.os.Bundle
 import android.os.IBinder
 import android.provider.AlarmClock
-import android.util.Log
 import android.view.View
 import android.widget.LinearLayout
 import android.widget.RemoteViews
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
-import androidx.work.*
+import androidx.work.ExistingPeriodicWorkPolicy
+import androidx.work.PeriodicWorkRequest
+import androidx.work.WorkManager
 import com.appyhigh.newsfeedsdk.Constants
 import com.appyhigh.newsfeedsdk.Constants.IS_STICKY_NOTIFICATION_ON
 import com.appyhigh.newsfeedsdk.Constants.IS_STICKY_SERVICE_ON
@@ -31,7 +32,9 @@ import com.appyhigh.newsfeedsdk.FeedSdk
 import com.appyhigh.newsfeedsdk.R
 import com.appyhigh.newsfeedsdk.activity.SettingsActivity
 import com.appyhigh.newsfeedsdk.activity.WebActivity
+import com.appyhigh.newsfeedsdk.apicalls.ApiConfig
 import com.appyhigh.newsfeedsdk.apicalls.ApiSearchSticky
+import com.appyhigh.newsfeedsdk.encryption.LogDetail
 import com.appyhigh.newsfeedsdk.model.SearchStickyModel
 import com.appyhigh.newsfeedsdk.utils.AdUtilsSDK
 import com.appyhigh.newsfeedsdk.utils.SpUtil
@@ -40,7 +43,6 @@ import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.gson.Gson
 import java.util.*
 import java.util.concurrent.TimeUnit
-import kotlin.collections.HashMap
 
 class StickyNotificationService : Service(){
 
@@ -65,7 +67,7 @@ class StickyNotificationService : Service(){
                 notificationManager?.notify(NOTIFICATION_ID, notification!!.build())
                 SpUtil.spUtilInstance!!.putBoolean(IS_STICKY_NOTIFICATION_ON, true)
             } catch (ex: Exception) {
-                ex.printStackTrace()
+                LogDetail.LogEStack(ex)
             }
         }
     }
@@ -120,7 +122,7 @@ class StickyNotificationService : Service(){
                                     intent.flags = FLAG_ACTIVITY_NEW_TASK or FLAG_ACTIVITY_CLEAR_TOP
                                     startActivity(intent)
                                 } catch (ex:Exception){
-                                    ex.printStackTrace()
+                                    LogDetail.LogEStack(ex)
                                 }
                             }
                             appName+"Video" -> {
@@ -134,7 +136,7 @@ class StickyNotificationService : Service(){
                                     intent.flags = FLAG_ACTIVITY_NEW_TASK or FLAG_ACTIVITY_CLEAR_TOP
                                     startActivity(intent)
                                 } catch (ex:Exception){
-                                    ex.printStackTrace()
+                                    LogDetail.LogEStack(ex)
                                 }
                             }
                             appName+"Weather" -> {
@@ -146,7 +148,7 @@ class StickyNotificationService : Service(){
                                     intent.flags = FLAG_ACTIVITY_NEW_TASK or FLAG_ACTIVITY_CLEAR_TOP
                                     startActivity(intent)
                                 } catch (ex:java.lang.Exception){
-                                    ex.printStackTrace()
+                                    LogDetail.LogEStack(ex)
                                 }
                             }
                             appName+"Email" -> {
@@ -155,7 +157,7 @@ class StickyNotificationService : Service(){
                                     intent!!.flags = FLAG_ACTIVITY_NEW_TASK or FLAG_ACTIVITY_CLEAR_TOP
                                     startActivity(intent)
                                 } catch (ex:java.lang.Exception){
-                                    ex.printStackTrace()
+                                    LogDetail.LogEStack(ex)
                                 }
                             }
                             appName+"Whatsapp" -> {
@@ -164,7 +166,7 @@ class StickyNotificationService : Service(){
                                     intent!!.flags = FLAG_ACTIVITY_NEW_TASK or FLAG_ACTIVITY_CLEAR_TOP
                                     startActivity(intent)
                                 } catch (ex:java.lang.Exception){
-                                    ex.printStackTrace()
+                                    LogDetail.LogEStack(ex)
                                 }
                             }
                             appName+"Call" -> {
@@ -173,7 +175,7 @@ class StickyNotificationService : Service(){
                                     intent!!.flags = FLAG_ACTIVITY_NEW_TASK or FLAG_ACTIVITY_CLEAR_TOP
                                     startActivity(intent)
                                 } catch (ex:Exception){
-                                    ex.printStackTrace()
+                                    LogDetail.LogEStack(ex)
                                 }
                             }
                             appName+"Messages" -> {
@@ -183,7 +185,7 @@ class StickyNotificationService : Service(){
                                     intent!!.flags = FLAG_ACTIVITY_NEW_TASK or FLAG_ACTIVITY_CLEAR_TOP
                                     startActivity(intent)
                                 } catch (ex:Exception){
-                                    ex.printStackTrace()
+                                    LogDetail.LogEStack(ex)
                                 }
                             }
                             appName+"Alarm" -> {
@@ -192,7 +194,7 @@ class StickyNotificationService : Service(){
                                     intent.flags = FLAG_ACTIVITY_NEW_TASK or FLAG_ACTIVITY_CLEAR_TOP
                                     startActivity(intent)
                                 } catch (ex:Exception){
-                                    ex.printStackTrace()
+                                    LogDetail.LogEStack(ex)
                                 }
                             }
                             appName+"Calendar" -> {
@@ -202,7 +204,7 @@ class StickyNotificationService : Service(){
                                     intent!!.flags = FLAG_ACTIVITY_NEW_TASK or FLAG_ACTIVITY_CLEAR_TOP
                                     startActivity(intent)
                                 } catch (ex:java.lang.Exception){
-                                    ex.printStackTrace()
+                                    LogDetail.LogEStack(ex)
                                 }
                             }
                             appName+"News" -> {
@@ -216,7 +218,7 @@ class StickyNotificationService : Service(){
                                     intent.flags = FLAG_ACTIVITY_NEW_TASK or FLAG_ACTIVITY_CLEAR_TOP
                                     startActivity(intent)
                                 } catch (ex:Exception){
-                                    ex.printStackTrace()
+                                    LogDetail.LogEStack(ex)
                                 }
                             }
                             appName+"Flashlight" -> {
@@ -233,7 +235,7 @@ class StickyNotificationService : Service(){
                                                 setNotification()
                                             }
                                         } catch (e: java.lang.Exception) {
-                                            e.printStackTrace()
+                                            LogDetail.LogEStack(e)
                                         }
                                     }
                                 }
@@ -255,7 +257,7 @@ class StickyNotificationService : Service(){
                             }
                         }
                     } catch (ex:Exception){
-                        ex.printStackTrace()
+                        LogDetail.LogEStack(ex)
                     }
                 }
             }
@@ -266,10 +268,13 @@ class StickyNotificationService : Service(){
             val stickyTimerInterval = SpUtil.spUtilInstance!!.getLong("stickyTimerInterval", 300)
             myTimer.scheduleAtFixedRate(myTask, 0L, (stickyTimerInterval * 1000).toLong())
             try{
-                AdUtilsSDK().requestFeedAd(LinearLayout(applicationContext), R.layout.native_ad_feed_small, FeedSdk.mAdsModel?.search_page_native?:"", "searchSticky")
+                val adsModel =  ApiConfig().getAdsModel(applicationContext)
+                if(adsModel.showParentAdmobAds && adsModel.searchPageNative.showAdmob) {
+                    AdUtilsSDK().requestFeedAd(LinearLayout(applicationContext), R.layout.native_ad_feed_small, adsModel.searchPageNative.admobId, "searchSticky")
+                }
             } catch (ex:Exception){}
         } catch (ex:Exception){
-            ex.printStackTrace()
+            LogDetail.LogEStack(ex)
         }
     }
 
@@ -289,7 +294,7 @@ class StickyNotificationService : Service(){
     @SuppressLint("LogNotTimber")
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         try{
-            Log.d(TAG, "onStartCommand: " + intent?.action)
+            LogDetail.LogD(TAG, "onStartCommand: " + intent?.action)
             if(intent?.action!! == Constants.ACTION.STOPFOREGROUND.toString()) {
                 SpUtil.spUtilInstance?.putBoolean(IS_STICKY_NOTIFICATION_ON, false)
                 serviceRunning = false
@@ -302,7 +307,7 @@ class StickyNotificationService : Service(){
                 return START_STICKY
             }
         } catch (ex:java.lang.Exception){
-            ex.printStackTrace()
+            LogDetail.LogEStack(ex)
             return START_NOT_STICKY
         }
     }
@@ -368,7 +373,7 @@ class StickyNotificationService : Service(){
                     ExistingPeriodicWorkPolicy.REPLACE,
                     stickyWorkRequest)
             } catch (ex:Exception){
-                ex.printStackTrace()
+                LogDetail.LogEStack(ex)
             }
         }
     }
@@ -393,7 +398,7 @@ class StickyNotificationService : Service(){
             remoteView.setImageViewResource(R.id.searchIconUrl, if(isColored) R.drawable.ic_sticky_color_search else R.drawable.ic_sticky_solid_search)
             setCommonData(remoteView, stickyNotification, true)
         } catch (ex:Exception){
-            ex.printStackTrace()
+            LogDetail.LogEStack(ex)
         }
     }
 
@@ -415,7 +420,7 @@ class StickyNotificationService : Service(){
             remoteView.setOnClickPendingIntent(R.id.close, dismissIntent)
             setCommonData(remoteView, stickyNotification, false)
         } catch (ex:Exception){
-            ex.printStackTrace()
+            LogDetail.LogEStack(ex)
         }
     }
 
@@ -470,7 +475,7 @@ class StickyNotificationService : Service(){
         try{
             myTimer.cancel()
         } catch (ex:Exception){
-            ex.printStackTrace()
+            LogDetail.LogEStack(ex)
         }
     }
 
@@ -488,7 +493,7 @@ class StickyNotificationService : Service(){
                 .logEvent("NotificationClick", bundle)
             ApiSearchSticky().userActionNotification(widget)
         } catch (ex:Exception){
-            ex.printStackTrace()
+            LogDetail.LogEStack(ex)
         }
     }
 }

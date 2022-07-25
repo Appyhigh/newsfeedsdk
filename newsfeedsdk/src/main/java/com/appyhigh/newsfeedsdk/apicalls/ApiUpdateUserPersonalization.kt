@@ -2,16 +2,15 @@ package com.appyhigh.newsfeedsdk.apicalls
 
 import android.util.Log
 import com.appyhigh.newsfeedsdk.Constants
-import com.appyhigh.newsfeedsdk.FeedSdk
-import com.appyhigh.newsfeedsdk.apiclient.APIClient
+import com.appyhigh.newsfeedsdk.apiclient.Endpoints
 import com.appyhigh.newsfeedsdk.encryption.AESCBCPKCS5Encryption
 import com.appyhigh.newsfeedsdk.encryption.AuthSocket
 import com.appyhigh.newsfeedsdk.encryption.LogDetail
 import com.appyhigh.newsfeedsdk.encryption.SessionUser
-import com.appyhigh.newsfeedsdk.model.*
+import com.appyhigh.newsfeedsdk.model.Interest
+import com.appyhigh.newsfeedsdk.model.Language
 import com.appyhigh.newsfeedsdk.utils.SpUtil
-import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
-import io.reactivex.rxjava3.schedulers.Schedulers
+import com.google.gson.JsonObject
 import okhttp3.Call
 import org.json.JSONArray
 import org.json.JSONObject
@@ -113,24 +112,54 @@ class ApiUpdateUserPersonalization {
     }
 
     fun updateUserState(
+        token: String,
         state: String?,
         listener: UpdatePersonalizationListener
     ){
-        APIClient().getApiInterface()
-            ?.updateUser(
-                spUtil!!.getString(Constants.JWT_TOKEN),
-                UpdateUserState(state)
-            )
-            ?.subscribeOn(Schedulers.io())
-            ?.observeOn(AndroidSchedulers.mainThread())
-            ?.subscribe(
-                {
-                    it?.let { listener.onSuccess() }
-                },
-                {
-                    it?.let { listener.onFailure() }
-                }
-            )
+        val allDetails = JsonObject()
+        val main = JsonObject()
+        main.addProperty(Constants.API_URl, Endpoints.UPDATE_USER_ENCRYPTED)
+        main.addProperty(Constants.API_METHOD, Constants.POST)
+        main.addProperty(Constants.API_INTERNAL, SessionUser.Instance().apiInternal)
+        val dataJO = JsonObject()
+        dataJO.addProperty("state", state)
+        main.add(Constants.API_DATA, dataJO)
+        val headerJO = JsonObject()
+        headerJO.addProperty(Constants.AUTHORIZATION, token)
+        main.add(Constants.API_HEADER, headerJO)
+        try {
+            allDetails.add(Constants.API_CALLING, main)
+            allDetails.add(Constants.USER_DETAIL, SessionUser.Instance().userDetails)
+            allDetails.add(Constants.DEVICE_DETAIL, SessionUser.Instance().deviceDetails)
+        } catch (e: Exception) {
+            LogDetail.LogEStack(e)
+        }
+        LogDetail.LogDE("Test Data", allDetails.toString())
+        val publicKey = SessionUser.Instance().publicKey
+        val instanceEncryption = AESCBCPKCS5Encryption().getInstance(
+            SessionUser.Instance().getPrivateKey(publicKey)
+        )
+        val sendingData: String = instanceEncryption.encrypt(allDetails.toString().toByteArray(StandardCharsets.UTF_8)) + "." + publicKey
+        LogDetail.LogD("Test Data Encrypted -> ", sendingData)
+        AuthSocket.Instance().postData(sendingData, object : ResponseListener {
+            override fun onSuccess(apiUrl: String?, response: JSONObject?) {
+                LogDetail.LogDE("ApiCreateOrUpdateUser $apiUrl", response.toString())
+            }
+
+            override fun onSuccess(apiUrl: String?, response: JSONArray?) {
+                LogDetail.LogDE("ApiCreateOrUpdateUser $apiUrl", response.toString())
+            }
+
+            override fun onSuccess(apiUrl: String?, response: String?) {
+                LogDetail.LogDE("ApiCreateOrUpdateUser $apiUrl", response.toString())
+                listener.onSuccess()
+            }
+
+            override fun onError(call: Call, e: IOException) {
+                LogDetail.LogDE("ApiCreateOrUpdateUser ${Endpoints.UPDATE_USER_ENCRYPTED}", e.toString())
+                listener.onFailure()
+            }
+        })
     }
 
     interface UpdatePersonalizationListener {
@@ -143,7 +172,7 @@ class ApiUpdateUserPersonalization {
      */
     private fun handleApiError(throwable: Throwable) {
         throwable.message?.let {
-            Log.e(ApiUpdateUserPersonalization::class.java.simpleName, "handleApiError: $it")
+            LogDetail.LogDE(ApiUpdateUserPersonalization::class.java.simpleName, "handleApiError: $it")
         }
     }
 }

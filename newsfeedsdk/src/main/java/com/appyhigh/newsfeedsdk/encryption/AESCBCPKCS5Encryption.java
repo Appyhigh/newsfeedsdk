@@ -46,6 +46,7 @@ public class AESCBCPKCS5Encryption {
     }
 
 
+
     public void updateKEY_IV(String password_string) {
         try {
             System.out.println("updateKEY_IV: " + password_string);
@@ -73,7 +74,7 @@ public class AESCBCPKCS5Encryption {
             System.arraycopy(keySecretKeySpec.getEncoded(), 32, iv, 0, blockSize);
 
         } catch (Exception e) {
-            e.printStackTrace();
+            LogDetail.LogEStack(e);
         }
     }
 
@@ -112,7 +113,7 @@ public class AESCBCPKCS5Encryption {
             }
 
         } catch (Exception e) {
-            e.printStackTrace();
+            LogDetail.LogEStack(e);
         }
 
         return new String(plaintext);
@@ -136,7 +137,7 @@ public class AESCBCPKCS5Encryption {
             byte[] decryptedText = cipher.doFinal(decodeText);
             return new String(decryptedText);
         } catch (Exception e) {
-            e.printStackTrace();
+            LogDetail.LogEStack(e);
         }
 
         return new String(encryptedText);

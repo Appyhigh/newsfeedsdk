@@ -21,6 +21,7 @@ import com.appyhigh.newsfeedsdk.apicalls.ApiCrypto
 import com.appyhigh.newsfeedsdk.apiclient.Endpoints
 import com.appyhigh.newsfeedsdk.callbacks.OnFragmentClickListener
 import com.appyhigh.newsfeedsdk.databinding.FragmentCryptoAlertSelectBinding
+import com.appyhigh.newsfeedsdk.encryption.LogDetail
 import com.appyhigh.newsfeedsdk.model.crypto.CryptoSearchResponse
 import com.appyhigh.newsfeedsdk.model.feeds.Card
 import com.appyhigh.newsfeedsdk.model.feeds.Item
@@ -76,7 +77,7 @@ class CryptoAlertSelectFragment : Fragment(), ApiCrypto.CryptoSearchListener {
                     val imm = requireContext().getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
                     imm.toggleSoftInput(InputMethodManager.SHOW_FORCED, 0)
                 } catch (ex:java.lang.Exception){
-                    ex.printStackTrace()
+                    LogDetail.LogEStack(ex)
                 }
             }
         }
@@ -157,7 +158,7 @@ class CryptoAlertSelectFragment : Fragment(), ApiCrypto.CryptoSearchListener {
                 binding.rvPosts.addOnScrollListener(endlessScrolling!!)
             }
         } catch (e: Exception) {
-            e.printStackTrace()
+            LogDetail.LogEStack(e)
         }
     }
 
@@ -193,7 +194,7 @@ class CryptoAlertSelectFragment : Fragment(), ApiCrypto.CryptoSearchListener {
             val imm = requireContext().getSystemService(AppCompatActivity.INPUT_METHOD_SERVICE) as InputMethodManager
             imm.hideSoftInputFromWindow(binding.searchText.windowToken, 0)
         } catch (ex:Exception){
-            ex.printStackTrace()
+            LogDetail.LogEStack(ex)
         }
     }
 

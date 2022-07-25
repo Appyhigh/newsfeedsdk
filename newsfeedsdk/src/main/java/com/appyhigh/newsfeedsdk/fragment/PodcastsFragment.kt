@@ -3,13 +3,11 @@ package com.appyhigh.newsfeedsdk.fragment
 import android.annotation.SuppressLint
 import android.content.Context
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.GridLayoutManager
-import androidx.recyclerview.widget.LinearLayoutManager
 import com.appyhigh.newsfeedsdk.Constants
 import com.appyhigh.newsfeedsdk.FeedSdk
 import com.appyhigh.newsfeedsdk.adapter.NewsFeedAdapter
@@ -17,16 +15,13 @@ import com.appyhigh.newsfeedsdk.apicalls.*
 import com.appyhigh.newsfeedsdk.apiclient.Endpoints
 import com.appyhigh.newsfeedsdk.callbacks.PostImpressionListener
 import com.appyhigh.newsfeedsdk.databinding.FragmentPodcastsBinding
+import com.appyhigh.newsfeedsdk.encryption.LogDetail
 import com.appyhigh.newsfeedsdk.model.PostImpressionsModel
 import com.appyhigh.newsfeedsdk.model.PostView
 import com.appyhigh.newsfeedsdk.model.feeds.Card
-import com.appyhigh.newsfeedsdk.model.feeds.Item
 import com.appyhigh.newsfeedsdk.utils.EndlessScrolling
-import com.appyhigh.newsfeedsdk.utils.SpUtil
 import com.google.gson.Gson
 import java.util.*
-import kotlin.collections.HashMap
-import kotlin.collections.indices
 
 class PodcastsFragment : Fragment() {
 
@@ -75,7 +70,7 @@ class PodcastsFragment : Fragment() {
                         val podcastList = podcastResponse.cards as ArrayList<Card>
                         val adItem = Card()
                         adItem.cardType = Constants.AD
-                        if(FeedSdk.showAds && FeedSdk.showFeedAdAtFirst && podcastList.size>0 && podcastList[0].cardType!=Constants.AD){
+                        if(ApiConfig().checkShowAds(requireContext()) && FeedSdk.showFeedAdAtFirst && podcastList.size>0 && podcastList[0].cardType!=Constants.AD){
                             podcastList.add(0, adItem)
                             podcastList.add(adIndex, adItem)
                         }
@@ -105,7 +100,7 @@ class PodcastsFragment : Fragment() {
                                         )
                                         postImpressions[card.items[0].postId!!] = postView
                                     } catch (ex: Exception){
-                                        ex.printStackTrace()
+                                        LogDetail.LogEStack(ex)
                                     }
                                 }
                             }, presentUrl, presentTimeStamp)
@@ -151,7 +146,7 @@ class PodcastsFragment : Fragment() {
                 binding.rvPosts.addOnScrollListener(endlessScrolling!!)
             }
         } catch (e: Exception) {
-            e.printStackTrace()
+            LogDetail.LogEStack(e)
         }
     }
 
@@ -174,7 +169,7 @@ class PodcastsFragment : Fragment() {
                         adIndex += podcastResponse.adPlacement[0]
                         val podcastList = podcastResponse.cards as ArrayList<Card>
                         adCheckerList.addAll(podcastList)
-                        if(FeedSdk.showAds) {
+                        if(ApiConfig().checkShowAds(requireContext())) {
                             val adItem = Card()
                             adItem.cardType = Constants.AD
                             try {
@@ -185,7 +180,7 @@ class PodcastsFragment : Fragment() {
                                 if (adCheckerList.size > adIndex) {
                                     podcastList.add(adIndex - pageNo * 10, adItem)
                                     adPlacement+=1
-                                    Log.d("Podcast ad index", (adIndex - pageNo * 10).toString())
+                                    LogDetail.LogD("Podcast ad index", (adIndex - pageNo * 10).toString())
                                 }
                                 if((adIndex + podcastResponse.adPlacement[0] - pageNo * 10)%2!=0){
                                     adIndex+=1
@@ -193,10 +188,10 @@ class PodcastsFragment : Fragment() {
                                 if (adIndex + adPlacement < adCheckerList.size) {
                                     adIndex += adPlacement
                                     podcastList.add(adIndex - pageNo * 10, adItem)
-                                    Log.d("Podcast ad index", (adIndex - pageNo * 10).toString())
+                                    LogDetail.LogD("Podcast ad index", (adIndex - pageNo * 10).toString())
                                 }
                             } catch (e: java.lang.Exception) {
-                                e.printStackTrace()
+                                LogDetail.LogEStack(e)
                             }
                         }
                         newsFeedAdapter?.updateList(podcastList, "podcasts", pageNo, presentUrl, presentTimeStamp)
@@ -248,7 +243,7 @@ class PodcastsFragment : Fragment() {
                 )
             }
         } catch (ex:java.lang.Exception){
-            ex.printStackTrace()
+            LogDetail.LogEStack(ex)
         }
     }
 

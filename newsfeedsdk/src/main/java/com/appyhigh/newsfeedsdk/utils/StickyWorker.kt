@@ -1,10 +1,10 @@
 package com.appyhigh.newsfeedsdk.utils
 
 import android.content.Context
-import android.util.Log
 import androidx.work.Worker
 import androidx.work.WorkerParameters
 import com.appyhigh.newsfeedsdk.Constants
+import com.appyhigh.newsfeedsdk.encryption.LogDetail
 import com.appyhigh.newsfeedsdk.service.StickyNotificationService
 import timber.log.Timber
 
@@ -20,7 +20,7 @@ class StickyWorker (appContext: Context, workerParams: WorkerParameters):
                 applicationContext.startStickyNotificationService()
             }
         } catch (ex:Exception){
-            ex.printStackTrace()
+            LogDetail.LogEStack(ex)
         }
         return Result.success()
     }

@@ -15,6 +15,7 @@ import coil.decode.SvgDecoder
 import coil.request.ImageRequest
 import com.appyhigh.newsfeedsdk.FeedSdk
 import com.appyhigh.newsfeedsdk.R
+import com.appyhigh.newsfeedsdk.encryption.LogDetail
 import com.appyhigh.newsfeedsdk.model.Thumbnail
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.DataSource
@@ -575,7 +576,7 @@ data class Item(
                     .placeholder(R.drawable.placeholder)
                     .into(view)
             } catch (ex: Exception) {
-                ex.printStackTrace()
+                LogDetail.LogEStack(ex)
             }
         }
 
@@ -589,7 +590,7 @@ data class Item(
                     .placeholder(R.drawable.placeholder)
                     .into(view)
             } catch (ex: Exception) {
-                ex.printStackTrace()
+                LogDetail.LogEStack(ex)
             }
         }
 
@@ -691,7 +692,7 @@ data class Item(
                         .into(circleImageView)
                 }
             } catch (ex: Exception) {
-                ex.printStackTrace()
+                LogDetail.LogEStack(ex)
             }
         }
 
@@ -713,7 +714,7 @@ data class Item(
                     }
                 }
             } catch (ex:java.lang.Exception){
-                ex.printStackTrace()
+                LogDetail.LogEStack(ex)
             }
         }
     }

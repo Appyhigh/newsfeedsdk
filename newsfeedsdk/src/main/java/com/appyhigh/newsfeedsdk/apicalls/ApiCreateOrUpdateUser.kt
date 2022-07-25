@@ -21,16 +21,14 @@ import com.appyhigh.newsfeedsdk.Constants.USER_DETAIL
 import com.appyhigh.newsfeedsdk.Constants.USER_NAME
 import com.appyhigh.newsfeedsdk.FeedSdk
 import com.appyhigh.newsfeedsdk.FeedSdk.Companion.isExistingUser
-import com.appyhigh.newsfeedsdk.apiclient.APIClient
+import com.appyhigh.newsfeedsdk.apiclient.Endpoints
 import com.appyhigh.newsfeedsdk.encryption.AESCBCPKCS5Encryption
 import com.appyhigh.newsfeedsdk.encryption.AuthSocket
 import com.appyhigh.newsfeedsdk.encryption.LogDetail
 import com.appyhigh.newsfeedsdk.encryption.SessionUser
-import com.appyhigh.newsfeedsdk.model.*
+import com.appyhigh.newsfeedsdk.model.User
 import com.appyhigh.newsfeedsdk.utils.SpUtil
 import com.google.gson.JsonObject
-import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
-import io.reactivex.rxjava3.schedulers.Schedulers
 import okhttp3.Call
 import org.json.JSONArray
 import org.json.JSONObject
@@ -71,7 +69,7 @@ class ApiCreateOrUpdateUser {
             allDetails.add(USER_DETAIL, SessionUser.Instance().userDetails)
             allDetails.add(DEVICE_DETAIL, SessionUser.Instance().deviceDetails)
         } catch (e: Exception) {
-            e.printStackTrace()
+            LogDetail.LogEStack(e)
         }
         LogDetail.LogDE("Test Data", allDetails.toString())
         val publicKey = SessionUser.Instance().publicKey
@@ -116,7 +114,7 @@ class ApiCreateOrUpdateUser {
         main.addProperty(API_METHOD, Constants.POST)
         main.addProperty(API_INTERNAL, SessionUser.Instance().apiInternal)
         val dataJO = JsonObject()
-        main.addProperty("cricket_notification", isChecked)
+        dataJO.addProperty("cricket_notification", isChecked)
         main.add(API_DATA, dataJO)
         val headerJO = JsonObject()
         headerJO.addProperty(AUTHORIZATION, token)
@@ -126,7 +124,7 @@ class ApiCreateOrUpdateUser {
             allDetails.add(USER_DETAIL, SessionUser.Instance().userDetails)
             allDetails.add(DEVICE_DETAIL, SessionUser.Instance().deviceDetails)
         } catch (e: Exception) {
-            e.printStackTrace()
+            LogDetail.LogEStack(e)
         }
         LogDetail.LogDE("Test Data", allDetails.toString())
         val publicKey = SessionUser.Instance().publicKey
@@ -172,7 +170,7 @@ class ApiCreateOrUpdateUser {
         main.addProperty(API_METHOD, Constants.POST)
         main.addProperty(API_INTERNAL, SessionUser.Instance().apiInternal)
         val dataJO = JsonObject()
-        main.addProperty("crypto_watchlist", getWatchlistString())
+        dataJO.addProperty("crypto_watchlist", getWatchlistString())
         main.add(API_DATA, dataJO)
         val headerJO = JsonObject()
         headerJO.addProperty(AUTHORIZATION, token)
@@ -182,7 +180,7 @@ class ApiCreateOrUpdateUser {
             allDetails.add(USER_DETAIL, SessionUser.Instance().userDetails)
             allDetails.add(DEVICE_DETAIL, SessionUser.Instance().deviceDetails)
         } catch (e: Exception) {
-            e.printStackTrace()
+            LogDetail.LogEStack(e)
         }
         LogDetail.LogDE("Test Data", allDetails.toString())
         val publicKey = SessionUser.Instance().publicKey
@@ -206,7 +204,7 @@ class ApiCreateOrUpdateUser {
 
             override fun onSuccess(apiUrl: String?, response: String?) {
                 LogDetail.LogDE("ApiCreateOrUpdateUser $apiUrl", response.toString())
-                Log.d("UpdateUser", "updated crypto watchlist")
+                LogDetail.LogD("UpdateUser", "updated crypto watchlist")
                 SpUtil.cryptoWatchListUpdateListener?.onCryptoWatchListUpdated(Constants.cryptoWatchList)
             }
 
@@ -216,34 +214,97 @@ class ApiCreateOrUpdateUser {
         })
     }
 
-    fun updateUserDislikeInterests(interest: String) {
-        val updateUserDislikeInterests = UpdateUserDislikeInterests(interest)
-        APIClient().getApiInterface()?.updateUser(spUtil!!.getString(Constants.JWT_TOKEN), updateUserDislikeInterests)
-            ?.subscribeOn(Schedulers.io())
-            ?.observeOn(AndroidSchedulers.mainThread())
-            ?.subscribe({
-                it?.let {
-                    Log.d("UpdateUser", "updated disliked $interest")
-                }
-            }, {
-                it?.let { error -> handleApiError(error) }
-            })
+    fun updateUserDislikeInterests(token: String, interest: String) {
+        val allDetails = JsonObject()
+        val main = JsonObject()
+        main.addProperty(API_URl, Endpoints.UPDATE_USER_ENCRYPTED)
+        main.addProperty(API_METHOD, Constants.POST)
+        main.addProperty(API_INTERNAL, SessionUser.Instance().apiInternal)
+        val dataJO = JsonObject()
+        dataJO.addProperty("user_disliked_interests", interest)
+        main.add(API_DATA, dataJO)
+        val headerJO = JsonObject()
+        headerJO.addProperty(AUTHORIZATION, token)
+        main.add(API_HEADER, headerJO)
+        try {
+            allDetails.add(API_CALLING, main)
+            allDetails.add(USER_DETAIL, SessionUser.Instance().userDetails)
+            allDetails.add(DEVICE_DETAIL, SessionUser.Instance().deviceDetails)
+        } catch (e: Exception) {
+            LogDetail.LogEStack(e)
+        }
+        LogDetail.LogDE("Test Data", allDetails.toString())
+        val publicKey = SessionUser.Instance().publicKey
+        val instanceEncryption = AESCBCPKCS5Encryption().getInstance(
+            SessionUser.Instance().getPrivateKey(publicKey)
+        )
+        val sendingData: String = instanceEncryption.encrypt(allDetails.toString().toByteArray(StandardCharsets.UTF_8)) + "." + publicKey
+        LogDetail.LogD("Test Data Encrypted -> ", sendingData)
+        AuthSocket.Instance().postData(sendingData, object : ResponseListener {
+            override fun onSuccess(apiUrl: String?, response: JSONObject?) {
+                LogDetail.LogDE("ApiCreateOrUpdateUser $apiUrl", response.toString())
+            }
+
+            override fun onSuccess(apiUrl: String?, response: JSONArray?) {
+                LogDetail.LogDE("ApiCreateOrUpdateUser $apiUrl", response.toString())
+            }
+
+            override fun onSuccess(apiUrl: String?, response: String?) {
+                LogDetail.LogDE("ApiCreateOrUpdateUser $apiUrl", response.toString())
+            }
+
+            override fun onError(call: Call, e: IOException) {
+                LogDetail.LogDE("ApiCreateOrUpdateUser ${Endpoints.UPDATE_USER_ENCRYPTED}", e.toString())
+            }
+        })
     }
 
-    fun updateUserInterests(interests: String) {
-        val updateInterestsRequest = UpdateInterestsRequest(interests)
-        APIClient().getApiInterface()?.updateUser(spUtil!!.getString(Constants.JWT_TOKEN), updateInterestsRequest)
-            ?.subscribeOn(Schedulers.io())
-            ?.observeOn(AndroidSchedulers.mainThread())
-            ?.subscribe({
-                it?.let {
-                    for (listener in SpUtil.onRefreshListeners) {
-                        listener.value.onRefreshNeeded()
-                    }
+    fun updateUserInterests(token: String, interests: String) {
+        val allDetails = JsonObject()
+        val main = JsonObject()
+        main.addProperty(API_URl, Endpoints.UPDATE_USER_ENCRYPTED)
+        main.addProperty(API_METHOD, Constants.POST)
+        main.addProperty(API_INTERNAL, SessionUser.Instance().apiInternal)
+        val dataJO = JsonObject()
+        dataJO.addProperty("interests", interests)
+        main.add(API_DATA, dataJO)
+        val headerJO = JsonObject()
+        headerJO.addProperty(AUTHORIZATION, token)
+        main.add(API_HEADER, headerJO)
+        try {
+            allDetails.add(API_CALLING, main)
+            allDetails.add(USER_DETAIL, SessionUser.Instance().userDetails)
+            allDetails.add(DEVICE_DETAIL, SessionUser.Instance().deviceDetails)
+        } catch (e: Exception) {
+            LogDetail.LogEStack(e)
+        }
+        LogDetail.LogDE("Test Data", allDetails.toString())
+        val publicKey = SessionUser.Instance().publicKey
+        val instanceEncryption = AESCBCPKCS5Encryption().getInstance(
+            SessionUser.Instance().getPrivateKey(publicKey)
+        )
+        val sendingData: String = instanceEncryption.encrypt(allDetails.toString().toByteArray(StandardCharsets.UTF_8)) + "." + publicKey
+        LogDetail.LogD("Test Data Encrypted -> ", sendingData)
+        AuthSocket.Instance().postData(sendingData, object : ResponseListener {
+            override fun onSuccess(apiUrl: String?, response: JSONObject?) {
+                LogDetail.LogDE("ApiCreateOrUpdateUser $apiUrl", response.toString())
+            }
+
+            override fun onSuccess(apiUrl: String?, response: JSONArray?) {
+                LogDetail.LogDE("ApiCreateOrUpdateUser $apiUrl", response.toString())
+            }
+
+            override fun onSuccess(apiUrl: String?, response: String?) {
+                LogDetail.LogDE("ApiCreateOrUpdateUser $apiUrl", response.toString())
+                for (listener in SpUtil.onRefreshListeners) {
+                    listener.value.onRefreshNeeded()
                 }
-            }, {
-                it?.let { error -> handleApiError(error) }
-            })
+            }
+
+            override fun onError(call: Call, e: IOException) {
+                LogDetail.LogDE("ApiCreateOrUpdateUser ${Endpoints.UPDATE_USER_ENCRYPTED}", e.toString())
+            }
+        })
     }
 
 
@@ -266,22 +327,12 @@ class ApiCreateOrUpdateUser {
      * Handle create user response
      */
     private fun handleCreateUserResponse() {
-        Log.d("FeedSdk", "handleCreateUserResponse")
+        LogDetail.LogD("FeedSdk", "handleCreateUserResponse")
         FeedSdk.onExploreInitialized?.onInitSuccess()
         for (userIntialiser in FeedSdk.onUserInitialized) {
             userIntialiser?.onInitSuccess()
         }
         FeedSdk.isSdkInitializationSuccessful = true
         FeedSdk.isExploreInitializationSuccessful = true
-    }
-
-    /**
-     * Handle Error messages
-     */
-    private fun handleApiError(throwable: Throwable) {
-        throwable.printStackTrace()
-        throwable.message?.let {
-            Log.e(ApiCreateOrUpdateUser::class.java.simpleName, "handleApiError: $it")
-        }
     }
 }

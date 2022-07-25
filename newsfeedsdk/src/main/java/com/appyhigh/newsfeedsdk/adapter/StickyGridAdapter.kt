@@ -15,11 +15,10 @@ import com.appyhigh.newsfeedsdk.Constants
 import com.appyhigh.newsfeedsdk.R
 import com.appyhigh.newsfeedsdk.databinding.ItemSearchStickyHeaderBinding
 import com.appyhigh.newsfeedsdk.databinding.ItemSearchStickyIconBinding
+import com.appyhigh.newsfeedsdk.encryption.LogDetail
 import com.appyhigh.newsfeedsdk.model.SearchStickyItemModel
 import com.appyhigh.newsfeedsdk.utils.SpUtil
 import java.util.*
-import kotlin.collections.ArrayList
-import kotlin.collections.HashMap
 
 class StickyGridAdapter(var backupList: ArrayList<SearchStickyItemModel>,
                         var iconsList: ArrayList<SearchStickyItemModel>,
@@ -106,7 +105,7 @@ class StickyGridAdapter(var backupList: ArrayList<SearchStickyItemModel>,
                 notifyDataSetChanged()
             }
         } catch (ex:Exception){
-            ex.printStackTrace()
+            LogDetail.LogEStack(ex)
         }
     }
 
@@ -139,11 +138,11 @@ class StickyGridAdapter(var backupList: ArrayList<SearchStickyItemModel>,
                     }
                     Handler(Looper.getMainLooper()).postDelayed({holder.itemView.isEnabled = true}, 1000)
                 } catch (ex:Exception){
-                    ex.printStackTrace()
+                    LogDetail.LogEStack(ex)
                 }
             }
         } catch (ex:Exception){
-            ex.printStackTrace()
+            LogDetail.LogEStack(ex)
         }
     }
 
@@ -182,11 +181,11 @@ class StickyGridAdapter(var backupList: ArrayList<SearchStickyItemModel>,
                     }
                     SpUtil.searchStickyItemListener?.onItemSelected(iconItem)
                 } catch (ex:Exception){
-                    ex.printStackTrace()
+                    LogDetail.LogEStack(ex)
                 }
             }
         } catch (ex:Exception){
-            ex.printStackTrace()
+            LogDetail.LogEStack(ex)
         }
     }
 
@@ -250,11 +249,11 @@ class StickyGridAdapter(var backupList: ArrayList<SearchStickyItemModel>,
                     }
                     SpUtil.searchStickyItemListener?.onBackgroundClicked(iconItem)
                 } catch (ex:Exception){
-                    ex.printStackTrace()
+                    LogDetail.LogEStack(ex)
                 }
             }
         } catch (ex:Exception){
-            ex.printStackTrace()
+            LogDetail.LogEStack(ex)
         }
     }
 

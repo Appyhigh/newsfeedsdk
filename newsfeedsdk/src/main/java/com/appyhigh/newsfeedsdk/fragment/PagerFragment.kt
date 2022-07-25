@@ -32,12 +32,14 @@ import com.appyhigh.newsfeedsdk.Constants.cardsMap
 import com.appyhigh.newsfeedsdk.FeedSdk
 import com.appyhigh.newsfeedsdk.R
 import com.appyhigh.newsfeedsdk.adapter.NewsFeedAdapter
+import com.appyhigh.newsfeedsdk.apicalls.ApiConfig
 import com.appyhigh.newsfeedsdk.apicalls.ApiGetFeeds
 import com.appyhigh.newsfeedsdk.apicalls.ApiPostImpression
 import com.appyhigh.newsfeedsdk.apicalls.ApiUserDetails
 import com.appyhigh.newsfeedsdk.apiclient.Endpoints
 import com.appyhigh.newsfeedsdk.callbacks.PostImpressionListener
 import com.appyhigh.newsfeedsdk.customview.NewsFeedList
+import com.appyhigh.newsfeedsdk.encryption.LogDetail
 import com.appyhigh.newsfeedsdk.model.*
 import com.appyhigh.newsfeedsdk.model.feeds.Card
 import com.appyhigh.newsfeedsdk.model.feeds.GetFeedsResponse
@@ -112,7 +114,7 @@ class PagerFragment : Fragment(), EasyPermissions.PermissionCallbacks {
             }
             isAlreadyRated = SpUtil.spUtilInstance?.getBoolean(IS_ALREADY_RATED, false) ?: false
         } catch (e: Exception) {
-            e.printStackTrace()
+            LogDetail.LogEStack(e)
         }
     }
 
@@ -191,19 +193,14 @@ class PagerFragment : Fragment(), EasyPermissions.PermissionCallbacks {
             try {
                 stateCode = Constants.stateMap[it]!!
             } catch (ex: Exception) {
-                ex.printStackTrace()
+                LogDetail.LogEStack(ex)
             }
         }
 
-        mUser?.state?.let {
-            try {
-                stateCode = Constants.stateMap[it]!!
-                latitude = mUser!!.latitude!!
-                longitude = mUser!!.longitude!!
-            } catch (ex: Exception) {
-                ex.printStackTrace()
-            }
-        }
+        mUser?.stateCode?.let { stateCode = mUser!!.stateCode!! }
+        mUser?.latitude?.let { mUser!!.latitude!! }
+        mUser?.longitude?.let { longitude = mUser!!.longitude!! }
+
         val perms = listOf<String>(
             Manifest.permission.ACCESS_FINE_LOCATION,
             Manifest.permission.ACCESS_COARSE_LOCATION
@@ -262,18 +259,18 @@ class PagerFragment : Fragment(), EasyPermissions.PermissionCallbacks {
                         val loadMore = Card()
                         loadMore.cardType = LOADER
                         adItem.cardType = AD
-                        if (FeedSdk.showAds && FeedSdk.showFeedAdAtFirst && newsFeedList.size > 0 && newsFeedList[0].cardType != Constants.AD) {
+                        if (ApiConfig().checkShowAds(requireContext()) && FeedSdk.showFeedAdAtFirst && newsFeedList.size > 0 && newsFeedList[0].cardType != Constants.AD) {
                             newsFeedList.add(0, adItem)
                         }
                         try {
-                            if (cardsFromIntent.size == 0 && FeedSdk.showAds) {
+                            if (cardsFromIntent.size == 0 && ApiConfig().checkShowAds(requireContext())) {
                                 newsFeedList.add(adIndex, adItem)
                             }
                         } catch (ex: Exception) {
-                            ex.printStackTrace()
+                            LogDetail.LogEStack(ex)
                         }
                         newsFeedList.add(loadMore)
-                        Log.d("Ad index", adIndex.toString())
+                        LogDetail.LogD("Ad index", adIndex.toString())
                         linearLayoutManager = LinearLayoutManager(requireActivity())
                         cardsMap[selectedInterest.toString()] = newsFeedList
                         newsFeedAdapter = NewsFeedAdapter(
@@ -311,7 +308,7 @@ class PagerFragment : Fragment(), EasyPermissions.PermissionCallbacks {
                                         postImpressions[card.items[0].postId!!] = postView
                                         storeImpressions(url, timeStamp)
                                     } catch (ex: java.lang.Exception) {
-                                        ex.printStackTrace()
+                                        LogDetail.LogEStack(ex)
                                     }
                                 }
                             })
@@ -399,7 +396,7 @@ class PagerFragment : Fragment(), EasyPermissions.PermissionCallbacks {
                                     items.add(Item(id = getHomeNativeAd()))
                                     adItem.items = items
                                 }
-                                if (FeedSdk.showAds && FeedSdk.showFeedAdAtFirst && newsFeedList.size > 0 && newsFeedList[0].cardType != Constants.AD) {
+                                if (ApiConfig().checkShowAds(requireContext()) && FeedSdk.showFeedAdAtFirst && newsFeedList.size > 0 && newsFeedList[0].cardType != Constants.AD) {
                                     newsFeedList.add(0, adItem)
                                 }
                                 if (selectedInterest.equals("for_you")) {
@@ -414,18 +411,18 @@ class PagerFragment : Fragment(), EasyPermissions.PermissionCallbacks {
                                             newsFeedList.add(7, sharePost)
                                         }
                                     } catch (ex: Exception) {
-                                        ex.printStackTrace()
+                                        LogDetail.LogEStack(ex)
                                     }
                                 }
                                 try {
-                                    if (cardsFromIntent.size == 0 && FeedSdk.showAds) {
+                                    if (cardsFromIntent.size == 0 && ApiConfig().checkShowAds(requireContext())) {
                                         newsFeedList.add(adIndex, adItem)
                                     }
                                 } catch (ex: Exception) {
-                                    ex.printStackTrace()
+                                    LogDetail.LogEStack(ex)
                                 }
                                 newsFeedList.add(loadMore)
-                                Log.d("Ad index", adIndex.toString())
+                                LogDetail.LogD("Ad index", adIndex.toString())
                                 linearLayoutManager = LinearLayoutManager(requireContext())
                                 cardsMap[selectedInterest.toString()] = newsFeedList
                                 newsFeedAdapter = NewsFeedAdapter(
@@ -463,7 +460,7 @@ class PagerFragment : Fragment(), EasyPermissions.PermissionCallbacks {
                                                 postImpressions[card.items[0].postId!!] = postView
                                                 storeImpressions(url, timeStamp)
                                             } catch (ex: java.lang.Exception) {
-                                                ex.printStackTrace()
+                                                LogDetail.LogEStack(ex)
                                             }
                                         }
                                     })
@@ -498,7 +495,7 @@ class PagerFragment : Fragment(), EasyPermissions.PermissionCallbacks {
                 dynamicLinkToCovidCard = true
             }
         } catch (ex: Exception) {
-            ex.printStackTrace()
+            LogDetail.LogEStack(ex)
         }
     }
 
@@ -524,7 +521,7 @@ class PagerFragment : Fragment(), EasyPermissions.PermissionCallbacks {
                 rvPosts?.addOnScrollListener(endlessScrolling!!)
             }
         } catch (e: Exception) {
-            e.printStackTrace()
+            LogDetail.LogEStack(e)
         }
     }
 
@@ -534,7 +531,7 @@ class PagerFragment : Fragment(), EasyPermissions.PermissionCallbacks {
                 FeedSdk.parentNudgeView!!.visibility = View.GONE
             }
         } catch (ex: Exception) {
-            ex.printStackTrace()
+            LogDetail.LogEStack(ex)
         }
         FeedSdk.spUtil?.getString(JWT_TOKEN)?.let {
             ApiGetFeeds().getRegionalFeedsEncrypted(
@@ -559,27 +556,27 @@ class PagerFragment : Fragment(), EasyPermissions.PermissionCallbacks {
                         var newsFeedList = getFeedsResponse.cards as java.util.ArrayList<Card>
                         adCheckerList.addAll(newsFeedList)
                         try {
-                            if (FeedSdk.showAds) {
+                            if (ApiConfig().checkShowAds(requireContext())) {
                                 val adItem = Card()
                                 adItem.cardType = AD
                                 try {
                                     if (adCheckerList.size > adIndex) {
                                         newsFeedList.add(adIndex - pageNo * 10, adItem)
                                         adCheckerList.add(adIndex, adItem)
-                                        Log.d("Ad index", (adIndex - pageNo * 10).toString())
+                                        LogDetail.LogD("Ad index", (adIndex - pageNo * 10).toString())
                                     }
                                     if (adIndex + getFeedsResponse.adPlacement[0] < adCheckerList.size) {
                                         adIndex += getFeedsResponse.adPlacement[0]
                                         newsFeedList.add(adIndex - pageNo * 10, adItem)
                                         adCheckerList.add(adIndex, adItem)
-                                        Log.d("Ad index", (adIndex - pageNo * 10).toString())
+                                        LogDetail.LogD("Ad index", (adIndex - pageNo * 10).toString())
                                     }
                                 } catch (e: java.lang.Exception) {
-                                    e.printStackTrace()
+                                    LogDetail.LogEStack(e)
                                 }
                             }
                         } catch (ex: Exception) {
-                            ex.printStackTrace()
+                            LogDetail.LogEStack(ex)
                         }
                         newsFeedAdapter?.updateList(
                             newsFeedList,
@@ -602,7 +599,7 @@ class PagerFragment : Fragment(), EasyPermissions.PermissionCallbacks {
                 FeedSdk.parentNudgeView!!.visibility = View.GONE
             }
         } catch (ex: Exception) {
-            ex.printStackTrace()
+            LogDetail.LogEStack(ex)
         }
         FeedSdk.spUtil?.getString(Constants.JWT_TOKEN)?.let {
             ApiGetFeeds().getFeedsEncrypted(
@@ -630,7 +627,7 @@ class PagerFragment : Fragment(), EasyPermissions.PermissionCallbacks {
                         var newsFeedList = getFeedsResponse.cards as java.util.ArrayList<Card>
                         adCheckerList.addAll(newsFeedList)
                         try {
-                            if (FeedSdk.showAds) {
+                            if (ApiConfig().checkShowAds(requireContext())) {
                                 val adItem = Card()
                                 adItem.cardType = AD
                                 if (selectedInterest.equals("for_you") && Constants.checkFeedApp()) {
@@ -642,20 +639,20 @@ class PagerFragment : Fragment(), EasyPermissions.PermissionCallbacks {
                                     if (adCheckerList.size > adIndex) {
                                         newsFeedList.add(adIndex - pageNo * 10, adItem)
                                         adCheckerList.add(adIndex, adItem)
-                                        Log.d("Ad index", (adIndex - pageNo * 10).toString())
+                                        LogDetail.LogD("Ad index", (adIndex - pageNo * 10).toString())
                                     }
                                     if (adIndex + getFeedsResponse.adPlacement[0] < adCheckerList.size) {
                                         adIndex += getFeedsResponse.adPlacement[0]
                                         newsFeedList.add(adIndex - pageNo * 10, adItem)
                                         adCheckerList.add(adIndex, adItem)
-                                        Log.d("Ad index", (adIndex - pageNo * 10).toString())
+                                        LogDetail.LogD("Ad index", (adIndex - pageNo * 10).toString())
                                     }
                                 } catch (e: java.lang.Exception) {
-                                    e.printStackTrace()
+                                    LogDetail.LogEStack(e)
                                 }
                             }
                         } catch (ex: Exception) {
-                            ex.printStackTrace()
+                            LogDetail.LogEStack(ex)
                         }
                         newsFeedAdapter?.updateList(
                             newsFeedList,
@@ -727,7 +724,7 @@ class PagerFragment : Fragment(), EasyPermissions.PermissionCallbacks {
                 getRegionalFeed()
             }
         } catch (ex: Exception) {
-            ex.printStackTrace()
+            LogDetail.LogEStack(ex)
         }
     }
 
@@ -761,7 +758,7 @@ class PagerFragment : Fragment(), EasyPermissions.PermissionCallbacks {
             val postImpressionString = gson.toJson(postImpressionsModel)
             sharedPrefs.edit().putString(timeStamp.toString(), postImpressionString).apply()
         } catch (ex: java.lang.Exception) {
-            ex.printStackTrace()
+            LogDetail.LogEStack(ex)
         }
     }
 
@@ -787,7 +784,7 @@ class PagerFragment : Fragment(), EasyPermissions.PermissionCallbacks {
                 )
             }
         } catch (ex: java.lang.Exception) {
-            ex.printStackTrace()
+            LogDetail.LogEStack(ex)
         }
     }
 

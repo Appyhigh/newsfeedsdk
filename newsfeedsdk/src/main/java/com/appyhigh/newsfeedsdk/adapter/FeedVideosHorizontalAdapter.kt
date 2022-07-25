@@ -17,8 +17,8 @@ import com.appyhigh.newsfeedsdk.R
 import com.appyhigh.newsfeedsdk.activity.NewsFeedPageActivity
 import com.appyhigh.newsfeedsdk.activity.PostNativeDetailActivity
 import com.appyhigh.newsfeedsdk.callbacks.FeedVideosHorizontalClickListener
-import com.appyhigh.newsfeedsdk.databinding.ItemFeedPostCategoryBindingImpl
 import com.appyhigh.newsfeedsdk.databinding.ItemFeedVideoHorizontalBinding
+import com.appyhigh.newsfeedsdk.encryption.LogDetail
 import com.appyhigh.newsfeedsdk.model.feeds.Item
 import com.appyhigh.newsfeedsdk.utils.SpUtil
 import com.google.firebase.analytics.FirebaseAnalytics
@@ -47,7 +47,7 @@ class FeedVideosHorizontalAdapter(var feedVideos: List<Item>) :
         try {
             SpUtil.eventsListener?.onExploreInteraction("Explore Videos", feedVideos[position].publisherName!!, feedVideos[position].postId!!)
         } catch (ex: Exception){
-            ex.printStackTrace()
+            LogDetail.LogEStack(ex)
         }
         val intent = if(feedVideos[position].isNative!!){
             val bundle = Bundle()

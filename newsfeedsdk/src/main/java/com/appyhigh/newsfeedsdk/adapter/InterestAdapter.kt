@@ -1,23 +1,22 @@
 package com.appyhigh.newsfeedsdk.adapter
 
-import android.annotation.SuppressLint
 import android.content.Context
 import android.os.Handler
 import android.os.Looper
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.databinding.DataBindingUtil
 import androidx.recyclerview.widget.RecyclerView
 import com.appyhigh.newsfeedsdk.Constants
+import com.appyhigh.newsfeedsdk.FeedSdk
 import com.appyhigh.newsfeedsdk.R
 import com.appyhigh.newsfeedsdk.apicalls.ApiPostImpression
 import com.appyhigh.newsfeedsdk.callbacks.InterestClickListener
 import com.appyhigh.newsfeedsdk.callbacks.InterestSelectedListener
 import com.appyhigh.newsfeedsdk.databinding.ItemInterestBinding
+import com.appyhigh.newsfeedsdk.encryption.LogDetail
 import com.appyhigh.newsfeedsdk.model.Interest
-import java.lang.Exception
 
 class InterestAdapter(
     private var interestList: ArrayList<Interest>,
@@ -45,7 +44,7 @@ class InterestAdapter(
     }
 
     override fun onBindViewHolder(holder: InterestViewHolder, position: Int) {
-        Log.d("INTERESTLISTT", interestList.toString())
+        LogDetail.LogD("INTERESTLISTT", interestList.toString())
         holder.view.interest = interestList[position]
         holder.view.listener = this
         holder.view.position = position
@@ -59,7 +58,9 @@ class InterestAdapter(
             return
         }
         if(Constants.cricketLiveMatchURI.isNotEmpty()){
-            ApiPostImpression().addCricketPostImpression(context, Constants.cricketLiveMatchURI)
+            FeedSdk.spUtil?.getString(Constants.JWT_TOKEN)?.let {
+                ApiPostImpression().addCricketPostImpression(it, Constants.cricketLiveMatchURI)
+            }
         } else{
             Handler(Looper.getMainLooper()).postDelayed({ hitCricketPostImpression(context, tryCount+1) }, 5000)
         }

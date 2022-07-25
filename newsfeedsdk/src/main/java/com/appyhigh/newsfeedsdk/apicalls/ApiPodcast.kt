@@ -2,21 +2,17 @@ package com.appyhigh.newsfeedsdk.apicalls
 
 import android.util.Log
 import com.appyhigh.newsfeedsdk.Constants
-import com.appyhigh.newsfeedsdk.apiclient.APIClient
 import com.appyhigh.newsfeedsdk.encryption.AESCBCPKCS5Encryption
 import com.appyhigh.newsfeedsdk.encryption.AuthSocket
 import com.appyhigh.newsfeedsdk.encryption.LogDetail
 import com.appyhigh.newsfeedsdk.encryption.SessionUser
 import com.appyhigh.newsfeedsdk.model.feeds.Card
-import com.appyhigh.newsfeedsdk.model.feeds.GetFeedsResponse
 import com.appyhigh.newsfeedsdk.utils.SpUtil
 import com.google.common.reflect.TypeToken
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
 import com.google.gson.annotations.Expose
 import com.google.gson.annotations.SerializedName
-import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
-import io.reactivex.rxjava3.schedulers.Schedulers
 import okhttp3.Call
 import org.json.JSONArray
 import org.json.JSONObject
@@ -97,7 +93,7 @@ class ApiPodcast {
                         getFeedsResponse.raw().sentRequestAtMillis
                     )
                 } catch (ex: Exception) {
-                    ex.printStackTrace()
+                    LogDetail.LogEStack(ex)
                 }
 
             }
@@ -173,7 +169,7 @@ class ApiPodcast {
                         getFeedsResponse.raw().sentRequestAtMillis
                     )
                 } catch (ex: Exception) {
-                    ex.printStackTrace()
+                    LogDetail.LogEStack(ex)
                 }
 
             }
@@ -248,7 +244,7 @@ class ApiPodcast {
                         getFeedsResponse.raw().sentRequestAtMillis
                     )
                 } catch (ex: Exception) {
-                    ex.printStackTrace()
+                    LogDetail.LogEStack(ex)
                 }
 
             }
@@ -273,7 +269,7 @@ class ApiPodcast {
  */
 private fun handleApiError(throwable: Throwable) {
     throwable.message?.let {
-        Log.e(ApiPodcast::class.java.simpleName, "handleApiError: $it")
+        LogDetail.LogDE(ApiPodcast::class.java.simpleName, "handleApiError: $it")
     }
 }
 

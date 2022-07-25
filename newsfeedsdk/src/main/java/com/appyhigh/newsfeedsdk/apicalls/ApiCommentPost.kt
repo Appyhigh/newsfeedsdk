@@ -2,19 +2,15 @@ package com.appyhigh.newsfeedsdk.apicalls
 
 import android.util.Log
 import com.appyhigh.newsfeedsdk.Constants
-import com.appyhigh.newsfeedsdk.apiclient.APIClient
 import com.appyhigh.newsfeedsdk.encryption.AESCBCPKCS5Encryption
 import com.appyhigh.newsfeedsdk.encryption.AuthSocket
 import com.appyhigh.newsfeedsdk.encryption.LogDetail
 import com.appyhigh.newsfeedsdk.encryption.SessionUser
-import com.appyhigh.newsfeedsdk.model.*
-import com.appyhigh.newsfeedsdk.utils.SpUtil
+import com.appyhigh.newsfeedsdk.model.FeedCommentResponseWrapper
 import com.google.common.reflect.TypeToken
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
 import com.google.gson.JsonObject
-import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
-import io.reactivex.rxjava3.schedulers.Schedulers
 import okhttp3.Call
 import org.json.JSONArray
 import org.json.JSONObject
@@ -49,7 +45,7 @@ class ApiCommentPost {
             allDetails.add(Constants.USER_DETAIL, SessionUser.Instance().userDetails)
             allDetails.add(Constants.DEVICE_DETAIL, SessionUser.Instance().deviceDetails)
         } catch (e: Exception) {
-            e.printStackTrace()
+            LogDetail.LogEStack(e)
         }
         LogDetail.LogDE("Test Data", allDetails.toString())
         val publicKey = SessionUser.Instance().publicKey
@@ -95,7 +91,7 @@ class ApiCommentPost {
      */
     private fun handleApiError(throwable: Throwable) {
         throwable.message?.let {
-            Log.e(ApiCreateOrUpdateUser::class.java.simpleName, "handleApiError: $it")
+            LogDetail.LogDE(ApiCreateOrUpdateUser::class.java.simpleName, "handleApiError: $it")
         }
     }
 

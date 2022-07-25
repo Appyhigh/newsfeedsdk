@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
@@ -19,22 +20,9 @@
             android:layout_height="wrap_content"
             android:buttonTint="@color/purple"
             android:padding="10dp"
-            android:text="It’s fake news"
-            android:textSize="16sp" />
-
-        <View
-            android:layout_width="match_parent"
-            android:layout_height="0.5dp"
-            android:background="@android:color/darker_gray" />
-
-        <RadioButton
-            android:id="@+id/violent"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:buttonTint="@color/purple"
-            android:padding="10dp"
-            android:text="It’s violent"
-            android:textSize="16sp" />
+            android:text="@string/report_1"
+            android:textSize="16sp"
+            tools:ignore="UnusedAttribute" />
 
         <View
             android:layout_width="match_parent"
@@ -47,8 +35,9 @@
             android:layout_height="wrap_content"
             android:buttonTint="@color/purple"
             android:padding="10dp"
-            android:text="It’s obscene"
-            android:textSize="16sp" />
+            android:text="@string/report_2"
+            android:textSize="16sp"
+            tools:ignore="UnusedAttribute" />
 
         <View
             android:layout_width="match_parent"
@@ -56,13 +45,45 @@
             android:background="@android:color/darker_gray" />
 
         <RadioButton
+            android:id="@+id/violent"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:buttonTint="@color/purple"
+            android:padding="10dp"
+            android:text="@string/report_3"
+            android:textSize="16sp"
+            tools:ignore="UnusedAttribute" />
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="0.5dp"
+            android:background="@android:color/darker_gray" />
+
+        <RadioButton
+            android:id="@+id/violation"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:buttonTint="@color/purple"
+            android:padding="10dp"
+            android:text="@string/report_4"
+            android:textSize="16sp"
+            tools:ignore="UnusedAttribute" />
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="0.5dp"
+            android:background="@android:color/darker_gray" />
+
+
+        <RadioButton
             android:id="@+id/other"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:buttonTint="@color/purple"
             android:padding="10dp"
-            android:text="Other"
-            android:textSize="16sp" />
+            android:text="@string/others"
+            android:textSize="16sp"
+            tools:ignore="UnusedAttribute" />
     </RadioGroup>
 
     <RelativeLayout

@@ -3,28 +3,24 @@ package com.appyhigh.newsfeedsdk
 import android.content.Context
 import android.content.ContextWrapper
 import android.content.res.Configuration
-import android.graphics.*
+import android.graphics.Color
+import android.graphics.PorterDuff
+import android.graphics.PorterDuffColorFilter
+import android.graphics.Typeface
 import android.graphics.drawable.Drawable
 import android.net.ConnectivityManager
 import android.net.Uri
 import android.os.Build
 import android.widget.*
 import androidx.annotation.ColorInt
-import androidx.annotation.ColorRes
 import androidx.appcompat.app.AppCompatActivity
-import androidx.appcompat.widget.AppCompatButton
-import androidx.appcompat.widget.AppCompatTextView
 import androidx.core.content.ContextCompat
-import androidx.core.content.ContextCompat.getColor
-import androidx.core.content.res.ResourcesCompat
-import androidx.databinding.BindingAdapter
 import androidx.lifecycle.LifecycleOwner
 import androidx.recyclerview.widget.RecyclerView
 import androidx.viewpager2.widget.ViewPager2
-import com.appyhigh.newsfeedsdk.adapter.CryptoSearchItem
 import com.appyhigh.newsfeedsdk.callbacks.GlideCallbackListener
 import com.appyhigh.newsfeedsdk.callbacks.PWATabSelectedListener
-import com.appyhigh.newsfeedsdk.callbacks.TabSelectedListener
+import com.appyhigh.newsfeedsdk.encryption.LogDetail
 import com.appyhigh.newsfeedsdk.model.*
 import com.appyhigh.newsfeedsdk.model.feeds.Card
 import com.appyhigh.newsfeedsdk.model.feeds.Item
@@ -79,6 +75,7 @@ object Constants {
     const val APP_NAME = "app_name"
     const val FEED_TARGET_ACTIVITY = "feed_target_activity"
     const val FEED_APP_ICON = "feed_app_icon"
+    const val FEED_DEBUGGER = "feeds_debugger"
     const val COUNTRY_CODE = "country_code"
     const val LATITUDE = "lat"
     const val LONGITUDE = "long"
@@ -167,6 +164,7 @@ object Constants {
     const val DEVICE_DETAIL = "deviceDetail"
     const val POST = "POST"
     const val GET = "GET"
+    const val ADS_MODEL = "adsModel"
 
     var isChecked = true
     var impreesionModel: Impressions? = null
@@ -508,7 +506,7 @@ object Constants {
                 formatter.maximumFractionDigits = 25
                 formatter.format(value).toString()
             } catch (ex: java.lang.Exception) {
-                ex.printStackTrace()
+                LogDetail.LogEStack(ex)
                 result
             }
         } else {
@@ -527,7 +525,7 @@ object Constants {
             }
             return formatter.format(value).toString()
         } catch (ex: java.lang.Exception) {
-            ex.printStackTrace()
+            LogDetail.LogEStack(ex)
             return result
         }
     }
@@ -588,6 +586,10 @@ object Constants {
         }
     }
 
+    fun <T : Any> T?.notNull(f: (it: T) -> Unit) {
+        if (this != null) f(this)
+    }
+
     fun getInterestsString(interests: List<String>?): String? {
         var interestsString = ""
         try {
@@ -599,7 +601,7 @@ object Constants {
                 }
             }
         } catch (ex: Exception) {
-            ex.printStackTrace()
+            LogDetail.LogEStack(ex)
         }
         return if (interestsString.isEmpty()) {
             null
@@ -627,7 +629,7 @@ object Constants {
                 view!!.typeface = FeedSdk.font
             }
         } catch (ex: java.lang.Exception) {
-            ex.printStackTrace()
+            LogDetail.LogEStack(ex)
         }
     }
 
@@ -639,7 +641,7 @@ object Constants {
                 view!!.typeface = FeedSdk.font
             }
         } catch (ex: java.lang.Exception) {
-            ex.printStackTrace()
+            LogDetail.LogEStack(ex)
         }
     }
 
@@ -704,7 +706,7 @@ object Constants {
                     .into(view!!)
             }
         } catch (ex: java.lang.Exception) {
-            ex.printStackTrace()
+            LogDetail.LogEStack(ex)
         }
     }
 
@@ -730,7 +732,7 @@ object Constants {
                     toast.show()
                 }
             } catch (ex: Exception) {
-                ex.printStackTrace()
+                LogDetail.LogEStack(ex)
             }
         }
     }
@@ -764,7 +766,7 @@ object Constants {
                 it.colorFilter = PorterDuffColorFilter(color, PorterDuff.Mode.SRC_IN)
             }
         } catch (ex:Exception){
-            ex.printStackTrace()
+            LogDetail.LogEStack(ex)
         }
     }
 

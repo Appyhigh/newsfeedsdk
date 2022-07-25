@@ -12,20 +12,16 @@ import com.appyhigh.newsfeedsdk.Constants.DEVICE_DETAIL
 import com.appyhigh.newsfeedsdk.Constants.EN
 import com.appyhigh.newsfeedsdk.Constants.LANG
 import com.appyhigh.newsfeedsdk.Constants.USER_DETAIL
-import com.appyhigh.newsfeedsdk.apiclient.APIClient
 import com.appyhigh.newsfeedsdk.encryption.AESCBCPKCS5Encryption
 import com.appyhigh.newsfeedsdk.encryption.AuthSocket
 import com.appyhigh.newsfeedsdk.encryption.LogDetail
 import com.appyhigh.newsfeedsdk.encryption.SessionUser
 import com.appyhigh.newsfeedsdk.model.InterestResponseModel
 import com.appyhigh.newsfeedsdk.model.InterestStringResponseModel
-import com.appyhigh.newsfeedsdk.utils.SpUtil
 import com.google.common.reflect.TypeToken
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
 import com.google.gson.JsonObject
-import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
-import io.reactivex.rxjava3.schedulers.Schedulers
 import okhttp3.Call
 import org.json.JSONArray
 import org.json.JSONObject
@@ -62,7 +58,7 @@ class ApiGetInterests {
                 allDetails.add(USER_DETAIL, SessionUser.Instance().userDetails)
                 allDetails.add(DEVICE_DETAIL, SessionUser.Instance().deviceDetails)
             } catch (e: Exception) {
-                e.printStackTrace()
+                LogDetail.LogEStack(e)
             }
             LogDetail.LogDE("Test Data", allDetails.toString())
             val publicKey = SessionUser.Instance().publicKey
@@ -130,7 +126,7 @@ class ApiGetInterests {
                 allDetails.add(USER_DETAIL, SessionUser.Instance().userDetails)
                 allDetails.add(DEVICE_DETAIL, SessionUser.Instance().deviceDetails)
             } catch (e: Exception) {
-                e.printStackTrace()
+                LogDetail.LogEStack(e)
             }
             LogDetail.LogDE("Test Data", allDetails.toString())
             val publicKey = SessionUser.Instance().publicKey
@@ -195,7 +191,7 @@ class ApiGetInterests {
      */
     private fun handleApiError(throwable: Throwable) {
         throwable.message?.let {
-            Log.e(ApiCreateOrUpdateUser::class.java.simpleName, "handleApiError: $it")
+            LogDetail.LogDE(ApiCreateOrUpdateUser::class.java.simpleName, "handleApiError: $it")
         }
     }
 

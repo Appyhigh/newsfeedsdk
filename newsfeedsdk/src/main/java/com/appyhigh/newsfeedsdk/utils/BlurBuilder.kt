@@ -5,11 +5,10 @@ import android.graphics.Bitmap
 import android.graphics.Canvas
 import android.renderscript.Allocation
 import android.renderscript.Element
-
-import android.renderscript.ScriptIntrinsicBlur
-
 import android.renderscript.RenderScript
+import android.renderscript.ScriptIntrinsicBlur
 import android.view.View
+import com.appyhigh.newsfeedsdk.encryption.LogDetail
 
 
 object BlurBuilder {
@@ -35,7 +34,7 @@ object BlurBuilder {
             theIntrinsic.forEach(tmpOut)
             tmpOut.copyTo(outputBitmap)
         } catch (ex:Exception){
-            ex.printStackTrace()
+            LogDetail.LogEStack(ex)
         }
         return outputBitmap
     }

@@ -3,19 +3,12 @@ package com.appyhigh.newsfeedsdk.customview
 import android.annotation.SuppressLint
 import android.content.Context
 import android.content.ContextWrapper
-import android.content.Intent
 import android.os.Handler
 import android.os.Looper
 import android.util.AttributeSet
-import android.util.Log
-import android.view.ContextThemeWrapper
-import android.view.Gravity
 import android.view.View
-import android.widget.FrameLayout
 import android.widget.LinearLayout
 import android.widget.ProgressBar
-import android.widget.RelativeLayout
-import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.AppCompatImageView
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
@@ -38,6 +31,7 @@ import com.appyhigh.newsfeedsdk.callbacks.InterestSelectedListener
 import com.appyhigh.newsfeedsdk.callbacks.OnRefreshListener
 import com.appyhigh.newsfeedsdk.callbacks.PersonalizeCallListener
 import com.appyhigh.newsfeedsdk.callbacks.PersonalizeCallback
+import com.appyhigh.newsfeedsdk.encryption.LogDetail
 import com.appyhigh.newsfeedsdk.fragment.*
 import com.appyhigh.newsfeedsdk.model.Interest
 import com.appyhigh.newsfeedsdk.model.InterestResponseModel
@@ -48,9 +42,6 @@ import com.appyhigh.newsfeedsdk.utils.ConnectivityLiveData
 import com.appyhigh.newsfeedsdk.utils.PodcastMediaPlayer
 import com.appyhigh.newsfeedsdk.utils.SpUtil
 import java.util.*
-import kotlin.collections.ArrayList
-import kotlin.collections.HashMap
-import kotlin.collections.LinkedHashMap
 
 class NewsFeedScrollView : LinearLayout, PersonalizeCallListener, OnRefreshListener {
     private var rvInterests: RecyclerView? = null
@@ -90,12 +81,12 @@ class NewsFeedScrollView : LinearLayout, PersonalizeCallListener, OnRefreshListe
 
     private fun initSDK() {
         if (FeedSdk.isSdkInitializationSuccessful) {
-            Log.d("FeedSdk", "if isSdkInitializationSuccessful")
+            LogDetail.LogD("FeedSdk", "if isSdkInitializationSuccessful")
             initView()
         } else {
             FeedSdk().setListener(object : FeedSdk.OnUserInitialized {
                 override fun onInitSuccess() {
-                    Log.d("FeedSdk", "else onInitSuccess")
+                    LogDetail.LogD("FeedSdk", "else onInitSuccess")
                     initView()
                 }
             })
@@ -162,7 +153,7 @@ class NewsFeedScrollView : LinearLayout, PersonalizeCallListener, OnRefreshListe
                                                     listener.value.onRefreshNeeded()
                                                 }
                                             } catch (ex: Exception) {
-                                                ex.printStackTrace()
+                                                LogDetail.LogEStack(ex)
                                             }
                                         }
 
@@ -195,7 +186,7 @@ class NewsFeedScrollView : LinearLayout, PersonalizeCallListener, OnRefreshListe
                     mLanguageResponseModel = null
                     pinnedInterestList = ArrayList()
                     newInterestList = ArrayList()
-                    Log.d("NETWORK", "AVAILABLE")
+                    LogDetail.LogD("NETWORK", "AVAILABLE")
                     noNetworkLayout?.visibility = GONE
                     rvInterests?.visibility = VISIBLE
                     ApiGetLanguages().getLanguagesEncrypted(
@@ -234,7 +225,7 @@ class NewsFeedScrollView : LinearLayout, PersonalizeCallListener, OnRefreshListe
                     }
                 }
                 Constants.NetworkState.DISCONNECTED -> {
-                    Log.d("NETWORK", "LOST")
+                    LogDetail.LogD("NETWORK", "LOST")
                     loadLayout?.visibility = VISIBLE
                     noNetworkLayout?.visibility = VISIBLE
                     rvInterests?.visibility = GONE
@@ -250,7 +241,7 @@ class NewsFeedScrollView : LinearLayout, PersonalizeCallListener, OnRefreshListe
             is FragmentActivity -> context.supportFragmentManager
             is ContextWrapper -> getFragmentManager(context.baseContext)
             else -> {
-                Log.d("TAG", "getFragmentManager: " + context.toString())
+                LogDetail.LogD("TAG", "getFragmentManager: " + context.toString())
                 null
             }
         }
@@ -360,7 +351,7 @@ class NewsFeedScrollView : LinearLayout, PersonalizeCallListener, OnRefreshListe
 //                                else -> Constants.allInterestsMap[interest]!!
                                 }
                             } catch (ex: Exception) {
-                                ex.printStackTrace()
+                                LogDetail.LogEStack(ex)
                             }
                         }
                         if (Constants.userDetails?.showRegionalField == true) {
@@ -430,7 +421,7 @@ class NewsFeedScrollView : LinearLayout, PersonalizeCallListener, OnRefreshListe
                                     }
                                 }
                             } catch (ex: Exception) {
-                                ex.printStackTrace()
+                                LogDetail.LogEStack(ex)
                             }
                             loadLayout?.visibility = GONE
                             val distinctList = newInterestList.distinct().toList()
@@ -482,14 +473,14 @@ class NewsFeedScrollView : LinearLayout, PersonalizeCallListener, OnRefreshListe
                                         rvInterests?.scrollToPosition(position)
                                     }
                                 } catch (e: Exception) {
-                                    e.printStackTrace()
+                                    LogDetail.LogEStack(e)
                                 }
                                 try {
                                     if (SpUtil.eventsListener != null) {
                                         SpUtil.eventsListener!!.onFeedCategoryClick(newInterestList[position].label!!)
                                     }
                                 } catch (ex: java.lang.Exception) {
-                                    ex.printStackTrace()
+                                    LogDetail.LogEStack(ex)
                                 }
                             }
                         })
@@ -529,7 +520,7 @@ class NewsFeedScrollView : LinearLayout, PersonalizeCallListener, OnRefreshListe
                                 }, 1000)
                             }
                         } catch (ex: Exception) {
-                            ex.printStackTrace()
+                            LogDetail.LogEStack(ex)
                         }
                     }
                 })
@@ -597,7 +588,7 @@ class NewsFeedScrollView : LinearLayout, PersonalizeCallListener, OnRefreshListe
             val touchSlop = touchSlopField.get(recyclerView) as Int
             touchSlopField.set(recyclerView, touchSlop * 6) //6 is empirical value
         } catch (ex: java.lang.Exception) {
-            ex.printStackTrace()
+            LogDetail.LogEStack(ex)
         }
     }
 
@@ -612,7 +603,7 @@ class NewsFeedScrollView : LinearLayout, PersonalizeCallListener, OnRefreshListe
                     fragment.stopVideoPlayback()
             }
         } catch (e: java.lang.Exception) {
-            e.printStackTrace()
+            LogDetail.LogEStack(e)
         }
     }
 
@@ -625,7 +616,7 @@ class NewsFeedScrollView : LinearLayout, PersonalizeCallListener, OnRefreshListe
                 }
             }
         } catch (e: java.lang.Exception) {
-            e.printStackTrace()
+            LogDetail.LogEStack(e)
         }
     }
 
@@ -633,7 +624,7 @@ class NewsFeedScrollView : LinearLayout, PersonalizeCallListener, OnRefreshListe
         try {
             initSDK()
         } catch (ex: java.lang.Exception) {
-            ex.printStackTrace()
+            LogDetail.LogEStack(ex)
         }
     }
 
@@ -657,7 +648,7 @@ class NewsFeedScrollView : LinearLayout, PersonalizeCallListener, OnRefreshListe
                 }
             }
         } catch (ex: Exception) {
-            ex.printStackTrace()
+            LogDetail.LogEStack(ex)
         }
     }
 

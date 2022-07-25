@@ -11,17 +11,17 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.appyhigh.newsfeedsdk.Constants
 import com.appyhigh.newsfeedsdk.FeedSdk
 import com.appyhigh.newsfeedsdk.adapter.NewsFeedAdapter
-import com.appyhigh.newsfeedsdk.apicalls.*
+import com.appyhigh.newsfeedsdk.apicalls.ApiCrypto
+import com.appyhigh.newsfeedsdk.apicalls.ApiPostImpression
 import com.appyhigh.newsfeedsdk.apiclient.Endpoints
 import com.appyhigh.newsfeedsdk.callbacks.PostImpressionListener
 import com.appyhigh.newsfeedsdk.databinding.FragmentCryptoBinding
+import com.appyhigh.newsfeedsdk.encryption.LogDetail
 import com.appyhigh.newsfeedsdk.model.PostImpressionsModel
 import com.appyhigh.newsfeedsdk.model.PostView
 import com.appyhigh.newsfeedsdk.model.feeds.Card
 import com.appyhigh.newsfeedsdk.utils.EndlessScrolling
-import com.appyhigh.newsfeedsdk.utils.SpUtil
 import com.google.gson.Gson
-import java.util.ArrayList
 
 class CryptoFragment : Fragment() {
 
@@ -90,7 +90,7 @@ class CryptoFragment : Fragment() {
                                         )
                                         postImpressions[card.items[0].postId!!] = postView
                                     } catch (ex: Exception){
-                                        ex.printStackTrace()
+                                        LogDetail.LogEStack(ex)
                                     }
                                 }
                             }, presentUrl, presentTimeStamp)
@@ -132,7 +132,7 @@ class CryptoFragment : Fragment() {
                 binding.rvPosts.addOnScrollListener(endlessScrolling!!)
             }
         } catch (e: Exception) {
-            e.printStackTrace()
+            LogDetail.LogEStack(e)
         }
     }
 
@@ -184,7 +184,7 @@ class CryptoFragment : Fragment() {
                 )
             }
         } catch (ex:java.lang.Exception){
-            ex.printStackTrace()
+            LogDetail.LogEStack(ex)
         }
     }
 

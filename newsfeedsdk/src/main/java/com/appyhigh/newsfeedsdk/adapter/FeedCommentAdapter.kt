@@ -1,7 +1,6 @@
 package com.appyhigh.newsfeedsdk.adapter
 
 import android.text.format.DateUtils
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -9,12 +8,12 @@ import android.widget.ImageView
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.appyhigh.newsfeedsdk.R
+import com.appyhigh.newsfeedsdk.encryption.LogDetail
 import com.appyhigh.newsfeedsdk.model.FeedComment
 import com.appyhigh.newsfeedsdk.model.feeds.Card
 import com.bumptech.glide.Glide
 import java.text.SimpleDateFormat
 import java.util.*
-import kotlin.collections.ArrayList
 
 class FeedCommentAdapter(private val comments: ArrayList<FeedComment>, private var cardType: String) :
     RecyclerView.Adapter<FeedCommentAdapter.CommentViewHolder>() {
@@ -73,20 +72,20 @@ fun String.getTimeInAgoFormat(): String {
     try {
         if (this.isNotEmpty()) cal.time = sdfT.parse(this)
     } catch (e: Exception) {
-        // e.printStackTrace();
+        // LogDetail.LogEStack(e);
     }
 
     val timestamp = cal.timeInMillis
     val localTime = sdf.format(Date(timestamp))
-    Log.d("Time: ", localTime)
+    LogDetail.LogD("Time: ", localTime)
 
-    Log.d("Server time: ", timestamp.toString() + "")
+    LogDetail.LogD("Server time: ", timestamp.toString() + "")
 
     /* log the device timezone */
-    Log.d("Time zone: ", tz.displayName)
+    LogDetail.LogD("Time zone: ", tz.displayName)
 
     /* log the system time */
-    Log.d("System time: ", System.currentTimeMillis().toString() + "")
+    LogDetail.LogD("System time: ", System.currentTimeMillis().toString() + "")
 
     val relTime = DateUtils.getRelativeTimeSpanString(
         timestamp,
@@ -108,7 +107,7 @@ private fun String.getCurrentTimeZoneFormat(): SimpleDateFormat {
     val name =
         TimeZone.getDefault().getDisplayName(tz.inDaylightTime(currentDate), TimeZone.SHORT)
     sdf.timeZone = TimeZone.getTimeZone("\"" + name + "\"")
-    // Log.d("current time zone", sdf.getTimeZone().getDisplayName() + "::" + TimeZone.getDefault().getDisplayName() + ": " + TimeZone.getDefault().getID());
+    // LogDetail.LogD("current time zone", sdf.getTimeZone().getDisplayName() + "::" + TimeZone.getDefault().getDisplayName() + ": " + TimeZone.getDefault().getID());
 
     return sdf
 }

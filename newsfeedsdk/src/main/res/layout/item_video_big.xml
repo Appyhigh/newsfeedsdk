@@ -320,19 +320,38 @@
             android:visibility="@{position==0? View.VISIBLE: View.GONE}"
             tools:ignore="UnusedAttribute" />
 
-        <androidx.appcompat.widget.AppCompatImageView
+        <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginTop="10dp"
+            android:layout_marginEnd="10dp"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            android:elevation="10dp"
-            android:layout_margin="20dp"
-            app:srcCompat="@drawable/ic_feed_report"
-            app:visible="@{buildConfig.DEBUG}"
-            android:onClick='@{(v) -> listener.onReportClicked(v, position, card, "")}'
-            tools:visibility="gone"
-            tools:ignore="UnusedAttribute" />
+            app:layout_constraintTop_toTopOf="parent">
+            <androidx.appcompat.widget.AppCompatImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                android:elevation="10dp"
+                android:layout_gravity="center"
+                app:srcCompat="@drawable/ic_feed_report"
+                app:visible="@{buildConfig.DEBUG}"
+                android:onClick='@{(v) -> listener.onReportClicked(v, position, card, "")}'
+                tools:visibility="visible"
+                tools:ignore="UnusedAttribute" />
 
+            <androidx.appcompat.widget.AppCompatImageView
+                android:id="@+id/news_item_more_option"
+                android:layout_width="30dp"
+                android:layout_height="30dp"
+                android:layout_marginStart="10dp"
+                android:layout_gravity="center"
+                app:tint="@color/colorWhite"
+                android:onClick="@{ (v) -> listener.onMoreOptionsClicked(v, position)}"
+                app:srcCompat="@drawable/ic_feed_more" />
+
+        </LinearLayout>
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

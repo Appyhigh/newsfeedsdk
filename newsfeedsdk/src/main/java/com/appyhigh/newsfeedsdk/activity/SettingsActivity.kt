@@ -3,12 +3,12 @@ package com.appyhigh.newsfeedsdk.activity
 import android.app.Activity
 import android.content.Intent
 import android.graphics.Color
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
 import android.view.View
-import android.widget.*
+import android.widget.Toast
+import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import com.appyhigh.newsfeedsdk.Constants
 import com.appyhigh.newsfeedsdk.Constants.IS_STICKY_SERVICE_ON
@@ -24,6 +24,7 @@ import com.appyhigh.newsfeedsdk.apicalls.ApiCreateOrUpdateUser
 import com.appyhigh.newsfeedsdk.apiclient.Endpoints
 import com.appyhigh.newsfeedsdk.callbacks.SearchStickyItemListener
 import com.appyhigh.newsfeedsdk.databinding.ActivityStickySettingsBinding
+import com.appyhigh.newsfeedsdk.encryption.LogDetail
 import com.appyhigh.newsfeedsdk.fragment.StickyBackgroundsFragment
 import com.appyhigh.newsfeedsdk.fragment.StickyIconsFragment
 import com.appyhigh.newsfeedsdk.model.SearchStickyItemModel
@@ -88,7 +89,7 @@ class SettingsActivity : AppCompatActivity(), SearchStickyItemListener {
                     }
                 }
             } catch (ex:Exception){
-                ex.printStackTrace()
+                LogDetail.LogEStack(ex)
             }
         }
         if(spUtil!!.getBoolean(IS_STICKY_SERVICE_ON)){
@@ -240,7 +241,7 @@ class SettingsActivity : AppCompatActivity(), SearchStickyItemListener {
                 }
             }
         } catch (ex:Exception){
-            ex.printStackTrace()
+            LogDetail.LogEStack(ex)
         }
     }
 
