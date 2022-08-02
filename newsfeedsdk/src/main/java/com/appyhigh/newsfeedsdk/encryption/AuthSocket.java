@@ -24,6 +24,7 @@ import androidx.annotation.Nullable;
 
 import com.appyhigh.newsfeedsdk.FeedSdk;
 import com.appyhigh.newsfeedsdk.model.User;
+import com.appyhigh.newsfeedsdk.utils.CustomEncryption;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 
@@ -60,6 +61,7 @@ public class AuthSocket {
     static {
         System.loadLibrary("keys");
     }
+
     private native String nativeKey1();
 
     //Native SDK Get Value of String
@@ -144,7 +146,7 @@ public class AuthSocket {
         this.license = license;
     }
 
-    private String getAppIdFromManifest(Context context){
+    private String getAppIdFromManifest(Context context) {
         try {
             ApplicationInfo ai = context.getPackageManager().getApplicationInfo(context.getPackageName(), PackageManager.GET_META_DATA);
             Bundle bundle = ai.metaData;
@@ -157,8 +159,10 @@ public class AuthSocket {
 
     public void start(Context context, AuthenticationSuccess authenticationSuccess) {
         try {
+
+            String keyInit = adea(nativeKey1());
             this.authenticationSuccess = authenticationSuccess;
-            if(alreadyAuthenticated) {
+            if (alreadyAuthenticated) {
                 authenticationSuccess.onAuthSuccess();
                 return;
             }
@@ -177,24 +181,12 @@ public class AuthSocket {
             SessionUser.Instance().setManufacturer(Build.MANUFACTURER);
             SessionUser.Instance().setDevice_model(Build.MODEL);
             SessionUser.Instance().setOs_version(Build.VERSION.BASE_OS);
-
-
             String SHA1 = getSHA1(AuthSocket.Instance().getmContext(), "SHA1");
-            String NativeKey = String.valueOf(nativeKey1());
+            String NativeKey = String.valueOf(keyInit);
             byte[] decodedBytes = Base64.decode(NativeKey, Base64.DEFAULT);
             String decodedString = new String(decodedBytes);
 
-            LogDetail.LogDE("Actual Value from Native Key", String.valueOf(nativeKey1()));
 
-            LogDetail.LogDE("License", license);
-
-            LogDetail.LogDE("APP ID", SessionUser.Instance().getAppId());
-            LogDetail.LogDE("SDK ID", SessionUser.Instance().getSdkId());
-            //Predetermined Values in SDK Session
-            LogDetail.LogDE("Version Code", String.valueOf(SessionUser.Instance().getVersionCode()));
-            LogDetail.LogDE("Version Name", SessionUser.Instance().getVersionName());
-            LogDetail.LogDE("Native Decrypted", decodedString);
-            LogDetail.LogDE("SHA1", SHA1);
 
             //Another Key can Be configured in Remote Config of Firebase - Challenge it would have to come from Client Firebase
             String encryptionKey = String.valueOf(SessionUser.Instance().getVersionCode()).trim() + SessionUser.Instance().getVersionName().trim() + decodedString.trim() + SHA1.trim();
@@ -208,6 +200,20 @@ public class AuthSocket {
         } catch (Exception e) {
             LogDetail.LogEStack(e);
         }
+    }
+
+    private String adea(String nativeKey1) {
+        String[] values = nativeKey1.split("a0a|c0c|b0b|a0d|d0d|a0b|b0a|b0c|b0d|c0a|c0b|c0d|d0a|d0b|d0c|e0e|e0f");
+        String returnKey = "";
+        for (String s : values) {
+            try{
+                String k = String.valueOf(Integer.parseInt(s) + 1);
+                returnKey = returnKey + Character.toString((char) Integer.parseInt(k));
+            }catch (Exception e){
+
+            }
+        }
+        return returnKey;
     }
 
     private void verifyUser() {
@@ -297,7 +303,7 @@ public class AuthSocket {
                 .build();
         Request request = new Request.Builder()
                 .url("https://secure-sdk-qa.apyhi.com/api/verify")   //URL
-//                .url("https://104.161.92.74:8433/api/verify")   //URL
+//                .url("http://104.161.92.74:8433/api/verify")   //URL
                 .header("auth-token", SessionUser.Instance().getToken())
                 .post(formBody)
                 .build();
@@ -378,12 +384,12 @@ public class AuthSocket {
 
 
                         }
-                    } catch ( Exception e) {
+                    } catch (Exception e) {
                         LogDetail.LogEStack(e);
                     }
 
-                }else {
-                    LogDetail.LogD(TAG, "onResponse: "+call.request());
+                } else {
+                    LogDetail.LogD(TAG, "onResponse: " + call.request());
                 }
             }
 
@@ -400,7 +406,7 @@ public class AuthSocket {
         LogDetail.LogD("auth-token", SessionUser.Instance().getToken());
         Request request = new Request.Builder()
                 .url("https://secure-sdk-qa.apyhi.com/api/data")   //URL
-//                .url("https://104.161.92.74:8433/api/data")   //URL
+//                .url("http://104.161.92.74:8433/api/data")   //URL
                 .header("auth-token", SessionUser.Instance().getToken())
                 .post(formBody)
                 .build();
@@ -470,8 +476,8 @@ public class AuthSocket {
                         LogDetail.LogEStack(e);
                     }
 
-                }else {
-                    LogDetail.LogD(TAG, "onResponse: "+call.request());
+                } else {
+                    LogDetail.LogD(TAG, "onResponse: " + call.request());
                 }
             }
 

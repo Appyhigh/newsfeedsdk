@@ -49,6 +49,7 @@ android {
         viewBinding = true
     }
 
+
     externalNativeBuild {
         ndkBuild {
             path 'src/main/jni/Android.mk'
