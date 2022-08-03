@@ -1206,12 +1206,9 @@ class NewsFeedAdapter(
 
         newsFeedList[position].items[0].isReacted = reaction.toString()
         card.items[0].postId?.let {
-            FeedSdk.spUtil?.getString(Constants.JWT_TOKEN)?.let { it1 ->
-                ApiReactPost().reactPostEncrypted(
-                    Endpoints.REACT_POST_ENCRYPTED,
-                    it1,
-                    FeedSdk.userId, it, reaction)
-            }
+            ApiReactPost().reactPostEncrypted(
+                Endpoints.REACT_POST_ENCRYPTED,
+                it, reaction)
         }
     }
 
@@ -1224,14 +1221,10 @@ class NewsFeedAdapter(
         newsFeedList[position].items[0].isFollowingPublisher =
             !newsFeedList[position].items[0].isFollowingPublisher!!
         newsFeedList[position].items[0].publisherId?.let {
-            FeedSdk.spUtil?.getString(Constants.JWT_TOKEN)?.let { it1 ->
-                ApiFollowPublihser().followPublisherEncrypted(
-                    Endpoints.FOLLOW_PUBLISHER_ENCRYPTED,
-                    it1,
-                    FeedSdk.userId,
-                    it
-                )
-            }
+            ApiFollowPublihser().followPublisherEncrypted(
+                Endpoints.FOLLOW_PUBLISHER_ENCRYPTED,
+                it
+            )
         }
     }
 
@@ -1385,9 +1378,7 @@ class NewsFeedAdapter(
             if(!isLiked){
                 newsFeedList.removeAt(position)
                 notifyItemRemoved(position)
-                FeedSdk.spUtil?.getString(Constants.JWT_TOKEN)?.let {
-                    ApiCreateOrUpdateUser().updateUserDislikeInterests(it, interest)
-                }
+                ApiCreateOrUpdateUser().updateUserDislikeInterests(interest)
             } else {
                 var interests = ""
                 for(likedInterest in Constants.userDetails!!.interests){
@@ -1396,9 +1387,7 @@ class NewsFeedAdapter(
                 interests+=interest
                 newsFeedList.removeAt(position)
                 notifyItemRemoved(position)
-                FeedSdk.spUtil?.getString(Constants.JWT_TOKEN)?.let {
-                    ApiCreateOrUpdateUser().updateUserInterests(it, interests)
-                }
+                ApiCreateOrUpdateUser().updateUserInterests(interests)
             }
         } catch (ex:Exception){
             LogDetail.LogEStack(ex)

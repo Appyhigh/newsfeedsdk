@@ -156,55 +156,51 @@ class PodcastPlayerActivity : AppCompatActivity() {
     }
 
     private fun getData(){
-        FeedSdk.spUtil?.getString(Constants.JWT_TOKEN)?.let {
-            ApiGetPostDetails().getPostDetailsEncrypted(
-                Endpoints.GET_POSTS_DETAILS_ENCRYPTED,
-                it,
-                FeedSdk.userId,
-                postId,
-                postSource,
-                feedType,
-                object : ApiGetPostDetails.PostDetailsResponse {
-                    override fun onSuccess(postDetailsModel: PostDetailsModel, url:String, timeStamp: Long) {
-                        presentUrl = url
-                        presentTimeStamp = timeStamp
-                        if(intent.hasExtra(POST_ID)){
-                            binding!!.pbLoading.visibility = View.GONE
-                            binding!!.mainLayout.visibility = View.VISIBLE
-                            podcastPost = postDetailsModel.post
-                            isVideo = podcastPost!!.isVideo
-                            publisherId = podcastPost!!.publisherId!!
-                            publisherName = podcastPost!!.publisherName!!
-                            setData(podcastPost!!.content?.mediaList?.get(0)!!,
-                                podcastPost!!.content?.mediaList?.get(1),
-                                podcastPost!!.publisherName,
-                                podcastPost!!.content?.title,
-                                podcastPost!!.content?.description,
-                                podcastPost!!.languageString,
-                                Constants.getInterestsString( podcastPost!!.interests),
-                                feedType,
-                                postSource,
-                                podcastPost!!.isReacted,
-                                podcastPost!!.appComments
-                            )
-                        }
-                        PodcastMediaPlayer.getPodcastMediaCard().presentUrl = presentUrl
-                        PodcastMediaPlayer.getPodcastMediaCard().presentTimeStamp = presentTimeStamp
-                        comments = postDetailsModel.post?.comments as ArrayList<FeedComment>
+        ApiGetPostDetails().getPostDetailsEncrypted(
+            Endpoints.GET_POSTS_DETAILS_ENCRYPTED,
+            postId,
+            postSource,
+            feedType,
+            object : ApiGetPostDetails.PostDetailsResponse {
+                override fun onSuccess(postDetailsModel: PostDetailsModel, url:String, timeStamp: Long) {
+                    presentUrl = url
+                    presentTimeStamp = timeStamp
+                    if(intent.hasExtra(POST_ID)){
+                        binding!!.pbLoading.visibility = View.GONE
+                        binding!!.mainLayout.visibility = View.VISIBLE
+                        podcastPost = postDetailsModel.post
+                        isVideo = podcastPost!!.isVideo
+                        publisherId = podcastPost!!.publisherId!!
+                        publisherName = podcastPost!!.publisherName!!
+                        setData(podcastPost!!.content?.mediaList?.get(0)!!,
+                            podcastPost!!.content?.mediaList?.get(1),
+                            podcastPost!!.publisherName,
+                            podcastPost!!.content?.title,
+                            podcastPost!!.content?.description,
+                            podcastPost!!.languageString,
+                            Constants.getInterestsString( podcastPost!!.interests),
+                            feedType,
+                            postSource,
+                            podcastPost!!.isReacted,
+                            podcastPost!!.appComments
+                        )
                     }
+                    PodcastMediaPlayer.getPodcastMediaCard().presentUrl = presentUrl
+                    PodcastMediaPlayer.getPodcastMediaCard().presentTimeStamp = presentTimeStamp
+                    comments = postDetailsModel.post?.comments as ArrayList<FeedComment>
+                }
 
-                    override fun onFailure() {
-                        Toast.makeText(
-                            this@PodcastPlayerActivity,
-                            getString(R.string.error_some_issue_occurred),
-                            Toast.LENGTH_SHORT
-                        ).show()
-                        if(intent.hasExtra(POST_ID)) {
-                            finish()
-                        }
+                override fun onFailure() {
+                    Toast.makeText(
+                        this@PodcastPlayerActivity,
+                        getString(R.string.error_some_issue_occurred),
+                        Toast.LENGTH_SHORT
+                    ).show()
+                    if(intent.hasExtra(POST_ID)) {
+                        finish()
                     }
-                })
-        }
+                }
+            })
     }
 
     private fun setData(mediaUrl:String, imageUrl: String?, publisherName: String?, title: String?, description: String?,
@@ -677,19 +673,16 @@ class PodcastPlayerActivity : AppCompatActivity() {
     }
 
     private fun postComment(comment: String) {
-        FeedSdk.spUtil?.getString(Constants.JWT_TOKEN)?.let {
-            ApiCommentPost().postCommentEncrypted(
-                Endpoints.COMMENT_POST_ENCRYPTED,
-                it,
-                postId,
-                "text",
-                comment,
-                object : ApiCommentPost.PostCommentResponse {
-                    override fun onSuccess(feedCommentResponseWrapper: FeedCommentResponseWrapper) {
-                        handlePostResults(feedCommentResponseWrapper)
-                    }
-                })
-        }
+        ApiCommentPost().postCommentEncrypted(
+            Endpoints.COMMENT_POST_ENCRYPTED,
+            postId,
+            "text",
+            comment,
+            object : ApiCommentPost.PostCommentResponse {
+                override fun onSuccess(feedCommentResponseWrapper: FeedCommentResponseWrapper) {
+                    handlePostResults(feedCommentResponseWrapper)
+                }
+            })
     }
 
     private fun handlePostResults(feedCommentResponse: FeedCommentResponseWrapper) {
@@ -738,12 +731,9 @@ class PodcastPlayerActivity : AppCompatActivity() {
                 reactionType = Constants.ReactionType.NONE
             }
         }
-        FeedSdk.spUtil?.getString(Constants.JWT_TOKEN)?.let {
-            ApiReactPost().reactPostEncrypted(
-                Endpoints.REACT_POST_ENCRYPTED,
-                it,
-                FeedSdk.userId, postId, reactionType)
-        }
+        ApiReactPost().reactPostEncrypted(
+            Endpoints.REACT_POST_ENCRYPTED,
+            postId, reactionType)
     }
 
     private fun setFonts(){

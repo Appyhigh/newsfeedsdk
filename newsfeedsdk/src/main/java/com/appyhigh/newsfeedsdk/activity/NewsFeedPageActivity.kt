@@ -344,15 +344,11 @@ class NewsFeedPageActivity : AppCompatActivity() {
                 reactionType = ReactionType.NONE
             }
         }
-        FeedSdk.spUtil?.getString(Constants.JWT_TOKEN)?.let {
-            ApiReactPost().reactPostEncrypted(
-                Endpoints.REACT_POST_ENCRYPTED,
-                it,
-                FeedSdk.userId,
-                postId!!,
-                reactionType
-            )
-        }
+        ApiReactPost().reactPostEncrypted(
+            Endpoints.REACT_POST_ENCRYPTED,
+            postId!!,
+            reactionType
+        )
     }
 
     private fun onIntent(intent: Intent) {
@@ -402,53 +398,46 @@ class NewsFeedPageActivity : AppCompatActivity() {
     }
 
     private fun postComment(comment: String) {
-        FeedSdk.spUtil?.getString(Constants.JWT_TOKEN)?.let {
-            ApiCommentPost().postCommentEncrypted(
-                Endpoints.COMMENT_POST_ENCRYPTED,
-                it,
-                postId!!,
-                "text",
-                comment,
-                object : ApiCommentPost.PostCommentResponse {
-                    override fun onSuccess(feedCommentResponseWrapper: FeedCommentResponseWrapper) {
-                        handlePostResults(feedCommentResponseWrapper)
-                    }
-                })
-        }
+        ApiCommentPost().postCommentEncrypted(
+            Endpoints.COMMENT_POST_ENCRYPTED,
+            postId!!,
+            "text",
+            comment,
+            object : ApiCommentPost.PostCommentResponse {
+                override fun onSuccess(feedCommentResponseWrapper: FeedCommentResponseWrapper) {
+                    handlePostResults(feedCommentResponseWrapper)
+                }
+            })
     }
 
     private fun getData(postId: String) {
-        FeedSdk.spUtil?.getString(Constants.JWT_TOKEN)?.let {
-            ApiGetPostDetails().getPostDetailsEncrypted(
-                Endpoints.GET_POSTS_DETAILS_ENCRYPTED,
-                it,
-                FeedSdk.userId,
-                postId,
-                post_source,
-                feed_type,
-                object : ApiGetPostDetails.PostDetailsResponse {
-                    override fun onSuccess(
-                        postDetailsModel: PostDetailsModel,
-                        url: String,
-                        timeStamp: Long
-                    ) {
-                        postDetailsModel.post?.presentUrl = url
-                        postDetailsModel.post?.presentTimeStamp = timeStamp
-                        handleResults(postDetailsModel, false)
-                    }
+        ApiGetPostDetails().getPostDetailsEncrypted(
+            Endpoints.GET_POSTS_DETAILS_ENCRYPTED,
+            postId,
+            post_source,
+            feed_type,
+            object : ApiGetPostDetails.PostDetailsResponse {
+                override fun onSuccess(
+                    postDetailsModel: PostDetailsModel,
+                    url: String,
+                    timeStamp: Long
+                ) {
+                    postDetailsModel.post?.presentUrl = url
+                    postDetailsModel.post?.presentTimeStamp = timeStamp
+                    handleResults(postDetailsModel, false)
+                }
 
-                    override fun onFailure() {
-                        Handler(Looper.getMainLooper()).post {
-                            Toast.makeText(
-                                this@NewsFeedPageActivity,
-                                getString(R.string.error_some_issue_occurred),
-                                Toast.LENGTH_SHORT
-                            ).show()
-                        }
-                        finish()
+                override fun onFailure() {
+                    Handler(Looper.getMainLooper()).post {
+                        Toast.makeText(
+                            this@NewsFeedPageActivity,
+                            getString(R.string.error_some_issue_occurred),
+                            Toast.LENGTH_SHORT
+                        ).show()
                     }
-                })
-        }
+                    finish()
+                }
+            })
     }
 
     private fun handlePostResults(feedCommentResponse: FeedCommentResponseWrapper) {
@@ -1590,13 +1579,10 @@ class NewsFeedPageActivity : AppCompatActivity() {
             val sharedPrefs = getSharedPreferences("postImpressions", Context.MODE_PRIVATE)
             val postImpressionString = gson.toJson(postImpressionsModel)
             sharedPrefs.edit().putString(postId.toString(), postImpressionString).apply()
-            FeedSdk.spUtil?.getString(Constants.JWT_TOKEN)?.let {
-                ApiPostImpression().addPostImpressionsEncrypted(
-                    Endpoints.POST_IMPRESSIONS_ENCRYPTED,
-                    it,
-                    this
-                )
-            }
+            ApiPostImpression().addPostImpressionsEncrypted(
+                Endpoints.POST_IMPRESSIONS_ENCRYPTED,
+                this
+            )
         } catch (ex: java.lang.Exception) {
             LogDetail.LogEStack(ex)
         }

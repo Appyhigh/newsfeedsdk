@@ -49,87 +49,84 @@ class PodcastsFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
         binding.pbLoading.visibility = View.VISIBLE
         binding.rvPosts.visibility = View.GONE
-        FeedSdk.spUtil?.getString(Constants.JWT_TOKEN)?.let {
-            ApiPodcast().getPodcastHomeEncrypted(
-                Endpoints.PODCAST_HOME_ENCRYPTED,
-                it,
-                getLanguageQuery(),
-                pageNo,
-                object : PodcastResponseListener{
-                    override fun onSuccess(
-                        podcastResponse: PodcastResponse,
-                        url: String,
-                        timeStamp: Long
-                    ) {
-                        storeData(presentUrl, presentTimeStamp)
-                        presentUrl = url
-                        presentTimeStamp = timeStamp
-                        adIndex += podcastResponse.adPlacement[0]
-                        binding.pbLoading.visibility = View.GONE
-                        binding.rvPosts.visibility = View.VISIBLE
-                        val podcastList = podcastResponse.cards as ArrayList<Card>
-                        val adItem = Card()
-                        adItem.cardType = Constants.AD
-                        if(ApiConfig().checkShowAds(requireContext()) && FeedSdk.showFeedAdAtFirst && podcastList.size>0 && podcastList[0].cardType!=Constants.AD){
-                            podcastList.add(0, adItem)
-                            podcastList.add(adIndex, adItem)
-                        }
-                        val loadMore = Card()
-                        loadMore.cardType = Constants.LOADER
-                        podcastList.add(loadMore)
-                        Constants.cardsMap["podcasts"] = podcastList
-                        newsFeedAdapter = NewsFeedAdapter(
-                            podcastList,
-                            null, "podcasts", null,
-                            object : PostImpressionListener {
-                                override fun addImpression(card: Card, totalDuration: Int?, watchedDuration: Int?) {
-                                    try {
-                                        val postView = PostView(
-                                            FeedSdk.sdkCountryCode ?: "in",
-                                            "category",
-                                            card.items[0].isVideo,
-                                            card.items[0].languageString,
-                                            Constants.getInterestsString(card.items[0].interests),
-                                            card.items[0].postId,
-                                            card.items[0].postSource,
-                                            card.items[0].publisherId,
-                                            card.items[0].shortVideo,
-                                            card.items[0].source,
-                                            totalDuration,
-                                            watchedDuration
-                                        )
-                                        postImpressions[card.items[0].postId!!] = postView
-                                    } catch (ex: Exception){
-                                        LogDetail.LogEStack(ex)
-                                    }
-                                }
-                            }, presentUrl, presentTimeStamp)
-                        linearLayoutManager = GridLayoutManager(requireActivity(), 2)
-                        linearLayoutManager?.spanSizeLookup = object : GridLayoutManager.SpanSizeLookup() {
-                            override fun getSpanSize(position: Int): Int {
-                                return try {
-                                    if (Constants.cardsMap["podcasts"]!![position].cardType != Constants.CardType.MEDIA_PODCAST.toString().lowercase()) {
-                                        2
-                                    } else 1
-                                } catch (ex:java.lang.Exception){
-                                    1
+        ApiPodcast().getPodcastHomeEncrypted(
+            Endpoints.PODCAST_HOME_ENCRYPTED,
+            getLanguageQuery(),
+            pageNo,
+            object : PodcastResponseListener{
+                override fun onSuccess(
+                    podcastResponse: PodcastResponse,
+                    url: String,
+                    timeStamp: Long
+                ) {
+                    storeData(presentUrl, presentTimeStamp)
+                    presentUrl = url
+                    presentTimeStamp = timeStamp
+                    adIndex += podcastResponse.adPlacement[0]
+                    binding.pbLoading.visibility = View.GONE
+                    binding.rvPosts.visibility = View.VISIBLE
+                    val podcastList = podcastResponse.cards as ArrayList<Card>
+                    val adItem = Card()
+                    adItem.cardType = Constants.AD
+                    if(ApiConfig().checkShowAds(requireContext()) && FeedSdk.showFeedAdAtFirst && podcastList.size>0 && podcastList[0].cardType!=Constants.AD){
+                        podcastList.add(0, adItem)
+                        podcastList.add(adIndex, adItem)
+                    }
+                    val loadMore = Card()
+                    loadMore.cardType = Constants.LOADER
+                    podcastList.add(loadMore)
+                    Constants.cardsMap["podcasts"] = podcastList
+                    newsFeedAdapter = NewsFeedAdapter(
+                        podcastList,
+                        null, "podcasts", null,
+                        object : PostImpressionListener {
+                            override fun addImpression(card: Card, totalDuration: Int?, watchedDuration: Int?) {
+                                try {
+                                    val postView = PostView(
+                                        FeedSdk.sdkCountryCode ?: "in",
+                                        "category",
+                                        card.items[0].isVideo,
+                                        card.items[0].languageString,
+                                        Constants.getInterestsString(card.items[0].interests),
+                                        card.items[0].postId,
+                                        card.items[0].postSource,
+                                        card.items[0].publisherId,
+                                        card.items[0].shortVideo,
+                                        card.items[0].source,
+                                        totalDuration,
+                                        watchedDuration
+                                    )
+                                    postImpressions[card.items[0].postId!!] = postView
+                                } catch (ex: Exception){
+                                    LogDetail.LogEStack(ex)
                                 }
                             }
+                        }, presentUrl, presentTimeStamp)
+                    linearLayoutManager = GridLayoutManager(requireActivity(), 2)
+                    linearLayoutManager?.spanSizeLookup = object : GridLayoutManager.SpanSizeLookup() {
+                        override fun getSpanSize(position: Int): Int {
+                            return try {
+                                if (Constants.cardsMap["podcasts"]!![position].cardType != Constants.CardType.MEDIA_PODCAST.toString().lowercase()) {
+                                    2
+                                } else 1
+                            } catch (ex:java.lang.Exception){
+                                1
+                            }
                         }
-    //                    linearLayoutManager = LinearLayoutManager(requireActivity())
-                        binding.rvPosts.apply {
-                            layoutManager = linearLayoutManager
-                            adapter = newsFeedAdapter
-                            itemAnimator = null
-                        }
-                        pageNo+=1
-                        adCheckerList.addAll(podcastList)
-                        setEndlessScrolling()
                     }
-
+                    //                    linearLayoutManager = LinearLayoutManager(requireActivity())
+                    binding.rvPosts.apply {
+                        layoutManager = linearLayoutManager
+                        adapter = newsFeedAdapter
+                        itemAnimator = null
+                    }
+                    pageNo+=1
+                    adCheckerList.addAll(podcastList)
+                    setEndlessScrolling()
                 }
-            )
-        }
+
+            }
+        )
     }
 
     private fun setEndlessScrolling() {
@@ -151,54 +148,51 @@ class PodcastsFragment : Fragment() {
     }
 
     fun getMorePodcasts(){
-        FeedSdk.spUtil?.getString(Constants.JWT_TOKEN)?.let {
-            ApiPodcast().getPodcastHomeEncrypted(
-                Endpoints.PODCAST_HOME_ENCRYPTED,
-                it,
-                getLanguageQuery(),
-                pageNo,
-                object : PodcastResponseListener{
-                    override fun onSuccess(
-                        podcastResponse: PodcastResponse,
-                        url: String,
-                        timeStamp: Long
-                    ) {
-                        storeData(presentUrl, presentTimeStamp)
-                        presentUrl = url
-                        presentTimeStamp = timeStamp
-                        adIndex += podcastResponse.adPlacement[0]
-                        val podcastList = podcastResponse.cards as ArrayList<Card>
-                        adCheckerList.addAll(podcastList)
-                        if(ApiConfig().checkShowAds(requireContext())) {
-                            val adItem = Card()
-                            adItem.cardType = Constants.AD
-                            try {
-                                if((adIndex - pageNo * 10)%2!=0){
-                                    adIndex+=1
-                                }
-                                var adPlacement = podcastResponse.adPlacement[0]
-                                if (adCheckerList.size > adIndex) {
-                                    podcastList.add(adIndex - pageNo * 10, adItem)
-                                    adPlacement+=1
-                                    LogDetail.LogD("Podcast ad index", (adIndex - pageNo * 10).toString())
-                                }
-                                if((adIndex + podcastResponse.adPlacement[0] - pageNo * 10)%2!=0){
-                                    adIndex+=1
-                                }
-                                if (adIndex + adPlacement < adCheckerList.size) {
-                                    adIndex += adPlacement
-                                    podcastList.add(adIndex - pageNo * 10, adItem)
-                                    LogDetail.LogD("Podcast ad index", (adIndex - pageNo * 10).toString())
-                                }
-                            } catch (e: java.lang.Exception) {
-                                LogDetail.LogEStack(e)
+        ApiPodcast().getPodcastHomeEncrypted(
+            Endpoints.PODCAST_HOME_ENCRYPTED,
+            getLanguageQuery(),
+            pageNo,
+            object : PodcastResponseListener{
+                override fun onSuccess(
+                    podcastResponse: PodcastResponse,
+                    url: String,
+                    timeStamp: Long
+                ) {
+                    storeData(presentUrl, presentTimeStamp)
+                    presentUrl = url
+                    presentTimeStamp = timeStamp
+                    adIndex += podcastResponse.adPlacement[0]
+                    val podcastList = podcastResponse.cards as ArrayList<Card>
+                    adCheckerList.addAll(podcastList)
+                    if(ApiConfig().checkShowAds(requireContext())) {
+                        val adItem = Card()
+                        adItem.cardType = Constants.AD
+                        try {
+                            if((adIndex - pageNo * 10)%2!=0){
+                                adIndex+=1
                             }
+                            var adPlacement = podcastResponse.adPlacement[0]
+                            if (adCheckerList.size > adIndex) {
+                                podcastList.add(adIndex - pageNo * 10, adItem)
+                                adPlacement+=1
+                                LogDetail.LogD("Podcast ad index", (adIndex - pageNo * 10).toString())
+                            }
+                            if((adIndex + podcastResponse.adPlacement[0] - pageNo * 10)%2!=0){
+                                adIndex+=1
+                            }
+                            if (adIndex + adPlacement < adCheckerList.size) {
+                                adIndex += adPlacement
+                                podcastList.add(adIndex - pageNo * 10, adItem)
+                                LogDetail.LogD("Podcast ad index", (adIndex - pageNo * 10).toString())
+                            }
+                        } catch (e: java.lang.Exception) {
+                            LogDetail.LogEStack(e)
                         }
-                        newsFeedAdapter?.updateList(podcastList, "podcasts", pageNo, presentUrl, presentTimeStamp)
-                        pageNo+=1
                     }
-                })
-        }
+                    newsFeedAdapter?.updateList(podcastList, "podcasts", pageNo, presentUrl, presentTimeStamp)
+                    pageNo+=1
+                }
+            })
     }
 
     override fun onDestroy() {
@@ -235,13 +229,10 @@ class PodcastsFragment : Fragment() {
             val postImpressionString = gson.toJson(postImpressionsModel)
             sharedPrefs.edit().putString(timeStamp.toString(), postImpressionString).apply()
             postImpressions = HashMap()
-            FeedSdk.spUtil?.getString(Constants.JWT_TOKEN)?.let {
-                ApiPostImpression().addPostImpressionsEncrypted(
-                    Endpoints.POST_IMPRESSIONS_ENCRYPTED,
-                    it,
-                    requireContext()
-                )
-            }
+            ApiPostImpression().addPostImpressionsEncrypted(
+                Endpoints.POST_IMPRESSIONS_ENCRYPTED,
+                requireContext()
+            )
         } catch (ex:java.lang.Exception){
             LogDetail.LogEStack(ex)
         }

@@ -46,7 +46,7 @@ class CryptoPodcastsFragment : Fragment() {
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
+    ): View {
         binding = FragmentCryptoPodcastsBinding.inflate(inflater, container, false)
         return binding.root
     }
@@ -57,85 +57,82 @@ class CryptoPodcastsFragment : Fragment() {
         binding.pbLoading.visibility = View.VISIBLE
         binding.rvPosts.visibility = View.GONE
         pageNo = 0
-        FeedSdk.spUtil?.getString(Constants.JWT_TOKEN)?.let {
-            ApiPodcast().getPodcastCategoryEncrypted(
-                Endpoints.PODCAST_CATEGORY_ENCRYPTED,
-                it,
-                "News",
-                getLanguageQuery(),
-                pageNo,
-                object : PodcastResponseListener {
-                    override fun onSuccess(
-                        podcastResponse: PodcastResponse,
-                        url: String,
-                        timeStamp: Long
-                    ) {
-                        storeData(presentUrl, presentTimeStamp)
-                        presentUrl = url
-                        presentTimeStamp = timeStamp
-                        binding.pbLoading.visibility = View.GONE
-                        binding.rvPosts.visibility = View.VISIBLE
-                        val podcastList = podcastResponse.cards as ArrayList<Card>
-                        podcastList.removeAt(0)
-                        for(card in podcastResponse.cards){
-                            if(card.cardType == Constants.CardType.MEDIA_PODCAST.toString().lowercase()){
-                                card.cardType = Constants.CRYPTO_PODCASTS
-                            }
+        ApiPodcast().getPodcastCategoryEncrypted(
+            Endpoints.PODCAST_CATEGORY_ENCRYPTED,
+            "News",
+            getLanguageQuery(),
+            pageNo,
+            object : PodcastResponseListener {
+                override fun onSuccess(
+                    podcastResponse: PodcastResponse,
+                    url: String,
+                    timeStamp: Long
+                ) {
+                    storeData(presentUrl, presentTimeStamp)
+                    presentUrl = url
+                    presentTimeStamp = timeStamp
+                    binding.pbLoading.visibility = View.GONE
+                    binding.rvPosts.visibility = View.VISIBLE
+                    val podcastList = podcastResponse.cards as ArrayList<Card>
+                    podcastList.removeAt(0)
+                    for(card in podcastResponse.cards){
+                        if(card.cardType == Constants.CardType.MEDIA_PODCAST.toString().lowercase()){
+                            card.cardType = Constants.CRYPTO_PODCASTS
                         }
-                        val loadMore = Card()
-                        loadMore.cardType = Constants.LOADER
-                        podcastList.add(loadMore)
-                        Constants.cardsMap["crypto_podcasts"] = podcastList
-                        newsFeedAdapter = NewsFeedAdapter(
-                            podcastList,
-                            null, "crypto_podcasts", null,
-                            object : PostImpressionListener {
-                                override fun addImpression(card: Card, totalDuration: Int?, watchedDuration: Int?) {
-                                    try {
-                                        val postView = PostView(
-                                            FeedSdk.sdkCountryCode ?: "in",
-                                            "category",
-                                            card.items[0].isVideo,
-                                            card.items[0].languageString,
-                                            Constants.getInterestsString(card.items[0].interests),
-                                            card.items[0].postId,
-                                            card.items[0].postSource,
-                                            card.items[0].publisherId,
-                                            card.items[0].shortVideo,
-                                            card.items[0].source,
-                                            totalDuration,
-                                            watchedDuration
-                                        )
-                                        postImpressions[card.items[0].postId!!] = postView
-                                    } catch (ex: Exception){
-                                        LogDetail.LogEStack(ex)
-                                    }
-                                }
-                            }, presentUrl, presentTimeStamp)
-                        linearLayoutManager = GridLayoutManager(requireActivity(), 2)
-                        linearLayoutManager?.spanSizeLookup = object : GridLayoutManager.SpanSizeLookup() {
-                            override fun getSpanSize(position: Int): Int {
-                                return try {
-                                    if (Constants.cardsMap["crypto_podcasts"]!![position].cardType == Constants.LOADER) {
-                                        2
-                                    } else 1
-                                } catch (ex:java.lang.Exception){
-                                    1
-                                }
-                            }
-                        }
-                        binding.rvPosts.apply {
-                            layoutManager = linearLayoutManager
-                            adapter = newsFeedAdapter
-                            itemAnimator = null
-                        }
-                        pageNo+=1
-                        setEndlessScrolling()
                     }
-
+                    val loadMore = Card()
+                    loadMore.cardType = Constants.LOADER
+                    podcastList.add(loadMore)
+                    Constants.cardsMap["crypto_podcasts"] = podcastList
+                    newsFeedAdapter = NewsFeedAdapter(
+                        podcastList,
+                        null, "crypto_podcasts", null,
+                        object : PostImpressionListener {
+                            override fun addImpression(card: Card, totalDuration: Int?, watchedDuration: Int?) {
+                                try {
+                                    val postView = PostView(
+                                        FeedSdk.sdkCountryCode ?: "in",
+                                        "category",
+                                        card.items[0].isVideo,
+                                        card.items[0].languageString,
+                                        Constants.getInterestsString(card.items[0].interests),
+                                        card.items[0].postId,
+                                        card.items[0].postSource,
+                                        card.items[0].publisherId,
+                                        card.items[0].shortVideo,
+                                        card.items[0].source,
+                                        totalDuration,
+                                        watchedDuration
+                                    )
+                                    postImpressions[card.items[0].postId!!] = postView
+                                } catch (ex: Exception){
+                                    LogDetail.LogEStack(ex)
+                                }
+                            }
+                        }, presentUrl, presentTimeStamp)
+                    linearLayoutManager = GridLayoutManager(requireActivity(), 2)
+                    linearLayoutManager?.spanSizeLookup = object : GridLayoutManager.SpanSizeLookup() {
+                        override fun getSpanSize(position: Int): Int {
+                            return try {
+                                if (Constants.cardsMap["crypto_podcasts"]!![position].cardType == Constants.LOADER) {
+                                    2
+                                } else 1
+                            } catch (ex:java.lang.Exception){
+                                1
+                            }
+                        }
+                    }
+                    binding.rvPosts.apply {
+                        layoutManager = linearLayoutManager
+                        adapter = newsFeedAdapter
+                        itemAnimator = null
+                    }
+                    pageNo+=1
+                    setEndlessScrolling()
                 }
-            )
-        }
+
+            }
+        )
     }
 
     private fun setEndlessScrolling() {
@@ -157,32 +154,29 @@ class CryptoPodcastsFragment : Fragment() {
     }
 
     fun getMorePodcasts(){
-        FeedSdk.spUtil?.getString(Constants.JWT_TOKEN)?.let {
-            ApiPodcast().getPodcastHomeEncrypted(
-                Endpoints.PODCAST_HOME_ENCRYPTED,
-                it,
-                getLanguageQuery(),
-                pageNo,
-                object : PodcastResponseListener {
-                    override fun onSuccess(
-                        podcastResponse: PodcastResponse,
-                        url: String,
-                        timeStamp: Long
-                    ) {
-                        storeData(presentUrl, presentTimeStamp)
-                        presentUrl = url
-                        presentTimeStamp = timeStamp
-                        val podcastList = podcastResponse.cards as ArrayList<Card>
-                        for(card in podcastResponse.cards){
-                            if(card.cardType == Constants.CardType.MEDIA_PODCAST.toString().lowercase()){
-                                card.cardType = Constants.CRYPTO_PODCASTS
-                            }
+        ApiPodcast().getPodcastHomeEncrypted(
+            Endpoints.PODCAST_HOME_ENCRYPTED,
+            getLanguageQuery(),
+            pageNo,
+            object : PodcastResponseListener {
+                override fun onSuccess(
+                    podcastResponse: PodcastResponse,
+                    url: String,
+                    timeStamp: Long
+                ) {
+                    storeData(presentUrl, presentTimeStamp)
+                    presentUrl = url
+                    presentTimeStamp = timeStamp
+                    val podcastList = podcastResponse.cards as ArrayList<Card>
+                    for(card in podcastResponse.cards){
+                        if(card.cardType == Constants.CardType.MEDIA_PODCAST.toString().lowercase()){
+                            card.cardType = Constants.CRYPTO_PODCASTS
                         }
-                        newsFeedAdapter?.updateList(podcastList, "podcasts", pageNo, presentUrl, presentTimeStamp)
-                        pageNo+=1
                     }
-                })
-        }
+                    newsFeedAdapter?.updateList(podcastList, "podcasts", pageNo, presentUrl, presentTimeStamp)
+                    pageNo+=1
+                }
+            })
     }
 
     override fun onDestroy() {
@@ -219,13 +213,10 @@ class CryptoPodcastsFragment : Fragment() {
             val postImpressionString = gson.toJson(postImpressionsModel)
             sharedPrefs.edit().putString(timeStamp.toString(), postImpressionString).apply()
             postImpressions = HashMap()
-            FeedSdk.spUtil?.getString(Constants.JWT_TOKEN)?.let {
-                ApiPostImpression().addPostImpressionsEncrypted(
-                    Endpoints.POST_IMPRESSIONS_ENCRYPTED,
-                    it,
-                    requireContext()
-                )
-            }
+            ApiPostImpression().addPostImpressionsEncrypted(
+                Endpoints.POST_IMPRESSIONS_ENCRYPTED,
+                requireContext()
+            )
         } catch (ex:java.lang.Exception){
             LogDetail.LogEStack(ex)
         }

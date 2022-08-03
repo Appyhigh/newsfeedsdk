@@ -7,7 +7,6 @@ import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 import com.appyhigh.newsfeedsdk.Constants
-import com.appyhigh.newsfeedsdk.FeedSdk
 import com.appyhigh.newsfeedsdk.R
 import com.appyhigh.newsfeedsdk.apicalls.ApiCrypto
 import com.appyhigh.newsfeedsdk.apiclient.Endpoints
@@ -37,7 +36,7 @@ class CryptoAlertPriceFragment : Fragment() {
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
+    ): View {
         // Inflate the layout for this fragment
         binding = FragmentCryptoAlertPriceBinding.inflate(inflater, container, false)
         return binding.root
@@ -60,21 +59,18 @@ class CryptoAlertPriceFragment : Fragment() {
         if(currPrice!=null){
             binding.currPrice.text = Constants.getCryptoCoinSymbol()+ BigDecimal(currPrice!!).setScale(2, RoundingMode.HALF_EVEN)
         } else{
-            FeedSdk.spUtil?.getString(Constants.JWT_TOKEN)?.let {
-                ApiCrypto().getCryptoCoinDetailsEncrypted(
-                    Endpoints.GET_CRYPTO_COIN_DETAILS_ENCRYPTED,
-                    it,
-                    coinId, null, null, null, null, object : ApiCrypto.CryptoResponseListener{
-                        override fun onSuccess(cryptoResponse: ApiCrypto.CryptoResponse, url: String, timeStamp: Long) {
-                            try{
-                                currPrice = cryptoResponse.cards[0].items[0].current_price
-                                binding.currPrice.text = Constants.getCryptoCoinSymbol()+ BigDecimal(currPrice!!).setScale(2, RoundingMode.HALF_EVEN)
-                            } catch (ex:Exception){
-                                LogDetail.LogEStack(ex)
-                            }
+            ApiCrypto().getCryptoCoinDetailsEncrypted(
+                Endpoints.GET_CRYPTO_COIN_DETAILS_ENCRYPTED,
+                coinId, null, null, null, null, object : ApiCrypto.CryptoResponseListener{
+                    override fun onSuccess(cryptoResponse: ApiCrypto.CryptoResponse, url: String, timeStamp: Long) {
+                        try{
+                            currPrice = cryptoResponse.cards[0].items[0].current_price
+                            binding.currPrice.text = Constants.getCryptoCoinSymbol()+ BigDecimal(currPrice!!).setScale(2, RoundingMode.HALF_EVEN)
+                        } catch (ex:Exception){
+                            LogDetail.LogEStack(ex)
                         }
-                    })
-            }
+                    }
+                })
         }
         binding.cryptoPriceAlert.setOnClickListener {
             try{
@@ -100,21 +96,18 @@ class CryptoAlertPriceFragment : Fragment() {
                 binding.priceSaving.visibility = View.GONE
                 return@setOnClickListener
             }
-            FeedSdk.spUtil?.getString(Constants.JWT_TOKEN)?.let { it1 ->
-                ApiCrypto().addCryptoAlertEncrypted(
-                    Endpoints.CRYPTO_ALERT_ADD_ENCRYPTED,
-                    it1,
-                    coinId, upperThreshold, lowerThreshold, object : ApiCrypto.CryptoAlertResponseListener{
-                        override fun onSuccess() {
-                            val parentManager = parentFragmentManager
-                            parentManager.popBackStackImmediate(null, FragmentManager.POP_BACK_STACK_INCLUSIVE);
-                            parentManager.beginTransaction()
-                                .add(R.id.baseFragment, CryptoAlertListFragment.newInstance())
-                                .disallowAddToBackStack()
-                                .commit()
-                        }
-                    })
-            }
+            ApiCrypto().addCryptoAlertEncrypted(
+                Endpoints.CRYPTO_ALERT_ADD_ENCRYPTED,
+                coinId, upperThreshold, lowerThreshold, object : ApiCrypto.CryptoAlertResponseListener{
+                    override fun onSuccess() {
+                        val parentManager = parentFragmentManager
+                        parentManager.popBackStackImmediate(null, FragmentManager.POP_BACK_STACK_INCLUSIVE);
+                        parentManager.beginTransaction()
+                            .add(R.id.baseFragment, CryptoAlertListFragment.newInstance())
+                            .disallowAddToBackStack()
+                            .commit()
+                    }
+                })
         }
         binding.numPad.setListener(object : NumberKeyboardListener{
             override fun onResult(value: String, cursorAt: Int) {

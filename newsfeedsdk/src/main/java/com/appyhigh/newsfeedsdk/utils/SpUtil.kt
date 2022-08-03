@@ -11,9 +11,9 @@ import android.content.pm.PackageManager
 import androidx.core.content.ContextCompat
 import com.appyhigh.newsfeedsdk.Constants
 import com.appyhigh.newsfeedsdk.Constants.IS_GEO_POINTS_UPDATED
-import com.appyhigh.newsfeedsdk.FeedSdk
 import com.appyhigh.newsfeedsdk.adapter.CryptoWatchListUpdateListener
 import com.appyhigh.newsfeedsdk.apicalls.ApiUserDetails
+import com.appyhigh.newsfeedsdk.apicalls.BaseAPICallObject
 import com.appyhigh.newsfeedsdk.apicalls.ResponseListener
 import com.appyhigh.newsfeedsdk.apiclient.Endpoints
 import com.appyhigh.newsfeedsdk.callbacks.*
@@ -26,15 +26,12 @@ import com.google.android.gms.common.api.ApiException
 import com.google.android.gms.common.api.ResolvableApiException
 import com.google.android.gms.location.*
 import com.google.android.gms.tasks.Task
-import com.google.gson.JsonObject
 import hu.akarnokd.rxjava3.retrofit.RxJava3CallAdapterFactory
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.schedulers.Schedulers
 import okhttp3.Call
 import okhttp3.OkHttpClient
-import org.json.JSONArray
-import org.json.JSONObject
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import retrofit2.http.GET
@@ -113,7 +110,7 @@ class SpUtil private constructor() {
                 .subscribe({
                 try{
                     if(!it.lon.isNaN() && !it.lat.isNaN()){
-                        FeedSdk.spUtil?.getString(Constants.JWT_TOKEN)?.let { token -> updateGEOPoints(token, it.lat, it.lon) }
+                        updateGEOPoints(it.lat, it.lon)
                     }
                 } catch (ex:Exception){
                     LogDetail.LogEStack(ex)
@@ -189,7 +186,7 @@ class SpUtil private constructor() {
                         .addOnSuccessListener {
                             // GPS location can be null if GPS is switched off
                             if (it != null) {
-                                FeedSdk.spUtil?.getString(Constants.JWT_TOKEN)?.let { token -> updateGEOPoints(token, it.latitude, it.longitude) }
+                                updateGEOPoints(it.latitude, it.longitude)
                             } else {
                                 if(!isPopupAlreadyOpen) {
                                     isPopupAlreadyOpen = true
@@ -208,26 +205,15 @@ class SpUtil private constructor() {
             }
         }
 
-        private fun updateGEOPoints(token:String, lat: Double, lon: Double){
-            val allDetails = JsonObject()
-            val main = JsonObject()
-            main.addProperty(Constants.API_URl, Endpoints.UPDATE_USER_ENCRYPTED)
-            main.addProperty(Constants.API_METHOD, Constants.POST)
-            main.addProperty(Constants.API_INTERNAL, SessionUser.Instance().apiInternal)
-            val dataJO = JsonObject()
-            dataJO.addProperty("latitude", lat)
-            dataJO.addProperty("longitude", lon)
-            main.add(Constants.API_DATA, dataJO)
-            val headerJO = JsonObject()
-            headerJO.addProperty(Constants.AUTHORIZATION, token)
-            main.add(Constants.API_HEADER, headerJO)
-            try {
-                allDetails.add(Constants.API_CALLING, main)
-                allDetails.add(Constants.USER_DETAIL, SessionUser.Instance().userDetails)
-                allDetails.add(Constants.DEVICE_DETAIL, SessionUser.Instance().deviceDetails)
-            } catch (e: Exception) {
-                LogDetail.LogEStack(e)
-            }
+        private fun updateGEOPoints(lat: Double, lon: Double){
+            val keys = ArrayList<String?>()
+            val values = ArrayList<String?>()
+            keys.add("latitude")
+            keys.add("longitude")
+            values.add(lat.toString())
+            values.add(lon.toString())
+
+            val allDetails = BaseAPICallObject().getBaseObjectWithAuth(Constants.POST, Endpoints.UPDATE_USER_ENCRYPTED, keys, values)
             LogDetail.LogDE("Test Data", allDetails.toString())
             val publicKey = SessionUser.Instance().publicKey
             val instanceEncryption = AESCBCPKCS5Encryption().getInstance(
@@ -237,15 +223,7 @@ class SpUtil private constructor() {
                 StandardCharsets.UTF_8)) + "." + publicKey
             LogDetail.LogD("Test Data Encrypted -> ", sendingData)
             AuthSocket.Instance().postData(sendingData, object : ResponseListener {
-                override fun onSuccess(apiUrl: String?, response: JSONObject?) {
-                    LogDetail.LogDE("ApiCreateOrUpdateUser $apiUrl", response.toString())
-                }
-
-                override fun onSuccess(apiUrl: String?, response: JSONArray?) {
-                    LogDetail.LogDE("ApiCreateOrUpdateUser $apiUrl", response.toString())
-                }
-
-                override fun onSuccess(apiUrl: String?, response: String?) {
+                override fun onSuccess(apiUrl: String, response: String) {
                     LogDetail.LogDE("ApiCreateOrUpdateUser $apiUrl", response.toString())
                     spUtilInstance!!.putBoolean(IS_GEO_POINTS_UPDATED, true)
                     personalizeCallListener?.onGEOPointsUpdate()

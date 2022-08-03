@@ -9,18 +9,19 @@ import android.os.Build
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
-import android.util.Log
-import android.view.KeyEvent
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.webkit.*
+import android.webkit.CookieManager
+import android.webkit.WebSettings
+import android.webkit.WebView
+import android.webkit.WebViewClient
 import android.widget.Toast
 import androidx.core.text.HtmlCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
-import com.appyhigh.newsfeedsdk.BuildConfig
 import com.appyhigh.newsfeedsdk.Constants
+import com.appyhigh.newsfeedsdk.Constants.getLanguages
 import com.appyhigh.newsfeedsdk.FeedSdk
 import com.appyhigh.newsfeedsdk.R
 import com.appyhigh.newsfeedsdk.activity.NewsFeedPageActivity
@@ -28,27 +29,24 @@ import com.appyhigh.newsfeedsdk.activity.PWACricketActivity
 import com.appyhigh.newsfeedsdk.activity.PWACricketTabsActivity
 import com.appyhigh.newsfeedsdk.activity.PostNativeDetailActivity
 import com.appyhigh.newsfeedsdk.apicalls.ApiCreateOrUpdateUser
+import com.appyhigh.newsfeedsdk.apicalls.ApiGetLanguages
+import com.appyhigh.newsfeedsdk.apicalls.ApiUserDetails
+import com.appyhigh.newsfeedsdk.apiclient.Endpoints
+import com.appyhigh.newsfeedsdk.callbacks.OnRefreshListener
 import com.appyhigh.newsfeedsdk.databinding.FragmentCricketHomePwaBinding
-import com.appyhigh.newsfeedsdk.databinding.FragmentCricketPwaBinding
+import com.appyhigh.newsfeedsdk.encryption.LogDetail
+import com.appyhigh.newsfeedsdk.model.Language
+import com.appyhigh.newsfeedsdk.model.UserResponse
 import com.appyhigh.newsfeedsdk.model.feeds.Card
 import com.appyhigh.newsfeedsdk.utils.ExtendedWebView
 import com.appyhigh.newsfeedsdk.utils.RSAKeyGenerator
 import com.appyhigh.newsfeedsdk.utils.SpUtil
+import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.firebase.dynamiclinks.DynamicLink
 import com.google.firebase.dynamiclinks.FirebaseDynamicLinks
 import com.google.gson.Gson
 import im.delight.android.webview.AdvancedWebView
 import java.util.*
-import android.webkit.ConsoleMessage
-import com.appyhigh.newsfeedsdk.Constants.getLanguages
-import com.appyhigh.newsfeedsdk.apicalls.ApiGetLanguages
-import com.appyhigh.newsfeedsdk.apicalls.ApiUserDetails
-import com.appyhigh.newsfeedsdk.apiclient.Endpoints
-import com.appyhigh.newsfeedsdk.callbacks.OnRefreshListener
-import com.appyhigh.newsfeedsdk.encryption.LogDetail
-import com.appyhigh.newsfeedsdk.model.Language
-import com.appyhigh.newsfeedsdk.model.UserResponse
-import com.google.firebase.analytics.FirebaseAnalytics
 
 
 class CricketHomePWAFragment : Fragment(), AdvancedWebView.Listener, OnRefreshListener {
@@ -65,7 +63,7 @@ class CricketHomePWAFragment : Fragment(), AdvancedWebView.Listener, OnRefreshLi
     private var mLanguageResponseModel: ArrayList<Language>? = null
     private var languagesMap = HashMap<String, Language>()
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         binding = FragmentCricketHomePwaBinding.inflate(layoutInflater, container, false)
         return binding.root
     }
@@ -123,17 +121,14 @@ class CricketHomePWAFragment : Fragment(), AdvancedWebView.Listener, OnRefreshLi
                     }
                 }
             )
-            FeedSdk.spUtil?.getString(Constants.JWT_TOKEN)?.let {
-                ApiUserDetails().getUserResponseEncrypted(
-                    Endpoints.USER_DETAILS_ENCRYPTED,
-                    it,
-                    object : ApiUserDetails.UserResponseListener {
-                        override fun onSuccess(userDetails: UserResponse) {
-                            mUserDetails = userDetails
-                            setUpLanguages(view)
-                        }
-                    })
-            }
+            ApiUserDetails().getUserResponseEncrypted(
+                Endpoints.USER_DETAILS_ENCRYPTED,
+                object : ApiUserDetails.UserResponseListener {
+                    override fun onSuccess(userDetails: UserResponse) {
+                        mUserDetails = userDetails
+                        setUpLanguages(view)
+                    }
+                })
         } else {
             setWebView(view)
         }
@@ -344,12 +339,10 @@ class CricketHomePWAFragment : Fragment(), AdvancedWebView.Listener, OnRefreshLi
             val uri = Uri.parse(url_string)
             val turnNotification = uri.getQueryParameter("turnNotification")=="true"
             Constants.isChecked = turnNotification
-            FeedSdk.spUtil?.getString(Constants.JWT_TOKEN)?.let {
-                ApiCreateOrUpdateUser().updateCricketNotificationEncrypt(
-                    Endpoints.UPDATE_USER_ENCRYPTED,
-                    it,
-                    turnNotification, true)
-            }
+            ApiCreateOrUpdateUser().updateCricketNotificationEncrypt(
+                Endpoints.UPDATE_USER_ENCRYPTED,
+                turnNotification, true
+            )
         } catch (ex:java.lang.Exception){
             LogDetail.LogEStack(ex)
         }

@@ -1042,36 +1042,33 @@ data class Card(
 
         private fun updateInterest(view: AppCompatTextView, interestList: ArrayList<Interest>) {
             try {
-                FeedSdk.spUtil?.getString(Constants.JWT_TOKEN)?.let { it1 ->
-                    ApiUpdateUserPersonalization().updateUserPersonalizationEncrypted(
-                        Endpoints.UPDATE_USER_ENCRYPTED,
-                        FeedSdk.userId!!,
-                        interestList,
-                        FeedSdk.languagesList,
-                        object : ApiUpdateUserPersonalization.UpdatePersonalizationListener {
-                            override fun onFailure() {
-                            }
+                ApiUpdateUserPersonalization().updateUserPersonalizationEncrypted(
+                    Endpoints.UPDATE_USER_ENCRYPTED,
+                    interestList,
+                    FeedSdk.languagesList,
+                    object : ApiUpdateUserPersonalization.UpdatePersonalizationListener {
+                        override fun onFailure() {
+                        }
 
-                            override fun onSuccess() {
-                                FeedSdk.interestsList = interestList
-                                view.apply {
-                                    setBackgroundResource(R.drawable.ic_checkbox_selected)
-                                    text = ""
-                                    setCompoundDrawablesWithIntrinsicBounds(null, null, null, null)
-                                    setPadding(0)
+                        override fun onSuccess() {
+                            FeedSdk.interestsList = interestList
+                            view.apply {
+                                setBackgroundResource(R.drawable.ic_checkbox_selected)
+                                text = ""
+                                setCompoundDrawablesWithIntrinsicBounds(null, null, null, null)
+                                setPadding(0)
+                            }
+                            try {
+                                for (listener in SpUtil.onRefreshListeners) {
+                                    if (listener.key != "explore")
+                                        listener.value.onRefreshNeeded()
                                 }
-                                try {
-                                    for (listener in SpUtil.onRefreshListeners) {
-                                        if (listener.key != "explore")
-                                            listener.value.onRefreshNeeded()
-                                    }
-                                } catch (ex: Exception) {
-                                    LogDetail.LogEStack(ex)
-                                }
+                            } catch (ex: Exception) {
+                                LogDetail.LogEStack(ex)
                             }
                         }
-                    )
-                }
+                    }
+                )
             } catch (ex: Exception) {
                 LogDetail.LogEStack(ex)
             }
@@ -1372,44 +1369,35 @@ data class Card(
                 }
                 alertSwitch.setOnClickListener {
                     if (item.alertStatus == "pending") {
-                        FeedSdk.spUtil?.getString(Constants.JWT_TOKEN)?.let { it1 ->
-                            ApiCrypto().modifyCryptoAlertEncrypted(
-                                Endpoints.CRYPTO_ALERT_MODIFY_ENCRYPTED,
-                                it1,
-                                item.alertId,
-                                "sent",
-                                object : ApiCrypto.CryptoAlertResponseListener {
-                                    override fun onSuccess() {
-                                        alertSwitch.setImageResource(R.drawable.ic_crypto_alert_off)
-                                    }
-                                })
-                        }
-                    } else {
-                        FeedSdk.spUtil?.getString(Constants.JWT_TOKEN)?.let { it1 ->
-                            ApiCrypto().modifyCryptoAlertEncrypted(
-                                Endpoints.CRYPTO_ALERT_MODIFY_ENCRYPTED,
-                                it1,
-                                item.alertId,
-                                "pending",
-                                object : ApiCrypto.CryptoAlertResponseListener {
-                                    override fun onSuccess() {
-                                        alertSwitch.setImageResource(R.drawable.ic_crypto_alert_on)
-                                    }
-                                })
-                        }
-                    }
-                }
-                alertDelete.setOnClickListener {
-                    FeedSdk.spUtil?.getString(Constants.JWT_TOKEN)?.let { it1 ->
-                        ApiCrypto().deleteCryptoAlertEncrypted(
-                            Endpoints.CRYPTO_ALERT_DELETE_ENCRYPTED,
-                            it1,
-                            item.alertId, object : ApiCrypto.CryptoAlertResponseListener {
+                        ApiCrypto().modifyCryptoAlertEncrypted(
+                            Endpoints.CRYPTO_ALERT_MODIFY_ENCRYPTED,
+                            item.alertId,
+                            "sent",
+                            object : ApiCrypto.CryptoAlertResponseListener {
                                 override fun onSuccess() {
-                                    SpUtil.alertRefreshListener?.onRefreshNeeded()
+                                    alertSwitch.setImageResource(R.drawable.ic_crypto_alert_off)
+                                }
+                            })
+                    } else {
+                        ApiCrypto().modifyCryptoAlertEncrypted(
+                            Endpoints.CRYPTO_ALERT_MODIFY_ENCRYPTED,
+                            item.alertId,
+                            "pending",
+                            object : ApiCrypto.CryptoAlertResponseListener {
+                                override fun onSuccess() {
+                                    alertSwitch.setImageResource(R.drawable.ic_crypto_alert_on)
                                 }
                             })
                     }
+                }
+                alertDelete.setOnClickListener {
+                    ApiCrypto().deleteCryptoAlertEncrypted(
+                        Endpoints.CRYPTO_ALERT_DELETE_ENCRYPTED,
+                        item.alertId, object : ApiCrypto.CryptoAlertResponseListener {
+                            override fun onSuccess() {
+                                SpUtil.alertRefreshListener?.onRefreshNeeded()
+                            }
+                        })
                 }
                 if (count == cryptoList.size) {
                     child.findViewById<View>(R.id.view1).visibility = View.GONE

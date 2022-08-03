@@ -8,8 +8,6 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.appyhigh.newsfeedsdk.Constants
-import com.appyhigh.newsfeedsdk.FeedSdk
 import com.appyhigh.newsfeedsdk.R
 import com.appyhigh.newsfeedsdk.adapter.NewsFeedAdapter
 import com.appyhigh.newsfeedsdk.apicalls.ApiCrypto
@@ -31,7 +29,7 @@ class CryptoAlertListFragment : Fragment(), OnRefreshListener {
     var newsFeedAdapter:NewsFeedAdapter?=null
     var keepLag = false
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         // Inflate the layout for this fragment
         binding = FragmentCryptoAlertListBinding.inflate(inflater, container, false)
         return binding.root
@@ -39,40 +37,13 @@ class CryptoAlertListFragment : Fragment(), OnRefreshListener {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        Card.setFontFamily(binding?.priceAlertsTitle)
-        Card.setFontFamily(binding?.addPriceAlertTitle)
+        Card.setFontFamily(binding.priceAlertsTitle)
+        Card.setFontFamily(binding.addPriceAlertTitle)
         SpUtil.alertRefreshListener = this
         if(keepLag){
             Handler(Looper.getMainLooper()).postDelayed({
-                FeedSdk.spUtil?.getString(Constants.JWT_TOKEN)?.let {
-                    ApiCrypto().getCryptoAlertViewEncrypted(
-                        Endpoints.CRYPTO_ALERT_VIEW_ENCRYPTED,
-                        it,
-                        object : ApiCrypto.CryptoResponseListener{
-                            override fun onSuccess(cryptoResponse: ApiCrypto.CryptoResponse, url: String, timeStamp: Long) {
-                                if(cryptoResponse.cards.isEmpty()){
-                                    binding.pbLoading.visibility = View.GONE
-                                    binding.cryptoPriceAlert.visibility = View.GONE
-                                    binding.noPriceAlerts.visibility = View.VISIBLE
-                                } else {
-                                    binding.pbLoading.visibility = View.GONE
-                                    binding.rvPosts.visibility = View.VISIBLE
-                                    binding.cryptoPriceAlert.visibility = View.VISIBLE
-                                    newsFeedAdapter = NewsFeedAdapter(cryptoResponse.cards as ArrayList<Card>, null, "crypto_alert")
-                                    binding.rvPosts.apply {
-                                        adapter = newsFeedAdapter
-                                        layoutManager = LinearLayoutManager(requireContext())
-                                    }
-                                }
-                            }
-                        })
-                }
-            },1000)
-        } else{
-            FeedSdk.spUtil?.getString(Constants.JWT_TOKEN)?.let {
                 ApiCrypto().getCryptoAlertViewEncrypted(
                     Endpoints.CRYPTO_ALERT_VIEW_ENCRYPTED,
-                    it,
                     object : ApiCrypto.CryptoResponseListener{
                         override fun onSuccess(cryptoResponse: ApiCrypto.CryptoResponse, url: String, timeStamp: Long) {
                             if(cryptoResponse.cards.isEmpty()){
@@ -91,7 +62,28 @@ class CryptoAlertListFragment : Fragment(), OnRefreshListener {
                             }
                         }
                     })
-            }
+            },1000)
+        } else{
+            ApiCrypto().getCryptoAlertViewEncrypted(
+                Endpoints.CRYPTO_ALERT_VIEW_ENCRYPTED,
+                object : ApiCrypto.CryptoResponseListener{
+                    override fun onSuccess(cryptoResponse: ApiCrypto.CryptoResponse, url: String, timeStamp: Long) {
+                        if(cryptoResponse.cards.isEmpty()){
+                            binding.pbLoading.visibility = View.GONE
+                            binding.cryptoPriceAlert.visibility = View.GONE
+                            binding.noPriceAlerts.visibility = View.VISIBLE
+                        } else {
+                            binding.pbLoading.visibility = View.GONE
+                            binding.rvPosts.visibility = View.VISIBLE
+                            binding.cryptoPriceAlert.visibility = View.VISIBLE
+                            newsFeedAdapter = NewsFeedAdapter(cryptoResponse.cards as ArrayList<Card>, null, "crypto_alert")
+                            binding.rvPosts.apply {
+                                adapter = newsFeedAdapter
+                                layoutManager = LinearLayoutManager(requireContext())
+                            }
+                        }
+                    }
+                })
         }
         binding.cryptoPriceAlert.setOnClickListener {
             parentFragmentManager.beginTransaction()
@@ -106,15 +98,6 @@ class CryptoAlertListFragment : Fragment(), OnRefreshListener {
     }
 
     companion object {
-        /**
-         * Use this factory method to create a new instance of
-         * this fragment using the provided parameters.
-         *
-         * @param param1 Parameter 1.
-         * @param param2 Parameter 2.
-         * @return A new instance of fragment CryptoAlertListFragment.
-         */
-        // TODO: Rename and change types and number of parameters
         @JvmStatic
         fun newInstance(keepLag: Boolean = false) : CryptoAlertListFragment{
              val cryptoAlertListFragment =  CryptoAlertListFragment()
@@ -127,11 +110,9 @@ class CryptoAlertListFragment : Fragment(), OnRefreshListener {
         binding.pbLoading.visibility = View.VISIBLE
         binding.rvPosts.visibility = View.GONE
         binding.noPriceAlerts.visibility = View.GONE
-        FeedSdk.spUtil?.getString(Constants.JWT_TOKEN)?.let {
-            ApiCrypto().getCryptoAlertViewEncrypted(
-                Endpoints.CRYPTO_ALERT_VIEW_ENCRYPTED,
-                it,
-                object : ApiCrypto.CryptoResponseListener{
+        ApiCrypto().getCryptoAlertViewEncrypted(
+            Endpoints.CRYPTO_ALERT_VIEW_ENCRYPTED,
+            object : ApiCrypto.CryptoResponseListener{
                 override fun onSuccess(cryptoResponse: ApiCrypto.CryptoResponse, url: String, timeStamp: Long) {
                     if(cryptoResponse.cards.isEmpty()){
                         binding.pbLoading.visibility = View.GONE
@@ -145,6 +126,5 @@ class CryptoAlertListFragment : Fragment(), OnRefreshListener {
                     }
                 }
             })
-        }
     }
 }

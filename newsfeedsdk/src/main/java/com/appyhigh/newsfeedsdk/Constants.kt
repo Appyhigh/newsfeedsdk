@@ -89,11 +89,28 @@ object Constants {
     const val IS_VIDEO = "is_video"
     const val SHORT_VIDEO = "short_video"
     const val PAGE_NUMBER = "page_number"
+    const val PAGE = "page"
     const val PUBLISHER_ID = "publisher_id"
     const val LANGUAGE = "language"
     const val FEED_TYPE = "feed_type"
     const val FEED_ID = "feed_id"
+    const val IS_NATIVE = "is_native"
+    const val TRUE = "true"
+    const val COVID_CARD = "covid_card"
+    const val PODCAST_ID = "podcast_id"
+    const val PUSH_SOURCE = "push_source"
+    const val FEEDSDK = "feedsdk"
+    const val WHICH = "which"
+    const val FROM_STICKY = "fromSticky"
+    const val FROM_LIVE_MATCH = "fromLiveMatch"
+    const val SDK_EXPLORE = "SDK://explore"
+    const val SDK_REELS = "SDK://reels"
+    const val SDK_PODCAST_DETAIL = "SDK://podcastDetail"
+    const val SDK_POST_DETAIL = "SDK://feedDetail"
+    const val SDK_CRYPTO_DETAIL = "SDK://cryptoCoinDetail"
+    const val SDK_CRICKET_DETAIL = "SDK://cricketMatchDetail"
     const val POST_SOURCE = "post_source"
+    const val IPL_PUSH = "ipl_push"
     const val STATE = "state"
     const val STATE_CODE = "state_code"
     const val FIRST_POST_ID = "first_post"
@@ -110,11 +127,17 @@ object Constants {
     const val SCREEN_TYPE = "screenType"
     const val FEED = "feed"
     const val EXPLORE = "explore"
+    const val REELS = "reels"
     const val VIDEO_FEED = "videoFeed"
     const val HASHTAG = "hashtag"
     const val ALREADY_EXISTS = "already_exists"
     const val MATCH_TYPE = "match_type"
     const val FILENAME = "filename"
+    const val LAUNCHTYPE = "launchType"
+    const val CRICKET = "cricket"
+    const val MATCHTYPE = "matchType"
+    const val PWA = "pwa"
+    const val MATCHES_MODE = "matchesMode"
     const val TAB = "tab"
     const val INNINGS = "innings"
     const val OVER = "over"
@@ -133,12 +156,12 @@ object Constants {
     var isVideoFromSticky = false
     var videoUnitAdFromSticky = ""
     const val STICKY_NOTIFICATION = "search_sticky_notification"
+    const val STICKY_BG = "sticky_bg"
     const val WEB_PLATFORMS = "search_web_platforms"
     const val IS_STICKY_NOTIFICATION_ON = "is_sticky_notification_on"
     const val IS_STICKY_SERVICE_ON = "is_sticky_service_on"
     const val PLAYER_RANKING_FRAGMENT = 0
     const val POINTS_TABLE_FRAGMENT = 1
-    const val FEED_SDK_CONFIG = "feedSdkConfig"
     const val SOCKET_SERIES = "socket_series"
     const val FEED_NATIVE_AD_INTEVRAL = "feed_native_ad_interval"
     const val WEB_HISTORY = "web_history"
@@ -164,7 +187,7 @@ object Constants {
     const val DEVICE_DETAIL = "deviceDetail"
     const val POST = "POST"
     const val GET = "GET"
-    const val ADS_MODEL = "adsModel"
+    const val CONFIG_MODEL = "config_model"
 
     var isChecked = true
     var impreesionModel: Impressions? = null
@@ -557,7 +580,6 @@ object Constants {
         }
     }
 
-
     fun getCryptoCoinSymbol(): String {
         return if (FeedSdk.sdkCountryCode == null || FeedSdk.sdkCountryCode!!.lowercase() == "in") "₹" else "$"
     }
@@ -584,10 +606,6 @@ object Constants {
             "Apple Today" -> "ca-app-pub-4310459535775382/1957765763"
             else -> ""
         }
-    }
-
-    fun <T : Any> T?.notNull(f: (it: T) -> Unit) {
-        if (this != null) f(this)
     }
 
     fun getInterestsString(interests: List<String>?): String? {

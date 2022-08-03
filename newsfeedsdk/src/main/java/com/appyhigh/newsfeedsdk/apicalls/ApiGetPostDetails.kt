@@ -1,6 +1,5 @@
 package com.appyhigh.newsfeedsdk.apicalls
 
-import android.util.Log
 import com.appyhigh.newsfeedsdk.Constants
 import com.appyhigh.newsfeedsdk.encryption.AESCBCPKCS5Encryption
 import com.appyhigh.newsfeedsdk.encryption.AuthSocket
@@ -12,8 +11,6 @@ import com.google.common.reflect.TypeToken
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
 import okhttp3.Call
-import org.json.JSONArray
-import org.json.JSONObject
 import retrofit2.Response
 import java.io.IOException
 import java.nio.charset.StandardCharsets
@@ -22,8 +19,6 @@ class ApiGetPostDetails {
     private var spUtil = SpUtil.spUtilInstance
     fun getPostDetailsEncrypted(
         apiUrl: String,
-        token: String,
-        userId: String?,
         postId: String,
         postSource: String,
         feedType: String,
@@ -47,7 +42,6 @@ class ApiGetPostDetails {
             BaseAPICallObject().getBaseObjectWithAuth(
                 Constants.GET,
                 apiUrl,
-                token,
                 keys,
                 values
             )
@@ -64,7 +58,7 @@ class ApiGetPostDetails {
         LogDetail.LogD("Data to be Sent -> ", sendingData)
 
         AuthSocket.Instance().postData(sendingData, object : ResponseListener {
-            override fun onSuccess(apiUrl: String?, response: JSONObject?) {
+            override fun onSuccess(apiUrl: String, response: String) {
                 LogDetail.LogDE("ApiGetPostDetails $apiUrl", response.toString())
 
                 val gson: Gson = GsonBuilder().create()
@@ -85,15 +79,6 @@ class ApiGetPostDetails {
                 } catch (e: Exception) {
                     LogDetail.LogEStack(e)
                 }
-
-            }
-
-            override fun onSuccess(apiUrl: String?, response: JSONArray?) {
-                LogDetail.LogDE("ApiGetPostDetails $apiUrl", response.toString())
-            }
-
-            override fun onSuccess(apiUrl: String?, response: String?) {
-                LogDetail.LogDE("ApiGetPostDetails $apiUrl", response.toString())
             }
 
             override fun onError(call: Call, e: IOException) {

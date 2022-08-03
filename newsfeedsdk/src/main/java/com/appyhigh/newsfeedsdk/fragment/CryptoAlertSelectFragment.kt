@@ -14,7 +14,6 @@ import androidx.core.widget.doOnTextChanged
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.appyhigh.newsfeedsdk.Constants
-import com.appyhigh.newsfeedsdk.FeedSdk
 import com.appyhigh.newsfeedsdk.R
 import com.appyhigh.newsfeedsdk.adapter.CryptoDetailsAdapter
 import com.appyhigh.newsfeedsdk.apicalls.ApiCrypto
@@ -45,7 +44,7 @@ class CryptoAlertSelectFragment : Fragment(), ApiCrypto.CryptoSearchListener {
     private var cryptoAlertItems = ArrayList<Item>()
     private var type: String? = ""
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         // Inflate the layout for this fragment
         binding = FragmentCryptoAlertSelectBinding.inflate(inflater, container, false)
         return binding.root
@@ -85,23 +84,18 @@ class CryptoAlertSelectFragment : Fragment(), ApiCrypto.CryptoSearchListener {
             if(text.isNullOrEmpty()){
                 cryptoAdapter?.updateWatchList(cryptoAlertItems)
             } else{
-                FeedSdk.spUtil?.getString(Constants.JWT_TOKEN)?.let {
-                    ApiCrypto().searchCryptoCoinsEncrypted(
-                        Endpoints.CRYPTO_SEARCH_ENCRYPTED,
-                        it,
-                        text.toString(),this)
-                }
+                ApiCrypto().searchCryptoCoinsEncrypted(
+                    Endpoints.CRYPTO_SEARCH_ENCRYPTED,
+                    text.toString(),this)
             }
         }
         fetchData()
     }
 
     private fun fetchData(){
-        FeedSdk.spUtil?.getString(Constants.JWT_TOKEN)?.let {
-            ApiCrypto().getCryptoDetailsEncrypted(
-                Endpoints.GET_CRYPTO_DETAILS_ENCRYPTED,
-                it,
-                0, null, null, object : ApiCrypto.CryptoDetailsResponseListener {
+        ApiCrypto().getCryptoDetailsEncrypted(
+            Endpoints.GET_CRYPTO_DETAILS_ENCRYPTED,
+            0, null, null, object : ApiCrypto.CryptoDetailsResponseListener {
                 override fun onSuccess(cryptoResponse: ApiCrypto.CryptoDetailsResponse, url: String, timeStamp: Long) {
                     val cryptoCard = cryptoResponse.cards
                     val newCryptoCardItems = ArrayList<Item>()
@@ -138,8 +132,7 @@ class CryptoAlertSelectFragment : Fragment(), ApiCrypto.CryptoSearchListener {
                     setEndlessScrolling()
                 }
             }
-            )
-        }
+        )
     }
 
     private fun setEndlessScrolling() {
@@ -163,11 +156,9 @@ class CryptoAlertSelectFragment : Fragment(), ApiCrypto.CryptoSearchListener {
     }
 
     fun getMoreCryptoPosts(){
-        FeedSdk.spUtil?.getString(Constants.JWT_TOKEN)?.let {
-            ApiCrypto().getCryptoDetailsEncrypted(
-                Endpoints.GET_CRYPTO_DETAILS_ENCRYPTED,
-                it,
-                pageNo, null, null, object : ApiCrypto.CryptoDetailsResponseListener {
+        ApiCrypto().getCryptoDetailsEncrypted(
+            Endpoints.GET_CRYPTO_DETAILS_ENCRYPTED,
+            pageNo, null, null, object : ApiCrypto.CryptoDetailsResponseListener {
                 override fun onSuccess(cryptoResponse: ApiCrypto.CryptoDetailsResponse, url: String, timeStamp: Long) {
                     val cryptoCard = cryptoResponse.cards
                     val newCryptoCardItems = ArrayList<Item>()
@@ -181,7 +172,6 @@ class CryptoAlertSelectFragment : Fragment(), ApiCrypto.CryptoSearchListener {
                     }
                 }
             })
-        }
     }
 
     override fun onDestroy() {

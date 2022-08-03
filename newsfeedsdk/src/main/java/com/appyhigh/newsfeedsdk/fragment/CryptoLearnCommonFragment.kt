@@ -54,7 +54,7 @@ class CryptoLearnCommonFragment : Fragment() {
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
+    ): View {
         // Inflate the layout for this fragment
         binding = FragmentCryptoLearnCommonBinding.inflate(inflater, container, false)
         return binding!!.root
@@ -123,49 +123,45 @@ class CryptoLearnCommonFragment : Fragment() {
     }
 
     private fun getHashtagPosts(){
-        FeedSdk.spUtil?.getString(Constants.JWT_TOKEN)?.let {
-            ApiGetPostsByTag().getPostsByTagEncrypted(
-                Endpoints.GET_POSTS_BY_TAG_ENCRYPTED,
-                it,
-                FeedSdk.userId,
-                interest,
-                postSource,
-                feedType,
-                object : ApiGetPostsByTag.PostsByTagResponseListener {
-                    override fun onSuccess(getFeedsResponse: GetFeedsResponse, url: String, timeStamp: Long) {
-                        storeData(presentUrl, presentTimeStamp)
-                        presentTimeStamp = timeStamp
-                        presentUrl = url
-                        binding?.pbLoading?.visibility = View.GONE
-                        newsFeedList = getFeedsResponse.cards as ArrayList<Card>
-                        adIndex += 6
-                        val adItem = Card()
-                        adItem.cardType = Constants.AD
-                        try{
-                            if(ApiConfig().checkShowAds(requireContext()) && newsFeedList.size>0 && newsFeedList[0].cardType!=Constants.AD){
-                                newsFeedList.add(0, adItem)
-                            }
-                            if(ApiConfig().checkShowAds(requireContext()) && newsFeedList.size>6) {
-                                newsFeedList.add(adIndex, adItem)
-                            }
-                        } catch (ex:Exception){
-                            LogDetail.LogEStack(ex)
+        ApiGetPostsByTag().getPostsByTagEncrypted(
+            Endpoints.GET_POSTS_BY_TAG_ENCRYPTED,
+            interest,
+            postSource,
+            feedType,
+            object : ApiGetPostsByTag.PostsByTagResponseListener {
+                override fun onSuccess(getFeedsResponse: GetFeedsResponse, url: String, timeStamp: Long) {
+                    storeData(presentUrl, presentTimeStamp)
+                    presentTimeStamp = timeStamp
+                    presentUrl = url
+                    binding?.pbLoading?.visibility = View.GONE
+                    newsFeedList = getFeedsResponse.cards as ArrayList<Card>
+                    adIndex += 6
+                    val adItem = Card()
+                    adItem.cardType = Constants.AD
+                    try{
+                        if(ApiConfig().checkShowAds(requireContext()) && newsFeedList.size>0 && newsFeedList[0].cardType!=Constants.AD){
+                            newsFeedList.add(0, adItem)
                         }
-                        if(newsFeedList.isEmpty()){
-                            binding!!.noPosts.visibility = View.VISIBLE
-                        } else {
-                            binding!!.rvLearnPosts.visibility = View.VISIBLE
+                        if(ApiConfig().checkShowAds(requireContext()) && newsFeedList.size>6) {
+                            newsFeedList.add(adIndex, adItem)
                         }
-                        linearLayoutManager = LinearLayoutManager(context)
-                        newsFeedAdapter = NewsFeedAdapter(newsFeedList, null, interest, null, postImpressionListener)
-                        binding?.rvLearnPosts?.apply {
-                            layoutManager = linearLayoutManager
-                            adapter = newsFeedAdapter
-                        }
-                        Constants.cardsMap[interest] = getFeedsResponse.cards as ArrayList<Card>
+                    } catch (ex:Exception){
+                        LogDetail.LogEStack(ex)
                     }
-                })
-        }
+                    if(newsFeedList.isEmpty()){
+                        binding!!.noPosts.visibility = View.VISIBLE
+                    } else {
+                        binding!!.rvLearnPosts.visibility = View.VISIBLE
+                    }
+                    linearLayoutManager = LinearLayoutManager(context)
+                    newsFeedAdapter = NewsFeedAdapter(newsFeedList, null, interest, null, postImpressionListener)
+                    binding?.rvLearnPosts?.apply {
+                        layoutManager = linearLayoutManager
+                        adapter = newsFeedAdapter
+                    }
+                    Constants.cardsMap[interest] = getFeedsResponse.cards as ArrayList<Card>
+                }
+            })
     }
 
     private fun setEndlessScrolling() {
@@ -188,47 +184,44 @@ class CryptoLearnCommonFragment : Fragment() {
 
 
     fun getMoreCryptoPosts(){
-        FeedSdk.spUtil?.getString(Constants.JWT_TOKEN)?.let {
-            ApiCrypto().getCryptoHomeEncrypted(
-                Endpoints.GET_CRYPTO_HOME_ENCRYPTED,
-                it,
-                pageNo,
-                null, object : ApiCrypto.CryptoResponseListener {
-                    override fun onSuccess(
-                        cryptoResponse: ApiCrypto.CryptoResponse,
-                        url: String,
-                        timeStamp: Long
-                    ) {
-                        storeData(presentUrl, presentTimeStamp)
-                        presentUrl = url
-                        presentTimeStamp = timeStamp
-                        val newsFeedList = cryptoResponse.cards as ArrayList<Card>
-                        adIndex += 6
-                        adCheckerList.addAll(newsFeedList)
-                        if(ApiConfig().checkShowAds(requireContext())) {
-                            val adItem = Card()
-                            adItem.cardType = Constants.AD
-                            try {
-                                if (adCheckerList.size > adIndex) {
-                                    newsFeedList.add(adIndex - ((pageNo - 1) * 10), adItem)
-                                    adCheckerList.add(adIndex, adItem)
-                                    LogDetail.LogD("Ad index", (adIndex - ((pageNo - 1) * 10)).toString())
-                                }
-                                if (adIndex + 6 < adCheckerList.size) {
-                                    adIndex += 6
-                                    newsFeedList.add(adIndex - ((pageNo - 1) * 10), adItem)
-                                    adCheckerList.add(adIndex, adItem)
-                                    LogDetail.LogD("Ad index", (adIndex - ((pageNo - 1) * 10)).toString())
-                                }
-                            } catch (e: java.lang.Exception) {
-                                LogDetail.LogEStack(e)
+        ApiCrypto().getCryptoHomeEncrypted(
+            Endpoints.GET_CRYPTO_HOME_ENCRYPTED,
+            pageNo,
+            null, object : ApiCrypto.CryptoResponseListener {
+                override fun onSuccess(
+                    cryptoResponse: ApiCrypto.CryptoResponse,
+                    url: String,
+                    timeStamp: Long
+                ) {
+                    storeData(presentUrl, presentTimeStamp)
+                    presentUrl = url
+                    presentTimeStamp = timeStamp
+                    val newsFeedList = cryptoResponse.cards as ArrayList<Card>
+                    adIndex += 6
+                    adCheckerList.addAll(newsFeedList)
+                    if(ApiConfig().checkShowAds(requireContext())) {
+                        val adItem = Card()
+                        adItem.cardType = Constants.AD
+                        try {
+                            if (adCheckerList.size > adIndex) {
+                                newsFeedList.add(adIndex - ((pageNo - 1) * 10), adItem)
+                                adCheckerList.add(adIndex, adItem)
+                                LogDetail.LogD("Ad index", (adIndex - ((pageNo - 1) * 10)).toString())
                             }
+                            if (adIndex + 6 < adCheckerList.size) {
+                                adIndex += 6
+                                newsFeedList.add(adIndex - ((pageNo - 1) * 10), adItem)
+                                adCheckerList.add(adIndex, adItem)
+                                LogDetail.LogD("Ad index", (adIndex - ((pageNo - 1) * 10)).toString())
+                            }
+                        } catch (e: java.lang.Exception) {
+                            LogDetail.LogEStack(e)
                         }
-                        newsFeedAdapter?.updateList(newsFeedList, interest, pageNo, presentUrl, presentTimeStamp)
-                        pageNo+=1
                     }
-                })
-        }
+                    newsFeedAdapter?.updateList(newsFeedList, interest, pageNo, presentUrl, presentTimeStamp)
+                    pageNo+=1
+                }
+            })
     }
 
 
@@ -279,13 +272,10 @@ class CryptoLearnCommonFragment : Fragment() {
             val postImpressionString = gson.toJson(postImpressionsModel)
             sharedPrefs.edit().putString(timeStamp.toString(), postImpressionString).apply()
             postImpressions = HashMap()
-            FeedSdk.spUtil?.getString(Constants.JWT_TOKEN)?.let {
-                ApiPostImpression().addPostImpressionsEncrypted(
-                    Endpoints.POST_IMPRESSIONS_ENCRYPTED,
-                    it,
-                    requireContext()
-                )
-            }
+            ApiPostImpression().addPostImpressionsEncrypted(
+                Endpoints.POST_IMPRESSIONS_ENCRYPTED,
+                requireContext()
+            )
         } catch (ex:java.lang.Exception){
             LogDetail.LogEStack(ex)
         }

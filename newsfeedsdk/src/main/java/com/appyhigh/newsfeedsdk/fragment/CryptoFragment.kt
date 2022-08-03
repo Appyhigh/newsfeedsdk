@@ -49,65 +49,62 @@ class CryptoFragment : Fragment() {
         binding.rvPosts.visibility = View.GONE
         pageNo = 0
         endlessScrolling = null
-        FeedSdk.spUtil?.getString(Constants.JWT_TOKEN)?.let {
-            ApiCrypto().getCryptoHomeEncrypted(
-                Endpoints.GET_CRYPTO_HOME_ENCRYPTED,
-                it,
-                pageNo,
-                null, object : ApiCrypto.CryptoResponseListener {
-                    override fun onSuccess(
-                        cryptoResponse: ApiCrypto.CryptoResponse,
-                        url: String,
-                        timeStamp: Long
-                    ) {
-                        storeData(presentUrl, presentTimeStamp)
-                        presentUrl = url
-                        presentTimeStamp = timeStamp
-                        val cryptoList = cryptoResponse.cards as ArrayList<Card>
-                        val loadMore = Card()
-                        loadMore.cardType = Constants.LOADER
-                        cryptoList.add(loadMore)
-                        Constants.cardsMap[interest] = cryptoList
-                        newsFeedAdapter = NewsFeedAdapter(
-                            cryptoResponse.cards as ArrayList<Card>,
-                            null, interest, null,
-                            object : PostImpressionListener {
-                                override fun addImpression(card: Card, totalDuration: Int?, watchedDuration: Int?) {
-                                    try {
-                                        val postView = PostView(
-                                            FeedSdk.sdkCountryCode ?: "in",
-                                            "category",
-                                            card.items[0].isVideo,
-                                            card.items[0].languageString,
-                                            Constants.getInterestsString(card.items[0].interests),
-                                            card.items[0].postId,
-                                            card.items[0].postSource,
-                                            card.items[0].publisherId,
-                                            card.items[0].shortVideo,
-                                            card.items[0].source,
-                                            totalDuration,
-                                            watchedDuration
-                                        )
-                                        postImpressions[card.items[0].postId!!] = postView
-                                    } catch (ex: Exception){
-                                        LogDetail.LogEStack(ex)
-                                    }
+        ApiCrypto().getCryptoHomeEncrypted(
+            Endpoints.GET_CRYPTO_HOME_ENCRYPTED,
+            pageNo,
+            null, object : ApiCrypto.CryptoResponseListener {
+                override fun onSuccess(
+                    cryptoResponse: ApiCrypto.CryptoResponse,
+                    url: String,
+                    timeStamp: Long
+                ) {
+                    storeData(presentUrl, presentTimeStamp)
+                    presentUrl = url
+                    presentTimeStamp = timeStamp
+                    val cryptoList = cryptoResponse.cards as ArrayList<Card>
+                    val loadMore = Card()
+                    loadMore.cardType = Constants.LOADER
+                    cryptoList.add(loadMore)
+                    Constants.cardsMap[interest] = cryptoList
+                    newsFeedAdapter = NewsFeedAdapter(
+                        cryptoResponse.cards as ArrayList<Card>,
+                        null, interest, null,
+                        object : PostImpressionListener {
+                            override fun addImpression(card: Card, totalDuration: Int?, watchedDuration: Int?) {
+                                try {
+                                    val postView = PostView(
+                                        FeedSdk.sdkCountryCode ?: "in",
+                                        "category",
+                                        card.items[0].isVideo,
+                                        card.items[0].languageString,
+                                        Constants.getInterestsString(card.items[0].interests),
+                                        card.items[0].postId,
+                                        card.items[0].postSource,
+                                        card.items[0].publisherId,
+                                        card.items[0].shortVideo,
+                                        card.items[0].source,
+                                        totalDuration,
+                                        watchedDuration
+                                    )
+                                    postImpressions[card.items[0].postId!!] = postView
+                                } catch (ex: Exception){
+                                    LogDetail.LogEStack(ex)
                                 }
-                            }, presentUrl, presentTimeStamp)
-                        linearLayoutManager = LinearLayoutManager(requireActivity())
-                        binding.rvPosts.apply {
-                            layoutManager = linearLayoutManager
-                            adapter = newsFeedAdapter
-                            itemAnimator = null
-                        }
-                        binding.pbLoading.visibility = View.GONE
-                        binding.rvPosts.visibility = View.VISIBLE
-                        pageNo+=1
-                        setEndlessScrolling()
+                            }
+                        }, presentUrl, presentTimeStamp)
+                    linearLayoutManager = LinearLayoutManager(requireActivity())
+                    binding.rvPosts.apply {
+                        layoutManager = linearLayoutManager
+                        adapter = newsFeedAdapter
+                        itemAnimator = null
                     }
+                    binding.pbLoading.visibility = View.GONE
+                    binding.rvPosts.visibility = View.VISIBLE
+                    pageNo+=1
+                    setEndlessScrolling()
                 }
-            )
-        }
+            }
+        )
     }
 
     override fun onResume() {
@@ -137,26 +134,23 @@ class CryptoFragment : Fragment() {
     }
 
     fun getMoreCryptoPosts(){
-        FeedSdk.spUtil?.getString(Constants.JWT_TOKEN)?.let {
-            ApiCrypto().getCryptoHomeEncrypted(
-                Endpoints.GET_CRYPTO_HOME_ENCRYPTED,
-                it,
-                pageNo,
-                null, object : ApiCrypto.CryptoResponseListener {
-                    override fun onSuccess(
-                        cryptoResponse: ApiCrypto.CryptoResponse,
-                        url: String,
-                        timeStamp: Long
-                    ) {
-                        storeData(presentUrl, presentTimeStamp)
-                        presentUrl = url
-                        presentTimeStamp = timeStamp
-                        val cryptoList = cryptoResponse.cards as ArrayList<Card>
-                        newsFeedAdapter?.updateList(cryptoList, interest, pageNo, presentUrl, presentTimeStamp)
-                        pageNo+=1
-                    }
-                })
-        }
+        ApiCrypto().getCryptoHomeEncrypted(
+            Endpoints.GET_CRYPTO_HOME_ENCRYPTED,
+            pageNo,
+            null, object : ApiCrypto.CryptoResponseListener {
+                override fun onSuccess(
+                    cryptoResponse: ApiCrypto.CryptoResponse,
+                    url: String,
+                    timeStamp: Long
+                ) {
+                    storeData(presentUrl, presentTimeStamp)
+                    presentUrl = url
+                    presentTimeStamp = timeStamp
+                    val cryptoList = cryptoResponse.cards as ArrayList<Card>
+                    newsFeedAdapter?.updateList(cryptoList, interest, pageNo, presentUrl, presentTimeStamp)
+                    pageNo+=1
+                }
+            })
     }
 
     override fun onDestroy() {
@@ -176,13 +170,10 @@ class CryptoFragment : Fragment() {
             val postImpressionString = gson.toJson(postImpressionsModel)
             sharedPrefs.edit().putString(timeStamp.toString(), postImpressionString).apply()
             postImpressions = HashMap()
-            FeedSdk.spUtil?.getString(Constants.JWT_TOKEN)?.let {
-                ApiPostImpression().addPostImpressionsEncrypted(
-                    Endpoints.POST_IMPRESSIONS_ENCRYPTED,
-                    it,
-                    requireContext()
-                )
-            }
+            ApiPostImpression().addPostImpressionsEncrypted(
+                Endpoints.POST_IMPRESSIONS_ENCRYPTED,
+                requireContext()
+            )
         } catch (ex:java.lang.Exception){
             LogDetail.LogEStack(ex)
         }

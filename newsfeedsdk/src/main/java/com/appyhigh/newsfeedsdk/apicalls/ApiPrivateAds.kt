@@ -2,7 +2,12 @@ package com.appyhigh.newsfeedsdk.apicalls
 
 import android.annotation.SuppressLint
 import android.content.Context
+import android.content.Context.WIFI_SERVICE
+import android.net.ConnectivityManager
+import android.net.wifi.WifiManager
 import android.provider.Settings
+import android.text.format.Formatter
+import android.webkit.WebSettings
 import com.appyhigh.newsfeedsdk.FeedSdk
 import com.appyhigh.newsfeedsdk.apiclient.APISearchStickyInterface
 import com.appyhigh.newsfeedsdk.encryption.LogDetail
@@ -15,7 +20,9 @@ import io.reactivex.rxjava3.schedulers.Schedulers
 import okhttp3.OkHttpClient
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
+import java.net.NetworkInterface
 import java.util.concurrent.TimeUnit
+
 
 class ApiPrivateAds {
 
@@ -53,7 +60,7 @@ class ApiPrivateAds {
         val storeUrl = "https://play.google.com/store/apps/details?id=${context.packageName}"
         val privateAdRequest = PrivateAdRequest("vpv713jk24", context.packageName, deviceId,
             if(isBanner) "320x50" else "300x250", "Board Games/Puzzles", storeUrl, FeedSdk.appVersionName,
-        "Mozilla/5.0 (Linux; Android 11; SM-A426U) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/89.0.4389.105 Mobile Safari/537.36",
+            WebSettings.getDefaultUserAgent(context),
         "121.54.2.9")
         retrofit!!.create(APISearchStickyInterface::class.java).getMobAvenue(privateAdRequest)
             .subscribeOn(Schedulers.io())
@@ -73,6 +80,37 @@ class ApiPrivateAds {
         setRetrofit()
         retrofit!!.create(APISearchStickyInterface::class.java).hitNUrl(nUrl)
         retrofit!!.create(APISearchStickyInterface::class.java).hitEUrl(eUrl)
+    }
+
+    private fun getDeviceIpMobileData(): String? {
+        try {
+            val en = NetworkInterface.getNetworkInterfaces()
+            while (en.hasMoreElements()) {
+                val networkinterface = en.nextElement()
+                val enumIpAddr = networkinterface.inetAddresses
+                while (enumIpAddr.hasMoreElements()) {
+                    val inetAddress = enumIpAddr.nextElement()
+                    if (!inetAddress.isLoopbackAddress) {
+                        return inetAddress.hostAddress.toString()
+                    }
+                }
+            }
+        } catch (ex: java.lang.Exception) {
+            LogDetail.LogDE("Current IP", ex.toString())
+        }
+        return null
+    }
+
+
+    private fun getDeviceIpWiFiData(context: Context): String? {
+        val wm = context.getSystemService(WIFI_SERVICE) as WifiManager?
+        return Formatter.formatIpAddress(wm!!.connectionInfo.ipAddress)
+    }
+
+    private fun getNetworkType(context: Context): String? {
+        val cm = context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+        val info = cm.activeNetworkInfo
+        return info!!.typeName
     }
 }
 

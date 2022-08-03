@@ -53,7 +53,7 @@ class CricketPWAFragment : Fragment(), AdvancedWebView.Listener, PWATabSelectedL
     private var isloaded = false
     private var fileName = ""
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         binding = FragmentCricketPwaBinding.inflate(layoutInflater, container, false)
         if(keyId=="live_matches"){
             fileName = Constants.findFilename(pwaLink)
@@ -286,12 +286,10 @@ class CricketPWAFragment : Fragment(), AdvancedWebView.Listener, PWATabSelectedL
             val uri = Uri.parse(url_string)
             val turnNotification = uri.getQueryParameter("turnNotification")=="true"
             Constants.isChecked = turnNotification
-            FeedSdk.spUtil?.getString(Constants.JWT_TOKEN)?.let {
-                ApiCreateOrUpdateUser().updateCricketNotificationEncrypt(
-                    Endpoints.UPDATE_USER_ENCRYPTED,
-                    it,
-                    turnNotification)
-            }
+            ApiCreateOrUpdateUser().updateCricketNotificationEncrypt(
+                Endpoints.UPDATE_USER_ENCRYPTED,
+                turnNotification
+            )
         } catch (ex:java.lang.Exception){
             LogDetail.LogEStack(ex)
         }

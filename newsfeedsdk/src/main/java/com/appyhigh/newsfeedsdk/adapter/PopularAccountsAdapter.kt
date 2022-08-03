@@ -15,7 +15,6 @@ import com.appyhigh.newsfeedsdk.Constants.POSITION
 import com.appyhigh.newsfeedsdk.Constants.POST_SOURCE
 import com.appyhigh.newsfeedsdk.Constants.PROFILE_PIC
 import com.appyhigh.newsfeedsdk.Constants.PUBLISHER_ID
-import com.appyhigh.newsfeedsdk.FeedSdk
 import com.appyhigh.newsfeedsdk.R
 import com.appyhigh.newsfeedsdk.activity.PublisherPageActivity
 import com.appyhigh.newsfeedsdk.apicalls.ApiFollowPublihser
@@ -87,14 +86,10 @@ class PopularAccountsAdapter(var popularAccounts: List<Item>) :
         popularAccounts[position].isFollowingPublisher =
             !popularAccounts[position].isFollowingPublisher!!
         popularAccounts[position].publisherId?.let {
-            FeedSdk.spUtil?.getString(Constants.JWT_TOKEN)?.let { it1 ->
-                ApiFollowPublihser().followPublisherEncrypted(
-                    Endpoints.FOLLOW_PUBLISHER_ENCRYPTED,
-                    it1,
-                    FeedSdk.userId,
-                    it
-                )
-            }
+            ApiFollowPublihser().followPublisherEncrypted(
+                Endpoints.FOLLOW_PUBLISHER_ENCRYPTED,
+                it
+            )
         }
     }
 }

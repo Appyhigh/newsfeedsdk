@@ -10,7 +10,6 @@ import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.viewpager2.widget.ViewPager2
 import com.appyhigh.newsfeedsdk.Constants
-import com.appyhigh.newsfeedsdk.FeedSdk
 import com.appyhigh.newsfeedsdk.adapter.NewsFeedSliderAdapter
 import com.appyhigh.newsfeedsdk.adapter.TabsAdapter
 import com.appyhigh.newsfeedsdk.apicalls.ApiCricketSchedule
@@ -40,84 +39,81 @@ class PWACricketTabsActivity : AppCompatActivity() {
         val url = intent.getStringExtra("link") ?: ""
         var selectTab = 0
         var newsTab = -1
-        FeedSdk.spUtil?.getString(Constants.JWT_TOKEN)?.let {
-            ApiCricketSchedule().getCricketTabsEncrypted(
-                Endpoints.GET_CRICKET_TABS_ENCRYPTED,
-                it,
-                object : ApiCricketSchedule.CricketScheduleResponseListener {
-                    override fun onSuccess(cricketScheduleResponse: CricketScheduleResponse) {
-                        binding.pbLoading.visibility = View.GONE
-                        var cards = cricketScheduleResponse.cards[0].items as ArrayList<Item>
-                        fragmentList = ArrayList<Fragment>()
-                        var count = 0
-                        for (tab in cards) {
-                            if (tab.key_id == interest || checkMatch(tab.pwaLink, url)) {
-                                selectTab = count
-                            }
-                            if (tab.key_id == "cricket_news") {
-                                newsTab = count
-                                fragmentList.add(
-                                    PagerFragment.newInstance(
-                                        Constants.allInterestsMap["cricket"]!!.keyId.toString(), 0,
-                                        ArrayList(),
-                                        false,
-                                        object : NewsFeedList.PersonalizationListener {
-                                            override fun onPersonalizationClicked() {}
-
-                                            override fun onRefresh() {}
-                                        },
-                                    )
-                                )
-                            } else {
-                                fragmentList.add(
-                                    CricketPWAFragment.newInstance(
-                                        tab.pwaLink,
-                                        tab.key_id!!
-                                    )
-                                )
-                            }
-                            count += 1
+        ApiCricketSchedule().getCricketTabsEncrypted(
+            Endpoints.GET_CRICKET_TABS_ENCRYPTED,
+            object : ApiCricketSchedule.CricketScheduleResponseListener {
+                override fun onSuccess(cricketScheduleResponse: CricketScheduleResponse) {
+                    binding.pbLoading.visibility = View.GONE
+                    var cards = cricketScheduleResponse.cards[0].items as ArrayList<Item>
+                    fragmentList = ArrayList<Fragment>()
+                    var count = 0
+                    for (tab in cards) {
+                        if (tab.key_id == interest || checkMatch(tab.pwaLink, url)) {
+                            selectTab = count
                         }
-                        binding.rvCricketTabs.apply {
-                            layoutManager = LinearLayoutManager(
-                                context,
-                                LinearLayoutManager.HORIZONTAL,
-                                false
+                        if (tab.key_id == "cricket_news") {
+                            newsTab = count
+                            fragmentList.add(
+                                PagerFragment.newInstance(
+                                    Constants.allInterestsMap["cricket"]!!.keyId.toString(), 0,
+                                    ArrayList(),
+                                    false,
+                                    object : NewsFeedList.PersonalizationListener {
+                                        override fun onPersonalizationClicked() {}
+
+                                        override fun onRefresh() {}
+                                    },
+                                )
                             )
-                            tabsAdapter = TabsAdapter(cards, object : TabSelectedListener {
-                                override fun onTabClicked(v: View, position: Int) {
-                                    binding.vpCricketFeed.setCurrentItem(position, false)
-                                }
-                            }, "cricket", selectTab)
-                            adapter = tabsAdapter
+                        } else {
+                            fragmentList.add(
+                                CricketPWAFragment.newInstance(
+                                    tab.pwaLink,
+                                    tab.key_id!!
+                                )
+                            )
                         }
-                        binding.vpCricketFeed.isUserInputEnabled = true
-                        binding.vpCricketFeed.offscreenPageLimit = 3
-                        binding.vpCricketFeed.adapter =
-                            NewsFeedSliderAdapter(this@PWACricketTabsActivity, fragmentList)
-                        binding.vpCricketFeed.setCurrentItem(selectTab, false)
-                        moveTab(tabsAdapter, selectTab)
-                        notifyListener(cards[selectTab])
-                        binding.vpCricketFeed.registerOnPageChangeCallback(object :
-                            ViewPager2.OnPageChangeCallback() {
-                            override fun onPageSelected(position: Int) {
-                                super.onPageSelected(position)
-                                try {
-                                    notifyListener(cards[position])
-                                    if (fragmentList[position] is CricketPWAFragment) {
-                                        (fragmentList[newsTab] as PagerFragment).stopVideoPlayback()
-                                    }
-                                } catch (ex: Exception) {
-                                    LogDetail.LogEStack(ex)
-                                }
-                                moveTab(tabsAdapter, position)
-                            }
-                        })
+                        count += 1
                     }
+                    binding.rvCricketTabs.apply {
+                        layoutManager = LinearLayoutManager(
+                            context,
+                            LinearLayoutManager.HORIZONTAL,
+                            false
+                        )
+                        tabsAdapter = TabsAdapter(cards, object : TabSelectedListener {
+                            override fun onTabClicked(v: View, position: Int) {
+                                binding.vpCricketFeed.setCurrentItem(position, false)
+                            }
+                        }, "cricket", selectTab)
+                        adapter = tabsAdapter
+                    }
+                    binding.vpCricketFeed.isUserInputEnabled = true
+                    binding.vpCricketFeed.offscreenPageLimit = 3
+                    binding.vpCricketFeed.adapter =
+                        NewsFeedSliderAdapter(this@PWACricketTabsActivity, fragmentList)
+                    binding.vpCricketFeed.setCurrentItem(selectTab, false)
+                    moveTab(tabsAdapter, selectTab)
+                    notifyListener(cards[selectTab])
+                    binding.vpCricketFeed.registerOnPageChangeCallback(object :
+                        ViewPager2.OnPageChangeCallback() {
+                        override fun onPageSelected(position: Int) {
+                            super.onPageSelected(position)
+                            try {
+                                notifyListener(cards[position])
+                                if (fragmentList[position] is CricketPWAFragment) {
+                                    (fragmentList[newsTab] as PagerFragment).stopVideoPlayback()
+                                }
+                            } catch (ex: Exception) {
+                                LogDetail.LogEStack(ex)
+                            }
+                            moveTab(tabsAdapter, position)
+                        }
+                    })
+                }
 
-                    override fun onFailure(error: Throwable) {}
-                })
-        }
+                override fun onFailure(error: Throwable) {}
+            })
     }
 
     private fun moveTab(tabsAdapter: TabsAdapter?, position: Int) {

@@ -26,7 +26,6 @@ import com.appyhigh.newsfeedsdk.apicalls.ApiGetLanguages
 import com.appyhigh.newsfeedsdk.apicalls.ApiUpdateUserPersonalization
 import com.appyhigh.newsfeedsdk.apicalls.ApiUserDetails
 import com.appyhigh.newsfeedsdk.apiclient.Endpoints
-import com.appyhigh.newsfeedsdk.apiclient.Endpoints.GET_INTERESTS_APPWISE_ENCRYPTED
 import com.appyhigh.newsfeedsdk.callbacks.InterestSelectedListener
 import com.appyhigh.newsfeedsdk.callbacks.OnRefreshListener
 import com.appyhigh.newsfeedsdk.callbacks.PersonalizeCallListener
@@ -131,38 +130,34 @@ class NewsFeedScrollView : LinearLayout, PersonalizeCallListener, OnRefreshListe
                             languageList: ArrayList<Language>,
                         ) {
                             loadLayout?.visibility = VISIBLE
-                            FeedSdk.spUtil?.getString(Constants.JWT_TOKEN)?.let { it1 ->
-                                ApiUpdateUserPersonalization().updateUserPersonalizationEncrypted(
-                                    Endpoints.UPDATE_USER_ENCRYPTED,
-                                    FeedSdk.userId!!,
-                                    interestList,
-                                    languageList,
-                                    object :
-                                        ApiUpdateUserPersonalization.UpdatePersonalizationListener {
-                                        override fun onSuccess() {
-                                            try {
-                                                loadLayout?.visibility = GONE
-                                                mUserDetails = null
-                                                mInterestResponseModel = null
-                                                for (fragment in fragmentList) {
-                                                    if (fragment is PagerFragment) {
-                                                        fragment.resetEndlessScrolling()
-                                                    }
-                                                }
-                                                for (listener in SpUtil.onRefreshListeners) {
-                                                    listener.value.onRefreshNeeded()
-                                                }
-                                            } catch (ex: Exception) {
-                                                LogDetail.LogEStack(ex)
-                                            }
-                                        }
-
-                                        override fun onFailure() {
+                            ApiUpdateUserPersonalization().updateUserPersonalizationEncrypted(
+                                Endpoints.UPDATE_USER_ENCRYPTED,
+                                interestList,
+                                languageList,
+                                object : ApiUpdateUserPersonalization.UpdatePersonalizationListener {
+                                    override fun onSuccess() {
+                                        try {
                                             loadLayout?.visibility = GONE
+                                            mUserDetails = null
+                                            mInterestResponseModel = null
+                                            for (fragment in fragmentList) {
+                                                if (fragment is PagerFragment) {
+                                                    fragment.resetEndlessScrolling()
+                                                }
+                                            }
+                                            for (listener in SpUtil.onRefreshListeners) {
+                                                listener.value.onRefreshNeeded()
+                                            }
+                                        } catch (ex: Exception) {
+                                            LogDetail.LogEStack(ex)
                                         }
                                     }
-                                )
-                            }
+
+                                    override fun onFailure() {
+                                        loadLayout?.visibility = GONE
+                                    }
+                                }
+                            )
                         }
                     })
                 if (context is FragmentActivity) {
@@ -200,29 +195,23 @@ class NewsFeedScrollView : LinearLayout, PersonalizeCallListener, OnRefreshListe
                             }
                         }
                     )
-                    FeedSdk.spUtil?.getString(Constants.JWT_TOKEN)?.let {
-                        ApiUserDetails().getUserResponseEncrypted(
-                            Endpoints.USER_DETAILS_ENCRYPTED,
-                            it,
-                            object : ApiUserDetails.UserResponseListener {
-                                override fun onSuccess(userDetails: UserResponse) {
-                                    mUserDetails = userDetails
-                                    setUpLanguages()
-                                    setUpInterestAdapter()
-                                }
-                            })
-                    }
-                    FeedSdk.spUtil?.getString(Constants.JWT_TOKEN)?.let {
-                        ApiGetInterests().getInterestsEncrypted(
-                            Endpoints.GET_INTERESTS_ENCRYPTED,
-                            it,
-                            object : ApiGetInterests.InterestResponseListener {
-                                override fun onSuccess(interestResponseModel: InterestResponseModel) {
-                                    mInterestResponseModel = interestResponseModel
-                                    setUpInterestAdapter()
-                                }
-                            })
-                    }
+                    ApiUserDetails().getUserResponseEncrypted(
+                        Endpoints.USER_DETAILS_ENCRYPTED,
+                        object : ApiUserDetails.UserResponseListener {
+                            override fun onSuccess(userDetails: UserResponse) {
+                                mUserDetails = userDetails
+                                setUpLanguages()
+                                setUpInterestAdapter()
+                            }
+                        })
+                    ApiGetInterests().getInterestsEncrypted(
+                        Endpoints.GET_INTERESTS_ENCRYPTED,
+                        object : ApiGetInterests.InterestResponseListener {
+                            override fun onSuccess(interestResponseModel: InterestResponseModel) {
+                                mInterestResponseModel = interestResponseModel
+                                setUpInterestAdapter()
+                            }
+                        })
                 }
                 Constants.NetworkState.DISCONNECTED -> {
                     LogDetail.LogD("NETWORK", "LOST")
@@ -333,159 +322,36 @@ class NewsFeedScrollView : LinearLayout, PersonalizeCallListener, OnRefreshListe
                 selectedInterestsList[i].keyId
             }
         }
-        FeedSdk.spUtil?.getString(Constants.JWT_TOKEN)?.let {
-            ApiGetInterests().getInterestsAppWiseEncrypted(
-                GET_INTERESTS_APPWISE_ENCRYPTED,
-                it,
-                interests,
-                object : ApiGetInterests.InterestOrderResponseListener {
-                    override fun onSuccess(interestList: ArrayList<String>) {
-                        newInterestList = ArrayList<Interest>()
-                        for (interest in interestList) {
-                            try {
-                                if (interest == "for_you") {
-                                    newInterestList.add(
-                                        Interest("For You", "for_you", null, false)
-                                    )
+        ApiGetInterests().getInterestsAppWiseEncrypted(
+            Endpoints.GET_INTERESTS_APPWISE_ENCRYPTED,
+            interests,
+            object : ApiGetInterests.InterestOrderResponseListener {
+                override fun onSuccess(interestList: ArrayList<String>) {
+                    newInterestList = ArrayList<Interest>()
+                    for (interest in interestList) {
+                        try {
+                            if (interest == "for_you") {
+                                newInterestList.add(
+                                    Interest("For You", "for_you", null, false)
+                                )
 //                                "podcast" -> Interest("Podcasts", "podcasts", null, false)
 //                                else -> Constants.allInterestsMap[interest]!!
-                                }
-                            } catch (ex: Exception) {
-                                LogDetail.LogEStack(ex)
                             }
+                        } catch (ex: Exception) {
+                            LogDetail.LogEStack(ex)
                         }
-                        if (Constants.userDetails?.showRegionalField == true) {
-                            newInterestList.add(Interest("Near You", "near_you", null, false))
-                        }
-                        newInterestList.addAll(pinnedInterestList)
-                        if (mUserDetails != null && mInterestResponseModel != null) {
-                            try {
-                                if (SpUtil.pushIntent != null && !SpUtil.pushIntent!!.getBooleanExtra(
-                                        "isForYou",
-                                        false
-                                    )
-                                    && SpUtil.pushIntent!!.hasExtra("short_video") && SpUtil.pushIntent!!.getStringExtra(
-                                        "short_video"
-                                    ) == "false"
-                                ) {
-                                    pos = isInterestFound(
-                                        SpUtil.pushIntent!!.getStringExtra("interests")!!,
-                                        newInterestList
-                                    )
-                                    if (pos == -1) {
-                                        if (Constants.allInterestsMap.containsKey(
-                                                SpUtil.pushIntent!!.getStringExtra(
-                                                    "interests"
-                                                )
-                                            )
-                                        ) {
-                                            Constants.allInterestsMap[SpUtil.pushIntent!!.getStringExtra(
-                                                "interests"
-                                            )]?.let {
-                                                newInterestList.add(it)
-                                            }
-                                        }
-                                        pos = newInterestList.size - 1
-                                    }
-                                } else if (SpUtil.pushIntent != null && SpUtil.pushIntent!!.hasExtra(
-                                        "page"
-                                    ) && (
-                                            SpUtil.pushIntent!!.getStringExtra("page")!!
-                                                .contains("SDK://feed")
-                                                    || SpUtil.pushIntent!!.getStringExtra("page")!!
-                                                .contains("SDK://podcastHome")
-                                                    || SpUtil.pushIntent!!.getStringExtra("page")!!
-                                                .contains("SDK://cryptoHome")
-                                                    || SpUtil.pushIntent!!.getStringExtra("page")!!
-                                                .contains("SDK://cricketHome")
-                                            )
-                                ) {
-                                    pos = isInterestFound(
-                                        SpUtil.pushIntent!!.getStringExtra("category")!!,
-                                        newInterestList
-                                    )
-                                    if (pos == -1) {
-                                        if (Constants.allInterestsMap.containsKey(
-                                                SpUtil.pushIntent!!.getStringExtra(
-                                                    "category"
-                                                )
-                                            )
-                                        ) {
-                                            Constants.allInterestsMap[SpUtil.pushIntent!!.getStringExtra(
-                                                "category"
-                                            )]?.let {
-                                                newInterestList.add(it)
-                                            }
-                                        }
-                                        pos = newInterestList.size - 1
-                                    }
-                                }
-                            } catch (ex: Exception) {
-                                LogDetail.LogEStack(ex)
-                            }
-                            loadLayout?.visibility = GONE
-                            val distinctList = newInterestList.distinct().toList()
-                            interestAdapter =
-                                InterestAdapter(ArrayList(distinctList), onInterestSelected)
-                            rvInterests?.apply {
-                                layoutManager =
-                                    LinearLayoutManager(
-                                        this.context,
-                                        LinearLayoutManager.HORIZONTAL,
-                                        false
-                                    )
-                                adapter = interestAdapter
-                                itemAnimator = null
-                            }
-                        }
-                        setUpPagerAdapter(
-                            newInterestList,
-                            if (FeedSdk.interestsList.isNullOrEmpty()) {
-                                mInterestResponseModel?.interestList
-                            } else {
-                                FeedSdk.interestsList
-                            },
-                            isSelectedInterestsEmpty
-                        )
-                        vpFeed?.registerOnPageChangeCallback(object :
-                            ViewPager2.OnPageChangeCallback() {
-                            override fun onPageSelected(position: Int) {
-                                super.onPageSelected(position)
-                                selectedIndex = position
-                                try {
-                                    if (newInterestList.size > 0) {
-                                        for ((index, interest) in newInterestList.withIndex()) {
-                                            if (interest.isSelected) {
-                                                newInterestList[index].isSelected = false
-                                                interestAdapter?.updateItem(
-                                                    newInterestList[index],
-                                                    index
-                                                )
-                                                interestAdapter?.notifyItemChanged(index)
-                                            }
-                                        }
-                                        newInterestList[position].isSelected = true
-                                        interestAdapter?.updateItem(
-                                            newInterestList[position],
-                                            position
-                                        )
-                                        interestAdapter?.notifyItemChanged(position)
-                                        rvInterests?.scrollToPosition(position)
-                                    }
-                                } catch (e: Exception) {
-                                    LogDetail.LogEStack(e)
-                                }
-                                try {
-                                    if (SpUtil.eventsListener != null) {
-                                        SpUtil.eventsListener!!.onFeedCategoryClick(newInterestList[position].label!!)
-                                    }
-                                } catch (ex: java.lang.Exception) {
-                                    LogDetail.LogEStack(ex)
-                                }
-                            }
-                        })
+                    }
+                    if (Constants.userDetails?.showRegionalField == true) {
+                        newInterestList.add(Interest("Near You", "near_you", null, false))
+                    }
+                    newInterestList.addAll(pinnedInterestList)
+                    if (mUserDetails != null && mInterestResponseModel != null) {
                         try {
-                            if (SpUtil.pushIntent != null && SpUtil.pushIntent!!.hasExtra("short_video") && SpUtil.pushIntent!!.getStringExtra(
+                            if (SpUtil.pushIntent != null && !SpUtil.pushIntent!!.getBooleanExtra(
+                                    "isForYou",
+                                    false
+                                )
+                                && SpUtil.pushIntent!!.hasExtra("short_video") && SpUtil.pushIntent!!.getStringExtra(
                                     "short_video"
                                 ) == "false"
                             ) {
@@ -493,12 +359,24 @@ class NewsFeedScrollView : LinearLayout, PersonalizeCallListener, OnRefreshListe
                                     SpUtil.pushIntent!!.getStringExtra("interests")!!,
                                     newInterestList
                                 )
-                                vpFeed?.offscreenPageLimit = pos + 1
-                                vpFeed?.currentItem = pos
-                                Handler(Looper.getMainLooper()).postDelayed({
-                                    rvInterests?.scrollToPosition(pos)
-                                }, 1000)
-                            } else if (SpUtil.pushIntent != null && SpUtil.pushIntent!!.hasExtra("page") && (
+                                if (pos == -1) {
+                                    if (Constants.allInterestsMap.containsKey(
+                                            SpUtil.pushIntent!!.getStringExtra(
+                                                "interests"
+                                            )
+                                        )
+                                    ) {
+                                        Constants.allInterestsMap[SpUtil.pushIntent!!.getStringExtra(
+                                            "interests"
+                                        )]?.let {
+                                            newInterestList.add(it)
+                                        }
+                                    }
+                                    pos = newInterestList.size - 1
+                                }
+                            } else if (SpUtil.pushIntent != null && SpUtil.pushIntent!!.hasExtra(
+                                    "page"
+                                ) && (
                                         SpUtil.pushIntent!!.getStringExtra("page")!!
                                             .contains("SDK://feed")
                                                 || SpUtil.pushIntent!!.getStringExtra("page")!!
@@ -513,18 +391,126 @@ class NewsFeedScrollView : LinearLayout, PersonalizeCallListener, OnRefreshListe
                                     SpUtil.pushIntent!!.getStringExtra("category")!!,
                                     newInterestList
                                 )
-                                vpFeed?.offscreenPageLimit = pos + 1
-                                vpFeed?.currentItem = pos
-                                Handler(Looper.getMainLooper()).postDelayed({
-                                    rvInterests?.scrollToPosition(pos)
-                                }, 1000)
+                                if (pos == -1) {
+                                    if (Constants.allInterestsMap.containsKey(
+                                            SpUtil.pushIntent!!.getStringExtra(
+                                                "category"
+                                            )
+                                        )
+                                    ) {
+                                        Constants.allInterestsMap[SpUtil.pushIntent!!.getStringExtra(
+                                            "category"
+                                        )]?.let {
+                                            newInterestList.add(it)
+                                        }
+                                    }
+                                    pos = newInterestList.size - 1
+                                }
                             }
                         } catch (ex: Exception) {
                             LogDetail.LogEStack(ex)
                         }
+                        loadLayout?.visibility = GONE
+                        val distinctList = newInterestList.distinct().toList()
+                        interestAdapter =
+                            InterestAdapter(ArrayList(distinctList), onInterestSelected)
+                        rvInterests?.apply {
+                            layoutManager =
+                                LinearLayoutManager(
+                                    this.context,
+                                    LinearLayoutManager.HORIZONTAL,
+                                    false
+                                )
+                            adapter = interestAdapter
+                            itemAnimator = null
+                        }
                     }
-                })
-        }
+                    setUpPagerAdapter(
+                        newInterestList,
+                        if (FeedSdk.interestsList.isNullOrEmpty()) {
+                            mInterestResponseModel?.interestList
+                        } else {
+                            FeedSdk.interestsList
+                        },
+                        isSelectedInterestsEmpty
+                    )
+                    vpFeed?.registerOnPageChangeCallback(object :
+                        ViewPager2.OnPageChangeCallback() {
+                        override fun onPageSelected(position: Int) {
+                            super.onPageSelected(position)
+                            selectedIndex = position
+                            try {
+                                if (newInterestList.size > 0) {
+                                    for ((index, interest) in newInterestList.withIndex()) {
+                                        if (interest.isSelected) {
+                                            newInterestList[index].isSelected = false
+                                            interestAdapter?.updateItem(
+                                                newInterestList[index],
+                                                index
+                                            )
+                                            interestAdapter?.notifyItemChanged(index)
+                                        }
+                                    }
+                                    newInterestList[position].isSelected = true
+                                    interestAdapter?.updateItem(
+                                        newInterestList[position],
+                                        position
+                                    )
+                                    interestAdapter?.notifyItemChanged(position)
+                                    rvInterests?.scrollToPosition(position)
+                                }
+                            } catch (e: Exception) {
+                                LogDetail.LogEStack(e)
+                            }
+                            try {
+                                if (SpUtil.eventsListener != null) {
+                                    SpUtil.eventsListener!!.onFeedCategoryClick(newInterestList[position].label!!)
+                                }
+                            } catch (ex: java.lang.Exception) {
+                                LogDetail.LogEStack(ex)
+                            }
+                        }
+                    })
+                    try {
+                        if (SpUtil.pushIntent != null && SpUtil.pushIntent!!.hasExtra("short_video") && SpUtil.pushIntent!!.getStringExtra(
+                                "short_video"
+                            ) == "false"
+                        ) {
+                            pos = isInterestFound(
+                                SpUtil.pushIntent!!.getStringExtra("interests")!!,
+                                newInterestList
+                            )
+                            vpFeed?.offscreenPageLimit = pos + 1
+                            vpFeed?.currentItem = pos
+                            Handler(Looper.getMainLooper()).postDelayed({
+                                rvInterests?.scrollToPosition(pos)
+                            }, 1000)
+                        } else if (SpUtil.pushIntent != null && SpUtil.pushIntent!!.hasExtra("page") && (
+                                    SpUtil.pushIntent!!.getStringExtra("page")!!
+                                        .contains("SDK://feed")
+                                            || SpUtil.pushIntent!!.getStringExtra("page")!!
+                                        .contains("SDK://podcastHome")
+                                            || SpUtil.pushIntent!!.getStringExtra("page")!!
+                                        .contains("SDK://cryptoHome")
+                                            || SpUtil.pushIntent!!.getStringExtra("page")!!
+                                        .contains("SDK://cricketHome")
+                                    )
+                        ) {
+                            pos = isInterestFound(
+                                SpUtil.pushIntent!!.getStringExtra("category")!!,
+                                newInterestList
+                            )
+                            vpFeed?.offscreenPageLimit = pos + 1
+                            vpFeed?.currentItem = pos
+                            Handler(Looper.getMainLooper()).postDelayed({
+                                rvInterests?.scrollToPosition(pos)
+                            }, 1000)
+                        }
+                    } catch (ex: Exception) {
+                        LogDetail.LogEStack(ex)
+                    }
+                }
+            })
     }
 
 

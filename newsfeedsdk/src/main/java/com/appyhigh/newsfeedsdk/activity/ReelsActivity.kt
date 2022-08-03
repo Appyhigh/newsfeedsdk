@@ -191,34 +191,31 @@ class ReelsActivity : AppCompatActivity() {
         } else{
             lang = null
         }
-        FeedSdk.spUtil?.getString(Constants.JWT_TOKEN)?.let {
-            ApiGetFeeds().getVideoFeedsEncrypted(
-                Endpoints.GET_FEEDS_ENCRYPTED,
-                it,
-                FeedSdk.userId,
-                FeedSdk.sdkCountryCode ?: "in",
-                Constants.exploreInterest,
-                lang,
-                pageNo,
-                feedType,
-                true,
-                true,
-                object : ApiGetFeeds.GetFeedsResponseListener {
-                    override fun onSuccess(getFeedsResponse: GetFeedsResponse, url: String, timeStamp: Long) {
-                        storeData(presentUrl, presentTimeStamp)
-                        presentTimeStamp = timeStamp
-                        presentUrl = url
-                        pageNo += 1
-                        val cards = ArrayList<Card>()
-                        for (card in getFeedsResponse.cards) {
-                            card.cardType = Constants.CardType.MEDIA_VIDEO_BIG.toString().lowercase(Locale.getDefault())
-                            cards.add(card)
-                        }
-                        cardsMap["reels"]?.addAll(cards)
-                        mAdapter?.updateExploreReelsList(cards, pageNo-1)
+        ApiGetFeeds().getVideoFeedsEncrypted(
+            Endpoints.GET_FEEDS_ENCRYPTED,
+            FeedSdk.sdkCountryCode ?: "in",
+            Constants.exploreInterest,
+            lang,
+            pageNo,
+            feedType,
+            true,
+            true,
+            object : ApiGetFeeds.GetFeedsResponseListener {
+                override fun onSuccess(getFeedsResponse: GetFeedsResponse, url: String, timeStamp: Long) {
+                    storeData(presentUrl, presentTimeStamp)
+                    presentTimeStamp = timeStamp
+                    presentUrl = url
+                    pageNo += 1
+                    val cards = ArrayList<Card>()
+                    for (card in getFeedsResponse.cards) {
+                        card.cardType = Constants.CardType.MEDIA_VIDEO_BIG.toString().lowercase(
+                            Locale.getDefault())
+                        cards.add(card)
                     }
-                })
-        }
+                    cardsMap["reels"]?.addAll(cards)
+                    mAdapter?.updateExploreReelsList(cards, pageNo-1)
+                }
+            })
     }
 
     @SuppressLint("CommitPrefEdits")
@@ -233,13 +230,10 @@ class ReelsActivity : AppCompatActivity() {
             val postImpressionString = gson.toJson(postImpressionsModel)
             sharedPrefs.edit().putString(timeStamp.toString(), postImpressionString).apply()
             postImpressions = HashMap()
-            FeedSdk.spUtil?.getString(Constants.JWT_TOKEN)?.let {
-                ApiPostImpression().addPostImpressionsEncrypted(
-                    Endpoints.POST_IMPRESSIONS_ENCRYPTED,
-                    it,
-                    this
-                )
-            }
+            ApiPostImpression().addPostImpressionsEncrypted(
+                Endpoints.POST_IMPRESSIONS_ENCRYPTED,
+                this
+            )
         } catch (ex:java.lang.Exception){
             LogDetail.LogEStack(ex)
         }

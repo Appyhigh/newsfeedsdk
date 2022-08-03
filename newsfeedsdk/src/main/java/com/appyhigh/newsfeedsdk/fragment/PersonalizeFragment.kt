@@ -13,7 +13,6 @@ import androidx.core.widget.addTextChangedListener
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.appyhigh.newsfeedsdk.Constants
 import com.appyhigh.newsfeedsdk.FeedSdk
 import com.appyhigh.newsfeedsdk.R
 import com.appyhigh.newsfeedsdk.adapter.LanguageAdapter
@@ -57,7 +56,7 @@ class PersonalizeFragment : Fragment() {
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
+    ): View {
         // Inflate the layout for this fragment
 
         val view = inflater.inflate(R.layout.fragment_interests, container, false)
@@ -90,28 +89,22 @@ class PersonalizeFragment : Fragment() {
             rvlanguges.visibility = View.GONE
             tvIntro.visibility = View.GONE
             etSearch.visibility = View.VISIBLE
-            FeedSdk.spUtil?.getString(Constants.JWT_TOKEN)?.let {
-                ApiGetInterests().getInterestsEncrypted(
-                    Endpoints.GET_INTERESTS_ENCRYPTED,
-                    it,
-                    object : ApiGetInterests.InterestResponseListener {
-                        override fun onSuccess(interestResponseModel: InterestResponseModel) {
-                            mResponseModel = interestResponseModel
-                            setUpInterests()
-                        }
-                    })
-                FeedSdk.spUtil?.getString(Constants.JWT_TOKEN)?.let {
-                    ApiUserDetails().getUserResponseEncrypted(
-                        Endpoints.USER_DETAILS_ENCRYPTED,
-                        it,
-                        object : ApiUserDetails.UserResponseListener {
-                            override fun onSuccess(userDetails: UserResponse) {
-                                mUserDetails = userDetails
-                                setUpInterests()
-                            }
-                        })
-                }
-            }
+            ApiGetInterests().getInterestsEncrypted(
+                Endpoints.GET_INTERESTS_ENCRYPTED,
+                object : ApiGetInterests.InterestResponseListener {
+                    override fun onSuccess(interestResponseModel: InterestResponseModel) {
+                        mResponseModel = interestResponseModel
+                        setUpInterests()
+                    }
+                })
+            ApiUserDetails().getUserResponseEncrypted(
+                Endpoints.USER_DETAILS_ENCRYPTED,
+                object : ApiUserDetails.UserResponseListener {
+                    override fun onSuccess(userDetails: UserResponse) {
+                        mUserDetails = userDetails
+                        setUpInterests()
+                    }
+                })
         } else {
             rvInterests.visibility = View.GONE
             tvIntro.visibility = View.GONE

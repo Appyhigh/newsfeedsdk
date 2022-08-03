@@ -6,7 +6,6 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import com.appyhigh.newsfeedsdk.Constants
-import com.appyhigh.newsfeedsdk.FeedSdk
 import com.appyhigh.newsfeedsdk.adapter.NewsFeedAdapter
 import com.appyhigh.newsfeedsdk.apicalls.ApiCrypto
 import com.appyhigh.newsfeedsdk.apiclient.Endpoints
@@ -36,29 +35,26 @@ class CryptoCoinFragment : Fragment() {
             binding.pbLoading.visibility = View.GONE
             binding.rvPosts.visibility = View.VISIBLE
         } else{
-            FeedSdk.spUtil?.getString(Constants.JWT_TOKEN)?.let {
-                ApiCrypto().getCryptoCoinDetailsEncrypted(
-                    Endpoints.GET_CRYPTO_COIN_DETAILS_ENCRYPTED,
-                    it,
-                    coinId,
-                    interest,
-                    null,
-                    null, null, object : ApiCrypto.CryptoResponseListener {
-                        override fun onSuccess(
-                            cryptoResponse: ApiCrypto.CryptoResponse,
-                            url: String,
-                            timeStamp: Long
-                        ) {
-                            val cards = cryptoResponse.cards as ArrayList<Card>
-                            Constants.cardsMap[interest] = cards
-                            val adapter = NewsFeedAdapter(cards, null, interest)
-                            binding.rvPosts.adapter = adapter
-                            binding.pbLoading.visibility = View.GONE
-                            binding.rvPosts.visibility = View.VISIBLE
-                        }
+            ApiCrypto().getCryptoCoinDetailsEncrypted(
+                Endpoints.GET_CRYPTO_COIN_DETAILS_ENCRYPTED,
+                coinId,
+                interest,
+                null,
+                null, null, object : ApiCrypto.CryptoResponseListener {
+                    override fun onSuccess(
+                        cryptoResponse: ApiCrypto.CryptoResponse,
+                        url: String,
+                        timeStamp: Long
+                    ) {
+                        val cards = cryptoResponse.cards as ArrayList<Card>
+                        Constants.cardsMap[interest] = cards
+                        val adapter = NewsFeedAdapter(cards, null, interest)
+                        binding.rvPosts.adapter = adapter
+                        binding.pbLoading.visibility = View.GONE
+                        binding.rvPosts.visibility = View.VISIBLE
                     }
-                )
-            }
+                }
+            )
         }
     }
 

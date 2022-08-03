@@ -6,6 +6,7 @@ import static com.appyhigh.newsfeedsdk.Constants.FEED_TYPE;
 import static com.appyhigh.newsfeedsdk.Constants.INTERESTS;
 import static com.appyhigh.newsfeedsdk.Constants.NEWS_FEED_APP_ID;
 import static com.appyhigh.newsfeedsdk.Constants.PAGE_NUMBER;
+import static com.appyhigh.newsfeedsdk.Constants.USER_ID;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
@@ -13,10 +14,10 @@ import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.Signature;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
+import android.provider.Settings;
 import android.util.Base64;
 
 import androidx.annotation.NonNull;
@@ -24,7 +25,7 @@ import androidx.annotation.Nullable;
 
 import com.appyhigh.newsfeedsdk.FeedSdk;
 import com.appyhigh.newsfeedsdk.model.User;
-import com.appyhigh.newsfeedsdk.utils.CustomEncryption;
+import com.appyhigh.newsfeedsdk.utils.SpUtil;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 
@@ -146,50 +147,65 @@ public class AuthSocket {
         this.license = license;
     }
 
+    /**
+     * Verify if NEWS_FEED_APP_ID is provided or not
+     * if not throw an error
+     */
     private String getAppIdFromManifest(Context context) {
-        try {
+       String appId = "";
+       try {
             ApplicationInfo ai = context.getPackageManager().getApplicationInfo(context.getPackageName(), PackageManager.GET_META_DATA);
             Bundle bundle = ai.metaData;
-            return bundle.getString(NEWS_FEED_APP_ID);
+            appId = bundle.getString(NEWS_FEED_APP_ID);
         } catch (Exception e) {
             LogDetail.LogEStack(e);
-            return "";
         }
+       FeedSdk.Companion.setAppId(appId);
+       return appId;
+    }
+
+
+    /**
+     * Set User Id
+     */
+    @SuppressLint("HardwareIds")
+    private String setUserId(Context context) {
+        String existingId =  SpUtil.Companion.getSpUtilInstance().getString(USER_ID, "");
+        String userId = (existingId!=null && !existingId.isEmpty())? existingId :
+            FeedSdk.Companion.getAppId() + "_" + Settings.Secure.getString(
+                    context.getContentResolver(),
+                    Settings.Secure.ANDROID_ID
+            );
+        FeedSdk.Companion.setUserId(userId);
+        return userId;
     }
 
     public void start(Context context, AuthenticationSuccess authenticationSuccess) {
         try {
-
             String keyInit = adea(nativeKey1());
             this.authenticationSuccess = authenticationSuccess;
             if (alreadyAuthenticated) {
                 authenticationSuccess.onAuthSuccess();
                 return;
             }
+
             if (this.license == null || this.license.equals("")) {
                 LogDetail.LogDE("Auth Session", "You must set a license before calling start(...)");
                 return;
             }
             this.started = true;
             mContext = context;
-            SessionUser.Instance().setAppId(getAppIdFromManifest(context));
-            SessionUser.Instance().setSdkId("com.appyhigh.mylibrary");
-
-            final PackageInfo info = context.getPackageManager().getPackageInfo(context.getPackageName(), 0);
-            SessionUser.Instance().setApp_versionCode(String.valueOf(info.versionCode));
-            SessionUser.Instance().setApp_versionName(String.valueOf(info.versionName));
-            SessionUser.Instance().setManufacturer(Build.MANUFACTURER);
-            SessionUser.Instance().setDevice_model(Build.MODEL);
-            SessionUser.Instance().setOs_version(Build.VERSION.BASE_OS);
+            SpUtil.Companion.getSpUtilInstance().init(context);
+            getAppIdFromManifest(context);
+            setUserId(context);
+            SessionUser.Instance().setAppDetails(context);
             String SHA1 = getSHA1(AuthSocket.Instance().getmContext(), "SHA1");
             String NativeKey = String.valueOf(keyInit);
             byte[] decodedBytes = Base64.decode(NativeKey, Base64.DEFAULT);
             String decodedString = new String(decodedBytes);
 
-
-
             //Another Key can Be configured in Remote Config of Firebase - Challenge it would have to come from Client Firebase
-            String encryptionKey = String.valueOf(SessionUser.Instance().getVersionCode()).trim() + SessionUser.Instance().getVersionName().trim() + decodedString.trim() + SHA1.trim();
+            String encryptionKey = String.valueOf(FeedSdk.Companion.getSDKVersion()).trim() + decodedString.trim() + SHA1.trim();
             LogDetail.LogDE("encryptionKey", encryptionKey);
             this.encryptionKey = encryptionKey;
             instanceEncryption = new AESCBCPKCS5Encryption().getInstance(encryptionKey.trim());
@@ -235,16 +251,6 @@ public class AuthSocket {
         LogDetail.LogDE("ENCRYPTED TEXT - ", initialIEncryptionString);
 
         verifyData(initialIEncryptionString, new com.appyhigh.newsfeedsdk.apicalls.ResponseListener() {
-            @Override
-            public void onSuccess(@Nullable String apiUrl, @Nullable JSONObject response) {
-                LogDetail.LogDE("verify", response.toString());
-            }
-
-            @Override
-            public void onSuccess(@Nullable String apiUrl, @Nullable JSONArray response) {
-                LogDetail.LogDE("verify", response.toString());
-            }
-
             @Override
             public void onSuccess(@Nullable String apiUrl, @Nullable String response) {
                 LogDetail.LogDE("verify", response.toString());
@@ -302,8 +308,8 @@ public class AuthSocket {
                 .add("data", sendingData)
                 .build();
         Request request = new Request.Builder()
-                .url("https://secure-sdk-qa.apyhi.com/api/verify")   //URL
-//                .url("http://104.161.92.74:8433/api/verify")   //URL
+//                .url("https://secure-sdk-qa.apyhi.com/api/verify")   //URL
+                .url("http://104.161.92.74:4711/api/verify")   //URL
                 .header("auth-token", SessionUser.Instance().getToken())
                 .post(formBody)
                 .build();
@@ -405,8 +411,8 @@ public class AuthSocket {
                 .build();
         LogDetail.LogD("auth-token", SessionUser.Instance().getToken());
         Request request = new Request.Builder()
-                .url("https://secure-sdk-qa.apyhi.com/api/data")   //URL
-//                .url("http://104.161.92.74:8433/api/data")   //URL
+//                .url("https://secure-sdk-qa.apyhi.com/api/data")   //URL
+                .url("http://104.161.92.74:4711/api/grpcdata")   //URL
                 .header("auth-token", SessionUser.Instance().getToken())
                 .post(formBody)
                 .build();
@@ -445,34 +451,25 @@ public class AuthSocket {
                         SessionUser.Instance().setToken(jwtTokenDetails.getString("token"));
 
                         new Handler(Looper.getMainLooper()).post(() -> {
-                            JSONObject dataJSON;
                             try {
-                                dataJSON = new JSONObject(String.valueOf(RespJson.getJSONObject("data")));
-                                responseListener.onSuccess(RespJson.getString("apiURL"), dataJSON);
+                                JSONObject responseJson = RespJson.getJSONObject("data");
+                                String dataJSON = responseJson.getString("response");
+                                try{
+                                    JSONObject statusJson = new JSONObject(dataJSON);
+                                    if(statusJson.has("status_code") && statusJson.getInt("status_code")>300){
+                                        responseListener.onError(call, new IOException(RespJson.getString("apiURL")+" "+statusJson.getString("msg")));
+                                    } else {
+                                        responseListener.onSuccess(RespJson.getString("apiURL"), dataJSON);
+                                    }
+                                } catch (Exception ex) {
+                                    responseListener.onSuccess(RespJson.getString("apiURL"), dataJSON);
+                                }
                             } catch (JSONException e) {
+                                LogDetail.LogEStack(e);
                             }
                         });
 
-                        new Handler(Looper.getMainLooper()).post(() -> {
-                            JSONArray dataArray;
-                            try {
-                                dataArray = RespJson.getJSONArray("data");
-                                responseListener.onSuccess(RespJson.getString("apiURL"), dataArray);
-                            } catch (JSONException e) {
-                            }
-                        });
-
-
-                        new Handler(Looper.getMainLooper()).post(() -> {
-                            String dataString;
-                            try {
-                                dataString = String.valueOf(RespJson.getString("data"));
-                                responseListener.onSuccess(RespJson.getString("apiURL"), dataString);
-                            } catch (JSONException e) {
-                            }
-                        });
-
-                    } catch (IOException | JSONException e) {
+                    } catch (Exception e) {
                         LogDetail.LogEStack(e);
                     }
 

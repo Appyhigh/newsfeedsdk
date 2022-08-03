@@ -5,7 +5,6 @@ import android.content.Intent
 import androidx.work.Worker
 import androidx.work.WorkerParameters
 import com.appyhigh.newsfeedsdk.Constants
-import com.appyhigh.newsfeedsdk.FeedSdk
 import com.appyhigh.newsfeedsdk.apicalls.ApiCricketSchedule
 import com.appyhigh.newsfeedsdk.apiclient.Endpoints
 import com.appyhigh.newsfeedsdk.encryption.LogDetail
@@ -31,61 +30,58 @@ class SocketWorker(appContext: Context, workerParams: WorkerParameters):
     }
 
     private fun handleCricketNotification(context: Context) {
-        FeedSdk.spUtil?.getString(Constants.JWT_TOKEN)?.let {
-            ApiCricketSchedule().getCricketScheduleEncrypt(
-                Endpoints.GET_CRICKET_SCHEDULE_ENCRYPTED,
-                it,
-                Constants.LIVE_MATCHES,
-                object : ApiCricketSchedule.CricketScheduleResponseListener {
-                    override fun onSuccess(cricketScheduleResponse: CricketScheduleResponse) {
-                        val cards = ArrayList<Card>()
-                        for(card in cricketScheduleResponse.cards){
-                            if(card.items[0].matchstatus.lowercase()!="stumps"){
-                                cards.add(card)
-                            }
+        ApiCricketSchedule().getCricketScheduleEncrypt(
+            Endpoints.GET_CRICKET_SCHEDULE_ENCRYPTED,
+            Constants.LIVE_MATCHES,
+            object : ApiCricketSchedule.CricketScheduleResponseListener {
+                override fun onSuccess(cricketScheduleResponse: CricketScheduleResponse) {
+                    val cards = ArrayList<Card>()
+                    for(card in cricketScheduleResponse.cards){
+                        if(card.items[0].matchstatus.lowercase()!="stumps"){
+                            cards.add(card)
                         }
-                        if(cards.isEmpty() && context.isMyServiceRunning(
-                                NotificationCricketService::class.java)){
-                            context.stopNotificationCricketService()
-                        }
-                        try {
-                            SpUtil.spUtilInstance!!.putBoolean("dismissCricket", false)
-                            if (!SocketConnection.isSocketListenersNotificationSet()) {
-                                val socketClientCallback: SocketConnection.SocketClientCallback = object :
-                                    SocketConnection.SocketClientCallback {
-                                    override fun onLiveScoreUpdate(liveScoreData: String) {}
-                                    override fun getLiveScore(liveScoreObject: JSONObject) {
-                                        try {
-                                            if (!SpUtil.spUtilInstance!!.getBoolean("dismissCricket", false)){
-                                                if (liveScoreObject.getJSONObject("data").getString("Status")
-                                                        .lowercase(Locale.getDefault()) == "match ended" && context.isMyServiceRunning(
-                                                        NotificationCricketService::class.java)) {
-                                                    val intent = Intent("dismissCricket")
-                                                    context.sendBroadcast(intent)
-                                                } else {
-                                                    context.startNotificationCricketService(liveScoreObject)
-                                                }
+                    }
+                    if(cards.isEmpty() && context.isMyServiceRunning(
+                            NotificationCricketService::class.java)){
+                        context.stopNotificationCricketService()
+                    }
+                    try {
+                        SpUtil.spUtilInstance!!.putBoolean("dismissCricket", false)
+                        if (!SocketConnection.isSocketListenersNotificationSet()) {
+                            val socketClientCallback: SocketConnection.SocketClientCallback = object :
+                                SocketConnection.SocketClientCallback {
+                                override fun onLiveScoreUpdate(liveScoreData: String) {}
+                                override fun getLiveScore(liveScoreObject: JSONObject) {
+                                    try {
+                                        if (!SpUtil.spUtilInstance!!.getBoolean("dismissCricket", false)){
+                                            if (liveScoreObject.getJSONObject("data").getString("Status")
+                                                    .lowercase(Locale.getDefault()) == "match ended" && context.isMyServiceRunning(
+                                                    NotificationCricketService::class.java)) {
+                                                val intent = Intent("dismissCricket")
+                                                context.sendBroadcast(intent)
+                                            } else {
+                                                context.startNotificationCricketService(liveScoreObject)
                                             }
-                                        } catch (ex:Exception){
-                                            LogDetail.LogEStack(ex)
                                         }
+                                    } catch (ex:Exception){
+                                        LogDetail.LogEStack(ex)
                                     }
                                 }
-                                SocketConnection.setSocketListenersNotification(socketClientCallback)
                             }
-                            if (!SocketConnection.isSocketConnected()) {
-                                SocketConnection.initSocketConnection()
-                            }
-                        } catch (e: java.lang.Exception) {
-                            LogDetail.LogEStack(e)
+                            SocketConnection.setSocketListenersNotification(socketClientCallback)
                         }
+                        if (!SocketConnection.isSocketConnected()) {
+                            SocketConnection.initSocketConnection()
+                        }
+                    } catch (e: java.lang.Exception) {
+                        LogDetail.LogEStack(e)
                     }
+                }
 
-                    override fun onFailure(error: Throwable) {
+                override fun onFailure(error: Throwable) {
 
-                    }
-                }, 0)
-        }
+                }
+            }, 0)
 
     }
 }

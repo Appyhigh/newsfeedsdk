@@ -1,6 +1,5 @@
 package com.appyhigh.newsfeedsdk.apicalls
 
-import android.util.Log
 import com.appyhigh.newsfeedsdk.Constants
 import com.appyhigh.newsfeedsdk.encryption.AESCBCPKCS5Encryption
 import com.appyhigh.newsfeedsdk.encryption.AuthSocket
@@ -11,8 +10,6 @@ import com.google.common.reflect.TypeToken
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
 import okhttp3.Call
-import org.json.JSONArray
-import org.json.JSONObject
 import retrofit2.Response
 import java.io.IOException
 import java.nio.charset.StandardCharsets
@@ -20,8 +17,6 @@ import java.nio.charset.StandardCharsets
 class ApiGetPublisherPosts {
     fun getPublisherPostsEncrypted(
         apiUrl: String,
-        token: String,
-        userId: String?,
         pageNumber: Int,
         publisherId: String,
         publisherPostsResponseListener: PublisherPostsResponseListener
@@ -35,7 +30,7 @@ class ApiGetPublisherPosts {
         values.add(pageNumber.toString())
         values.add(publisherId)
         val allDetails =
-            BaseAPICallObject().getBaseObjectWithAuth(Constants.GET, apiUrl, token, keys, values)
+            BaseAPICallObject().getBaseObjectWithAuth(Constants.GET, apiUrl, keys, values)
 
         LogDetail.LogDE("Test Data", allDetails.toString())
         val publicKey = SessionUser.Instance().publicKey
@@ -50,12 +45,12 @@ class ApiGetPublisherPosts {
         LogDetail.LogD("Data to be Sent -> ", sendingData)
 
         AuthSocket.Instance().postData(sendingData, object : ResponseListener {
-            override fun onSuccess(apiUrl: String?, response: JSONObject?) {
-                LogDetail.LogDE("ApiGetPublisherPosts $apiUrl", response.toString())
+            override fun onSuccess(apiUrl: String, response: String) {
+                LogDetail.LogDE("ApiGetPublisherPosts $apiUrl", response)
                 val gson: Gson = GsonBuilder().create()
                 val getFeedsResponseBase: GetFeedsResponse =
                     gson.fromJson(
-                        response.toString(),
+                        response,
                         object : TypeToken<GetFeedsResponse>() {}.type
                     )
                 val getFeedsResponse: Response<GetFeedsResponse> =
@@ -65,15 +60,6 @@ class ApiGetPublisherPosts {
                     getFeedsResponse.raw().request.url.toString(),
                     getFeedsResponse.raw().sentRequestAtMillis
                 )
-
-            }
-
-            override fun onSuccess(apiUrl: String?, response: JSONArray?) {
-                LogDetail.LogDE("ApiGetPublisherPosts $apiUrl", response.toString())
-            }
-
-            override fun onSuccess(apiUrl: String?, response: String?) {
-                LogDetail.LogDE("ApiGetPublisherPosts $apiUrl", response.toString())
             }
 
             override fun onError(call: Call, e: IOException) {

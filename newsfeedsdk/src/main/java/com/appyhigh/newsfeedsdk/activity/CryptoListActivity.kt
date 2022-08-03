@@ -6,7 +6,6 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.widget.doOnTextChanged
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.appyhigh.newsfeedsdk.Constants
-import com.appyhigh.newsfeedsdk.FeedSdk
 import com.appyhigh.newsfeedsdk.R
 import com.appyhigh.newsfeedsdk.adapter.CryptoDetailsAdapter
 import com.appyhigh.newsfeedsdk.adapter.CryptoSearchAdapter
@@ -86,12 +85,9 @@ class CryptoListActivity : AppCompatActivity(), ApiCrypto.CryptoSearchListener {
                 searchAdapter.updateList(ArrayList())
             } else{
                 binding!!.rvSearchPosts.visibility = View.VISIBLE
-                FeedSdk.spUtil?.getString(Constants.JWT_TOKEN)?.let {
-                    ApiCrypto().searchCryptoCoinsEncrypted(
-                        Endpoints.CRYPTO_SEARCH_ENCRYPTED,
-                        it,
-                        text.toString(),this)
-                }
+                ApiCrypto().searchCryptoCoinsEncrypted(
+                    Endpoints.CRYPTO_SEARCH_ENCRYPTED,
+                    text.toString(),this)
             }
         }
     }
@@ -104,43 +100,40 @@ class CryptoListActivity : AppCompatActivity(), ApiCrypto.CryptoSearchListener {
     }
 
     private fun fetchData(listener: OnRefreshListener?=null){
-        FeedSdk.spUtil?.getString(Constants.JWT_TOKEN)?.let {
-            ApiCrypto().getCryptoDetailsEncrypted(
-                Endpoints.GET_CRYPTO_DETAILS_ENCRYPTED,
-                it,
-                if(listener==null) pageNo else 0,
-                watchlist,
-                orderType, object : ApiCrypto.CryptoDetailsResponseListener {
-                    override fun onSuccess(
-                        cryptoResponse: ApiCrypto.CryptoDetailsResponse,
-                        url: String,
-                        timeStamp: Long
-                    ) {
-                        presentUrl = url
-                        presentTimeStamp = timeStamp
-                        val cryptoCard = cryptoResponse.cards
-                        val newCryptoCardItems = ArrayList<Item>()
-                        val loadMore = Item(key_id = Constants.LOADER)
-                        if (cryptoCard != null) {
-                            newCryptoCardItems.addAll(cryptoCard.items)
-                        }
-                        newCryptoCardItems.add(loadMore)
-                        cryptoAdapter = CryptoDetailsAdapter(newCryptoCardItems, isEditable = true, cryptoCard?.cardType?:"", true, interest)
-                        linearLayoutManager = LinearLayoutManager(this@CryptoListActivity)
-                        binding!!.rvPosts.apply {
-                            layoutManager = linearLayoutManager
-                            adapter = cryptoAdapter
-                            itemAnimator = null
-                        }
-                        binding!!.pbLoading.visibility = View.GONE
-                        listener?.onRefreshNeeded()
-                        binding!!.rvPosts.visibility = View.VISIBLE
-                        pageNo+=1
-                        setEndlessScrolling()
+        ApiCrypto().getCryptoDetailsEncrypted(
+            Endpoints.GET_CRYPTO_DETAILS_ENCRYPTED,
+            if(listener==null) pageNo else 0,
+            watchlist,
+            orderType, object : ApiCrypto.CryptoDetailsResponseListener {
+                override fun onSuccess(
+                    cryptoResponse: ApiCrypto.CryptoDetailsResponse,
+                    url: String,
+                    timeStamp: Long
+                ) {
+                    presentUrl = url
+                    presentTimeStamp = timeStamp
+                    val cryptoCard = cryptoResponse.cards
+                    val newCryptoCardItems = ArrayList<Item>()
+                    val loadMore = Item(key_id = Constants.LOADER)
+                    if (cryptoCard != null) {
+                        newCryptoCardItems.addAll(cryptoCard.items)
                     }
+                    newCryptoCardItems.add(loadMore)
+                    cryptoAdapter = CryptoDetailsAdapter(newCryptoCardItems, isEditable = true, cryptoCard?.cardType?:"", true, interest)
+                    linearLayoutManager = LinearLayoutManager(this@CryptoListActivity)
+                    binding!!.rvPosts.apply {
+                        layoutManager = linearLayoutManager
+                        adapter = cryptoAdapter
+                        itemAnimator = null
+                    }
+                    binding!!.pbLoading.visibility = View.GONE
+                    listener?.onRefreshNeeded()
+                    binding!!.rvPosts.visibility = View.VISIBLE
+                    pageNo+=1
+                    setEndlessScrolling()
                 }
-            )
-        }
+            }
+        )
     }
 
     private fun setEndlessScrolling() {
@@ -166,32 +159,29 @@ class CryptoListActivity : AppCompatActivity(), ApiCrypto.CryptoSearchListener {
             val watchListString = ApiCreateOrUpdateUser().getWatchlistString()
             watchlist = if(watchListString!="") watchListString else null
         }
-        FeedSdk.spUtil?.getString(Constants.JWT_TOKEN)?.let {
-            ApiCrypto().getCryptoDetailsEncrypted(
-                Endpoints.GET_CRYPTO_DETAILS_ENCRYPTED,
-                it,
-                pageNo,
-                null,
-                orderType, object : ApiCrypto.CryptoDetailsResponseListener {
-                    override fun onSuccess(
-                        cryptoResponse: ApiCrypto.CryptoDetailsResponse,
-                        url: String,
-                        timeStamp: Long
-                    ) {
-                        presentUrl = url
-                        presentTimeStamp = timeStamp
-                        val cryptoCard = cryptoResponse.cards
-                        val newCryptoCardItems = ArrayList<Item>()
-                        val loadMore = Item(key_id = Constants.LOADER)
-                        if(cryptoCard!=null && cryptoCard.items.isNotEmpty()) {
-                            newCryptoCardItems.addAll(cryptoCard.items)
-                            newCryptoCardItems.add(loadMore)
-                            cryptoAdapter?.updateList(newCryptoCardItems)
-                            pageNo += 1
-                        }
+        ApiCrypto().getCryptoDetailsEncrypted(
+            Endpoints.GET_CRYPTO_DETAILS_ENCRYPTED,
+            pageNo,
+            null,
+            orderType, object : ApiCrypto.CryptoDetailsResponseListener {
+                override fun onSuccess(
+                    cryptoResponse: ApiCrypto.CryptoDetailsResponse,
+                    url: String,
+                    timeStamp: Long
+                ) {
+                    presentUrl = url
+                    presentTimeStamp = timeStamp
+                    val cryptoCard = cryptoResponse.cards
+                    val newCryptoCardItems = ArrayList<Item>()
+                    val loadMore = Item(key_id = Constants.LOADER)
+                    if(cryptoCard!=null && cryptoCard.items.isNotEmpty()) {
+                        newCryptoCardItems.addAll(cryptoCard.items)
+                        newCryptoCardItems.add(loadMore)
+                        cryptoAdapter?.updateList(newCryptoCardItems)
+                        pageNo += 1
                     }
-                })
-        }
+                }
+            })
     }
 
     override fun onSuccess(cryptoResponse: CryptoSearchResponse) {

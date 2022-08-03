@@ -2,7 +2,6 @@ package com.appyhigh.newsfeedsdk.apicalls
 
 import android.annotation.SuppressLint
 import android.content.Context
-import android.util.Log
 import com.appyhigh.newsfeedsdk.Constants
 import com.appyhigh.newsfeedsdk.apiclient.Endpoints
 import com.appyhigh.newsfeedsdk.encryption.AESCBCPKCS5Encryption
@@ -15,8 +14,6 @@ import com.google.gson.Gson
 import com.google.gson.JsonArray
 import com.google.gson.JsonObject
 import okhttp3.Call
-import org.json.JSONArray
-import org.json.JSONObject
 import java.io.IOException
 import java.nio.charset.StandardCharsets
 
@@ -25,7 +22,6 @@ class ApiPostImpression {
     @SuppressLint("CommitPrefEdits")
     fun addPostImpressionsEncrypted(
         apiUrl: String,
-        token: String,
         mContext: Context
     ) {
         val sharedPrefs = mContext.getSharedPreferences("postImpressions", Context.MODE_PRIVATE)
@@ -78,10 +74,6 @@ class ApiPostImpression {
             val dataJO = JsonObject()
             dataJO.add("impressions_list", impressionList)
             main.add(Constants.API_DATA, dataJO)
-
-            val headerJO = JsonObject()
-            headerJO.addProperty(Constants.AUTHORIZATION, token)
-            main.add(Constants.API_HEADER, headerJO)
             LogDetail.LogDE("Test Data", main.toString())
 
             try {
@@ -105,7 +97,7 @@ class ApiPostImpression {
             LogDetail.LogD("Data to be Sent -> ", sendingData)
 
             AuthSocket.Instance().postData(sendingData, object : ResponseListener {
-                override fun onSuccess(apiUrl: String?, response: JSONObject?) {
+                override fun onSuccess(apiUrl: String, response: String) {
                     LogDetail.LogDE("ApiPostImpression $apiUrl", response.toString())
                     try {
                         sharedPrefs.edit().clear().apply()
@@ -113,14 +105,6 @@ class ApiPostImpression {
                         LogDetail.LogEStack(ex)
                     }
                     Constants.isImpressionApiHit = false
-                }
-
-                override fun onSuccess(apiUrl: String?, response: JSONArray?) {
-                    LogDetail.LogDE("ApiPostImpression $apiUrl", response.toString())
-                }
-
-                override fun onSuccess(apiUrl: String?, response: String?) {
-                    LogDetail.LogDE("ApiPostImpression $apiUrl", response.toString())
                 }
 
                 override fun onError(call: Call, e: IOException) {
@@ -133,7 +117,6 @@ class ApiPostImpression {
     }
 
     fun addCricketPostImpression(
-       token: String,
        url: String
     ) {
         try {
@@ -162,9 +145,6 @@ class ApiPostImpression {
             val dataJO = JsonObject()
             dataJO.add("impressions_list", impressionList)
             main.add(Constants.API_DATA, dataJO)
-            val headerJO = JsonObject()
-            headerJO.addProperty(Constants.AUTHORIZATION, token)
-            main.add(Constants.API_HEADER, headerJO)
             LogDetail.LogDE("Test Data", main.toString())
 
             try {
@@ -188,13 +168,7 @@ class ApiPostImpression {
             LogDetail.LogD("Data to be Sent -> ", sendingData)
 
             AuthSocket.Instance().postData(sendingData, object : ResponseListener {
-                override fun onSuccess(apiUrl: String?, response: JSONObject?) {}
-
-                override fun onSuccess(apiUrl: String?, response: JSONArray?) {
-                    LogDetail.LogDE("ApiPostImpression $apiUrl", response.toString())
-                }
-
-                override fun onSuccess(apiUrl: String?, response: String?) {
+                override fun onSuccess(apiUrl: String, response: String) {
                     LogDetail.LogDE("ApiPostImpression $apiUrl", response.toString())
                 }
 

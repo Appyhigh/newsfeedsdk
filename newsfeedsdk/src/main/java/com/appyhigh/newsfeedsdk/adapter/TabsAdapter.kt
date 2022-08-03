@@ -10,7 +10,6 @@ import androidx.core.content.ContextCompat
 import androidx.databinding.DataBindingUtil
 import androidx.recyclerview.widget.RecyclerView
 import com.appyhigh.newsfeedsdk.Constants
-import com.appyhigh.newsfeedsdk.FeedSdk
 import com.appyhigh.newsfeedsdk.R
 import com.appyhigh.newsfeedsdk.apicalls.ApiPostImpression
 import com.appyhigh.newsfeedsdk.callbacks.TabSelectedListener
@@ -110,9 +109,7 @@ class TabsAdapter(
                 } else if(tabList[holder.absoluteAdapterPosition].key_id=="results" && tabList[holder.absoluteAdapterPosition].selected){
                     hitCricketPostImpression(holder.itemView.context, 0, Constants.cricketPastMatchURI, 1)
                 } else if(tabList[holder.absoluteAdapterPosition].key_id=="live_matches" && tabList[holder.absoluteAdapterPosition].selected){
-                    FeedSdk.spUtil?.getString(Constants.JWT_TOKEN)?.let {
-                        ApiPostImpression().addCricketPostImpression(it, Constants.cricketLiveMatchURI)
-                    }
+                    ApiPostImpression().addCricketPostImpression(Constants.cricketLiveMatchURI)
                 }
             }
         }
@@ -126,9 +123,7 @@ class TabsAdapter(
             Handler(Looper.getMainLooper()).postDelayed({ alreadyCalled = -1 }, 2000)
         }
         if(url.isNotEmpty()){
-            FeedSdk.spUtil?.getString(Constants.JWT_TOKEN)?.let {
-                ApiPostImpression().addCricketPostImpression(it, url)
-            }
+            ApiPostImpression().addCricketPostImpression(url)
         } else{
             Handler(Looper.getMainLooper()).postDelayed({ hitCricketPostImpression(context, tryCount+1, if(type==0) Constants.cricketUpcomingMatchURI else Constants.cricketPastMatchURI, type) }, 5000)
         }

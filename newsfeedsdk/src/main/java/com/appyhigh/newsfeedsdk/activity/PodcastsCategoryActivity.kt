@@ -122,28 +122,22 @@ class PodcastsCategoryActivity : AppCompatActivity() {
         }
         if(groupType == "podcast-category") {
             binding!!.headerTitle.text = intent.getStringExtra(Constants.INTEREST)!!
-            FeedSdk.spUtil?.getString(Constants.JWT_TOKEN)?.let {
-                ApiPodcast().getPodcastCategoryEncrypted(
-                    Endpoints.PODCAST_CATEGORY_ENCRYPTED,
-                    it,
-                    intent.getStringExtra(Constants.INTEREST)!!,
-                    getLanguageQuery(),
-                    pageNo,
-                    listener
-                )
-            }
+            ApiPodcast().getPodcastCategoryEncrypted(
+                Endpoints.PODCAST_CATEGORY_ENCRYPTED,
+                intent.getStringExtra(Constants.INTEREST)!!,
+                getLanguageQuery(),
+                pageNo,
+                listener
+            )
         } else{
             binding!!.headerTitle.text = intent.getStringExtra("publisher_name")!!
-            FeedSdk.spUtil?.getString(Constants.JWT_TOKEN)?.let {
-                ApiPodcast().getPodcastPublisherEncrypted(
-                    Endpoints.PODCAST_PUBLISHER_ENCRYPTED,
-                    it,
-                    intent.getStringExtra(Constants.PUBLISHER_ID)!!,
-                    getLanguageQuery(),
-                    pageNo,
-                    listener
-                )
-            }
+            ApiPodcast().getPodcastPublisherEncrypted(
+                Endpoints.PODCAST_PUBLISHER_ENCRYPTED,
+                intent.getStringExtra(Constants.PUBLISHER_ID)!!,
+                getLanguageQuery(),
+                pageNo,
+                listener
+            )
         }
     }
 
@@ -186,27 +180,21 @@ class PodcastsCategoryActivity : AppCompatActivity() {
 
         }
         if(groupType == "podcast-category") {
-            FeedSdk.spUtil?.getString(Constants.JWT_TOKEN)?.let {
-                ApiPodcast().getPodcastCategoryEncrypted(
-                    Endpoints.PODCAST_CATEGORY_ENCRYPTED,
-                    it,
-                    intent.getStringExtra(Constants.INTEREST)!!,
-                    getLanguageQuery(),
-                    pageNo,
-                    listener
-                )
-            }
+            ApiPodcast().getPodcastCategoryEncrypted(
+                Endpoints.PODCAST_CATEGORY_ENCRYPTED,
+                intent.getStringExtra(Constants.INTEREST)!!,
+                getLanguageQuery(),
+                pageNo,
+                listener
+            )
         } else{
-            FeedSdk.spUtil?.getString(Constants.JWT_TOKEN)?.let {
-                ApiPodcast().getPodcastPublisherEncrypted(
-                    Endpoints.PODCAST_PUBLISHER_ENCRYPTED,
-                    it,
-                    intent.getStringExtra(Constants.PUBLISHER_ID)!!,
-                    getLanguageQuery(),
-                    pageNo,
-                    listener
-                )
-            }
+            ApiPodcast().getPodcastPublisherEncrypted(
+                Endpoints.PODCAST_PUBLISHER_ENCRYPTED,
+                intent.getStringExtra(Constants.PUBLISHER_ID)!!,
+                getLanguageQuery(),
+                pageNo,
+                listener
+            )
         }
     }
 
@@ -243,13 +231,10 @@ class PodcastsCategoryActivity : AppCompatActivity() {
             val postImpressionString = gson.toJson(postImpressionsModel)
             sharedPrefs.edit().putString(timeStamp.toString(), postImpressionString).apply()
             postImpressions = HashMap()
-            FeedSdk.spUtil?.getString(Constants.JWT_TOKEN)?.let {
-                ApiPostImpression().addPostImpressionsEncrypted(
-                    Endpoints.POST_IMPRESSIONS_ENCRYPTED,
-                    it,
-                    this
-                )
-            }
+            ApiPostImpression().addPostImpressionsEncrypted(
+                Endpoints.POST_IMPRESSIONS_ENCRYPTED,
+                this
+            )
         } catch (ex:java.lang.Exception){
             LogDetail.LogEStack(ex)
         }

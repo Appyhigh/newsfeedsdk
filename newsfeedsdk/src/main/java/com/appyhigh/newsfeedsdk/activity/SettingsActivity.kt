@@ -148,21 +148,15 @@ class SettingsActivity : AppCompatActivity(), SearchStickyItemListener {
             logFirebaseEvent("SettingsChange","Action","Turnoff cricket notification")
             if(Constants.isChecked){
                 Constants.isChecked = false
-                FeedSdk.spUtil?.getString(Constants.JWT_TOKEN)?.let { it1 ->
-                    ApiCreateOrUpdateUser().updateCricketNotificationEncrypt(
-                        Endpoints.UPDATE_USER_ENCRYPTED,
-                        it1,
-                        false)
-                }
+                ApiCreateOrUpdateUser().updateCricketNotificationEncrypt(
+                    Endpoints.UPDATE_USER_ENCRYPTED,
+                    false)
                 binding!!.turnOffCricketIcon.setImageResource(R.drawable.ic_switch_off)
             } else{
                 Constants.isChecked = true
-                FeedSdk.spUtil?.getString(Constants.JWT_TOKEN)?.let { it1 ->
-                    ApiCreateOrUpdateUser().updateCricketNotificationEncrypt(
-                        Endpoints.UPDATE_USER_ENCRYPTED,
-                        it1,
-                        true)
-                }
+                ApiCreateOrUpdateUser().updateCricketNotificationEncrypt(
+                    Endpoints.UPDATE_USER_ENCRYPTED,
+                    true)
                 binding!!.turnOffCricketIcon.setImageResource(R.drawable.ic_switch_on)
             }
             Handler(Looper.getMainLooper()).postDelayed({

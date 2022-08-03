@@ -56,32 +56,22 @@ class AddInterestsActivity : AppCompatActivity() {
         Card.setFontFamily(manageCategory, true)
         Constants.setFontFamily(etSearch)
         etSearch?.typeface = FeedSdk.font
-        FeedSdk.spUtil?.getString(Constants.JWT_TOKEN)?.let {
-            ApiGetInterests().getInterestsEncrypted(
-                Endpoints.GET_INTERESTS_ENCRYPTED,
-                it,
-                object : ApiGetInterests.InterestResponseListener {
-                    override fun onSuccess(interestResponseModel: InterestResponseModel) {
-                        mInterestResponseModel = interestResponseModel
-                        setUpInterests()
-                    }
-                })
-        }
-
-        FeedSdk.spUtil?.getString(Constants.JWT_TOKEN)?.let {
-            ApiUserDetails().getUserResponseEncrypted(
-                Endpoints.USER_DETAILS_ENCRYPTED,
-                it,
-                object : ApiUserDetails.UserResponseListener {
-                    override fun onSuccess(userDetails: UserResponse) {
-                        mUserDetails = userDetails
-                        setUpInterests()
-                    }
-                })
-        }
-
-
-
+        ApiGetInterests().getInterestsEncrypted(
+            Endpoints.GET_INTERESTS_ENCRYPTED,
+            object : ApiGetInterests.InterestResponseListener {
+                override fun onSuccess(interestResponseModel: InterestResponseModel) {
+                    mInterestResponseModel = interestResponseModel
+                    setUpInterests()
+                }
+            })
+        ApiUserDetails().getUserResponseEncrypted(
+            Endpoints.USER_DETAILS_ENCRYPTED,
+            object : ApiUserDetails.UserResponseListener {
+                override fun onSuccess(userDetails: UserResponse) {
+                    mUserDetails = userDetails
+                    setUpInterests()
+                }
+            })
         rvSelectedInterest = findViewById(R.id.rvSelectedInterests)
         rvAllInterests = findViewById(R.id.rvAllInterests)
 
@@ -168,26 +158,21 @@ class AddInterestsActivity : AppCompatActivity() {
 
     override fun onBackPressed() {
         if (interestList.size > 2 && isChanged) {
-            FeedSdk.userId?.let {
-                FeedSdk.spUtil?.getString(Constants.JWT_TOKEN)?.let { it1 ->
-                    ApiUpdateUserPersonalization().updateUserPersonalizationEncrypted(
-                        Endpoints.UPDATE_USER_ENCRYPTED,
-                        it,
-                        interestList,
-                        ArrayList(),
-                        object : ApiUpdateUserPersonalization.UpdatePersonalizationListener {
-                            override fun onFailure() {
-                                finish()
-                            }
+            ApiUpdateUserPersonalization().updateUserPersonalizationEncrypted(
+                Endpoints.UPDATE_USER_ENCRYPTED,
+                interestList,
+                ArrayList(),
+                object : ApiUpdateUserPersonalization.UpdatePersonalizationListener {
+                    override fun onFailure() {
+                        finish()
+                    }
 
-                            override fun onSuccess() {
-                                FeedSdk.isRefreshNeeded = true
-                                finish()
-                            }
-                        }
-                    )
+                    override fun onSuccess() {
+                        FeedSdk.isRefreshNeeded = true
+                        finish()
+                    }
                 }
-            }
+            )
         } else {
             finish()
         }

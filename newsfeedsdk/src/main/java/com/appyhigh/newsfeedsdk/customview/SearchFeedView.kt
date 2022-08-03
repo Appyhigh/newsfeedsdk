@@ -85,28 +85,22 @@ class SearchFeedView : LinearLayout, OnRefreshListener {
         pbLoading = view.findViewById(R.id.pbLoading)
         rvPosts = view.findViewById(R.id.rvPosts)
         linearLayoutManager = LinearLayoutManager(context)
-        FeedSdk.spUtil?.getString(Constants.JWT_TOKEN)?.let {
-            ApiUserDetails().getUserResponseEncrypted(
-                Endpoints.USER_DETAILS_ENCRYPTED,
-                it,
-                object : ApiUserDetails.UserResponseListener {
-                    override fun onSuccess(userDetails: UserResponse) {
-                        mUserDetails = userDetails
-                        getSearchFeeds()
-                    }
-                })
-        }
-        FeedSdk.spUtil?.getString(Constants.JWT_TOKEN)?.let {
-            ApiGetInterests().getInterestsEncrypted(
-                Endpoints.GET_INTERESTS_ENCRYPTED,
-                it,
-                object : ApiGetInterests.InterestResponseListener {
-                    override fun onSuccess(interestResponseModel: InterestResponseModel) {
-                        mInterestResponseModel = interestResponseModel
-                        getSearchFeeds()
-                    }
-                })
-        }
+        ApiUserDetails().getUserResponseEncrypted(
+            Endpoints.USER_DETAILS_ENCRYPTED,
+            object : ApiUserDetails.UserResponseListener {
+                override fun onSuccess(userDetails: UserResponse) {
+                    mUserDetails = userDetails
+                    getSearchFeeds()
+                }
+            })
+        ApiGetInterests().getInterestsEncrypted(
+            Endpoints.GET_INTERESTS_ENCRYPTED,
+            object : ApiGetInterests.InterestResponseListener {
+                override fun onSuccess(interestResponseModel: InterestResponseModel) {
+                    mInterestResponseModel = interestResponseModel
+                    getSearchFeeds()
+                }
+            })
 
         ApiGetLanguages().getLanguagesEncrypted(
             Endpoints.GET_LANGUAGES_ENCRYPTED,
@@ -122,7 +116,7 @@ class SearchFeedView : LinearLayout, OnRefreshListener {
 
     private fun setUpLanguages() {
         if (mUserDetails != null && mLanguageResponseModel != null) {
-            var selectedLanguagesList = ArrayList<Language>()
+            val selectedLanguagesList = ArrayList<Language>()
             for (language in mLanguageResponseModel!!) {
                 languagesMap[language.id] = language
             }
@@ -175,121 +169,117 @@ class SearchFeedView : LinearLayout, OnRefreshListener {
                 }
             }
             adIndex = 0
-            FeedSdk.spUtil?.getString(Constants.JWT_TOKEN)?.let {
-                ApiGetFeeds().getVideoFeedsEncrypted(
-                    Endpoints.GET_FEEDS_ENCRYPTED,
-                    it,
-                    FeedSdk.userId,
-                    FeedSdk.sdkCountryCode ?: "in",
-                    interestQuery,
-                    languages,
-                    pageNo,
-                    feedType,
-                    false,
-                    false,
-                    object : ApiGetFeeds.GetFeedsResponseListener {
-                        override fun onSuccess(
-                            getFeedsResponse: GetFeedsResponse,
-                            url: String,
-                            timeStamp: Long
-                        ) {
-                            storeData(presentUrl, presentTimeStamp)
-                            presentTimeStamp = timeStamp
-                            presentUrl = url
-                            adIndex += getFeedsResponse.adPlacement[0]
-                            pageNo += 1
-                            pbLoading?.visibility = View.GONE
-                            for (card in getFeedsResponse.cards) {
-                                if (card.cardType == Constants.CardType.NEWS_SMALL_FEATURE.toString()
-                                        .lowercase()
-                                ) {
-                                    card.cardType = Constants.SEARCH_FEED_SMALL
-                                } else {
-                                    card.cardType = Constants.SEARCH_FEED_BIG
-                                }
-                                if (card.items[0].content?.mediaList.isNullOrEmpty()) {
-                                    card.items[0].content!!.mediaList = arrayListOf("")
-                                }
-                                newsFeedList.add(card)
+            ApiGetFeeds().getVideoFeedsEncrypted(
+                Endpoints.GET_FEEDS_ENCRYPTED,
+                FeedSdk.sdkCountryCode ?: "in",
+                interestQuery,
+                languages,
+                pageNo,
+                feedType,
+                false,
+                false,
+                object : ApiGetFeeds.GetFeedsResponseListener {
+                    override fun onSuccess(
+                        getFeedsResponse: GetFeedsResponse,
+                        url: String,
+                        timeStamp: Long
+                    ) {
+                        storeData(presentUrl, presentTimeStamp)
+                        presentTimeStamp = timeStamp
+                        presentUrl = url
+                        adIndex += getFeedsResponse.adPlacement[0]
+                        pageNo += 1
+                        pbLoading?.visibility = View.GONE
+                        for (card in getFeedsResponse.cards) {
+                            if (card.cardType == Constants.CardType.NEWS_SMALL_FEATURE.toString()
+                                    .lowercase()
+                            ) {
+                                card.cardType = Constants.SEARCH_FEED_SMALL
+                            } else {
+                                card.cardType = Constants.SEARCH_FEED_BIG
                             }
-                            if (ApiConfig().checkShowAds(context)) {
-                                try {
-                                    val adItem = Card()
-                                    adItem.cardType = Constants.AD
-                                    newsFeedList.add(adIndex, adItem)
-                                    LogDetail.LogD("Ad index", adIndex.toString())
-                                } catch (ex: Exception) {
-                                    LogDetail.LogEStack(ex)
-                                }
+                            if (card.items[0].content?.mediaList.isNullOrEmpty()) {
+                                card.items[0].content!!.mediaList = arrayListOf("")
                             }
-                            newsFeedAdapter =
-                                NewsFeedAdapter(
-                                    newsFeedList,
-                                    object : NewsFeedList.PersonalizationListener {
-                                        override fun onPersonalizationClicked() {
-                                        }
-
-                                        override fun onRefresh() {
-                                        }
-                                    },
-                                    "searchscreen_feed",
-                                    object : VideoPlayerListener {
-                                        override fun onVideoEnded(position: Int, duration: Long) {
-                                            if (position + 1 < newsFeedList.size - 1) {
-                                                rvPosts?.smoothScrollToPosition(position + 1)
-                                            }
-                                        }
-
-                                        override fun setUpYoutubeVideo(
-                                            view: StyledPlayerView,
-                                            position: Int,
-                                            youtubeUrl: String
-                                        ) {
-                                        }
-
-                                        override fun releaseYoutubeVideo() {}
-                                    },
-                                    object : PostImpressionListener {
-                                        override fun addImpression(
-                                            card: Card,
-                                            totalDuration: Int?,
-                                            watchedDuration: Int?
-                                        ) {
-                                            try {
-                                                val postView = PostView(
-                                                    FeedSdk.sdkCountryCode ?: "in",
-                                                    feedType,
-                                                    card.items[0].isVideo,
-                                                    card.items[0].languageString,
-                                                    Constants.getInterestsString(card.items[0].interests),
-                                                    card.items[0].postId,
-                                                    card.items[0].postSource,
-                                                    card.items[0].publisherId,
-                                                    card.items[0].shortVideo,
-                                                    card.items[0].source,
-                                                    totalDuration,
-                                                    watchedDuration
-                                                )
-                                                postImpressions.put(
-                                                    card.items[0].postId!!,
-                                                    postView
-                                                )
-                                            } catch (ex: java.lang.Exception) {
-                                                LogDetail.LogEStack(ex)
-                                            }
-                                        }
-                                    })
-                            rvPosts?.apply {
-                                layoutManager = linearLayoutManager
-                                adapter = newsFeedAdapter
-                                itemAnimator = null
-                            }
-                            rvPosts?.isNestedScrollingEnabled = true
-                            Constants.cardsMap["searchscreen_feed"] = newsFeedList
-                            setEndlessScrolling()
+                            newsFeedList.add(card)
                         }
-                    })
-            }
+                        if (ApiConfig().checkShowAds(context)) {
+                            try {
+                                val adItem = Card()
+                                adItem.cardType = Constants.AD
+                                newsFeedList.add(adIndex, adItem)
+                                LogDetail.LogD("Ad index", adIndex.toString())
+                            } catch (ex: Exception) {
+                                LogDetail.LogEStack(ex)
+                            }
+                        }
+                        newsFeedAdapter =
+                            NewsFeedAdapter(
+                                newsFeedList,
+                                object : NewsFeedList.PersonalizationListener {
+                                    override fun onPersonalizationClicked() {
+                                    }
+
+                                    override fun onRefresh() {
+                                    }
+                                },
+                                "searchscreen_feed",
+                                object : VideoPlayerListener {
+                                    override fun onVideoEnded(position: Int, duration: Long) {
+                                        if (position + 1 < newsFeedList.size - 1) {
+                                            rvPosts?.smoothScrollToPosition(position + 1)
+                                        }
+                                    }
+
+                                    override fun setUpYoutubeVideo(
+                                        view: StyledPlayerView,
+                                        position: Int,
+                                        youtubeUrl: String
+                                    ) {
+                                    }
+
+                                    override fun releaseYoutubeVideo() {}
+                                },
+                                object : PostImpressionListener {
+                                    override fun addImpression(
+                                        card: Card,
+                                        totalDuration: Int?,
+                                        watchedDuration: Int?
+                                    ) {
+                                        try {
+                                            val postView = PostView(
+                                                FeedSdk.sdkCountryCode ?: "in",
+                                                feedType,
+                                                card.items[0].isVideo,
+                                                card.items[0].languageString,
+                                                Constants.getInterestsString(card.items[0].interests),
+                                                card.items[0].postId,
+                                                card.items[0].postSource,
+                                                card.items[0].publisherId,
+                                                card.items[0].shortVideo,
+                                                card.items[0].source,
+                                                totalDuration,
+                                                watchedDuration
+                                            )
+                                            postImpressions.put(
+                                                card.items[0].postId!!,
+                                                postView
+                                            )
+                                        } catch (ex: java.lang.Exception) {
+                                            LogDetail.LogEStack(ex)
+                                        }
+                                    }
+                                })
+                        rvPosts?.apply {
+                            layoutManager = linearLayoutManager
+                            adapter = newsFeedAdapter
+                            itemAnimator = null
+                        }
+                        rvPosts?.isNestedScrollingEnabled = true
+                        Constants.cardsMap["searchscreen_feed"] = newsFeedList
+                        setEndlessScrolling()
+                    }
+                })
         }
     }
 
@@ -324,69 +314,65 @@ class SearchFeedView : LinearLayout, OnRefreshListener {
 
 
     private fun getMoreFeeds() {
-        FeedSdk.spUtil?.getString(Constants.JWT_TOKEN)?.let {
-            ApiGetFeeds().getVideoFeedsEncrypted(
-                Endpoints.GET_FEEDS_ENCRYPTED,
-                it,
-                FeedSdk.userId,
-                FeedSdk.sdkCountryCode ?: "in",
-                interestQuery,
-                languages,
-                pageNo,
-                feedType,
-                false,
-                false,
-                object : ApiGetFeeds.GetFeedsResponseListener {
-                    override fun onSuccess(
-                        getFeedsResponse: GetFeedsResponse,
-                        url: String,
-                        timeStamp: Long
-                    ) {
-                        storeData(presentUrl, presentTimeStamp)
-                        presentTimeStamp = timeStamp
-                        presentUrl = url
-                        adIndex += getFeedsResponse.adPlacement[0]
-                        pageNo += 1
-                        for (card in getFeedsResponse.cards) {
-                            if (card.cardType == Constants.CardType.NEWS_SMALL_FEATURE.toString()
-                                    .lowercase()
-                            ) {
-                                card.cardType = Constants.SEARCH_FEED_SMALL
-                            } else {
-                                card.cardType = Constants.SEARCH_FEED_BIG
-                            }
-                            if (card.items[0].content?.mediaList.isNullOrEmpty()) {
-                                card.items[0].content!!.mediaList = arrayListOf("")
-                            }
-                            newsFeedList.add(card)
+        ApiGetFeeds().getVideoFeedsEncrypted(
+            Endpoints.GET_FEEDS_ENCRYPTED,
+            FeedSdk.sdkCountryCode ?: "in",
+            interestQuery,
+            languages,
+            pageNo,
+            feedType,
+            false,
+            false,
+            object : ApiGetFeeds.GetFeedsResponseListener {
+                override fun onSuccess(
+                    getFeedsResponse: GetFeedsResponse,
+                    url: String,
+                    timeStamp: Long
+                ) {
+                    storeData(presentUrl, presentTimeStamp)
+                    presentTimeStamp = timeStamp
+                    presentUrl = url
+                    adIndex += getFeedsResponse.adPlacement[0]
+                    pageNo += 1
+                    for (card in getFeedsResponse.cards) {
+                        if (card.cardType == Constants.CardType.NEWS_SMALL_FEATURE.toString()
+                                .lowercase()
+                        ) {
+                            card.cardType = Constants.SEARCH_FEED_SMALL
+                        } else {
+                            card.cardType = Constants.SEARCH_FEED_BIG
                         }
-                        if (ApiConfig().checkShowAds(context)) {
-                            val adItem = Card()
-                            adItem.cardType = Constants.AD
-                            try {
-                                if (newsFeedList.size > adIndex) {
-                                    newsFeedList.add(adIndex, adItem)
-                                    LogDetail.LogD("Ad index", (adIndex).toString())
-                                }
-                                if (adIndex + getFeedsResponse.adPlacement[0] < newsFeedList.size) {
-                                    adIndex += getFeedsResponse.adPlacement[0]
-                                    newsFeedList.add(adIndex, adItem)
-                                    LogDetail.LogD("Ad index", (adIndex).toString())
-                                }
-                            } catch (e: java.lang.Exception) {
-                                LogDetail.LogEStack(e)
-                            }
+                        if (card.items[0].content?.mediaList.isNullOrEmpty()) {
+                            card.items[0].content!!.mediaList = arrayListOf("")
                         }
-                        newsFeedAdapter?.updateList(
-                            newsFeedList,
-                            "searchscreen_feed",
-                            pageNo - 1,
-                            presentUrl,
-                            presentTimeStamp
-                        )
+                        newsFeedList.add(card)
                     }
-                })
-        }
+                    if (ApiConfig().checkShowAds(context)) {
+                        val adItem = Card()
+                        adItem.cardType = Constants.AD
+                        try {
+                            if (newsFeedList.size > adIndex) {
+                                newsFeedList.add(adIndex, adItem)
+                                LogDetail.LogD("Ad index", (adIndex).toString())
+                            }
+                            if (adIndex + getFeedsResponse.adPlacement[0] < newsFeedList.size) {
+                                adIndex += getFeedsResponse.adPlacement[0]
+                                newsFeedList.add(adIndex, adItem)
+                                LogDetail.LogD("Ad index", (adIndex).toString())
+                            }
+                        } catch (e: java.lang.Exception) {
+                            LogDetail.LogEStack(e)
+                        }
+                    }
+                    newsFeedAdapter?.updateList(
+                        newsFeedList,
+                        "searchscreen_feed",
+                        pageNo - 1,
+                        presentUrl,
+                        presentTimeStamp
+                    )
+                }
+            })
     }
 
     override fun onRefreshNeeded() {
@@ -415,13 +401,10 @@ class SearchFeedView : LinearLayout, OnRefreshListener {
             val postImpressionString = gson.toJson(postImpressionsModel)
             sharedPrefs.edit().putString(timeStamp.toString(), postImpressionString).apply()
             postImpressions = HashMap()
-            FeedSdk.spUtil?.getString(Constants.JWT_TOKEN)?.let {
-                ApiPostImpression().addPostImpressionsEncrypted(
-                    Endpoints.POST_IMPRESSIONS_ENCRYPTED,
-                    it,
-                    context
-                )
-            }
+            ApiPostImpression().addPostImpressionsEncrypted(
+                Endpoints.POST_IMPRESSIONS_ENCRYPTED,
+                context
+            )
         } catch (ex: java.lang.Exception) {
             LogDetail.LogEStack(ex)
         }

@@ -496,13 +496,10 @@ class PodcastMediaPlayer {
                 val sharedPrefs = context.getSharedPreferences("postImpressions", Context.MODE_PRIVATE)
                 val postImpressionString = gson.toJson(postImpressionsModel)
                 sharedPrefs.edit().putString(podcastMediaCard.postId, postImpressionString).apply()
-                FeedSdk.spUtil?.getString(Constants.JWT_TOKEN)?.let {
-                    ApiPostImpression().addPostImpressionsEncrypted(
-                        Endpoints.POST_IMPRESSIONS_ENCRYPTED,
-                        it,
-                        context
-                    )
-                }
+                ApiPostImpression().addPostImpressionsEncrypted(
+                    Endpoints.POST_IMPRESSIONS_ENCRYPTED,
+                    context
+                )
             } catch (ex:Exception){
                 LogDetail.LogEStack(ex)
             }

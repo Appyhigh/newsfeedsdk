@@ -8,6 +8,7 @@ import com.appyhigh.newsfeedsdk.Constants
 import com.appyhigh.newsfeedsdk.Constants.IAT
 import com.appyhigh.newsfeedsdk.Constants.JWT_TOKEN
 import com.appyhigh.newsfeedsdk.FeedSdk
+import com.appyhigh.newsfeedsdk.encryption.LogDetail
 import com.appyhigh.newsfeedsdk.utils.SpUtil.Companion.spUtilInstance
 import io.jsonwebtoken.Jwts
 import io.jsonwebtoken.SignatureAlgorithm
@@ -27,7 +28,7 @@ object RSAKeyGenerator {
         get() {
             val pKey = BuildConfig.PRIVATE_KEY
             var kf = KeyFactory.getInstance("RSA")
-            if(android.os.Build.VERSION.SDK_INT < Build.VERSION_CODES.N) {
+            if(Build.VERSION.SDK_INT < Build.VERSION_CODES.N) {
                 kf = KeyFactory.getInstance("RSA","BC")
             }
             val decode: ByteArray = Base64.decode(pKey, Base64.DEFAULT)
@@ -40,8 +41,6 @@ object RSAKeyGenerator {
         val validityMs = TimeUnit.MINUTES.toMillis(180)
         val now: Date
         val exp: Date
-        var prevIAT: Long = 0
-        var prevJwt: String? = ""
 
         //get the real time in unix epoch format (milliseconds since midnight on 1 january 1970)
         val nowMillis: Long = System.currentTimeMillis()
@@ -54,7 +53,7 @@ object RSAKeyGenerator {
             e.printStackTrace()
         }
         val jws = Jwts.builder()
-            .claim("sdk_version", 1007)
+            .claim("sdk_version", FeedSdk.getSDKVersion())
             .claim("app_id", appId)
             .claim("user_id", userId)
             .claim("app_version_code", FeedSdk.appVersionCode)
@@ -71,7 +70,7 @@ object RSAKeyGenerator {
             .signWith(privateKey, SignatureAlgorithm.RS256)
             .setAudience("news-sdk")
             .compact()
-        Log.d(TAG, jws)
+        LogDetail.LogD(TAG, jws)
         if (spUtilInstance != null) {
             spUtilInstance.putString(JWT_TOKEN, jws)
             spUtilInstance.putLong(IAT, nowMillis)
@@ -96,7 +95,7 @@ object RSAKeyGenerator {
             prevJwt = spUtilInstance.getString(JWT_TOKEN, "")
         }
         val timeOutInMinutes = 50
-        Log.d(
+       LogDetail.LogD(
             "456__",
             "prevIAT " + prevIAT + " nowActual " + nowMillis + " diff " + (nowMillis - prevIAT)
         )
@@ -108,7 +107,7 @@ object RSAKeyGenerator {
                 e.printStackTrace()
             }
             val jws = Jwts.builder()
-                .claim("sdk_version", 1007)
+                .claim("sdk_version", FeedSdk.getSDKVersion())
                 .claim("app_id", appId)
                 .claim("user_id", userId)
                 .claim("app_version_code", FeedSdk.appVersionCode)
@@ -125,7 +124,7 @@ object RSAKeyGenerator {
                 .signWith(privateKey, SignatureAlgorithm.RS256)
                 .setAudience("news-sdk")
                 .compact()
-            Log.d(TAG, jws)
+           LogDetail.LogD(TAG, jws)
             if (spUtilInstance != null) {
                 spUtilInstance.putString(JWT_TOKEN, jws)
                 spUtilInstance.putLong(IAT, nowMillis)
@@ -133,7 +132,7 @@ object RSAKeyGenerator {
             jws
         } else {
             prevJwt?.let {
-                Log.d(TAG, prevJwt)
+               LogDetail.LogD(TAG, prevJwt)
             }
             prevJwt
         }

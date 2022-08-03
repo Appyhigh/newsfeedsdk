@@ -138,85 +138,77 @@ class FeedsActivity : AppCompatActivity() {
                 languages = null
             }
         }
-        FeedSdk.spUtil?.getString(Constants.JWT_TOKEN)?.let {
-            ApiGetFeeds().getVideoFeedsEncrypted(
-                Endpoints.GET_FEEDS_ENCRYPTED,
-                it,
-                FeedSdk.userId,
-                FeedSdk.sdkCountryCode ?: "in",
-                Constants.exploreInterest,
-                languages,
-                pageNo,
-                feedType,
-                true,
-                false,
-                object : ApiGetFeeds.GetFeedsResponseListener {
-                    override fun onSuccess(
-                        getFeedsResponse: GetFeedsResponse,
-                        url: String,
-                        timeStamp: Long
-                    ) {
-                        storeData(presentUrl, presentTimeStamp)
-                        presentTimeStamp = timeStamp
-                        presentUrl = url
-                        pageNo += 1
-                        val cards = ArrayList<Card>()
-                        cards.addAll(getFeedsResponse.cards as ArrayList<Card>)
-                        newsFeedAdapter?.updateList(
-                            cards,
-                            interest,
-                            pageNo - 1,
-                            presentUrl,
-                            presentTimeStamp
-                        )
-                    }
-                })
-        }
+        ApiGetFeeds().getVideoFeedsEncrypted(
+            Endpoints.GET_FEEDS_ENCRYPTED,
+            FeedSdk.sdkCountryCode ?: "in",
+            Constants.exploreInterest,
+            languages,
+            pageNo,
+            feedType,
+            true,
+            false,
+            object : ApiGetFeeds.GetFeedsResponseListener {
+                override fun onSuccess(
+                    getFeedsResponse: GetFeedsResponse,
+                    url: String,
+                    timeStamp: Long
+                ) {
+                    storeData(presentUrl, presentTimeStamp)
+                    presentTimeStamp = timeStamp
+                    presentUrl = url
+                    pageNo += 1
+                    val cards = ArrayList<Card>()
+                    cards.addAll(getFeedsResponse.cards as ArrayList<Card>)
+                    newsFeedAdapter?.updateList(
+                        cards,
+                        interest,
+                        pageNo - 1,
+                        presentUrl,
+                        presentTimeStamp
+                    )
+                }
+            })
     }
 
 
     private fun getHashtagPosts() {
-        FeedSdk.spUtil?.getString(Constants.JWT_TOKEN)?.let {
-            ApiGetPostsByTag().getPostsByTagEncrypted(
-                Endpoints.GET_POSTS_BY_TAG_ENCRYPTED,
-                it,
-                FeedSdk.userId,
-                tag,
-                postSource,
-                feedType,
-                object : ApiGetPostsByTag.PostsByTagResponseListener {
-                    override fun onSuccess(
-                        getFeedsResponse: GetFeedsResponse,
-                        url: String,
-                        timeStamp: Long
-                    ) {
-                        storeData(presentUrl, presentTimeStamp)
-                        presentTimeStamp = timeStamp
-                        presentUrl = url
-                        binding?.progressLayout?.visibility = View.GONE
-                        mLayoutManager = LinearLayoutManager(this@FeedsActivity)
-                        newsFeedAdapter = NewsFeedAdapter(
-                            getFeedsResponse.cards as ArrayList<Card>,
-                            null,
-                            interest,
-                            null,
-                            postImpressionListener
-                        )
-                        binding?.recyclerView?.apply {
-                            layoutManager = mLayoutManager
-                            adapter = newsFeedAdapter
-                        }
-                        cardsMap[interest] = getFeedsResponse.cards as ArrayList<Card>
-                        if (getFeedsResponse.cards.isEmpty()) {
-                            binding!!.recyclerView.visibility = View.GONE
-                            binding!!.noPosts.visibility = View.VISIBLE
-                        } else {
-                            binding!!.recyclerView.visibility = View.VISIBLE
-                            binding!!.noPosts.visibility = View.GONE
-                        }
+        ApiGetPostsByTag().getPostsByTagEncrypted(
+            Endpoints.GET_POSTS_BY_TAG_ENCRYPTED,
+            tag,
+            postSource,
+            feedType,
+            object : ApiGetPostsByTag.PostsByTagResponseListener {
+                override fun onSuccess(
+                    getFeedsResponse: GetFeedsResponse,
+                    url: String,
+                    timeStamp: Long
+                ) {
+                    storeData(presentUrl, presentTimeStamp)
+                    presentTimeStamp = timeStamp
+                    presentUrl = url
+                    binding?.progressLayout?.visibility = View.GONE
+                    mLayoutManager = LinearLayoutManager(this@FeedsActivity)
+                    newsFeedAdapter = NewsFeedAdapter(
+                        getFeedsResponse.cards as ArrayList<Card>,
+                        null,
+                        interest,
+                        null,
+                        postImpressionListener
+                    )
+                    binding?.recyclerView?.apply {
+                        layoutManager = mLayoutManager
+                        adapter = newsFeedAdapter
                     }
-                })
-        }
+                    cardsMap[interest] = getFeedsResponse.cards as ArrayList<Card>
+                    if (getFeedsResponse.cards.isEmpty()) {
+                        binding!!.recyclerView.visibility = View.GONE
+                        binding!!.noPosts.visibility = View.VISIBLE
+                    } else {
+                        binding!!.recyclerView.visibility = View.VISIBLE
+                        binding!!.noPosts.visibility = View.GONE
+                    }
+                }
+            })
     }
 
     override fun onStop() {
@@ -281,13 +273,10 @@ class FeedsActivity : AppCompatActivity() {
             val postImpressionString = gson.toJson(postImpressionsModel)
             sharedPrefs.edit().putString(timeStamp.toString(), postImpressionString).apply()
             postImpressions = HashMap()
-            FeedSdk.spUtil?.getString(Constants.JWT_TOKEN)?.let {
-                ApiPostImpression().addPostImpressionsEncrypted(
-                    Endpoints.POST_IMPRESSIONS_ENCRYPTED,
-                    it,
-                    this
-                )
-            }
+            ApiPostImpression().addPostImpressionsEncrypted(
+                Endpoints.POST_IMPRESSIONS_ENCRYPTED,
+                this
+            )
         } catch (ex: java.lang.Exception) {
             LogDetail.LogEStack(ex)
         }

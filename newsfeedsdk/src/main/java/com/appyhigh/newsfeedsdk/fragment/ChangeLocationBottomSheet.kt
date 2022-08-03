@@ -75,20 +75,17 @@ class ChangeLocationBottomSheet : BottomSheetDialogFragment() {
         Constants.setFontFamily(etSearch)
         Card.setFontFamily(binding?.currLocation)
         if(Constants.stateMap.isEmpty()){
-            FeedSdk.spUtil?.getString(Constants.JWT_TOKEN)?.let {
-                ApiExplore().getStateListEncrypted(
-                    Endpoints.GET_STATE_LIST_ENCRYPTED,
-                    it,
-                    object : ApiExplore.StateResponseListener{
-                        override fun onSuccess(response: StateListResponse, url: String, timeStamp: Long) {
-                            response.cards[0].items.forEach {
-                                Constants.stateMap[it.state] = it.stateCode
-                            }
-                            setData()
+            ApiExplore().getStateListEncrypted(
+                Endpoints.GET_STATE_LIST_ENCRYPTED,
+                object : ApiExplore.StateResponseListener{
+                    override fun onSuccess(response: StateListResponse, url: String, timeStamp: Long) {
+                        response.cards[0].items.forEach {
+                            Constants.stateMap[it.state] = it.stateCode
                         }
+                        setData()
                     }
-                )
-            }
+                }
+            )
         }else {
             setData()
         }
@@ -165,24 +162,21 @@ class ChangeLocationBottomSheet : BottomSheetDialogFragment() {
     override fun onDismiss(dialog: DialogInterface) {
         super.onDismiss(dialog)
         if(isChanged){
-            FeedSdk.spUtil?.getString(Constants.JWT_TOKEN)?.let {
-                ApiUpdateUserPersonalization().updateUserState(
-                    it,
-                    tvCurrLocation?.text!!.toString(),
-                    object : ApiUpdateUserPersonalization.UpdatePersonalizationListener{
-                        override fun onSuccess() {
-                            for(listener in SpUtil.onRefreshListeners){
-                                listener.value.onRefreshNeeded()
-                            }
+            ApiUpdateUserPersonalization().updateUserState(
+                tvCurrLocation?.text!!.toString(),
+                object : ApiUpdateUserPersonalization.UpdatePersonalizationListener{
+                    override fun onSuccess() {
+                        for(listener in SpUtil.onRefreshListeners){
+                            listener.value.onRefreshNeeded()
                         }
-
-                        override fun onFailure() {
-                            Constants.Toaster.show(FeedSdk.mContext!!,"Please try again")
-                        }
-
                     }
-                )
-            }
+
+                    override fun onFailure() {
+                        Constants.Toaster.show(FeedSdk.mContext!!,"Please try again")
+                    }
+
+                }
+            )
             SpUtil.spUtilInstance?.putString(LOCATION_DEF, tvCurrLocation!!.text as String)
         }
     }

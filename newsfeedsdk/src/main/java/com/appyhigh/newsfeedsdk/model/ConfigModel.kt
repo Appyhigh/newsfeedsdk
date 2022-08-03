@@ -4,7 +4,7 @@ import android.widget.LinearLayout
 import com.google.gson.annotations.Expose
 import com.google.gson.annotations.SerializedName
 
-data class AdsModel(
+data class ConfigModel(
     @SerializedName("plcmnt_id")
     @Expose
     val placementId: String = "",
@@ -39,6 +39,36 @@ data class AdsModel(
     @SerializedName("post_detail_interstitial")
     @Expose
     val postDetailInterstitial: ItemAdsModel = ItemAdsModel(),
+    @SerializedName("custom_firebase_config")
+    @Expose
+    val customFirebaseConfig: CustomFirebaseConfig = CustomFirebaseConfig(),
+    @SerializedName("report_posts_text")
+    @Expose
+    val reportPostsText: List<String> = ArrayList()
+)
+
+data class CustomFirebaseConfig(
+    @SerializedName("feed_native_ad_interval")
+    @Expose
+    val feedNativeAdInterval: Long = 60,
+    @SerializedName("searchSticky")
+    @Expose
+    val searchSticky: SearchSticky = SearchSticky(),
+    @SerializedName("socket_series")
+    @Expose
+    val socketSeries: String = ""
+)
+
+data class SearchSticky(
+    @SerializedName("showStickyOnTop")
+    @Expose
+    val showStickyOnTop: Boolean = true,
+    @SerializedName("timer")
+    @Expose
+    val timer: Long = 300,
+    @SerializedName("workManager")
+    @Expose
+    val workManager: Long = 6
 )
 
 data class ItemAdsModel(

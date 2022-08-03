@@ -1,6 +1,5 @@
 package com.appyhigh.newsfeedsdk.apicalls
 
-import android.util.Log
 import com.appyhigh.newsfeedsdk.Constants
 import com.appyhigh.newsfeedsdk.encryption.AESCBCPKCS5Encryption
 import com.appyhigh.newsfeedsdk.encryption.AuthSocket
@@ -10,43 +9,29 @@ import com.appyhigh.newsfeedsdk.model.FeedCommentResponseWrapper
 import com.google.common.reflect.TypeToken
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
-import com.google.gson.JsonObject
 import okhttp3.Call
-import org.json.JSONArray
-import org.json.JSONObject
 import java.io.IOException
 import java.nio.charset.StandardCharsets
 
 class ApiCommentPost {
     fun postCommentEncrypted(
         apiUrl: String,
-        token: String,
         postId: String,
         commentType: String,
         commentValue: String,
         postCommentResponse: PostCommentResponse
     ) {
-        val allDetails = JsonObject()
-        val main = JsonObject()
-        main.addProperty(Constants.API_URl, apiUrl)
-        main.addProperty(Constants.API_METHOD, Constants.POST)
-        main.addProperty(Constants.API_INTERNAL, SessionUser.Instance().apiInternal)
+        val keys = ArrayList<String?>()
+        val values = ArrayList<String?>()
+        keys.add("comment_type")
+        keys.add("post_id")
+        keys.add("comment_value")
 
-        val dataJO = JsonObject()
-        dataJO.addProperty("comment_type", commentType)
-        dataJO.addProperty("post_id", postId)
-        dataJO.addProperty("comment_value", commentValue)
-        main.add(Constants.API_DATA, dataJO)
-        val headerJO = JsonObject()
-        headerJO.addProperty(Constants.AUTHORIZATION, token)
-        main.add(Constants.API_HEADER, headerJO)
-        try {
-            allDetails.add(Constants.API_CALLING, main)
-            allDetails.add(Constants.USER_DETAIL, SessionUser.Instance().userDetails)
-            allDetails.add(Constants.DEVICE_DETAIL, SessionUser.Instance().deviceDetails)
-        } catch (e: Exception) {
-            LogDetail.LogEStack(e)
-        }
+        values.add(commentType)
+        values.add(postId)
+        values.add(commentValue)
+
+        val allDetails = BaseAPICallObject().getBaseObjectWithAuth(Constants.POST, apiUrl, keys, values)
         LogDetail.LogDE("Test Data", allDetails.toString())
         val publicKey = SessionUser.Instance().publicKey
         val instanceEncryption = AESCBCPKCS5Encryption().getInstance(
@@ -60,24 +45,17 @@ class ApiCommentPost {
         LogDetail.LogD("Data to be Sent -> ", sendingData)
 
         AuthSocket.Instance().postData(sendingData, object : ResponseListener {
-            override fun onSuccess(apiUrl: String?, response: JSONObject?) {
-                LogDetail.LogDE("ApiPostImpression $apiUrl", response.toString())
+
+            override fun onSuccess(apiUrl: String, response: String) {
+                LogDetail.LogDE("ApiPostImpression $apiUrl", response)
 
                 val gson: Gson = GsonBuilder().create()
                 val feedCommentResponseWrapper: FeedCommentResponseWrapper =
                     gson.fromJson(
-                        response.toString(),
+                        response,
                         object : TypeToken<FeedCommentResponseWrapper?>() {}.type
                     )
                 postCommentResponse.onSuccess(feedCommentResponseWrapper)
-            }
-
-            override fun onSuccess(apiUrl: String?, response: JSONArray?) {
-                LogDetail.LogDE("ApiPostImpression $apiUrl", response.toString())
-            }
-
-            override fun onSuccess(apiUrl: String?, response: String?) {
-                LogDetail.LogDE("ApiPostImpression $apiUrl", response.toString())
             }
 
             override fun onError(call: Call, e: IOException) {

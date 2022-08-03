@@ -1,6 +1,5 @@
 package com.appyhigh.newsfeedsdk.apicalls
 
-import android.util.Log
 import com.appyhigh.newsfeedsdk.Constants
 import com.appyhigh.newsfeedsdk.FeedSdk
 import com.appyhigh.newsfeedsdk.encryption.AESCBCPKCS5Encryption
@@ -12,8 +11,6 @@ import com.google.common.reflect.TypeToken
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
 import okhttp3.Call
-import org.json.JSONArray
-import org.json.JSONObject
 import retrofit2.Response
 import java.io.IOException
 import java.nio.charset.StandardCharsets
@@ -23,8 +20,6 @@ class ApiGetPostsByTag {
 
     fun getPostsByTagEncrypted(
         apiUrl: String,
-        token: String,
-        userId: String?,
         tag: String,
         postSource: String,
         feedType: String,
@@ -57,7 +52,7 @@ class ApiGetPostsByTag {
         values.add(languages)
 
         val allDetails =
-            BaseAPICallObject().getBaseObjectWithAuth(Constants.GET, apiUrl, token, keys, values)
+            BaseAPICallObject().getBaseObjectWithAuth(Constants.GET, apiUrl, keys, values)
 
         LogDetail.LogDE("Test Data", allDetails.toString())
         val publicKey = SessionUser.Instance().publicKey
@@ -72,7 +67,7 @@ class ApiGetPostsByTag {
         LogDetail.LogD("Data to be Sent -> ", sendingData)
 
         AuthSocket.Instance().postData(sendingData, object : ResponseListener {
-            override fun onSuccess(apiUrl: String?, response: JSONObject?) {
+            override fun onSuccess(apiUrl: String, response: String) {
                 LogDetail.LogDE("ApiGetPostsByTag $apiUrl", response.toString())
                 val gson: Gson = GsonBuilder().create()
                 val getFeedsResponseBase: GetFeedsResponse =
@@ -82,23 +77,15 @@ class ApiGetPostsByTag {
                     )
                 val getFeedsResponse: Response<GetFeedsResponse> =
                     Response.success(getFeedsResponseBase)
-               try {
-                   postsByTagResponseListener.onSuccess(
-                       getFeedsResponse.body()!!,
-                       getFeedsResponse.raw().request.url.toString(),
-                       getFeedsResponse.raw().sentRequestAtMillis
-                   )
-               }catch (e:Exception){
-                   LogDetail.LogEStack(e)
-               }
-            }
-
-            override fun onSuccess(apiUrl: String?, response: JSONArray?) {
-                LogDetail.LogDE("ApiGetPostsByTag $apiUrl", response.toString())
-            }
-
-            override fun onSuccess(apiUrl: String?, response: String?) {
-                LogDetail.LogDE("ApiGetPostsByTag $apiUrl", response.toString())
+                try {
+                    postsByTagResponseListener.onSuccess(
+                        getFeedsResponse.body()!!,
+                        getFeedsResponse.raw().request.url.toString(),
+                        getFeedsResponse.raw().sentRequestAtMillis
+                    )
+                }catch (e:Exception){
+                    LogDetail.LogEStack(e)
+                }
             }
 
             override fun onError(call: Call, e: IOException) {

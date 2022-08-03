@@ -133,30 +133,24 @@ class AddInterestBottomSheet :
                 LogDetail.LogEStack(ex)
             }
         }
-        FeedSdk.spUtil?.getString(Constants.JWT_TOKEN)?.let {
-            ApiGetInterests().getInterestsEncrypted(
-                Endpoints.GET_INTERESTS_ENCRYPTED,
-                it,
-                object : ApiGetInterests.InterestResponseListener {
-                    override fun onSuccess(interestResponseModel: InterestResponseModel) {
-                        mInterestResponseModel = interestResponseModel
-                        setUpInterests(binding)
-                    }
-                })
-        }
-
-        FeedSdk.spUtil?.getString(Constants.JWT_TOKEN)?.let {
-            ApiUserDetails().getUserResponseEncrypted(
-                Endpoints.USER_DETAILS_ENCRYPTED,
-                it,
-                object : ApiUserDetails.UserResponseListener{
-                    override fun onSuccess(userDetails: UserResponse) {
-                        mUserDetails = userDetails.user
-                        setUpInterests(binding)
-                    }
+        ApiGetInterests().getInterestsEncrypted(
+            Endpoints.GET_INTERESTS_ENCRYPTED,
+            object : ApiGetInterests.InterestResponseListener {
+                override fun onSuccess(interestResponseModel: InterestResponseModel) {
+                    mInterestResponseModel = interestResponseModel
+                    setUpInterests(binding)
                 }
-            )
-        }
+            })
+
+        ApiUserDetails().getUserResponseEncrypted(
+            Endpoints.USER_DETAILS_ENCRYPTED,
+            object : ApiUserDetails.UserResponseListener{
+                override fun onSuccess(userDetails: UserResponse) {
+                    mUserDetails = userDetails.user
+                    setUpInterests(binding)
+                }
+            }
+        )
         return binding.root
     }
 
@@ -241,30 +235,27 @@ class AddInterestBottomSheet :
 
     private fun updateInterests() {
         if (interestList.size >= 1) {
-            FeedSdk.userId?.let {
-                ApiUpdateUserPersonalization().updateUserPersonalizationEncrypted(
-                    Endpoints.UPDATE_USER_ENCRYPTED,
-                    it,
-                    interestList,
-                    ArrayList(),
-                    object : ApiUpdateUserPersonalization.UpdatePersonalizationListener {
-                        override fun onFailure() {
-                            try{
-                                Constants.Toaster.show(requireContext(),"Please try again")
-                            } catch (ex:Exception){
-                                LogDetail.LogEStack(ex)
-                            }
+            ApiUpdateUserPersonalization().updateUserPersonalizationEncrypted(
+                Endpoints.UPDATE_USER_ENCRYPTED,
+                interestList,
+                ArrayList(),
+                object : ApiUpdateUserPersonalization.UpdatePersonalizationListener {
+                    override fun onFailure() {
+                        try{
+                            Constants.Toaster.show(requireContext(),"Please try again")
+                        } catch (ex:Exception){
+                            LogDetail.LogEStack(ex)
                         }
+                    }
 
-                        override fun onSuccess() {
-                            FeedSdk.interestsList = interestList
-                            for (listener in SpUtil.onRefreshListeners) {
-                                listener.value.onRefreshNeeded()
-                            }
+                    override fun onSuccess() {
+                        FeedSdk.interestsList = interestList
+                        for (listener in SpUtil.onRefreshListeners) {
+                            listener.value.onRefreshNeeded()
                         }
-                    },
-                )
-            }
+                    }
+                },
+            )
         }
     }
 }

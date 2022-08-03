@@ -1,8 +1,5 @@
 package com.appyhigh.newsfeedsdk.utils
 
-import com.appyhigh.newsfeedsdk.Constants
-import com.appyhigh.newsfeedsdk.FeedSdk
-import com.appyhigh.newsfeedsdk.apicalls.ApiGetFeeds
 import com.appyhigh.newsfeedsdk.apicalls.ApiGetInterests
 import com.appyhigh.newsfeedsdk.apicalls.ApiUserDetails
 import com.appyhigh.newsfeedsdk.apiclient.Endpoints
@@ -17,28 +14,22 @@ class PersonalizationUtils() {
     private var interestQuery = ""
     private var interestMap = HashMap<String, Interest>()
     fun getPersonalization(getPersonalizationData: GetPersonalizationData) {
-        FeedSdk.spUtil?.getString(Constants.JWT_TOKEN)?.let {
-            ApiUserDetails().getUserResponseEncrypted(
-                Endpoints.USER_DETAILS_ENCRYPTED,
-                it,
-                object : ApiUserDetails.UserResponseListener {
-                    override fun onSuccess(userDetails: UserResponse) {
-                        mUserDetails = userDetails
-                        getVideos(getPersonalizationData)
-                    }
-                })
-        }
-        FeedSdk.spUtil?.getString(Constants.JWT_TOKEN)?.let {
-            ApiGetInterests().getInterestsEncrypted(
-                Endpoints.GET_INTERESTS_ENCRYPTED,
-                it,
-                object : ApiGetInterests.InterestResponseListener {
-                    override fun onSuccess(interestResponseModel: InterestResponseModel) {
-                        mInterestResponseModel = interestResponseModel
-                        getVideos(getPersonalizationData)
-                    }
-                })
-        }
+        ApiUserDetails().getUserResponseEncrypted(
+            Endpoints.USER_DETAILS_ENCRYPTED,
+            object : ApiUserDetails.UserResponseListener {
+                override fun onSuccess(userDetails: UserResponse) {
+                    mUserDetails = userDetails
+                    getVideos(getPersonalizationData)
+                }
+            })
+        ApiGetInterests().getInterestsEncrypted(
+            Endpoints.GET_INTERESTS_ENCRYPTED,
+            object : ApiGetInterests.InterestResponseListener {
+                override fun onSuccess(interestResponseModel: InterestResponseModel) {
+                    mInterestResponseModel = interestResponseModel
+                    getVideos(getPersonalizationData)
+                }
+            })
     }
 
     private fun getVideos(getPersonalizationData:GetPersonalizationData) {

@@ -1,6 +1,5 @@
 package com.appyhigh.newsfeedsdk.apicalls
 
-import android.util.Log
 import com.appyhigh.newsfeedsdk.Constants
 import com.appyhigh.newsfeedsdk.FeedSdk
 import com.appyhigh.newsfeedsdk.encryption.AESCBCPKCS5Encryption
@@ -13,8 +12,6 @@ import com.google.common.reflect.TypeToken
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
 import okhttp3.Call
-import org.json.JSONArray
-import org.json.JSONObject
 import retrofit2.Response
 import java.io.IOException
 import java.nio.charset.StandardCharsets
@@ -23,8 +20,6 @@ class ApiGetFeeds {
 
     fun getFeedsEncrypted(
         apiUrl: String,
-        token: String,
-        userId: String?,
         countryCode: String,
         interests: String?,
         languages: String?,
@@ -66,8 +61,6 @@ class ApiGetFeeds {
         if (hasFirstPostId) {
             getFeedsForFirstPostIdEncrypted(
                 apiUrl,
-                token,
-                userId,
                 countryCode,
                 interestsString,
                 languageString,
@@ -84,21 +77,20 @@ class ApiGetFeeds {
             keys.add(Constants.INTERESTS)
             keys.add(Constants.PAGE_NUMBER)
             keys.add(Constants.LANGUAGE)
-            keys.add(Constants.POST_SOURCE)
             keys.add(Constants.FEED_TYPE)
+            keys.add(Constants.POST_SOURCE)
 
             values.add(countryCode)
             values.add(interestsString)
             values.add(pageSkip.toString())
             values.add(languageString)
-            values.add(postSource)
             values.add(newFeedType)
+            values.add(postSource)
 
             val allDetails =
                 BaseAPICallObject().getBaseObjectWithAuth(
                     Constants.GET,
                     apiUrl,
-                    token,
                     keys,
                     values
                 )
@@ -115,13 +107,13 @@ class ApiGetFeeds {
             LogDetail.LogD("Data to be Sent -> ", sendingData)
 
             AuthSocket.Instance().postData(sendingData, object : ResponseListener {
-                override fun onSuccess(apiUrl: String?, response: JSONObject?) {
-                    LogDetail.LogDE("ApiGetFeeds $apiUrl", response.toString())
+                override fun onSuccess(apiUrl: String, response: String) {
+                    LogDetail.LogDE("ApiGetFeeds $apiUrl", response)
 
                     val gson: Gson = GsonBuilder().create()
                     val getFeedsResponseBase: GetFeedsResponse =
                         gson.fromJson(
-                            response.toString(),
+                            response,
                             object : TypeToken<GetFeedsResponse>() {}.type
                         )
                     val getFeedsResponse: Response<GetFeedsResponse> =
@@ -132,15 +124,6 @@ class ApiGetFeeds {
                         getFeedsResponse.raw().request.url.toString(),
                         getFeedsResponse.raw().sentRequestAtMillis
                     )
-
-                }
-
-                override fun onSuccess(apiUrl: String?, response: JSONArray?) {
-                    LogDetail.LogDE("ApiGetFeeds $apiUrl", response.toString())
-                }
-
-                override fun onSuccess(apiUrl: String?, response: String?) {
-                    LogDetail.LogDE("ApiGetFeeds $apiUrl", response.toString())
                 }
 
                 override fun onError(call: Call, e: IOException) {
@@ -152,7 +135,6 @@ class ApiGetFeeds {
 
     fun getRegionalFeedsEncrypted(
         apiUrl: String,
-        token: String,
         latitude: Double?,
         longitude: Double?,
         stateCode: String,
@@ -176,7 +158,6 @@ class ApiGetFeeds {
             BaseAPICallObject().getBaseObjectWithAuth(
                 Constants.GET,
                 apiUrl,
-                token,
                 keys,
                 values
             )
@@ -193,7 +174,7 @@ class ApiGetFeeds {
         LogDetail.LogD("Data to be Sent -> ", sendingData)
 
         AuthSocket.Instance().postData(sendingData, object : ResponseListener {
-            override fun onSuccess(apiUrl: String?, response: JSONObject?) {
+            override fun onSuccess(apiUrl: String, response: String) {
                 LogDetail.LogDE("ApiGetFeeds $apiUrl", response.toString())
 
                 val gson: Gson = GsonBuilder().create()
@@ -210,15 +191,6 @@ class ApiGetFeeds {
                     getFeedsResponse.raw().request.url.toString(),
                     getFeedsResponse.raw().sentRequestAtMillis
                 )
-
-            }
-
-            override fun onSuccess(apiUrl: String?, response: JSONArray?) {
-                LogDetail.LogDE("ApiGetFeeds $apiUrl", response.toString())
-            }
-
-            override fun onSuccess(apiUrl: String?, response: String?) {
-                LogDetail.LogDE("ApiGetFeeds $apiUrl", response.toString())
             }
 
             override fun onError(call: Call, e: IOException) {
@@ -230,8 +202,6 @@ class ApiGetFeeds {
 
     fun getFeedsForFirstPostIdEncrypted(
         apiUrl: String,
-        token: String,
-        userId: String?,
         countryCode: String,
         interests: String?,
         languages: String?,
@@ -276,7 +246,7 @@ class ApiGetFeeds {
         values.add(SpUtil.pushIntent!!.getStringExtra("post_source"))
 
         val allDetails =
-            BaseAPICallObject().getBaseObjectWithAuth(Constants.GET, apiUrl, token, keys, values)
+            BaseAPICallObject().getBaseObjectWithAuth(Constants.GET, apiUrl, keys, values)
 
         LogDetail.LogDE("Test Data", allDetails.toString())
         val publicKey = SessionUser.Instance().publicKey
@@ -290,13 +260,13 @@ class ApiGetFeeds {
         ) + "." + publicKey
         LogDetail.LogD("Data to be Sent -> ", sendingData)
         AuthSocket.Instance().postData(sendingData, object : ResponseListener {
-            override fun onSuccess(apiUrl: String?, response: JSONObject?) {
-                LogDetail.LogDE("ApiGetFeeds $apiUrl", response.toString())
+            override fun onSuccess(apiUrl: String, response: String) {
+                LogDetail.LogDE("ApiGetFeeds $apiUrl", response)
 
                 val gson: Gson = GsonBuilder().create()
                 val getFeedsResponseBase: GetFeedsResponse =
                     gson.fromJson(
-                        response.toString(),
+                        response,
                         object : TypeToken<GetFeedsResponse>() {}.type
                     )
                 val getFeedsResponse: Response<GetFeedsResponse> =
@@ -307,15 +277,6 @@ class ApiGetFeeds {
                     getFeedsResponse.raw().request.url.toString(),
                     getFeedsResponse.raw().sentRequestAtMillis
                 )
-
-            }
-
-            override fun onSuccess(apiUrl: String?, response: JSONArray?) {
-                LogDetail.LogDE("ApiGetFeeds $apiUrl", response.toString())
-            }
-
-            override fun onSuccess(apiUrl: String?, response: String?) {
-                LogDetail.LogDE("ApiGetFeeds $apiUrl", response.toString())
             }
 
             override fun onError(call: Call, e: IOException) {
@@ -327,8 +288,6 @@ class ApiGetFeeds {
 
     fun getVideoFeedsEncrypted(
         apiUrl: String,
-        token: String,
-        userId: String?,
         countryCode: String,
         interests: String?,
         languages: String?,
@@ -379,8 +338,6 @@ class ApiGetFeeds {
         if (hasFirstPostId) {
             getVideoFeedsForFirstPostIdEncrypted(
                 apiUrl,
-                token,
-                userId,
                 countryCode,
                 interestsString,
                 languageString,
@@ -401,8 +358,8 @@ class ApiGetFeeds {
             keys.add(Constants.SHORT_VIDEO)
             keys.add(Constants.INTERESTS)
             keys.add(Constants.LANGUAGE)
-            keys.add(Constants.POST_SOURCE)
             keys.add(Constants.FEED_TYPE)
+            keys.add(Constants.POST_SOURCE)
 
             values.add(countryCode)
             values.add(pageSkip.toString())
@@ -410,14 +367,13 @@ class ApiGetFeeds {
             values.add(shortVideo.toString())
             values.add(interests)
             values.add(languages)
-            values.add(postSource)
             values.add(feedType)
+            values.add(postSource)
 
             val allDetails =
                 BaseAPICallObject().getBaseObjectWithAuth(
                     Constants.GET,
                     apiUrl,
-                    token,
                     keys,
                     values
                 )
@@ -434,13 +390,13 @@ class ApiGetFeeds {
             ) + "." + publicKey
             LogDetail.LogD("Data to be Sent -> ", sendingData)
             AuthSocket.Instance().postData(sendingData, object : ResponseListener {
-                override fun onSuccess(apiUrl: String?, response: JSONObject?) {
-                    LogDetail.LogDE("ApiGetFeeds $apiUrl", response.toString())
+                override fun onSuccess(apiUrl: String, response: String) {
+                    LogDetail.LogDE("ApiGetFeeds $apiUrl", response)
 
                     val gson: Gson = GsonBuilder().create()
                     val getFeedsResponseBase: GetFeedsResponse =
                         gson.fromJson(
-                            response.toString(),
+                            response,
                             object : TypeToken<GetFeedsResponse>() {}.type
                         )
                     val getFeedsResponse: Response<GetFeedsResponse> =
@@ -451,15 +407,6 @@ class ApiGetFeeds {
                         getFeedsResponse.raw().request.url.toString(),
                         getFeedsResponse.raw().sentRequestAtMillis
                     )
-
-                }
-
-                override fun onSuccess(apiUrl: String?, response: JSONArray?) {
-                    LogDetail.LogDE("ApiGetFeeds $apiUrl", response.toString())
-                }
-
-                override fun onSuccess(apiUrl: String?, response: String?) {
-                    LogDetail.LogDE("ApiGetFeeds $apiUrl", response.toString())
                 }
 
                 override fun onError(call: Call, e: IOException) {
@@ -472,8 +419,6 @@ class ApiGetFeeds {
 
     fun getVideoFeedsForFirstPostIdEncrypted(
         apiUrl: String,
-        token: String,
-        userId: String?,
         countryCode: String,
         interests: String?,
         languages: String?,
@@ -529,7 +474,7 @@ class ApiGetFeeds {
         values.add(SpUtil.pushIntent!!.getStringExtra("post_source"))
 
         val allDetails =
-            BaseAPICallObject().getBaseObjectWithAuth(Constants.GET, apiUrl, token, keys, values)
+            BaseAPICallObject().getBaseObjectWithAuth(Constants.GET, apiUrl, keys, values)
 
         LogDetail.LogDE("Test Data", allDetails.toString())
         val publicKey = SessionUser.Instance().publicKey
@@ -543,13 +488,13 @@ class ApiGetFeeds {
         ) + "." + publicKey
         LogDetail.LogD("Data to be Sent -> ", sendingData)
         AuthSocket.Instance().postData(sendingData, object : ResponseListener {
-            override fun onSuccess(apiUrl: String?, response: JSONObject?) {
-                LogDetail.LogDE("ApiGetFeeds $apiUrl", response.toString())
+            override fun onSuccess(apiUrl: String, response: String) {
+                LogDetail.LogDE("ApiGetFeeds $apiUrl", response)
 
                 val gson: Gson = GsonBuilder().create()
                 val getFeedsResponseBase: GetFeedsResponse =
                     gson.fromJson(
-                        response.toString(),
+                        response,
                         object : TypeToken<GetFeedsResponse>() {}.type
                     )
                 val getFeedsResponse: Response<GetFeedsResponse> =
@@ -560,15 +505,6 @@ class ApiGetFeeds {
                     getFeedsResponse.raw().request.url.toString(),
                     getFeedsResponse.raw().sentRequestAtMillis
                 )
-
-            }
-
-            override fun onSuccess(apiUrl: String?, response: JSONArray?) {
-                LogDetail.LogDE("ApiGetFeeds $apiUrl", response.toString())
-            }
-
-            override fun onSuccess(apiUrl: String?, response: String?) {
-                LogDetail.LogDE("ApiGetFeeds $apiUrl", response.toString())
             }
 
             override fun onError(call: Call, e: IOException) {

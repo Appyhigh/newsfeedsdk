@@ -1,6 +1,5 @@
 package com.appyhigh.newsfeedsdk.apicalls
 
-import android.util.Log
 import com.appyhigh.newsfeedsdk.Constants
 import com.appyhigh.newsfeedsdk.encryption.AESCBCPKCS5Encryption
 import com.appyhigh.newsfeedsdk.encryption.AuthSocket
@@ -14,8 +13,6 @@ import com.google.gson.GsonBuilder
 import com.google.gson.annotations.Expose
 import com.google.gson.annotations.SerializedName
 import okhttp3.Call
-import org.json.JSONArray
-import org.json.JSONObject
 import retrofit2.Response
 import java.io.IOException
 import java.nio.charset.StandardCharsets
@@ -25,7 +22,6 @@ class ApiPodcast {
 
     fun getPodcastHomeEncrypted(
         apiUrl: String,
-        token: String,
         language: String?,
         page_number: Int,
         podcastResponseListener: PodcastResponseListener
@@ -61,7 +57,7 @@ class ApiPodcast {
         values.add(feedType)
 
         val allDetails =
-            BaseAPICallObject().getBaseObjectWithAuth(Constants.GET, apiUrl, token, keys, values)
+            BaseAPICallObject().getBaseObjectWithAuth(Constants.GET, apiUrl, keys, values)
 
         LogDetail.LogDE("Test Data", allDetails.toString())
         val publicKey = SessionUser.Instance().publicKey
@@ -76,7 +72,7 @@ class ApiPodcast {
         LogDetail.LogD("Data to be Sent -> ", sendingData)
 
         AuthSocket.Instance().postData(sendingData, object : ResponseListener {
-            override fun onSuccess(apiUrl: String?, response: JSONObject?) {
+            override fun onSuccess(apiUrl: String, response: String) {
                 LogDetail.LogDE("ApiPodcast $apiUrl", response.toString())
                 val gson: Gson = GsonBuilder().create()
                 val getFeedsResponseBase: PodcastResponse =
@@ -95,15 +91,6 @@ class ApiPodcast {
                 } catch (ex: Exception) {
                     LogDetail.LogEStack(ex)
                 }
-
-            }
-
-            override fun onSuccess(apiUrl: String?, response: JSONArray?) {
-                LogDetail.LogDE("ApiPodcast $apiUrl", response.toString())
-            }
-
-            override fun onSuccess(apiUrl: String?, response: String?) {
-                LogDetail.LogDE("ApiPodcast $apiUrl", response.toString())
             }
 
             override fun onError(call: Call, e: IOException) {
@@ -114,7 +101,6 @@ class ApiPodcast {
 
     fun getPodcastCategoryEncrypted(
         apiUrl: String,
-        token: String,
         interests: String?,
         language: String?,
         page_number: Int,
@@ -137,7 +123,7 @@ class ApiPodcast {
         values.add(page_number.toString())
 
         val allDetails =
-            BaseAPICallObject().getBaseObjectWithAuth(Constants.GET, apiUrl, token, keys, values)
+            BaseAPICallObject().getBaseObjectWithAuth(Constants.GET, apiUrl, keys, values)
 
         LogDetail.LogDE("Test Data", allDetails.toString())
         val publicKey = SessionUser.Instance().publicKey
@@ -152,12 +138,12 @@ class ApiPodcast {
         LogDetail.LogD("Data to be Sent -> ", sendingData)
 
         AuthSocket.Instance().postData(sendingData, object : ResponseListener {
-            override fun onSuccess(apiUrl: String?, response: JSONObject?) {
-                LogDetail.LogDE("ApiPodcast $apiUrl", response.toString())
+            override fun onSuccess(apiUrl: String, response: String) {
+                LogDetail.LogDE("ApiPodcast $apiUrl", response)
                 val gson: Gson = GsonBuilder().create()
                 val getFeedsResponseBase: PodcastResponse =
                     gson.fromJson(
-                        response.toString(),
+                        response,
                         object : TypeToken<PodcastResponse>() {}.type
                     )
                 val getFeedsResponse: Response<PodcastResponse> =
@@ -171,15 +157,6 @@ class ApiPodcast {
                 } catch (ex: Exception) {
                     LogDetail.LogEStack(ex)
                 }
-
-            }
-
-            override fun onSuccess(apiUrl: String?, response: JSONArray?) {
-                LogDetail.LogDE("ApiPodcast $apiUrl", response.toString())
-            }
-
-            override fun onSuccess(apiUrl: String?, response: String?) {
-                LogDetail.LogDE("ApiPodcast $apiUrl", response.toString())
             }
 
             override fun onError(call: Call, e: IOException) {
@@ -190,7 +167,6 @@ class ApiPodcast {
 
     fun getPodcastPublisherEncrypted(
         apiUrl: String,
-        token: String,
         publisherId: String?,
         language: String?,
         page_number: Int,
@@ -212,7 +188,7 @@ class ApiPodcast {
         values.add(page_number.toString())
 
         val allDetails =
-            BaseAPICallObject().getBaseObjectWithAuth(Constants.GET, apiUrl, token, keys, values)
+            BaseAPICallObject().getBaseObjectWithAuth(Constants.GET, apiUrl, keys, values)
 
         LogDetail.LogDE("Test Data", allDetails.toString())
         val publicKey = SessionUser.Instance().publicKey
@@ -227,7 +203,7 @@ class ApiPodcast {
         LogDetail.LogD("Data to be Sent -> ", sendingData)
 
         AuthSocket.Instance().postData(sendingData, object : ResponseListener {
-            override fun onSuccess(apiUrl: String?, response: JSONObject?) {
+            override fun onSuccess(apiUrl: String, response: String) {
                 LogDetail.LogDE("ApiPodcast $apiUrl", response.toString())
                 val gson: Gson = GsonBuilder().create()
                 val getFeedsResponseBase: PodcastResponse =
@@ -246,15 +222,6 @@ class ApiPodcast {
                 } catch (ex: Exception) {
                     LogDetail.LogEStack(ex)
                 }
-
-            }
-
-            override fun onSuccess(apiUrl: String?, response: JSONArray?) {
-                LogDetail.LogDE("ApiPodcast $apiUrl", response.toString())
-            }
-
-            override fun onSuccess(apiUrl: String?, response: String?) {
-                LogDetail.LogDE("ApiPodcast $apiUrl", response.toString())
             }
 
             override fun onError(call: Call, e: IOException) {

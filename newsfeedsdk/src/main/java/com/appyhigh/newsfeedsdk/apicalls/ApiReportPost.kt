@@ -1,22 +1,17 @@
 package com.appyhigh.newsfeedsdk.apicalls
 
-import android.util.Log
 import com.appyhigh.newsfeedsdk.Constants
 import com.appyhigh.newsfeedsdk.encryption.AESCBCPKCS5Encryption
 import com.appyhigh.newsfeedsdk.encryption.AuthSocket
 import com.appyhigh.newsfeedsdk.encryption.LogDetail
 import com.appyhigh.newsfeedsdk.encryption.SessionUser
 import okhttp3.Call
-import org.json.JSONArray
-import org.json.JSONObject
 import java.io.IOException
 import java.nio.charset.StandardCharsets
 
 class ApiReportPost {
     fun reportPostEncrypted(
         apiUrl: String,
-        token: String,
-        userId: String?,
         postId: String,
         report: String,
         reportPostResponseListener: ReportPostResponseListener
@@ -31,7 +26,7 @@ class ApiReportPost {
         values.add(report)
 
         val allDetails =
-            BaseAPICallObject().getBaseObjectWithAuth(Constants.POST, apiUrl, token, keys, values)
+            BaseAPICallObject().getBaseObjectWithAuth(Constants.POST, apiUrl, keys, values)
 
         LogDetail.LogDE("Test Data", allDetails.toString())
         val publicKey = SessionUser.Instance().publicKey
@@ -45,17 +40,9 @@ class ApiReportPost {
         ) + "." + publicKey
         LogDetail.LogD("Data to be Sent -> ", sendingData)
         AuthSocket.Instance().postData(sendingData, object : ResponseListener {
-            override fun onSuccess(apiUrl: String?, response: JSONObject?) {
+            override fun onSuccess(apiUrl: String, response: String) {
                 LogDetail.LogDE("ApiReportPost $apiUrl", response.toString())
                 reportPostResponseListener.onSuccess()
-            }
-
-            override fun onSuccess(apiUrl: String?, response: JSONArray?) {
-                LogDetail.LogDE("ApiReportPost $apiUrl", response.toString())
-            }
-
-            override fun onSuccess(apiUrl: String?, response: String?) {
-                LogDetail.LogDE("ApiReportPost $apiUrl", response.toString())
             }
 
             override fun onError(call: Call, e: IOException) {

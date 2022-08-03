@@ -238,12 +238,9 @@ class CryptoDetailsAdapter(var cryptoItems: ArrayList<Item>, var isEditable: Boo
                 cryptoWatchList.add(cryptoItem)
                 cryptoWatchListMap[cryptoItem.coinId!!] = cryptoItem.coinId
             }
-            FeedSdk.spUtil?.getString(Constants.JWT_TOKEN)?.let { it1 ->
-                ApiCreateOrUpdateUser().updateCryptoWatchlistEncrypted(
-                    Endpoints.UPDATE_USER_ENCRYPTED,
-                    it1
-                )
-            }
+            ApiCreateOrUpdateUser().updateCryptoWatchlistEncrypted(
+                Endpoints.UPDATE_USER_ENCRYPTED
+            )
             when(interest){
                 "crypto_gainers" -> SpUtil.cryptoEventsListener?.onAddWatchlist(cryptoItem.coinId!!, "Top Gainers", isSelected)
                 "crypto_losers" -> SpUtil.cryptoEventsListener?.onAddWatchlist(cryptoItem.coinId!!, "Top Losers", isSelected)

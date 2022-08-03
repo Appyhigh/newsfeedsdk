@@ -1,6 +1,5 @@
 package com.appyhigh.newsfeedsdk.apicalls
 
-import android.util.Log
 import com.appyhigh.newsfeedsdk.Constants
 import com.appyhigh.newsfeedsdk.FeedSdk
 import com.appyhigh.newsfeedsdk.apiclient.Endpoints
@@ -15,10 +14,7 @@ import com.google.common.reflect.TypeToken
 import com.google.firebase.messaging.FirebaseMessaging
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
-import com.google.gson.JsonObject
 import okhttp3.Call
-import org.json.JSONArray
-import org.json.JSONObject
 import retrofit2.Response
 import java.io.IOException
 import java.nio.charset.StandardCharsets
@@ -31,84 +27,54 @@ class ApiUserDetails {
         phoneNumber: String? = null,
         userIdResponseListener: UserIdResponseListener
     ) {
-        FeedSdk.spUtil?.getString(Constants.JWT_TOKEN)?.let {
-            val keys = ArrayList<String?>()
-            val values = ArrayList<String?>()
+        val keys = ArrayList<String?>()
+        val values = ArrayList<String?>()
 
-            keys.add(Constants.EMAIL)
-            keys.add(Constants.PHONE_NUMBER)
+        keys.add(Constants.EMAIL)
+        keys.add(Constants.PHONE_NUMBER)
 
-            values.add(email)
-            values.add(phoneNumber)
+        values.add(email)
+        values.add(phoneNumber)
 
-            val allDetails =
-                BaseAPICallObject().getBaseObjectWithAuth(Constants.GET, Endpoints.CHECK_EMAIL_NUMBER_AVAILABILITY_ENCRYPTED, it, keys, values)
-            LogDetail.LogDE("Test Data", allDetails.toString())
-            val publicKey = SessionUser.Instance().publicKey
-            val instanceEncryption = AESCBCPKCS5Encryption().getInstance(
-                SessionUser.Instance().getPrivateKey(publicKey)
+        val allDetails =
+            BaseAPICallObject().getBaseObjectWithAuth(Constants.GET, Endpoints.CHECK_EMAIL_NUMBER_AVAILABILITY_ENCRYPTED, keys, values)
+        LogDetail.LogDE("Test Data", allDetails.toString())
+        val publicKey = SessionUser.Instance().publicKey
+        val instanceEncryption = AESCBCPKCS5Encryption().getInstance(
+            SessionUser.Instance().getPrivateKey(publicKey)
+        )
+        val sendingData: String = instanceEncryption.encrypt(
+            allDetails.toString().toByteArray(
+                StandardCharsets.UTF_8
             )
-            val sendingData: String = instanceEncryption.encrypt(
-                allDetails.toString().toByteArray(
-                    StandardCharsets.UTF_8
-                )
-            ) + "." + publicKey
-            LogDetail.LogD("Data to be Sent -> ", sendingData)
+        ) + "." + publicKey
+        LogDetail.LogD("Data to be Sent -> ", sendingData)
 
-            AuthSocket.Instance().postData(sendingData, object : ResponseListener {
-                override fun onSuccess(apiUrl: String?, response: JSONObject?) {
-                    LogDetail.LogDE("ApiUserDetails $apiUrl", response.toString())
+        AuthSocket.Instance().postData(sendingData, object : ResponseListener {
+            override fun onSuccess(apiUrl: String, response: String) {
+                LogDetail.LogDE("ApiUserDetails $apiUrl", response.toString())
 
-                    val gson: Gson = GsonBuilder().create()
-                    val userIdResponseBase: UserIdResponse =
-                        gson.fromJson(
-                            response.toString(),
-                            object : TypeToken<UserIdResponse>() {}.type
-                        )
-                    val userIdResponse: Response<UserIdResponse> = Response.success(userIdResponseBase)
-                    userIdResponse.body()?.let { it1 -> userIdResponseListener.onSuccess(it1) }
-                }
+                val gson: Gson = GsonBuilder().create()
+                val userIdResponseBase: UserIdResponse =
+                    gson.fromJson(
+                        response.toString(),
+                        object : TypeToken<UserIdResponse>() {}.type
+                    )
+                val userIdResponse: Response<UserIdResponse> = Response.success(userIdResponseBase)
+                userIdResponse.body()?.let { it1 -> userIdResponseListener.onSuccess(it1) }
+            }
 
-                override fun onSuccess(apiUrl: String?, response: JSONArray?) {
-                    LogDetail.LogDE("ApiUserDetails $apiUrl", response.toString())
-                }
-
-                override fun onSuccess(apiUrl: String?, response: String?) {
-                    LogDetail.LogDE("ApiUserDetails $apiUrl", response.toString())
-                }
-
-                override fun onError(call: Call, e: IOException) {
-                    LogDetail.LogDE("ApiUserDetails "+Endpoints.CHECK_EMAIL_NUMBER_AVAILABILITY_ENCRYPTED, e.toString())
-                }
-            })
-        }
+            override fun onError(call: Call, e: IOException) {
+                LogDetail.LogDE("ApiUserDetails "+Endpoints.CHECK_EMAIL_NUMBER_AVAILABILITY_ENCRYPTED, e.toString())
+            }
+        })
     }
 
     fun getUserResponseEncrypted(
         apiUrl: String,
-        token: String,
         userResponseListener: UserResponseListener
     ) {
-        val allDetails = JsonObject()
-        val main = JsonObject()
-        main.addProperty(Constants.API_URl, apiUrl)
-        main.addProperty(Constants.API_METHOD, Constants.GET)
-        main.addProperty(Constants.API_INTERNAL, SessionUser.Instance().apiInternal)
-
-        val dataJO = JsonObject()
-        main.add(Constants.API_DATA, dataJO)
-
-        val headerJO = JsonObject()
-        headerJO.addProperty(Constants.AUTHORIZATION, token)
-        main.add(Constants.API_HEADER, headerJO)
-
-        try {
-            allDetails.add(Constants.API_CALLING, main)
-            allDetails.add(Constants.USER_DETAIL, SessionUser.Instance().userDetails)
-            allDetails.add(Constants.DEVICE_DETAIL, SessionUser.Instance().deviceDetails)
-        } catch (e: Exception) {
-            LogDetail.LogEStack(e)
-        }
+        val allDetails = BaseAPICallObject().getBaseObjectWithAuth(Constants.GET, apiUrl, ArrayList(), ArrayList())
         LogDetail.LogDE("Test Data", allDetails.toString())
         val publicKey = SessionUser.Instance().publicKey
         val instanceEncryption = AESCBCPKCS5Encryption().getInstance(
@@ -121,7 +87,7 @@ class ApiUserDetails {
         ) + "." + publicKey
         LogDetail.LogD("Data to be Sent -> ", sendingData)
         AuthSocket.Instance().postData(sendingData, object : ResponseListener {
-            override fun onSuccess(apiUrl: String?, response: JSONObject?) {
+            override fun onSuccess(apiUrl: String, response: String) {
                 LogDetail.LogDE("ApiUserDetails correct $apiUrl", response.toString())
                 val gson: Gson = GsonBuilder().create()
                 val userResponse: UserResponse =
@@ -136,14 +102,6 @@ class ApiUserDetails {
                 userResponseListener.onSuccess(userResponse)
                 SpUtil.userResponseListener?.onSuccess(userResponse)
                 Constants.userDetails = userResponse.user
-            }
-
-            override fun onSuccess(apiUrl: String?, response: JSONArray?) {
-                LogDetail.LogDE("ApiUserDetails $apiUrl", response.toString())
-            }
-
-            override fun onSuccess(apiUrl: String?, response: String?) {
-                LogDetail.LogDE("ApiUserDetails $apiUrl", response.toString())
             }
 
             override fun onError(call: Call, e: IOException) {

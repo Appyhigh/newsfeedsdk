@@ -81,42 +81,38 @@ class FeedInterestsActivity : AppCompatActivity() {
             } else {
                 btnProceed.visibility = View.GONE
                 pbLoader.visibility = View.VISIBLE
-                FeedSdk.userId?.let { it1 ->
-                    FeedSdk.spUtil?.getString(Constants.JWT_TOKEN)?.let { it2 ->
-                        ApiUpdateUserPersonalization().updateUserPersonalizationEncrypted(
-                            Endpoints.UPDATE_USER_ENCRYPTED,
-                            it1,
-                            FeedSdk.interestsList,
-                            FeedSdk.languagesList,
-                            object : ApiUpdateUserPersonalization.UpdatePersonalizationListener {
-                                override fun onSuccess() {
-                                    for (listener in SpUtil.onRefreshListeners) {
-                                        listener.value.onRefreshNeeded()
-                                    }
-                                    callPersonaliseEvent()
-                                    if(FeedSdk.languagesList.isEmpty()){
-                                        val intent = Intent(this@FeedInterestsActivity, FeedLanguageActivity::class.java)
-                                        startActivity(intent)
-                                        setResult(RESULT_OK)
-                                        finish()
-                                    } else {
-                                        Handler(Looper.getMainLooper()).postDelayed({
-                                            setResult(RESULT_OK)
-                                            finish()
-                                        }, 1000)
-                                    }
-                                }
+                ApiUpdateUserPersonalization().updateUserPersonalizationEncrypted(
+                    Endpoints.UPDATE_USER_ENCRYPTED,
+                    FeedSdk.interestsList,
+                    FeedSdk.languagesList,
+                    object : ApiUpdateUserPersonalization.UpdatePersonalizationListener {
+                        override fun onSuccess() {
+                            for (listener in SpUtil.onRefreshListeners) {
+                                listener.value.onRefreshNeeded()
+                            }
+                            callPersonaliseEvent()
+                            if(FeedSdk.languagesList.isEmpty()){
+                                val intent = Intent(this@FeedInterestsActivity, FeedLanguageActivity::class.java)
+                                startActivity(intent)
+                                setResult(RESULT_OK)
+                                finish()
+                            } else {
+                                Handler(Looper.getMainLooper()).postDelayed({
+                                    setResult(RESULT_OK)
+                                    finish()
+                                }, 1000)
+                            }
+                        }
 
-                                override fun onFailure() {
+                        override fun onFailure() {
 
-                                }
-                            })
-                    }
+                        }
+                    })
                 }
 
             }
         }
-    }
+
 
     private fun callPersonaliseEvent(){
         var interests =""
