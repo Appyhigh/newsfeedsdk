@@ -49,7 +49,7 @@ public class AESCBCPKCS5Encryption {
 
     public void updateKEY_IV(String password_string) {
         try {
-            System.out.println("updateKEY_IV: " + password_string);
+            LogDetail.LogDE("updateKEY_IV: ", password_string);
             byte[] initialBytes = password_string.getBytes(StandardCharsets.UTF_8);
 
             MessageDigest msgDigest = MessageDigest.getInstance("SHA-256");

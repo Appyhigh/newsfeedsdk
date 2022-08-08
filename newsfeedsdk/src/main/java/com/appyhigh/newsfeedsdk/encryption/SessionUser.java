@@ -22,6 +22,7 @@ public class SessionUser {
 
 
     private String token = "";
+    private long ttl = 0;
     private String app_version_code = "";
     private String app_version_name = "";
     private String secretKey = "MY_SECRET";
@@ -119,6 +120,14 @@ public class SessionUser {
 
     public void setToken(String Key) {
         this.token = Key;
+    }
+
+    public long getTtl(){
+        return ttl;
+    }
+
+    public void setTtl(String ttl){
+        this.ttl = System.currentTimeMillis()+Long.parseLong(ttl)-5000;
     }
 
     public boolean isConnected() {

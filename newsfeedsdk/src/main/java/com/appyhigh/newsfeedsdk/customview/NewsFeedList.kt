@@ -24,6 +24,7 @@ import com.appyhigh.newsfeedsdk.Constants
 import com.appyhigh.newsfeedsdk.FeedSdk
 import com.appyhigh.newsfeedsdk.R
 import com.appyhigh.newsfeedsdk.activity.FeedLanguageActivity
+import com.appyhigh.newsfeedsdk.activity.PublisherBlockActivity
 import com.appyhigh.newsfeedsdk.adapter.InterestAdapter
 import com.appyhigh.newsfeedsdk.adapter.NewsFeedSliderAdapter
 import com.appyhigh.newsfeedsdk.apicalls.ApiGetInterests
@@ -124,12 +125,16 @@ class NewsFeedList : LinearLayout, PersonalizeCallListener, OnRefreshListener {
             when (menu.itemId) {
                 R.id.feedInterests -> {
                     val bottomSheet = AddInterestBottomSheet.newInstance()
-            bottomSheet.show(getFragmentManager(context)!!,"BottomSheet")
+                    bottomSheet.show(getFragmentManager(context)!!,"BottomSheet")
 //                    val intent = Intent(context, FeedInterestsActivity::class.java)
 //                    context.startActivity(intent)
                 }
                 R.id.feedLanguage -> {
                     val intent = Intent(context, FeedLanguageActivity::class.java)
+                    context.startActivity(intent)
+                }
+                R.id.publisherBlockList -> {
+                    val intent = Intent(context, PublisherBlockActivity::class.java)
                     context.startActivity(intent)
                 }
                 R.id.fontChange -> {
@@ -338,7 +343,7 @@ class NewsFeedList : LinearLayout, PersonalizeCallListener, OnRefreshListener {
         var interests = ""
         var pos = 0
         if (selectedInterestsList.isEmpty()) {
-            selectedInterestsList.addAll(Constants.allInterestsMap.values as ArrayList<Interest>)
+            selectedInterestsList.addAll(Constants.allInterestsMap.values.toList() as ArrayList<Interest>)
         }
         for (i in 0 until selectedInterestsList.size) {
             interests += if (i < selectedInterestsList.size - 1) {
@@ -503,25 +508,35 @@ class NewsFeedList : LinearLayout, PersonalizeCallListener, OnRefreshListener {
                 "podcasts" -> fragmentList.add(PodcastsFragment.newInstance())
                 "crypto" -> fragmentList.add(CryptoFragment.newInstance())
                 else -> {
-                    fragmentList.add(
-                    PagerFragment.newInstance(
-                        interest.keyId!!,
-                        i,
-                        if (interestList.isNullOrEmpty()) selectedInterestsList else interestList as ArrayList<Interest> /* = java.util.ArrayList<com.appyhigh.newsfeedsdk.model.Interest> */,
-                        isSelectedInterestsEmpty,
-                        object : PersonalizationListener {
-                            override fun onRefresh() {
-                                initView()
-                            }
+                    if(!interest.pwaLink.isNullOrEmpty()){
+                        interest.keyId?.let {
+                            fragmentList.add(
+                                PWAFragment.newInstance(
+                                    interest.pwaLink!!, it
+                                )
+                            )
+                        }
+                    } else{
+                        fragmentList.add(
+                            PagerFragment.newInstance(
+                                interest.keyId!!,
+                                i,
+                                if (interestList.isNullOrEmpty()) selectedInterestsList else interestList as ArrayList<Interest> /* = java.util.ArrayList<com.appyhigh.newsfeedsdk.model.Interest> */,
+                                isSelectedInterestsEmpty,
+                                object : PersonalizationListener {
+                                    override fun onRefresh() {
+                                        initView()
+                                    }
 
-                            override fun onPersonalizationClicked() {
-                                ivAdd?.performClick()
-                            }
-                        },
-                        null,
-                        mUserDetails?.user
-                    )
-                    )
+                                    override fun onPersonalizationClicked() {
+                                        ivAdd?.performClick()
+                                    }
+                                },
+                                null,
+                                mUserDetails?.user
+                            )
+                        )
+                    }
                 }
             }
         }

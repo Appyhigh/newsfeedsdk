@@ -20,16 +20,10 @@ import androidx.core.text.HtmlCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
 import com.appyhigh.newsfeedsdk.Constants
-import com.appyhigh.newsfeedsdk.Constants.getLanguages
 import com.appyhigh.newsfeedsdk.FeedSdk
 import com.appyhigh.newsfeedsdk.R
 import com.appyhigh.newsfeedsdk.activity.NewsFeedPageActivity
-import com.appyhigh.newsfeedsdk.activity.PWACricketActivity
-import com.appyhigh.newsfeedsdk.activity.PWACricketTabsActivity
 import com.appyhigh.newsfeedsdk.activity.PostNativeDetailActivity
-import com.appyhigh.newsfeedsdk.apicalls.ApiCreateOrUpdateUser
-import com.appyhigh.newsfeedsdk.apiclient.Endpoints
-import com.appyhigh.newsfeedsdk.callbacks.PWATabSelectedListener
 import com.appyhigh.newsfeedsdk.databinding.FragmentCricketPwaBinding
 import com.appyhigh.newsfeedsdk.encryption.LogDetail
 import com.appyhigh.newsfeedsdk.model.feeds.Card
@@ -42,73 +36,57 @@ import com.google.gson.Gson
 import im.delight.android.webview.AdvancedWebView
 import java.util.*
 
-class CricketPWAFragment : Fragment(), AdvancedWebView.Listener, PWATabSelectedListener {
+class PWAFragment: Fragment(), AdvancedWebView.Listener {
 
-    var pwaLink = ""
+    private var pwaLink = ""
+    var binding: FragmentCricketPwaBinding?=null
     var keyId = ""
     private var link = ""
-    lateinit var binding: FragmentCricketPwaBinding
     var alreadyExists = false
     var prevWeb: WebView?=null
     private var isloaded = false
-    private var fileName = ""
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         binding = FragmentCricketPwaBinding.inflate(layoutInflater, container, false)
-        if(keyId=="live_matches"){
-            fileName = Constants.findFilename(pwaLink)
-            Constants.pwaTabListeners[fileName] = this
-        }
-        return binding.root
-    }
-
-
-    override fun onTabClicked(filename: String) {
-        if(fileName == filename){
-            binding.noInternet.visibility=View.GONE
-            LogDetail.LogD("webtest", "onViewCreated: "+keyId+" "+link)
-            binding.webview.loadUrl(link)
-            Constants.pwaWebViews[pwaLink] = binding.webview
-        }
+        return binding!!.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        Card.setFontFamily(binding.noInternetTitle, true)
-        Card.setFontFamily(binding.checkConnection)
-//        if(BuildConfig.DEBUG && !pwaLink.contains("staging.masterfeed.io") && pwaLink.contains("masterfeed.io")){
-//            pwaLink = pwaLink.replace("masterfeed.io", "staging.masterfeed.io")
-//        }
+        Card.setFontFamily(binding!!.noInternetTitle, true)
+        Card.setFontFamily(binding!!.checkConnection)
+//        if(BuildConfig.DEBUG)
+//            pwaLink = pwaLink.replace("masterfeed.io", "staging.masterfeed.apyhi.com")
         setWebView(view)
     }
 
     private fun setWebView(view: View){
         if(Constants.pwaWebViews.containsKey(pwaLink)){
             try{
-                binding.webview.visibility = View.GONE
-                binding.progress.visibility = View.GONE
+                binding!!.webview.visibility = View.GONE
+                binding!!.progress.visibility = View.GONE
                 val prevWebView = Constants.pwaWebViews[pwaLink]
                 if (prevWebView!!.parent != null) {
                     (prevWebView.parent as ViewGroup).removeView(prevWebView)
                 }
                 prevWebView.id = View.generateViewId()
-                binding.mainLayout.addView(prevWebView)
+                binding!!.mainLayout.addView(prevWebView)
                 prevWeb = view.findViewById(prevWebView.id)
                 alreadyExists = true
             } catch (ex:Exception){
                 LogDetail.LogEStack(ex)
             }
         } else{
-            binding.webview.visibility = View.VISIBLE
+            binding!!.webview.visibility = View.VISIBLE
             alreadyExists = false
         }
-        binding.webview.setListener(requireActivity(), this)
-        binding.webview.setMixedContentAllowed(false)
-        binding.webview.settings.javaScriptEnabled = true
-        binding.webview.settings.domStorageEnabled = true
-        binding.webview.settings.useWideViewPort = true
-        binding.webview.setCookiesEnabled(true)
-        binding.webview.setThirdPartyCookiesEnabled(true)
+        binding!!.webview.setListener(requireActivity(), this)
+        binding!!.webview.setMixedContentAllowed(false)
+        binding!!.webview.settings.javaScriptEnabled = true
+        binding!!.webview.settings.domStorageEnabled = true
+        binding!!.webview.settings.useWideViewPort = true
+        binding!!.webview.setCookiesEnabled(true)
+        binding!!.webview.setThirdPartyCookiesEnabled(true)
         val cookieManager = CookieManager.getInstance()
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             cookieManager.setAcceptThirdPartyCookies(binding!!.webview, true)
@@ -118,16 +96,12 @@ class CricketPWAFragment : Fragment(), AdvancedWebView.Listener, PWATabSelectedL
 //            cookieManager.removeAllCookie()
         }
         var languages = ""
-        if(keyId=="cricket") {
-            for ((i, language) in FeedSdk.languagesList.withIndex()) {
-                if (i < FeedSdk.languagesList.size - 1) {
-                    languages = languages + language.id.lowercase(Locale.getDefault()) + ","
-                } else {
-                    languages += language.id.lowercase(Locale.getDefault())
-                }
+        for ((i, language) in FeedSdk.languagesList.withIndex()) {
+            if (i < FeedSdk.languagesList.size - 1) {
+                languages = languages + language.id.lowercase(Locale.getDefault()) + ","
+            } else {
+                languages += language.id.lowercase(Locale.getDefault())
             }
-        } else {
-            languages = getLanguages(listOf("hi", "ta", "te", "bn"))
         }
         if(languages.isEmpty()){
             languages = "en"
@@ -135,92 +109,47 @@ class CricketPWAFragment : Fragment(), AdvancedWebView.Listener, PWATabSelectedL
         var pwaUri = Uri.parse(pwaLink)
         pwaUri = pwaUri.addUriParameter("platform","android")
         pwaUri = pwaUri.addUriParameter("language",languages)
-        pwaUri = pwaUri.addUriParameter("theme",FeedSdk.sdkTheme)
+        pwaUri = pwaUri.addUriParameter("theme", FeedSdk.sdkTheme)
         link = pwaUri.toString()
         val gson = Gson()
         cookieManager.setCookie(link, "token="+ RSAKeyGenerator.getJwtToken(FeedSdk.appId, FeedSdk.userId) ?: "")
         cookieManager.setCookie(link, "user_info="+ gson.toJson(Constants.userDetails))
-        binding.webview.webViewClient = object : WebViewClient() {
+        binding!!.webview.webViewClient = object : WebViewClient() {
             override fun shouldOverrideUrlLoading(view: WebView, url: String): Boolean {
                 isloaded = true
                 try{
-                    val newIntent = Intent(requireContext(), PWACricketTabsActivity::class.java)
                     LogDetail.LogD("webtest", "onOverrideUrl: " + url)
                     if (url != link) {
                         if (!Constants.isNetworkAvailable(requireContext())) {
-                            binding.webview.visibility = View.GONE
-                            binding.progress.visibility = View.GONE
+                            binding!!.webview.visibility = View.GONE
+                            binding!!.progress.visibility = View.GONE
                             prevWeb?.visibility = View.GONE
-                            binding.noInternet.visibility = View.VISIBLE
+                            binding!!.noInternet.visibility = View.VISIBLE
                         }
                     }
+
                     when {
-                        url.contains("crichouse/upcoming-matches") -> {
-                            return initTabsActivity(newIntent,"upcoming_matches")
-                        }
-                        url.contains("crichouse/match-results") -> {
-                            return initTabsActivity(newIntent, "results")
-                        }
-                        url.contains("view=scoreboard") -> {
-                            return initActivity("Scoreboard", url)
-                        }
-                        url.contains("crichouse/match") -> {
-                            val uri = Uri.parse(url)
-                            val isLiveMatch = uri.getQueryParameter("isLiveMatch")
-                            if(isLiveMatch=="true") {
-                                newIntent.putExtra("link", url)
-                                return initTabsActivity(newIntent, "match")
-                            } else{
-                                return initActivity("Commentary", url)
-                            }
-                        }
-                        url.contains("cricket/match") -> {
-                            val uri = Uri.parse(url)
-                            val isLiveMatch = uri.getQueryParameter("isLiveMatch")
-                            if(isLiveMatch=="true") {
-                                newIntent.putExtra("link", url)
-                                return initTabsActivity(newIntent, "match")
-                            } else{
-                                val newLink = url.replace("cricket/match", "crichouse/match")
-                                return initActivity("Commentary", newLink)
-                            }
-                        }
-                        url.contains("crichouse/tour") -> {
-                            return initActivity("", url)
-                        }
-                        url.contains("crichouse/notification") -> {
-                            return updateNotification(url)
-                        }
-                        url.contains("crichouse/series") -> {
-                            return initActivity("Points Table", url)
-                        }
-                        url.contains("crichouse/team-ranking") -> {
-                            return initTabsActivity(newIntent, "team_ranking")
-                        }
-                        url.contains("crichouse/player-ranking") -> {
-                            return initTabsActivity(newIntent, "player_ranking")
-                        }
-                        url.contains("crichouse/post-options") -> {
+                        url.contains("/post-options") -> {
                             onMoreOptionsClicked(url)
                             return true
                         }
-                        url.contains("crichouse/share") -> {
+                        url.contains("/share") -> {
                             onSharePostClicked(url)
                             return true
                         }
-                        url.contains("crichouse/comment") -> {
+                        url.contains("/comment") -> {
                             openFeedDetailActivity(url, true)
                             return true
                         }
-                        url.contains("crichouse/view-post") -> {
+                        url.contains("/view-post") -> {
                             openFeedDetailActivity(url, false)
                             return true
                         }
                         else -> {
-                            binding.webview.visibility = View.GONE
-                            binding.progress.visibility = View.VISIBLE
+                            binding!!.webview.visibility = View.GONE
+                            binding!!.progress.visibility = View.VISIBLE
                             prevWeb?.visibility = View.GONE
-                            binding.noInternet.visibility = View.GONE
+                            binding!!.noInternet.visibility = View.GONE
                             if(url.startsWith("market://details?") || url.startsWith("https://play.google.com/store")) {
                                 val intent = Intent(Intent.ACTION_VIEW, Uri.parse(url))
                                 startActivity(intent)
@@ -235,66 +164,26 @@ class CricketPWAFragment : Fragment(), AdvancedWebView.Listener, PWATabSelectedL
             }
         }
         if(!Constants.isNetworkAvailable(requireContext())){
-            binding.webview.visibility=View.GONE
-            binding.progress.visibility=View.GONE
+            binding!!.webview.visibility=View.GONE
+            binding!!.progress.visibility=View.GONE
             if(!alreadyExists){
                 prevWeb?.visibility=View.GONE
-                binding.noInternet.visibility=View.VISIBLE
+                binding!!.noInternet.visibility=View.VISIBLE
             }
 //            Constants.pwaWebViews.remove(filename)
-        } else if(keyId!="live_matches"){
-            binding.noInternet.visibility=View.GONE
-            LogDetail.LogD("webtest", "onViewCreated: "+keyId+" "+link)
-            binding.webview.loadUrl(link)
-            Constants.pwaWebViews[pwaLink] = binding.webview
         }
     }
 
     fun onBackPressed(){
         try{
-            if (binding.webview.canGoBack()) {
-                binding.webview.goBack()
+            if (binding!!.webview.canGoBack()) {
+                binding!!.webview.goBack()
             } else{
-                requireActivity().finish()
+                requireActivity().onBackPressed()
             }
         } catch (ex:Exception){
             LogDetail.LogEStack(ex)
         }
-    }
-
-    private fun initTabsActivity(intent:Intent, interest:String) : Boolean{
-        intent.putExtra(Constants.INTEREST, interest)
-        startActivity(intent)
-        return true
-    }
-
-    private fun initActivity(interest:String, url: String) : Boolean{
-        val intent = Intent(requireContext(), PWACricketActivity::class.java)
-        val uri = Uri.parse(url)
-        val title = uri.getQueryParameter("title")
-        if(title.isNullOrEmpty()){
-            intent.putExtra(Constants.INTEREST, interest)
-        } else {
-            intent.putExtra(Constants.INTEREST, title)
-        }
-        intent.putExtra("link", url)
-        startActivity(intent)
-        return true
-    }
-
-    private fun updateNotification(url_string: String) : Boolean{
-        try {
-            val uri = Uri.parse(url_string)
-            val turnNotification = uri.getQueryParameter("turnNotification")=="true"
-            Constants.isChecked = turnNotification
-            ApiCreateOrUpdateUser().updateCricketNotificationEncrypt(
-                Endpoints.UPDATE_USER_ENCRYPTED,
-                turnNotification
-            )
-        } catch (ex:java.lang.Exception){
-            LogDetail.LogEStack(ex)
-        }
-        return true
     }
 
     private fun onMoreOptionsClicked(url_string: String){
@@ -376,9 +265,11 @@ class CricketPWAFragment : Fragment(), AdvancedWebView.Listener, PWATabSelectedL
                             val whatsAppIntent = Intent(Intent.ACTION_SEND)
                             whatsAppIntent.type = "text/plain"
                             whatsAppIntent.setPackage("com.whatsapp")
-                            whatsAppIntent.putExtra(Intent.EXTRA_TEXT,
+                            whatsAppIntent.putExtra(
+                                Intent.EXTRA_TEXT,
                                 postUrl + "\n\n" + Objects.requireNonNull(SpUtil.spUtilInstance)!!
-                                    .getString(Constants.SHARE_MESSAGE) + requireContext().getString(R.string.share_link_prefix) + requireContext().packageName
+                                    .getString(Constants.SHARE_MESSAGE) + requireContext().getString(
+                                    R.string.share_link_prefix) + requireContext().packageName
                             )
                             try {
                                 startActivity(whatsAppIntent)
@@ -388,8 +279,9 @@ class CricketPWAFragment : Fragment(), AdvancedWebView.Listener, PWATabSelectedL
                         } else {
                             val intent = Intent(Intent.ACTION_SEND)
                             intent.type = "text/plain"
-                            intent.putExtra(Intent.EXTRA_TEXT, postUrl + "\n\n" + Objects.requireNonNull(SpUtil.spUtilInstance)!!
-                                    .getString(Constants.SHARE_MESSAGE) + requireContext().getString(R.string.share_link_prefix) + requireContext().packageName
+                            intent.putExtra(
+                                Intent.EXTRA_TEXT, postUrl + "\n\n" + Objects.requireNonNull(SpUtil.spUtilInstance)!!
+                                .getString(Constants.SHARE_MESSAGE) + requireContext().getString(R.string.share_link_prefix) + requireContext().packageName
                             )
                             startActivity(Intent.createChooser(intent, "Share via"))
                         }
@@ -440,8 +332,8 @@ class CricketPWAFragment : Fragment(), AdvancedWebView.Listener, PWATabSelectedL
 
     override fun onPageStarted(url: String?, favicon: Bitmap?) {
         if(url!="about:blank" && !alreadyExists) {
-            binding.webview.visibility = View.VISIBLE
-            binding.progress.visibility = View.VISIBLE
+            binding!!.webview.visibility = View.VISIBLE
+            binding!!.progress.visibility = View.VISIBLE
         }
         isloaded = true
     }
@@ -453,18 +345,18 @@ class CricketPWAFragment : Fragment(), AdvancedWebView.Listener, PWATabSelectedL
             LogDetail.LogD("webtest", keyId)
             LogDetail.LogD("webtest", "All the cookies in a string:$cookies")
             if(!alreadyExists) {
-                binding.progress.visibility = View.GONE
+                binding!!.progress.visibility = View.GONE
             } else{
                 Handler(Looper.getMainLooper()).postDelayed({
                     prevWeb?.visibility = View.GONE
-                    binding.webview.visibility = View.VISIBLE
+                    binding!!.webview.visibility = View.VISIBLE
                 }, 500)
             }
         }
     }
 
     override fun onPageError(errorCode: Int, description: String?, failingUrl: String?) {
-        binding.progress.visibility = View.GONE
+        binding!!.progress.visibility = View.GONE
     }
 
     override fun onDownloadRequested(

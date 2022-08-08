@@ -1,23 +1,22 @@
 package com.appyhigh.newsfeedsdk.encryption
 
 import android.content.Context
-import android.content.pm.ApplicationInfo
-import android.content.pm.PackageManager
 import android.util.Log
 import android.widget.Toast
-import com.appyhigh.newsfeedsdk.Constants
 
 object LogDetail {
     private var debugger = false
     
+//    @JvmStatic
+//    fun init(context: Context){
+//        try{
+//            val ai: ApplicationInfo = context.packageManager.getApplicationInfo(context.packageName, PackageManager.GET_META_DATA)
+//            val bundle = ai.metaData
+//            debugger = bundle.getBoolean(Constants.FEED_DEBUGGER, false)
+//        } catch (ex:Exception){ }
+//    }
     @JvmStatic
-    fun init(context: Context){
-        try{
-            val ai: ApplicationInfo = context.packageManager.getApplicationInfo(context.packageName, PackageManager.GET_META_DATA)
-            val bundle = ai.metaData
-            debugger = bundle.getBoolean(Constants.FEED_DEBUGGER, false)
-        } catch (ex:Exception){ }
-    }
+    fun init(){}
     
     @JvmStatic
     fun LogD(T: String?, S: String?) {
@@ -87,7 +86,7 @@ object LogDetail {
         try{
 //            println(ss)
             /*if (debugger) {
-                System.out.println(ss);
+                LogDetail.LogDE(ss);
             }*/
         } catch (ex:Exception){
             LogDetail.LogEStack(ex)

@@ -4,20 +4,21 @@ import android.app.Activity
 import android.app.Dialog
 import android.content.Intent
 import android.os.Bundle
+import android.text.TextUtils
 import android.util.DisplayMetrics
+import android.util.Patterns
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.webkit.URLUtil
 import android.widget.LinearLayout
+import android.widget.Toast
 import com.appyhigh.newsfeedsdk.R
 import com.appyhigh.newsfeedsdk.activity.ContactPublisherActivity
+import com.appyhigh.newsfeedsdk.apicalls.ApiCreateOrUpdateUser
 import com.appyhigh.newsfeedsdk.model.feeds.Card
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
-import android.util.Patterns
-import android.text.TextUtils
-import android.webkit.URLUtil
-import java.lang.Exception
 import java.net.URL
 import java.util.regex.Pattern
 
@@ -26,11 +27,13 @@ class FeedMenuBottomSheetFragment :
 
     private var contactUs: String = ""
     private var postId: String = ""
+    private var publisherId: String = ""
 
     companion object {
-        fun newInstance(contactUs: String, postId: String): FeedMenuBottomSheetFragment {
+        fun newInstance(contactUs: String, publisherId: String, postId: String): FeedMenuBottomSheetFragment {
             val feedMenuBottomSheetFragment = FeedMenuBottomSheetFragment()
             feedMenuBottomSheetFragment.contactUs = contactUs
+            feedMenuBottomSheetFragment.publisherId = publisherId
             feedMenuBottomSheetFragment.postId = postId
             return feedMenuBottomSheetFragment
         }
@@ -45,15 +48,17 @@ class FeedMenuBottomSheetFragment :
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View {
+    ): View? {
         val view = inflater.inflate(
             R.layout.bottom_sheet_feed_menu, container,
             false
         )
         Card.setFontFamily(view?.findViewById(R.id.contactPublisherTitle))
+        Card.setFontFamily(view?.findViewById(R.id.blockPublisherTitle))
         Card.setFontFamily(view?.findViewById(R.id.reportPostTitle))
         // get the views and attach the listener
         val llContactPublisher = view.findViewById<LinearLayout>(R.id.llContactPublisher)
+        val llBlockPublisher = view.findViewById<LinearLayout>(R.id.llBlockPublisher)
         val llReportPost = view.findViewById<LinearLayout>(R.id.llReportPost)
 
         if (postId == "") {
@@ -72,6 +77,12 @@ class FeedMenuBottomSheetFragment :
                 requireActivity().supportFragmentManager,
                 "repostBotttomsheet"
             )
+        }
+
+        llBlockPublisher.setOnClickListener {
+            ApiCreateOrUpdateUser().updateBlockPublisher(publisherId, "block")
+            Toast.makeText(requireContext(), "We won't show posts from this publisher again", Toast.LENGTH_SHORT).show()
+            dialog?.dismiss()
         }
 
         // Verify Url before giving the option to click

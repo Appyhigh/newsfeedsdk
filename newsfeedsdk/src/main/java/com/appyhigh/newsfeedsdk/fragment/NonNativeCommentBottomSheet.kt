@@ -28,7 +28,7 @@ class NonNativeCommentBottomSheet(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View {
+    ): View? {
         val view = inflater.inflate(R.layout.bottom_sheet_non_native_comments, container, false)
         setFonts(view)
         val rvAllComments = view.findViewById<RecyclerView>(R.id.rv_all_comments)

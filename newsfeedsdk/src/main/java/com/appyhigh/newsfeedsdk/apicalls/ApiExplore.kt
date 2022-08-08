@@ -31,10 +31,12 @@ class ApiExplore {
         keys.add(Constants.LANG)
         keys.add(Constants.COUNTRY)
         keys.add(Constants.ANOTHER_INTEREST)
+        keys.add(Constants.BLOCKED_PUBLISHERS)
 
         values.add(languageString)
         values.add(country)
         values.add(another_interest)
+        values.add(Constants.userDetails?.let { Constants.getStringFromList(it.blockedPublishers) })
 
         val allDetails =
             BaseAPICallObject().getBaseObjectWithAuth(Constants.GET, apiUrl, keys, values)

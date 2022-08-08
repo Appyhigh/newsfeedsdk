@@ -200,6 +200,52 @@ class ApiCreateOrUpdateUser {
         })
     }
 
+    fun updateBlockPublisher(publisherId: String, action: String, doRefresh:Boolean = true){
+        val keys = ArrayList<String?>()
+        val values = ArrayList<String?>()
+
+        keys.add(Constants.PUBLISHER_ID)
+        keys.add("action")
+
+        values.add(publisherId)
+        values.add(action)
+        val allDetails =
+            BaseAPICallObject().getBaseObjectWithAuth(Constants.GET, Endpoints.BLOCK_PUBLISHER, keys, values)
+
+        LogDetail.LogDE("Test Data", allDetails.toString())
+        val publicKey = SessionUser.Instance().publicKey
+        val instanceEncryption = AESCBCPKCS5Encryption().getInstance(
+            SessionUser.Instance().getPrivateKey(publicKey)
+        )
+        val sendingData: String = instanceEncryption.encrypt(
+            allDetails.toString().toByteArray(
+                StandardCharsets.UTF_8
+            )
+        ) + "." + publicKey
+        LogDetail.LogD("Data to be Sent -> ", sendingData)
+
+        AuthSocket.Instance().postData(sendingData, object : ResponseListener {
+            override fun onSuccess(apiUrl: String, response: String) {
+                LogDetail.LogDE("ApiGetPublisherPosts $apiUrl", response)
+                if(action == "block") {
+                    Constants.userDetails!!.blockedPublishers.add(publisherId)
+                } else{
+                    Constants.userDetails!!.blockedPublishers.remove(publisherId)
+                }
+                if(doRefresh){
+                    for (listener in SpUtil.onRefreshListeners) {
+                        listener.value.onRefreshNeeded()
+                    }
+                }
+            }
+
+            override fun onError(call: Call, e: IOException) {
+                LogDetail.LogDE("ApiGetPublisherPosts ${Endpoints.BLOCK_PUBLISHER}", e.toString())
+            }
+        })
+    }
+
+
 
     fun getWatchlistString():String{
         var watchlistString = ""

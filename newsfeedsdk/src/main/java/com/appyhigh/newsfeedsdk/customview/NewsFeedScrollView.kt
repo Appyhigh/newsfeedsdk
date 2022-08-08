@@ -23,13 +23,11 @@ import com.appyhigh.newsfeedsdk.adapter.InterestAdapter
 import com.appyhigh.newsfeedsdk.adapter.NewsFeedSliderAdapter
 import com.appyhigh.newsfeedsdk.apicalls.ApiGetInterests
 import com.appyhigh.newsfeedsdk.apicalls.ApiGetLanguages
-import com.appyhigh.newsfeedsdk.apicalls.ApiUpdateUserPersonalization
 import com.appyhigh.newsfeedsdk.apicalls.ApiUserDetails
 import com.appyhigh.newsfeedsdk.apiclient.Endpoints
 import com.appyhigh.newsfeedsdk.callbacks.InterestSelectedListener
 import com.appyhigh.newsfeedsdk.callbacks.OnRefreshListener
 import com.appyhigh.newsfeedsdk.callbacks.PersonalizeCallListener
-import com.appyhigh.newsfeedsdk.callbacks.PersonalizeCallback
 import com.appyhigh.newsfeedsdk.encryption.LogDetail
 import com.appyhigh.newsfeedsdk.fragment.*
 import com.appyhigh.newsfeedsdk.model.Interest
@@ -118,60 +116,12 @@ class NewsFeedScrollView : LinearLayout, PersonalizeCallListener, OnRefreshListe
 //        }
         ivMap?.setOnClickListener {
             val bottomSheet = ChangeLocationBottomSheet()
-            bottomSheet.show(getFragmentManager(context)!!, "BottomSheet")
+            bottomSheet.show(getFragmentManager(context)!!, "ChangeLocationBottomSheet")
         }
         SpUtil.personalizeCallListener = this
         ivAdd?.setOnClickListener {
-            if (!FeedSdk.hideFilters) {
-                val personalizeBottomSheet =
-                    PersonaliseBottomSheetFragment.newInstance(object : PersonalizeCallback {
-                        override fun onPersonalize(
-                            interestList: ArrayList<Interest>,
-                            languageList: ArrayList<Language>,
-                        ) {
-                            loadLayout?.visibility = VISIBLE
-                            ApiUpdateUserPersonalization().updateUserPersonalizationEncrypted(
-                                Endpoints.UPDATE_USER_ENCRYPTED,
-                                interestList,
-                                languageList,
-                                object : ApiUpdateUserPersonalization.UpdatePersonalizationListener {
-                                    override fun onSuccess() {
-                                        try {
-                                            loadLayout?.visibility = GONE
-                                            mUserDetails = null
-                                            mInterestResponseModel = null
-                                            for (fragment in fragmentList) {
-                                                if (fragment is PagerFragment) {
-                                                    fragment.resetEndlessScrolling()
-                                                }
-                                            }
-                                            for (listener in SpUtil.onRefreshListeners) {
-                                                listener.value.onRefreshNeeded()
-                                            }
-                                        } catch (ex: Exception) {
-                                            LogDetail.LogEStack(ex)
-                                        }
-                                    }
-
-                                    override fun onFailure() {
-                                        loadLayout?.visibility = GONE
-                                    }
-                                }
-                            )
-                        }
-                    })
-                if (context is FragmentActivity) {
-                    personalizeBottomSheet.show(
-                        (context as FragmentActivity).supportFragmentManager,
-                        "personaliseBottomSheetFragment"
-                    )
-                } else if ((context as ContextWrapper).baseContext is FragmentActivity) {
-                    personalizeBottomSheet.show(
-                        ((context as ContextWrapper).baseContext as FragmentActivity).supportFragmentManager,
-                        "personaliseBottomSheetFragment"
-                    )
-                }
-            }
+            val personaliseMenuBottomSheet = PersonaliseMenuBottomSheet()
+            personaliseMenuBottomSheet.show(getFragmentManager(context)!!, "personaliseMenuBottomSheet")
         }
         ConnectivityLiveData(context).observeForever {
             when (it) {
@@ -313,7 +263,7 @@ class NewsFeedScrollView : LinearLayout, PersonalizeCallListener, OnRefreshListe
         var interests = ""
         var pos = 0
         if (selectedInterestsList.isEmpty()) {
-            selectedInterestsList.addAll(Constants.allInterestsMap.values as ArrayList<Interest>)
+            selectedInterestsList.addAll(Constants.allInterestsMap.values.toList() as ArrayList<Interest>)
         }
         for (i in 0 until selectedInterestsList.size) {
             interests += if (i < selectedInterestsList.size - 1) {
@@ -538,24 +488,34 @@ class NewsFeedScrollView : LinearLayout, PersonalizeCallListener, OnRefreshListe
                 "podcasts" -> fragmentList.add(PodcastsFragment.newInstance())
                 "crypto" -> fragmentList.add(CryptoFragment.newInstance())
                 else -> {
-                    fragmentList.add(
-                        PagerFragment.newInstance(
-                            interest.keyId.toString(), i,
-                            if (interestList.isNullOrEmpty()) selectedInterestsList else (interestList as ArrayList<Interest>),
-                            isSelectedInterestsEmpty,
-                            object : NewsFeedList.PersonalizationListener {
-                                override fun onPersonalizationClicked() {
-                                    ivAdd?.performClick()
-                                }
+                    if(!interest.pwaLink.isNullOrEmpty()){
+                        interest.keyId?.let {
+                            fragmentList.add(
+                                PWAFragment.newInstance(
+                                    interest.pwaLink!!, it
+                                )
+                            )
+                        }
+                    } else{
+                        fragmentList.add(
+                            PagerFragment.newInstance(
+                                interest.keyId.toString(), i,
+                                if (interestList.isNullOrEmpty()) selectedInterestsList else (interestList as ArrayList<Interest>),
+                                isSelectedInterestsEmpty,
+                                object : NewsFeedList.PersonalizationListener {
+                                    override fun onPersonalizationClicked() {
+                                        ivAdd?.performClick()
+                                    }
 
-                                override fun onRefresh() {
-                                    initView()
-                                }
-                            },
-                            null,
-                            mUserDetails?.user
+                                    override fun onRefresh() {
+                                        initView()
+                                    }
+                                },
+                                null,
+                                mUserDetails?.user
+                            )
                         )
-                    )
+                    }
                 }
             }
         }

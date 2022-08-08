@@ -117,4 +117,7 @@
     <string name="report_3">Violent or triggers hate</string>
     <string name="report_4">Intellectual property violation</string>
     <string name="others">Others</string>
+    <string name="blocked_publishers">Blocked Publishers</string>
+    <string name="feed_language">Feed Language</string>
+    <string name="interest">Interest</string>
 </resources>

@@ -79,6 +79,7 @@ class ApiGetFeeds {
             keys.add(Constants.LANGUAGE)
             keys.add(Constants.FEED_TYPE)
             keys.add(Constants.POST_SOURCE)
+            keys.add(Constants.BLOCKED_PUBLISHERS)
 
             values.add(countryCode)
             values.add(interestsString)
@@ -86,6 +87,7 @@ class ApiGetFeeds {
             values.add(languageString)
             values.add(newFeedType)
             values.add(postSource)
+            values.add(Constants.userDetails?.let { Constants.getStringFromList(it.blockedPublishers) })
 
             val allDetails =
                 BaseAPICallObject().getBaseObjectWithAuth(
@@ -148,11 +150,13 @@ class ApiGetFeeds {
         keys.add(Constants.LONGITUDE)
         keys.add(Constants.STATE_CODE)
         keys.add(Constants.PAGE_NUMBER)
+        keys.add(Constants.BLOCKED_PUBLISHERS)
 
         values.add(latitude?.toString() ?: "")
         values.add(longitude?.toString() ?: "")
         values.add(stateCode)
         values.add(pageSkip.toString())
+        values.add(Constants.userDetails?.let { Constants.getStringFromList(it.blockedPublishers) })
 
         val allDetails =
             BaseAPICallObject().getBaseObjectWithAuth(
@@ -175,12 +179,12 @@ class ApiGetFeeds {
 
         AuthSocket.Instance().postData(sendingData, object : ResponseListener {
             override fun onSuccess(apiUrl: String, response: String) {
-                LogDetail.LogDE("ApiGetFeeds $apiUrl", response.toString())
+                LogDetail.LogDE("ApiGetFeeds $apiUrl", response)
 
                 val gson: Gson = GsonBuilder().create()
                 val getFeedsResponseBase: GetFeedsResponse =
                     gson.fromJson(
-                        response.toString(),
+                        response,
                         object : TypeToken<GetFeedsResponse>() {}.type
                     )
                 val getFeedsResponse: Response<GetFeedsResponse> =
@@ -220,6 +224,7 @@ class ApiGetFeeds {
         keys.add(Constants.FEED_TYPE)
         keys.add(Constants.FIRST_POST_ID)
         keys.add(Constants.POST_SOURCE)
+        keys.add(Constants.BLOCKED_PUBLISHERS)
 
         values.add(
             if (SpUtil.pushIntent!!.hasExtra("country_code")) SpUtil.pushIntent!!.getStringExtra(
@@ -244,6 +249,7 @@ class ApiGetFeeds {
         )
         values.add(SpUtil.pushIntent!!.getStringExtra("post_id"))
         values.add(SpUtil.pushIntent!!.getStringExtra("post_source"))
+        values.add(Constants.userDetails?.let { Constants.getStringFromList(it.blockedPublishers) })
 
         val allDetails =
             BaseAPICallObject().getBaseObjectWithAuth(Constants.GET, apiUrl, keys, values)
@@ -360,6 +366,7 @@ class ApiGetFeeds {
             keys.add(Constants.LANGUAGE)
             keys.add(Constants.FEED_TYPE)
             keys.add(Constants.POST_SOURCE)
+            keys.add(Constants.BLOCKED_PUBLISHERS)
 
             values.add(countryCode)
             values.add(pageSkip.toString())
@@ -369,6 +376,7 @@ class ApiGetFeeds {
             values.add(languages)
             values.add(feedType)
             values.add(postSource)
+            values.add(Constants.userDetails?.let { Constants.getStringFromList(it.blockedPublishers) })
 
             val allDetails =
                 BaseAPICallObject().getBaseObjectWithAuth(
@@ -440,6 +448,7 @@ class ApiGetFeeds {
         keys.add(Constants.FEED_TYPE)
         keys.add(Constants.FIRST_POST_ID)
         keys.add(Constants.POST_SOURCE)
+        keys.add(Constants.BLOCKED_PUBLISHERS)
 
         values.add(
             if (SpUtil.pushIntent!!.hasExtra("country_code")) SpUtil.pushIntent!!.getStringExtra(
@@ -472,6 +481,7 @@ class ApiGetFeeds {
         )
         values.add(SpUtil.pushIntent!!.getStringExtra("post_id"))
         values.add(SpUtil.pushIntent!!.getStringExtra("post_source"))
+        values.add(Constants.userDetails?.let { Constants.getStringFromList(it.blockedPublishers) })
 
         val allDetails =
             BaseAPICallObject().getBaseObjectWithAuth(Constants.GET, apiUrl, keys, values)

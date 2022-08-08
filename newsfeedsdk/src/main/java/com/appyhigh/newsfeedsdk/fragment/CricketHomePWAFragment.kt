@@ -63,45 +63,47 @@ class CricketHomePWAFragment : Fragment(), AdvancedWebView.Listener, OnRefreshLi
     private var mLanguageResponseModel: ArrayList<Language>? = null
     private var languagesMap = HashMap<String, Language>()
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         binding = FragmentCricketHomePwaBinding.inflate(layoutInflater, container, false)
         return binding.root
     }
 
     override fun onRefreshNeeded() {
-       requireActivity().runOnUiThread {
-           try{
-               val cookieManager = CookieManager.getInstance()
-               cookieManager.setCookie(link, "user_info="+ Gson().toJson(Constants.userDetails))
-               var languages = ""
-               if(keyId=="cricket") {
-                   for ((i, language) in FeedSdk.languagesList.withIndex()) {
-                       if (i < FeedSdk.languagesList.size - 1) {
-                           languages = languages + language.id.lowercase(Locale.getDefault()) + ","
-                       } else {
-                           languages += language.id.lowercase(Locale.getDefault())
-                       }
-                   }
-               } else {
-                   languages = getLanguages(listOf("hi", "ta", "te", "bn"))
-               }
-               if(languages.isEmpty()){
-                   languages = "en"
-               }
-               val platform = "android"
-               link = if(pwaLink.contains("?"))
-                   "$pwaLink&platform=$platform&language=$languages"
-               else
-                   "$pwaLink?platform=$platform&language=$languages"
-               binding.noInternet.visibility=View.GONE
+        if(isAdded && activity!=null){
+            requireActivity().runOnUiThread {
+                try{
+                    val cookieManager = CookieManager.getInstance()
+                    cookieManager.setCookie(link, "user_info="+ Gson().toJson(Constants.userDetails))
+                    var languages = ""
+                    if(keyId=="cricket") {
+                        for ((i, language) in FeedSdk.languagesList.withIndex()) {
+                            if (i < FeedSdk.languagesList.size - 1) {
+                                languages = languages + language.id.lowercase(Locale.getDefault()) + ","
+                            } else {
+                                languages += language.id.lowercase(Locale.getDefault())
+                            }
+                        }
+                    } else {
+                        languages = getLanguages(listOf("hi", "ta", "te", "bn"))
+                    }
+                    if(languages.isEmpty()){
+                        languages = "en"
+                    }
+                    val platform = "android"
+                    link = if(pwaLink.contains("?"))
+                        "$pwaLink&platform=$platform&language=$languages"
+                    else
+                        "$pwaLink?platform=$platform&language=$languages"
+                    binding.noInternet.visibility=View.GONE
 //            LogDetail.LogD("webtest", "onViewCreated: "+keyId+" "+link)
-               binding.webview.loadUrl(link)
-               LogDetail.LogD("webtest", "setWebView: $link")
-               Constants.pwaWebViews[pwaLink] = binding.webview
-           } catch (ex:java.lang.Exception){
-               LogDetail.LogEStack(ex)
-           }
-       }
+                    binding.webview.loadUrl(link)
+                    LogDetail.LogD("webtest", "setWebView: $link")
+                    Constants.pwaWebViews[pwaLink] = binding.webview
+                } catch (ex:java.lang.Exception){
+                    LogDetail.LogEStack(ex)
+                }
+            }
+        }
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -109,8 +111,9 @@ class CricketHomePWAFragment : Fragment(), AdvancedWebView.Listener, OnRefreshLi
         SpUtil.onRefreshListeners["cricketHome"] = this
         Card.setFontFamily(binding.noInternetTitle, true)
         Card.setFontFamily(binding.checkConnection)
-//        if(BuildConfig.DEBUG)
-//            pwaLink = pwaLink.replace("masterfeed.io", "staging.masterfeed.apyhi.com")
+//        if(BuildConfig.DEBUG && !pwaLink.contains("staging.masterfeed.io") && pwaLink.contains("masterfeed.io")){
+//            pwaLink = pwaLink.replace("masterfeed.io", "staging.masterfeed.io")
+//        }
         if(FeedSdk.appName?.lowercase()=="crichouse"){
             ApiGetLanguages().getLanguagesEncrypted(
                 Endpoints.GET_LANGUAGES_ENCRYPTED,
@@ -354,6 +357,7 @@ class CricketHomePWAFragment : Fragment(), AdvancedWebView.Listener, OnRefreshLi
             val uri = Uri.parse(url_string)
             val reportBottomSheet = FeedMenuBottomSheetFragment.newInstance(
                 uri.getQueryParameter("publisher_contact_us") ?: "",
+                uri.getQueryParameter("publisher_id") ?: "",
                 uri.getQueryParameter("post_id")?:""
             )
             if (context is FragmentActivity) {

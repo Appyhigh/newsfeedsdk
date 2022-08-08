@@ -1,16 +1,25 @@
 <?xml version="1.0" encoding="utf-8"?>
-<menu xmlns:android="http://schemas.android.com/apk/res/android"
+<menu xmlns:tools="http://schemas.android.com/tools"
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
     <item
         android:id="@+id/feedInterests"
         android:checked="false"
         android:icon="@drawable/ic_feed_interests"
-        android:title="Interest" />
+        android:title="@string/interest" />
     <item
         android:id="@+id/feedLanguage"
         android:checked="false"
         android:icon="@drawable/ic_feed_language"
-        android:title="Feed Language" />
+        android:title="@string/feed_language" />
+
+    <item
+        android:id="@+id/publisherBlockList"
+        android:checked="false"
+        android:iconTint="@color/purple_500"
+        android:icon="@drawable/ic_block_publisher"
+        android:title="@string/blocked_publishers"
+        tools:ignore="UnusedAttribute" />
     <item
         android:id="@+id/fontChange"
         android:checked="false"

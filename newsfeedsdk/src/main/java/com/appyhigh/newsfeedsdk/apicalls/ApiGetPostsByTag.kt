@@ -45,11 +45,13 @@ class ApiGetPostsByTag {
         keys.add(Constants.POST_SOURCE)
         keys.add(Constants.FEED_TYPE)
         keys.add(Constants.LANG)
+        keys.add(Constants.BLOCKED_PUBLISHERS)
 
         values.add(tag)
         values.add(postSource)
         values.add(feedType)
         values.add(languages)
+        values.add(Constants.userDetails?.let { Constants.getStringFromList(it.blockedPublishers) })
 
         val allDetails =
             BaseAPICallObject().getBaseObjectWithAuth(Constants.GET, apiUrl, keys, values)

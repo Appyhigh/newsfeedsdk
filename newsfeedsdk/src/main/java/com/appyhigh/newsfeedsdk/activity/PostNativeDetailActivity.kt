@@ -171,6 +171,7 @@ class PostNativeDetailActivity : AppCompatActivity() {
             try{
                 val reportBottomSheet = FeedMenuBottomSheetFragment.newInstance(
                     presentPostDetailsModel?.post?.publisherContactUs?:"",
+                    presentPostDetailsModel?.post?.publisherId?:"",
                     postId!!
                 )
                 reportBottomSheet.show(supportFragmentManager, "reportBottomSheet")

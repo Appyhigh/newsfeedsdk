@@ -155,12 +155,12 @@ class PublisherPageActivity : AppCompatActivity() {
         }
 
         binding?.moreBtn?.setOnClickListener {
-            val reportBottomSheet = FeedMenuBottomSheetFragment.newInstance(publisherContactUs, "")
+            val reportBottomSheet = FeedMenuBottomSheetFragment.newInstance(publisherContactUs, publisherId, "")
             reportBottomSheet.show(supportFragmentManager, "reportBottomSheet")
         }
 
         binding?.profileMoreBtn?.setOnClickListener {
-            val reportBottomSheet = FeedMenuBottomSheetFragment.newInstance(publisherContactUs, "")
+            val reportBottomSheet = FeedMenuBottomSheetFragment.newInstance(publisherContactUs, publisherId,  "")
             reportBottomSheet.show(supportFragmentManager, "reportBottomSheet")
         }
 

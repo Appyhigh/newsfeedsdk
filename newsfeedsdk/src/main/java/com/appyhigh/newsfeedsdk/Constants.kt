@@ -91,6 +91,7 @@ object Constants {
     const val PAGE_NUMBER = "page_number"
     const val PAGE = "page"
     const val PUBLISHER_ID = "publisher_id"
+    const val PUBLISHER_IDS = "publisher_ids"
     const val LANGUAGE = "language"
     const val FEED_TYPE = "feed_type"
     const val FEED_ID = "feed_id"
@@ -110,6 +111,7 @@ object Constants {
     const val SDK_CRYPTO_DETAIL = "SDK://cryptoCoinDetail"
     const val SDK_CRICKET_DETAIL = "SDK://cricketMatchDetail"
     const val POST_SOURCE = "post_source"
+    const val BLOCKED_PUBLISHERS = "blocked_publishers"
     const val IPL_PUSH = "ipl_push"
     const val STATE = "state"
     const val STATE_CODE = "state_code"
@@ -512,6 +514,19 @@ object Constants {
             else -> "#FFFFFF"
         }
     }
+
+    fun getStringFromList(arrayList:ArrayList<String>): String?{
+        var res: String = ""
+        for(i in arrayList.indices){
+            res += if(i==arrayList.size-1){
+                arrayList[i]
+            } else{
+                arrayList[i]+","
+            }
+        }
+        return if(res.isEmpty()) null else res
+    }
+
 
     fun getEValueFormat(value: Double, exp: Int): String {
         if (value > 1 && value % 10 == 0.0) {

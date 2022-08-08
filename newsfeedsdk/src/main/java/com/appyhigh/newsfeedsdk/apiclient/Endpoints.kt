@@ -38,8 +38,10 @@ object Endpoints {
     const val REACT_POST_ENCRYPTED = "/api/v4/react-post"
     const val REPORT_ISSUES_ENCRYPTED = "/api/v4/report-issues"
     const val REPORT_POST_ENCRYPTED = "/api/v4/report-post"
-    const val CHECK_EMAIL_NUMBER_AVAILABILITY_ENCRYPTED = "/api/v4/check-email-number-availablity"
+    const val CHECK_EMAIL_NUMBER_AVAILABILITY_ENCRYPTED = "/api/v4/check-email-number-availability"
     const val GET_REGIONAL_FEEDS_ENCRYPTED = "/api/v4/get-regional-feeds"
     const val GET_STATE_LIST_ENCRYPTED = "/api/v4/get-states-names"
     const val GET_CONFIG_ENCRYPTED = "/api/v4/config"
+    const val BLOCK_PUBLISHER = "/api/v4/block-publisher"
+    const val GET_BLOCK_PUBLISHER_DETAILS = "/api/v4/get-block-publisher-details"
 }

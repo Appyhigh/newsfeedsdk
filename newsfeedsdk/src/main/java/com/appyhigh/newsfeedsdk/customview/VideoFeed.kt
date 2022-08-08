@@ -156,7 +156,7 @@ class VideoFeed : LinearLayout, OnRefreshListener {
 
     private fun setUpLanguages() {
         if (mUserDetails != null && mLanguageResponseModel != null) {
-            val selectedLanguagesList = ArrayList<Language>()
+            var selectedLanguagesList = ArrayList<Language>()
             for (language in mLanguageResponseModel!!) {
                 languagesMap[language.id] = language
             }

@@ -51,7 +51,7 @@ class PersonaliseBottomSheetFragment : BottomSheetDialogFragment() {
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View {
+    ): View? {
         val view = inflater.inflate(
             R.layout.bottom_sheet_personalise, container,
             false

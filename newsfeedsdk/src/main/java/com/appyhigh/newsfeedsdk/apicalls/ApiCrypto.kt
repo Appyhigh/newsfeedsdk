@@ -68,12 +68,14 @@ class ApiCrypto {
         keys.add(Constants.CURRENCY)
         keys.add(Constants.PAGE_NUMBER)
         keys.add(Constants.FEED_TYPE)
+        keys.add(Constants.BLOCKED_PUBLISHERS)
 
         val values = ArrayList<String?>()
         values.add(watchlist)
         values.add(currency)
         values.add(page_number.toString())
         values.add(feedType)
+        values.add(Constants.userDetails?.let { Constants.getStringFromList(it.blockedPublishers) })
 
         val allDetails = BaseAPICallObject().getBaseObjectWithAuth(GET, apiUrl, keys, values)
 
@@ -225,8 +227,8 @@ class ApiCrypto {
         keys.add(Constants.CURRENCY)
 
         values.add(tab)
-        values.add(start.toString())
-        values.add(end.toString())
+        values.add(start?.toString())
+        values.add(end?.toString())
         values.add(feedType)
         values.add(coinId)
         values.add(currency)

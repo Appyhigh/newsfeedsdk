@@ -43,6 +43,7 @@ import com.appyhigh.newsfeedsdk.apiclient.Endpoints
 import com.appyhigh.newsfeedsdk.apiclient.Endpoints.GET_INTERESTS_ENCRYPTED
 import com.appyhigh.newsfeedsdk.apiclient.Endpoints.GET_LANGUAGES_ENCRYPTED
 import com.appyhigh.newsfeedsdk.apiclient.Endpoints.UPDATE_USER_ENCRYPTED
+import com.appyhigh.newsfeedsdk.callbacks.OnAPISuccess
 import com.appyhigh.newsfeedsdk.callbacks.PersonalizationListener
 import com.appyhigh.newsfeedsdk.callbacks.ShowFeedScreenListener
 import com.appyhigh.newsfeedsdk.encryption.LogDetail
@@ -157,7 +158,7 @@ class FeedSdk {
         var isExistingUser: Boolean = false
         var isCryptoApp = false
         var parentNudgeView: FrameLayout? = null
-        private var sdkVersion = 1007
+        private var sdkVersion = 1008
     }
 
     private var parentAppIntent = Intent()
@@ -187,7 +188,6 @@ class FeedSdk {
             info.versionCode.toString()
         }
         appVersionName = info.versionName.toString()
-        getDynamicUrlData(activity, intent)
         setIntentBeforeInitialise(intent)
         setTheme(isDark)
         setShareBody(null)
@@ -195,7 +195,6 @@ class FeedSdk {
         getAppNameFromManifest()
         getFeedTargetActivityFromManifest()
         getFeedAppIconFromManifest()
-        LogDetail.init(activity.baseContext)
         setDeviceDetailsToLocal()
         initializeContentModified()
         spUtil!!.putString(Constants.NETWORK, checkAndSetNetworkType())
@@ -662,7 +661,7 @@ class FeedSdk {
         }
     }
 
-    private fun getDynamicUrlData(activity: Activity, intent: Intent) {
+    fun getDynamicUrlData(activity: Activity, intent: Intent, listener: OnAPISuccess) {
         FirebaseDynamicLinks.getInstance()
             .getDynamicLink(intent)
             .addOnSuccessListener(activity) { pendingDynamicLinkData ->
@@ -699,12 +698,15 @@ class FeedSdk {
                         } catch (ex: Exception) {
                         }
                     }
+                    listener.onSuccess()
                 } catch (e: Exception) {
                     LogDetail.LogEStack(e)
+                    listener.onSuccess()
                 }
             }
             .addOnFailureListener(activity) { e ->
                 LogDetail.LogEStack(e)
+                listener.onSuccess()
             }
 
     }
@@ -737,27 +739,35 @@ class FeedSdk {
         }
     }
 
-    fun checkFeedSDKNotifications(context: Context, intent: Intent, showFeedScreenListener: ShowFeedScreenListener){
-        if(intent.hasExtra(Constants.FROM_STICKY)){
-            Handler(Looper.getMainLooper()).postDelayed({
-                if(intent.getStringExtra(Constants.FROM_STICKY)==Constants.REELS) {
-                    showFeedScreenListener.showReels()
-                } else{
-                    showFeedScreenListener.showFeeds()
+    fun checkFeedSDKNotifications(activity: Activity, intent: Intent, showFeedScreenListener: ShowFeedScreenListener){
+        getDynamicUrlData(activity, intent) {
+            parentAppIntent.extras?.let { intent.putExtras(it) }
+            intent.extras?.let {
+                for(key in it.keySet()){
+                    LogDetail.LogD("Feedsdk", "handleIntent: $key ${it.get(key)}")
                 }
-            },1000)
-        } else if(isScreenNotification(intent) || fromLiveMatch(intent)){
-            Handler(Looper.getMainLooper()).postDelayed({
-                if(checkFeedSdkTab(Constants.EXPLORE, intent)){
-                    showFeedScreenListener.showExplore()
-                } else if(checkFeedSdkTab(Constants.REELS, intent)){
-                    showFeedScreenListener.showReels()
-                } else {
-                    showFeedScreenListener.showFeeds()
-                }
-            },1000)
-        } else if (intent.extras != null && !handleIntent(context, intent)) {
-            showFeedScreenListener.checkParentAppNotifications()
+            }
+            if (intent.hasExtra(Constants.FROM_STICKY)) {
+                Handler(Looper.getMainLooper()).postDelayed({
+                    if (intent.getStringExtra(Constants.FROM_STICKY) == Constants.REELS) {
+                        showFeedScreenListener.showReels()
+                    } else {
+                        showFeedScreenListener.showFeeds()
+                    }
+                }, 1000)
+            } else if (isScreenNotification(intent) || fromLiveMatch(intent)) {
+                Handler(Looper.getMainLooper()).postDelayed({
+                    if (checkFeedSdkTab(Constants.EXPLORE, intent)) {
+                        showFeedScreenListener.showExplore()
+                    } else if (checkFeedSdkTab(Constants.REELS, intent)) {
+                        showFeedScreenListener.showReels()
+                    } else {
+                        showFeedScreenListener.showFeeds()
+                    }
+                }, 1000)
+            } else if (intent.extras != null && !handleIntent(activity.baseContext, intent)) {
+                showFeedScreenListener.checkParentAppNotifications()
+            }
         }
     }
 
@@ -776,7 +786,6 @@ class FeedSdk {
     }
 
     private fun handleIntent(context: Context, intentData: Intent): Boolean {
-        LogDetail.LogD("Feedsdk", "handleIntent: " + intentData.extras.toString())
         if (intentData.hasExtra(Constants.PAGE) && intentData.hasExtra(Constants.PUSH_SOURCE)
             && intentData.getStringExtra(Constants.PUSH_SOURCE) == Constants.FEEDSDK
         ) {
@@ -784,6 +793,7 @@ class FeedSdk {
                 Constants.SDK_PODCAST_DETAIL -> {
                     val intent = Intent(context, PodcastPlayerActivity::class.java)
                     intent.putExtra(Constants.POSITION, 0)
+                    intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
                     intentData.extras?.let { intent.putExtras(it) }
                     if (intentData.hasExtra(Constants.POST_ID)) {
                         context.startActivity(intent)
@@ -799,6 +809,7 @@ class FeedSdk {
                         } else {
                             Intent(context, NewsFeedPageActivity::class.java)
                         }
+                    intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
                     intent.putExtra(Constants.POSITION, 0)
                     intent.putExtra(Constants.FROM_APP, true)
                     intent.putExtra(
@@ -810,6 +821,7 @@ class FeedSdk {
                 }
                 Constants.SDK_CRYPTO_DETAIL -> {
                     val intent = Intent(context, CryptoCoinDetailsActivity::class.java)
+                    intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
                     intentData.extras?.let { intent.putExtras(it) }
                     context.startActivity(intent)
                 }
@@ -819,6 +831,7 @@ class FeedSdk {
                     if (intentData.hasExtra(Constants.IPL_PUSH)) {
                         pushIntent.putExtra(Constants.POST_SOURCE, intentData.getStringExtra(Constants.IPL_PUSH))
                     }
+                    pushIntent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
                     intentData.extras?.let { pushIntent.putExtras(it) }
                     context.startActivity(pushIntent)
                 }
@@ -830,12 +843,14 @@ class FeedSdk {
             intentData.extras?.let { intent.putExtras(it) }
             intent.putExtra(Constants.POST_ID, intentData.getStringExtra(Constants.PODCAST_ID))
             intentData.extras?.let { intent.putExtras(it) }
+            intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
             context.startActivity(intent)
         } else if (intentData.hasExtra(Constants.FILENAME) && intentData.hasExtra(Constants.MATCHTYPE)) {
             val pushIntent = Intent(context, PWAMatchScoreActivity::class.java)
             pushIntent.putExtra(Constants.FROM_APP, true)
             // Need post_source value from intent to store analytics to backend
             intentData.extras?.let { pushIntent.putExtras(it) }
+            pushIntent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
             if (intentData.hasExtra(Constants.POST_SOURCE)) {
                 pushIntent.putExtra(Constants.POST_SOURCE, intentData.getStringExtra(Constants.POST_SOURCE))
             } else if (intentData.hasExtra(Constants.IPL_PUSH)) {
@@ -850,6 +865,7 @@ class FeedSdk {
             pushIntent.putExtra(Constants.FROM_APP, true)
             pushIntent.putExtra(Constants.FILENAME, intentData.getStringExtra(Constants.FILENAME))
             pushIntent.putExtra(Constants.MATCHTYPE, Constants.LIVE_MATCHES)
+            pushIntent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
             if (intentData.hasExtra(Constants.POST_SOURCE)) {
                 pushIntent.putExtra(Constants.POST_SOURCE, intentData.getStringExtra(Constants.POST_SOURCE))
             } else if (intentData.hasExtra(Constants.IPL_PUSH)) {
@@ -875,6 +891,7 @@ class FeedSdk {
             intentData.extras?.let { intent.putExtras(it) }
             intent.putExtra(Constants.POST_ID, intentData.getStringExtra(Constants.POST_ID).toString())
             intentData.extras?.let { intent.putExtras(it) }
+            intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
             context.startActivity(intent)
         } else if (intentData.hasExtra(Constants.PUSH_SOURCE) && (intentData.getStringExtra(Constants.PUSH_SOURCE) == Constants.FEEDSDK)
             && intentData.hasExtra(Constants.WHICH)) {
@@ -893,6 +910,7 @@ class FeedSdk {
                                 Intent(context, NewsFeedPageActivity::class.java)
                             }
                         intent.putExtra(Constants.FROM_APP, true)
+                        intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
                         intentData.extras?.let { intent.putExtras(it) }
                         context.startActivity(intent)
                     }

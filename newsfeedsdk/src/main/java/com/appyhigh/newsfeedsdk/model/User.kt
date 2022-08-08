@@ -1,8 +1,6 @@
 package com.appyhigh.newsfeedsdk.model
 
 import android.os.Parcelable
-import com.appyhigh.newsfeedsdk.Constants.LATITUDE
-import com.appyhigh.newsfeedsdk.Constants.LONGITUDE
 import com.google.gson.annotations.Expose
 import com.google.gson.annotations.SerializedName
 import kotlinx.parcelize.Parcelize
@@ -32,6 +30,9 @@ data class User(
     @SerializedName("dailling_code")
     @Expose
     var dailling_code: String = "+91",
+
+    @SerializedName("blocked_publishers")
+    var blockedPublishers: ArrayList<String> = ArrayList(),
 
     @SerializedName("interests")
     var interests: ArrayList<String> = ArrayList(),

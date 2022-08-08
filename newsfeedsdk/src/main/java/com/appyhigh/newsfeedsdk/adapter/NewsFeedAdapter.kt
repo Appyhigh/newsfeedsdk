@@ -1061,6 +1061,7 @@ class NewsFeedAdapter(
     override fun onMoreOptionsClicked(v: View, position: Int) {
         val reportBottomSheet = FeedMenuBottomSheetFragment.newInstance(
             newsFeedList[position].items[0].publisherContactUs ?: "",
+            newsFeedList[position].items[0].publisherId ?: "",
             newsFeedList[position].items[0].postId.toString()
         )
         if (v.context is FragmentActivity) {

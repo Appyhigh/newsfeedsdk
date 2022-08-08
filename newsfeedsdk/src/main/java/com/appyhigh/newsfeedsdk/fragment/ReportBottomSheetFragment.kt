@@ -26,6 +26,7 @@ import com.google.android.material.snackbar.Snackbar
 class ReportBottomSheetFragment : BottomSheetDialogFragment() {
     var reportString = ""
     var postId = ""
+    var radioButton: RadioButton?=null
     private var reportPost: FeedMenuBottomSheetFragment.ReportPost? = null
 
     companion object {
@@ -48,7 +49,7 @@ class ReportBottomSheetFragment : BottomSheetDialogFragment() {
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View {
+    ): View? {
         val view = inflater.inflate(
             R.layout.bottom_sheet_report, container,
             false
@@ -100,10 +101,17 @@ class ReportBottomSheetFragment : BottomSheetDialogFragment() {
     private fun setValues(rgReport: RadioGroup){
         val reports = ApiConfig().getConfigModel(requireContext()).reportPostsText
         for(i in reports.indices){
-            val itemView = LayoutInflater.from(requireContext()).inflate(R.layout.item_report_bottom_sheet, null);
-            itemView.setOnClickListener { reportString = reports[i] }
+            val itemView = LayoutInflater.from(requireContext()).inflate(R.layout.item_report_bottom_sheet, null)
             val rbValue = itemView.findViewById<RadioButton>(R.id.rbValue)
+            rbValue.id = View.generateViewId()
             rbValue.text = reports[i]
+            rbValue.setOnCheckedChangeListener { buttonView, isChecked ->
+                if(isChecked) {
+                    reportString = reports[i]
+                    radioButton?.isChecked = false
+                    radioButton = buttonView as RadioButton?
+                }
+            }
             Constants.setFontFamily(rbValue)
             if(i==reports.size-1){
                 itemView.findViewById<View>(R.id.vLine).visibility = View.GONE

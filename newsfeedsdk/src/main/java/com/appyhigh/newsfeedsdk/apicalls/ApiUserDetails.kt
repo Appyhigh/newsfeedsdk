@@ -52,12 +52,12 @@ class ApiUserDetails {
 
         AuthSocket.Instance().postData(sendingData, object : ResponseListener {
             override fun onSuccess(apiUrl: String, response: String) {
-                LogDetail.LogDE("ApiUserDetails $apiUrl", response.toString())
+                LogDetail.LogDE("ApiUserDetails $apiUrl", response)
 
                 val gson: Gson = GsonBuilder().create()
                 val userIdResponseBase: UserIdResponse =
                     gson.fromJson(
-                        response.toString(),
+                        response,
                         object : TypeToken<UserIdResponse>() {}.type
                     )
                 val userIdResponse: Response<UserIdResponse> = Response.success(userIdResponseBase)

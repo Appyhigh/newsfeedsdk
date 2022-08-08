@@ -8,7 +8,6 @@ import com.appyhigh.newsfeedsdk.Constants
 import com.appyhigh.newsfeedsdk.Constants.IAT
 import com.appyhigh.newsfeedsdk.Constants.JWT_TOKEN
 import com.appyhigh.newsfeedsdk.FeedSdk
-import com.appyhigh.newsfeedsdk.encryption.LogDetail
 import com.appyhigh.newsfeedsdk.utils.SpUtil.Companion.spUtilInstance
 import io.jsonwebtoken.Jwts
 import io.jsonwebtoken.SignatureAlgorithm
@@ -28,7 +27,7 @@ object RSAKeyGenerator {
         get() {
             val pKey = BuildConfig.PRIVATE_KEY
             var kf = KeyFactory.getInstance("RSA")
-            if(Build.VERSION.SDK_INT < Build.VERSION_CODES.N) {
+            if(android.os.Build.VERSION.SDK_INT < Build.VERSION_CODES.N) {
                 kf = KeyFactory.getInstance("RSA","BC")
             }
             val decode: ByteArray = Base64.decode(pKey, Base64.DEFAULT)
@@ -41,6 +40,8 @@ object RSAKeyGenerator {
         val validityMs = TimeUnit.MINUTES.toMillis(180)
         val now: Date
         val exp: Date
+        var prevIAT: Long = 0
+        var prevJwt: String? = ""
 
         //get the real time in unix epoch format (milliseconds since midnight on 1 january 1970)
         val nowMillis: Long = System.currentTimeMillis()
@@ -70,7 +71,7 @@ object RSAKeyGenerator {
             .signWith(privateKey, SignatureAlgorithm.RS256)
             .setAudience("news-sdk")
             .compact()
-        LogDetail.LogD(TAG, jws)
+        Log.d(TAG, jws)
         if (spUtilInstance != null) {
             spUtilInstance.putString(JWT_TOKEN, jws)
             spUtilInstance.putLong(IAT, nowMillis)
@@ -95,7 +96,7 @@ object RSAKeyGenerator {
             prevJwt = spUtilInstance.getString(JWT_TOKEN, "")
         }
         val timeOutInMinutes = 50
-       LogDetail.LogD(
+        Log.d(
             "456__",
             "prevIAT " + prevIAT + " nowActual " + nowMillis + " diff " + (nowMillis - prevIAT)
         )
@@ -124,7 +125,7 @@ object RSAKeyGenerator {
                 .signWith(privateKey, SignatureAlgorithm.RS256)
                 .setAudience("news-sdk")
                 .compact()
-           LogDetail.LogD(TAG, jws)
+            Log.d(TAG, jws)
             if (spUtilInstance != null) {
                 spUtilInstance.putString(JWT_TOKEN, jws)
                 spUtilInstance.putLong(IAT, nowMillis)
@@ -132,7 +133,7 @@ object RSAKeyGenerator {
             jws
         } else {
             prevJwt?.let {
-               LogDetail.LogD(TAG, prevJwt)
+                Log.d(TAG, prevJwt)
             }
             prevJwt
         }

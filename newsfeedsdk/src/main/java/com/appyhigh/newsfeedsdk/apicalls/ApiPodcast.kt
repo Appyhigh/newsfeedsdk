@@ -182,10 +182,12 @@ class ApiPodcast {
         keys.add(Constants.PUBLISHER_ID)
         keys.add(Constants.LANGUAGE)
         keys.add(Constants.PAGE_NUMBER)
+        keys.add(Constants.BLOCKED_PUBLISHERS)
 
         values.add(publisherId)
         values.add(selectedLang)
         values.add(page_number.toString())
+        values.add(Constants.userDetails?.let { Constants.getStringFromList(it.blockedPublishers) })
 
         val allDetails =
             BaseAPICallObject().getBaseObjectWithAuth(Constants.GET, apiUrl, keys, values)
