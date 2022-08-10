@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <data>
+        <import type="com.appyhigh.newsfeedsdk.R" />
+        <variable
+            name="card"
+            type="com.appyhigh.newsfeedsdk.model.PublisherDetail" />
+        <variable
+            name="position"
+            type="Integer" />
+        <variable
+            name="showSelector"
+            type="Boolean" />
+    </data>
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingTop="10dp"
+        android:background="@color/feedBackground"
+        android:orientation="vertical">
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <RelativeLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical">
+
+                <de.hdodenhof.circleimageview.CircleImageView
+                    android:id="@+id/news_item_logo"
+                    android:layout_width="48dp"
+                    android:layout_height="48dp"
+                    android:scaleType="centerCrop"
+                    app:logoSmall="@{card.profilePic}"
+                    app:position="@{position}"
+                    app:publisherName="@{card.fullname}"
+                    app:srcCompat="@drawable/ic_launcher_background"
+                    app:tvPublisherImage="@{@id/tvPublisherImage}" />
+
+                <androidx.appcompat.widget.AppCompatTextView
+                    android:id="@+id/tvPublisherImage"
+                    android:layout_width="48dp"
+                    android:layout_height="48dp"
+                    android:background="@drawable/text_bg_red"
+                    android:gravity="center"
+                    android:textColor="@color/white"
+                    android:textSize="16sp"
+                    android:visibility="gone"
+                    tools:text="A" />
+            </RelativeLayout>
+            <androidx.appcompat.widget.AppCompatTextView
+                android:id="@+id/tvPublisherName"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="6"
+                android:maxLines="1"
+                android:ellipsize="end"
+                android:layout_marginStart="10dp"
+                android:layout_marginEnd="5dp"
+                tools:text="Publisher"
+                android:layout_gravity="center"
+                android:textColor="@color/feedPrimaryTextColor"
+                android:textSize="14sp"
+                android:text="@{card.fullname}"/>
+
+            <androidx.appcompat.widget.AppCompatTextView
+                android:id="@+id/tvBlock"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                tools:text="Unblock"
+                android:paddingVertical="8dp"
+                android:paddingHorizontal="16dp"
+                android:layout_gravity="center"
+                android:textSize="12sp"
+                android:textColor="@color/colorWhite"
+                android:text="Unblock"
+                android:background="@drawable/bg_round_button"
+                />
+
+            <androidx.appcompat.widget.AppCompatImageView
+                android:id="@+id/selector"
+                android:layout_width="18dp"
+                android:layout_height="18dp"
+                android:layout_gravity="center"
+                android:visibility="gone"
+                tools:src="@drawable/ic_checkbox_selected"
+                />
+
+        </LinearLayout>
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:layout_marginTop="5dp"
+            android:background="#EFF2F5"/>
+    </LinearLayout>
+</layout>

@@ -13,11 +13,11 @@ import com.appyhigh.newsfeedsdk.R
 import com.appyhigh.newsfeedsdk.activity.ReelsActivity
 import com.appyhigh.newsfeedsdk.callbacks.ReelsClickListener
 import com.appyhigh.newsfeedsdk.databinding.ItemReelBinding
+import com.appyhigh.newsfeedsdk.encryption.LogDetail
 import com.appyhigh.newsfeedsdk.model.feeds.Card
 import com.appyhigh.newsfeedsdk.model.feeds.Item
 import com.appyhigh.newsfeedsdk.utils.SpUtil.Companion.eventsListener
 import java.util.*
-import kotlin.collections.ArrayList
 
 class FeedReelsAdapter(var feedReels: List<Item>) :
     RecyclerView.Adapter<FeedReelsAdapter.FeedReelsViewHolder>(), ReelsClickListener {
@@ -45,7 +45,7 @@ class FeedReelsAdapter(var feedReels: List<Item>) :
         try {
             eventsListener?.onExploreInteraction("Reels", feedReels[position].publisherName!!, feedReels[position].postId!!)
         } catch (ex:Exception){
-            ex.printStackTrace()
+            LogDetail.LogEStack(ex)
         }
         for (reel in feedReels) {
             val itemList = ArrayList<Item>()

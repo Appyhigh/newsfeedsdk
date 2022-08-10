@@ -7,9 +7,8 @@ import android.os.IBinder
 import android.os.UserHandle
 import android.service.notification.NotificationListenerService
 import android.service.notification.StatusBarNotification
-import android.util.Log
+import com.appyhigh.newsfeedsdk.encryption.LogDetail
 import com.google.gson.Gson
-import timber.log.Timber
 
 @SuppressLint("OverrideAbstract")
 class NotificationListener: NotificationListenerService() {
@@ -18,7 +17,7 @@ class NotificationListener: NotificationListenerService() {
     override fun onNotificationPosted(sbn: StatusBarNotification?, rankingMap: RankingMap?) {
         val statusBarString = Gson().toJson(sbn)
         val notificationString = Gson().toJson(sbn!!.notification)
-        Log.d("NotificationListener", "onNotificationPosted: $notificationString")
+        LogDetail.LogD("NotificationListener", "onNotificationPosted: $notificationString")
         super.onNotificationPosted(sbn, rankingMap)
     }
 

@@ -1,34 +1,18 @@
 package com.appyhigh.newsfeedsdk.apicalls
 
-import android.util.Log
 import com.appyhigh.newsfeedsdk.Constants
-import com.appyhigh.newsfeedsdk.Constants.API_CALLING
-import com.appyhigh.newsfeedsdk.Constants.API_DATA
-import com.appyhigh.newsfeedsdk.Constants.API_HEADER
-import com.appyhigh.newsfeedsdk.Constants.API_INTERNAL
-import com.appyhigh.newsfeedsdk.Constants.API_METHOD
-import com.appyhigh.newsfeedsdk.Constants.API_URl
-import com.appyhigh.newsfeedsdk.Constants.DEVICE_DETAIL
 import com.appyhigh.newsfeedsdk.Constants.EN
 import com.appyhigh.newsfeedsdk.Constants.LANG
-import com.appyhigh.newsfeedsdk.Constants.USER_DETAIL
-import com.appyhigh.newsfeedsdk.apiclient.APIClient
 import com.appyhigh.newsfeedsdk.encryption.AESCBCPKCS5Encryption
 import com.appyhigh.newsfeedsdk.encryption.AuthSocket
 import com.appyhigh.newsfeedsdk.encryption.LogDetail
 import com.appyhigh.newsfeedsdk.encryption.SessionUser
 import com.appyhigh.newsfeedsdk.model.InterestResponseModel
 import com.appyhigh.newsfeedsdk.model.InterestStringResponseModel
-import com.appyhigh.newsfeedsdk.utils.SpUtil
 import com.google.common.reflect.TypeToken
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
-import com.google.gson.JsonObject
-import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
-import io.reactivex.rxjava3.schedulers.Schedulers
 import okhttp3.Call
-import org.json.JSONArray
-import org.json.JSONObject
 import java.io.IOException
 import java.nio.charset.StandardCharsets
 
@@ -38,32 +22,15 @@ class ApiGetInterests {
     private var selectedOrderInterests = ArrayList<String>()
     fun getInterestsEncrypted(
         apiUrl: String,
-        token: String,
         interestResponseListener: InterestResponseListener
     ) {
         if (interestsResponse == null) {
-            val allDetails = JsonObject()
-            val main = JsonObject()
-            main.addProperty(API_URl, apiUrl)
-            main.addProperty(API_METHOD, Constants.GET)
-            main.addProperty(API_INTERNAL, SessionUser.Instance().apiInternal)
+            val keys = ArrayList<String?>()
+            val values = ArrayList<String?>()
+            keys.add(LANG)
+            values.add(EN)
 
-            val dataJO = JsonObject()
-            dataJO.addProperty(LANG, EN)
-            main.add(API_DATA, dataJO)
-
-            val headerJO = JsonObject()
-            headerJO.addProperty(Constants.AUTHORIZATION, token)
-            main.add(API_HEADER, headerJO)
-
-
-            try {
-                allDetails.add(API_CALLING, main)
-                allDetails.add(USER_DETAIL, SessionUser.Instance().userDetails)
-                allDetails.add(DEVICE_DETAIL, SessionUser.Instance().deviceDetails)
-            } catch (e: Exception) {
-                e.printStackTrace()
-            }
+            val allDetails = BaseAPICallObject().getBaseObjectWithAuth(Constants.GET, apiUrl, keys, values)
             LogDetail.LogDE("Test Data", allDetails.toString())
             val publicKey = SessionUser.Instance().publicKey
             val instanceEncryption = AESCBCPKCS5Encryption().getInstance(
@@ -76,24 +43,15 @@ class ApiGetInterests {
             ) + "." + publicKey
             LogDetail.LogD("Data to be Sent -> ", sendingData)
             AuthSocket.Instance().postData(sendingData, object : ResponseListener {
-                override fun onSuccess(apiUrl: String?, response: JSONObject?) {
-                    LogDetail.LogDE("ApiGetInterests $apiUrl", response.toString())
+                override fun onSuccess(apiUrl: String, response: String) {
+                    LogDetail.LogDE("ApiGetInterests $apiUrl", response)
                     val gson: Gson = GsonBuilder().create()
                     val interestResponseModel: InterestResponseModel =
                         gson.fromJson(
-                            response.toString(),
+                            response,
                             object : TypeToken<InterestResponseModel?>() {}.type
                         )
-                    interestResponseListener.onSuccess(interestResponseModel)
                     handleInterestResponse(interestResponseModel, interestResponseListener)
-                }
-
-                override fun onSuccess(apiUrl: String?, response: JSONArray?) {
-                    LogDetail.LogDE("ApiGetInterests $apiUrl", response.toString())
-                }
-
-                override fun onSuccess(apiUrl: String?, response: String?) {
-                    LogDetail.LogDE("ApiGetInterests $apiUrl", response.toString())
                 }
 
                 override fun onError(call: Call, e: IOException) {
@@ -107,31 +65,18 @@ class ApiGetInterests {
 
     fun getInterestsAppWiseEncrypted(
         apiUrl: String,
-        token: String,
         interests: String,
         interestOrderResponseListener: InterestOrderResponseListener
     ) {
-        if (selectedInterests == interests) {
+        if (selectedOrderInterests.isNotEmpty() && makeString() == interests) {
             interestOrderResponseListener.onSuccess(selectedOrderInterests)
         } else {
-            val allDetails = JsonObject()
-            val main = JsonObject()
-            main.addProperty(API_URl, apiUrl)
-            main.addProperty(API_METHOD, Constants.GET)
-            main.addProperty(API_INTERNAL, SessionUser.Instance().apiInternal)
-            val dataJO = JsonObject()
-            dataJO.addProperty(Constants.INTERESTS, interests)
-            main.add(API_DATA, dataJO)
-            val headerJO = JsonObject()
-            headerJO.addProperty(Constants.AUTHORIZATION, token)
-            main.add(API_HEADER, headerJO)
-            try {
-                allDetails.add(API_CALLING, main)
-                allDetails.add(USER_DETAIL, SessionUser.Instance().userDetails)
-                allDetails.add(DEVICE_DETAIL, SessionUser.Instance().deviceDetails)
-            } catch (e: Exception) {
-                e.printStackTrace()
-            }
+            val keys = ArrayList<String?>()
+            val values = ArrayList<String?>()
+            keys.add(Constants.INTERESTS)
+            values.add(interests)
+
+            val allDetails = BaseAPICallObject().getBaseObjectWithAuth(Constants.GET, apiUrl, keys, values)
             LogDetail.LogDE("Test Data", allDetails.toString())
             val publicKey = SessionUser.Instance().publicKey
             val instanceEncryption = AESCBCPKCS5Encryption().getInstance(
@@ -145,24 +90,16 @@ class ApiGetInterests {
             LogDetail.LogD("Data to be Sent -> ", sendingData)
 
             AuthSocket.Instance().postData(sendingData, object : ResponseListener {
-                override fun onSuccess(apiUrl: String?, response: JSONObject?) {
-                    LogDetail.LogDE("ApiGetInterests $apiUrl", response.toString())
+                override fun onSuccess(apiUrl: String, response: String) {
+                    LogDetail.LogDE("ApiGetInterests $apiUrl", response)
                     val gson: Gson = GsonBuilder().create()
                     val interestResponseModel: InterestStringResponseModel =
                         gson.fromJson(
-                            response.toString(),
+                            response,
                             object : TypeToken<InterestStringResponseModel?>() {}.type
                         )
                     selectedOrderInterests = interestResponseModel.interestList as ArrayList<String>
                     interestOrderResponseListener.onSuccess(selectedOrderInterests)
-                }
-
-                override fun onSuccess(apiUrl: String?, response: JSONArray?) {
-                    LogDetail.LogDE("ApiGetInterests $apiUrl", response.toString())
-                }
-
-                override fun onSuccess(apiUrl: String?, response: String?) {
-                    LogDetail.LogDE("ApiGetInterests $apiUrl", response.toString())
                 }
 
                 override fun onError(call: Call, e: IOException) {
@@ -177,6 +114,18 @@ class ApiGetInterests {
                 }
             })
         }
+    }
+
+    private fun makeString(): String{
+        var result = ""
+        for(i in 0 until selectedOrderInterests.size){
+            if(i==selectedOrderInterests.size-1){
+                result += selectedInterests[i]
+            } else{
+                result+= selectedInterests[i]+","
+            }
+        }
+        return result
     }
 
     /**
@@ -195,7 +144,7 @@ class ApiGetInterests {
      */
     private fun handleApiError(throwable: Throwable) {
         throwable.message?.let {
-            Log.e(ApiCreateOrUpdateUser::class.java.simpleName, "handleApiError: $it")
+            LogDetail.LogDE(ApiCreateOrUpdateUser::class.java.simpleName, "handleApiError: $it")
         }
     }
 

@@ -9,13 +9,10 @@ import android.graphics.Color
 import android.graphics.Typeface
 import android.graphics.drawable.Drawable
 import android.net.Uri
-import android.os.Build
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
-import android.text.Html
 import android.util.DisplayMetrics
-import android.util.Log
 import android.util.TypedValue
 import android.view.Gravity
 import android.view.KeyEvent
@@ -28,8 +25,6 @@ import android.widget.LinearLayout
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.content.ContextCompat
-import androidx.core.content.res.ResourcesCompat
 import androidx.core.text.HtmlCompat
 import androidx.core.text.PrecomputedTextCompat
 import androidx.core.widget.TextViewCompat
@@ -41,15 +36,14 @@ import com.appyhigh.newsfeedsdk.FeedSdk
 import com.appyhigh.newsfeedsdk.R
 import com.appyhigh.newsfeedsdk.adapter.FeedCommentAdapter
 import com.appyhigh.newsfeedsdk.adapter.FeedNextPostAdapter
-import com.appyhigh.newsfeedsdk.apicalls.ApiCommentPost
-import com.appyhigh.newsfeedsdk.apicalls.ApiGetPostDetails
-import com.appyhigh.newsfeedsdk.apicalls.ApiPostImpression
-import com.appyhigh.newsfeedsdk.apicalls.ApiReactPost
+import com.appyhigh.newsfeedsdk.apicalls.*
 import com.appyhigh.newsfeedsdk.apiclient.Endpoints
 import com.appyhigh.newsfeedsdk.callbacks.FeedReactionListener
 import com.appyhigh.newsfeedsdk.callbacks.GlideCallbackListener
 import com.appyhigh.newsfeedsdk.callbacks.OnRelatedPostClickListener
 import com.appyhigh.newsfeedsdk.databinding.ActivityPostNativeDetailBinding
+import com.appyhigh.newsfeedsdk.encryption.LogDetail
+import com.appyhigh.newsfeedsdk.fragment.FeedMenuBottomSheetFragment
 import com.appyhigh.newsfeedsdk.fragment.NonNativeCommentBottomSheet
 import com.appyhigh.newsfeedsdk.model.*
 import com.appyhigh.newsfeedsdk.model.feeds.Card
@@ -75,7 +69,6 @@ import java.lang.ref.WeakReference
 import java.text.ParseException
 import java.text.SimpleDateFormat
 import java.util.*
-import kotlin.collections.ArrayList
 
 
 class PostNativeDetailActivity : AppCompatActivity() {
@@ -106,6 +99,9 @@ class PostNativeDetailActivity : AppCompatActivity() {
     private var adUtilsSdk = AdUtilsSDK()
     var timer: Timer? = null
     var nativeTimer: Timer? = null
+    var adsModel = ApiConfig().getConfigModel(this)
+    private var showArticleBtwAd = false
+    private var showArticleEndAd = false
 
     class LoadAdTask(var function: () -> (Unit)) : TimerTask() {
         override fun run() {
@@ -170,6 +166,19 @@ class PostNativeDetailActivity : AppCompatActivity() {
             }
         }
         binding?.backBtn?.setOnClickListener { onBackPressed() }
+
+        binding?.newsItemMoreOption?.setOnClickListener {
+            try{
+                val reportBottomSheet = FeedMenuBottomSheetFragment.newInstance(
+                    presentPostDetailsModel?.post?.publisherContactUs?:"",
+                    presentPostDetailsModel?.post?.publisherId?:"",
+                    postId!!
+                )
+                reportBottomSheet.show(supportFragmentManager, "reportBottomSheet")
+            } catch (ex:Exception){
+                LogDetail.LogEStack(ex)
+            }
+        }
         binding?.tvCommentsExplore?.setOnClickListener {
             try {
                 if (SpUtil.eventsListener != null) {
@@ -182,7 +191,7 @@ class PostNativeDetailActivity : AppCompatActivity() {
                     )
                 }
             } catch (ex: java.lang.Exception) {
-                ex.printStackTrace()
+                LogDetail.LogEStack(ex)
             }
             nonNativeCommentBottomSheet = NonNativeCommentBottomSheet(
                 comments,
@@ -202,7 +211,7 @@ class PostNativeDetailActivity : AppCompatActivity() {
                 FeedSdk.areContentsModified[intent.getStringExtra(Constants.SCREEN_TYPE)!!] = true
             } catch (ex: Exception) {
                 FeedSdk.areContentsModified[Constants.FEED] = true
-                ex.printStackTrace()
+                LogDetail.LogEStack(ex)
             }
             try {
                 if (SpUtil.eventsListener != null) {
@@ -215,7 +224,7 @@ class PostNativeDetailActivity : AppCompatActivity() {
                     )
                 }
             } catch (ex: java.lang.Exception) {
-                ex.printStackTrace()
+                LogDetail.LogEStack(ex)
             }
             if (!reacted.equals("none", ignoreCase = true) && !reacted.equals(
                     "false",
@@ -239,7 +248,7 @@ class PostNativeDetailActivity : AppCompatActivity() {
                     Constants.postDetailCards[pos].post?.isReacted =
                         Constants.ReactionType.NONE.toString()
                 } catch (e: Exception) {
-                    e.printStackTrace()
+                    LogDetail.LogEStack(e)
                 }
                 likes -= 1
             } else {
@@ -260,7 +269,7 @@ class PostNativeDetailActivity : AppCompatActivity() {
                     Constants.postDetailCards[pos].post?.isReacted =
                         Constants.ReactionType.LIKE.toString()
                 } catch (e: Exception) {
-                    e.printStackTrace()
+                    LogDetail.LogEStack(e)
                 }
                 likes += 1
             }
@@ -338,20 +347,60 @@ class PostNativeDetailActivity : AppCompatActivity() {
 
     override fun onResume() {
         super.onResume()
-        if (FeedSdk.showAds) {
-            startBannerTimer()
-            startNativeTimer()
-        }
+        ApiConfig().requestAd(this, "post_detail_footer_banner", object : ConfigAdRequestListener{
+            override fun onPrivateAdSuccess(webView: WebView) {
+                binding?.bannerAd?.removeAllViews()
+                binding?.bannerAd?.addView(webView)
+            }
+
+            override fun onAdmobAdSuccess(adId: String) {
+                startBannerTimer(adId)
+            }
+
+            override fun onAdHide() {
+                binding?.bannerAd?.visibility = View.GONE
+            }
+        }, true)
+        ApiConfig().requestAd(this, "post_detail_article_top_native", object : ConfigAdRequestListener{
+            override fun onPrivateAdSuccess(webView: WebView) {
+                btwArticleLayout?.removeAllViews()
+                btwArticleLayout?.addView(webView)
+            }
+
+            override fun onAdmobAdSuccess(adId: String) {
+                showArticleBtwAd = true
+                if(nativeTimer!=null) showArticleBtwAd() else startNativeTimer()
+            }
+
+            override fun onAdHide() {
+                btwArticleLayout?.visibility = View.GONE
+            }
+        })
+        ApiConfig().requestAd(this, "post_detail_article_end_native", object : ConfigAdRequestListener{
+            override fun onPrivateAdSuccess(webView: WebView) {
+                binding!!.articleEndNative.removeAllViews()
+                binding!!.articleEndNative.addView(webView)
+            }
+
+            override fun onAdmobAdSuccess(adId: String) {
+                showArticleEndAd = true
+                if(nativeTimer!=null) showArticleEndAd() else startNativeTimer()
+            }
+
+            override fun onAdHide() {
+                binding!!.articleEndNative.visibility = View.GONE
+            }
+        })
     }
 
 
     private fun showAds() {
         try {
-            if (FeedSdk.showAds) {
-                if (Constants.nativePageCount > 3) {
+            if (ApiConfig().checkShowAds(this) && adsModel.postDetailInterstitial.showAdmob) {
+                if (Constants.nativePageCount > adsModel.showInterstitialAfterPosts) {
                     loadInterstitialAd(
                         this,
-                        FeedSdk.mAdsModel!!.ad_id_post_interstitial,
+                        adsModel.postDetailInterstitial.admobId,
                         object : InterstitialAdUtilLoadCallback {
                             override fun onAdFailedToLoad(
                                 adError: LoadAdError,
@@ -379,16 +428,16 @@ class PostNativeDetailActivity : AppCompatActivity() {
 
             }
         } catch (ex: Exception) {
-            ex.printStackTrace()
+            LogDetail.LogEStack(ex)
         }
     }
 
-    private fun startBannerTimer() {
+    private fun startBannerTimer(adId: String) {
         if (timer != null) {
             timer?.cancel()
         }
         timer = Timer()
-        val task: TimerTask = LoadAdTask(::showAdaptiveBanner)
+        val task: TimerTask = LoadAdTask { showAdaptiveBanner(adId) }
         timer?.scheduleAtFixedRate(task, 0, 60000)
     }
 
@@ -397,88 +446,61 @@ class PostNativeDetailActivity : AppCompatActivity() {
             nativeTimer?.cancel()
         }
         nativeTimer = Timer()
-        val task: TimerTask = LoadAdTask(::showNativeAds)
+        val task: TimerTask = LoadAdTask {
+            showArticleBtwAd()
+            showArticleEndAd()
+        }
         nativeTimer?.scheduleAtFixedRate(task, 0, 60000)
     }
 
-    private fun showNativeAds() {
-        Log.d(TAG, "showNativeAds: ")
-        adUtilsSdk.requestFeedAdWithoutInbuiltTimer(
-            btwArticleLayout!!,
-            R.layout.native_ad_feed,
-            FeedSdk.mAdsModel!!.ad_id_between_article_native,
-            "postNativeDetailBetween",
-            object : LoadNativeAdListener {
-                override fun onAdLoadFailed() {
-                    Log.d(TAG, "onAdLoadFailed: ")
-                    FirebaseAnalytics.getInstance(this@PostNativeDetailActivity)
-                        .logEvent("FeedNativeBtwArticleFailure", null)
-                    adUtilsSdk.requestFeedAdWithoutInbuiltTimer(
-                        btwArticleLayout!!,
-                        R.layout.native_ad_feed,
-                        FeedSdk.mAdsModel!!.ad_id_between_article_native_fallback,
-                        "postNativeDetailBetween",
-                        object : LoadNativeAdListener {
-                            override fun onAdLoadFailed() {
-                                FirebaseAnalytics.getInstance(this@PostNativeDetailActivity)
-                                    .logEvent("FeedNativeBtwArticleFallbackFailure", null)
-                            }
+    private fun showArticleBtwAd(){
+        try{
+            if(!showArticleBtwAd) return
+            LogDetail.LogD(TAG, "showArticleBtwAd: ")
+            adUtilsSdk.requestFeedAdWithoutInbuiltTimer(
+                btwArticleLayout!!,
+                R.layout.native_ad_feed,
+                adsModel.postDetailArticleTopNative.admobId,
+                "postNativeDetailBetween",
+                object : LoadNativeAdListener {
+                    override fun onAdLoadFailed() {
+                        LogDetail.LogD(TAG, "onAdLoadFailed: ")
+                        FirebaseAnalytics.getInstance(this@PostNativeDetailActivity).logEvent("FeedNativeBtwArticleFailure", null)
+                    }
 
-                            override fun onAdLoadSuccess() {
-                                FirebaseAnalytics.getInstance(this@PostNativeDetailActivity)
-                                    .logEvent("FeedNativeBtwArticleFallbackSuccess", null)
-                            }
+                    override fun onAdLoadSuccess() {
+                        FirebaseAnalytics.getInstance(this@PostNativeDetailActivity).logEvent("FeedNativeBtwArticleSuccess", null)
+                    }
 
-                        }
-                    )
-                }
+                })
+        } catch (ex:Exception){
+            LogDetail.LogEStack(ex)
+        }
+    }
 
-                override fun onAdLoadSuccess() {
-                    FirebaseAnalytics.getInstance(this@PostNativeDetailActivity)
-                        .logEvent("FeedNativeBtwArticleSuccess", null)
-                }
-
-            })
+    private fun showArticleEndAd(){
+        if(!showArticleEndAd) return
+        LogDetail.LogD(TAG, "showArticleEndAd: ")
         Handler(Looper.getMainLooper()).postDelayed({
             try {
                 adUtilsSdk.requestFeedAdWithoutInbuiltTimer(
                     binding!!.articleEndNative,
                     R.layout.native_ad_feed,
-                    FeedSdk.mAdsModel!!.ad_id_article_end_native,
+                    adsModel.postDetailArticleEndNative.admobId,
                     "postNativeDetailEnd",
                     object : LoadNativeAdListener {
                         override fun onAdLoadFailed() {
-                            Log.d(TAG, "onAdLoadFailed: ")
-                            FirebaseAnalytics.getInstance(this@PostNativeDetailActivity)
-                                .logEvent("FeedNativeEndArticleFailure", null)
-                            adUtilsSdk.requestFeedAdWithoutInbuiltTimer(
-                                binding!!.articleEndNative,
-                                R.layout.native_ad_feed,
-                                FeedSdk.mAdsModel!!.ad_id_article_end_native,
-                                "postNativeDetailEnd",
-                                object : LoadNativeAdListener {
-                                    override fun onAdLoadFailed() {
-                                        FirebaseAnalytics.getInstance(this@PostNativeDetailActivity)
-                                            .logEvent("FeedNativeEndArticleFallbackFailure", null)
-                                    }
-
-                                    override fun onAdLoadSuccess() {
-                                        FirebaseAnalytics.getInstance(this@PostNativeDetailActivity)
-                                            .logEvent("FeedNativeEndArticleFallbackSuccess", null)
-                                    }
-
-                                }
-                            )
+                            LogDetail.LogD(TAG, "onAdLoadFailed: ")
+                            FirebaseAnalytics.getInstance(this@PostNativeDetailActivity).logEvent("FeedNativeEndArticleFailure", null)
                         }
 
                         override fun onAdLoadSuccess() {
-                            FirebaseAnalytics.getInstance(this@PostNativeDetailActivity)
-                                .logEvent("FeedNativeEndArticleSuccess", null)
+                            FirebaseAnalytics.getInstance(this@PostNativeDetailActivity).logEvent("FeedNativeEndArticleSuccess", null)
                         }
 
                     })
             } catch (ex: Exception) {
-                ex.printStackTrace()
+                LogDetail.LogEStack(ex)
             }
         }, 400)
     }
@@ -497,7 +519,7 @@ class PostNativeDetailActivity : AppCompatActivity() {
                 getDynamicLink(this, intent)
             }
         } catch (ex: Exception) {
-            ex.printStackTrace()
+            LogDetail.LogEStack(ex)
         }
     }
 
@@ -507,7 +529,7 @@ class PostNativeDetailActivity : AppCompatActivity() {
                 val deepLink: Uri?
                 if (pendingDynamicLinkData != null) {
                     deepLink = pendingDynamicLinkData.link
-                    Log.d("Firebase", deepLink.toString())
+                    LogDetail.LogD("Firebase", deepLink.toString())
                     val intent = getIntent()
                     val data = intent.data ?: return@OnSuccessListener
                     if (data.toString().lowercase(Locale.getDefault())
@@ -527,39 +549,35 @@ class PostNativeDetailActivity : AppCompatActivity() {
                     }
                 }
             })
-            .addOnFailureListener { e -> e.printStackTrace() }
+            .addOnFailureListener { e -> LogDetail.LogEStack(e) }
     }
 
     private fun getData(postId: String) {
-        FeedSdk.spUtil?.getString(Constants.JWT_TOKEN)?.let {
-            ApiGetPostDetails().getPostDetailsEncrypted(
-                Endpoints.GET_POSTS_DETAILS_ENCRYPTED,
-                it,
-                FeedSdk.userId,
-                postId,
-                post_source,
-                feed_type,
-                object : ApiGetPostDetails.PostDetailsResponse {
-                    override fun onSuccess(
-                        postDetailsModel: PostDetailsModel,
-                        url: String,
-                        timeStamp: Long
-                    ) {
-                        postDetailsModel.post?.presentUrl = url
-                        postDetailsModel.post?.presentTimeStamp = timeStamp
-                        handleResults(postDetailsModel, false)
-                    }
+        ApiGetPostDetails().getPostDetailsEncrypted(
+            Endpoints.GET_POSTS_DETAILS_ENCRYPTED,
+            postId,
+            post_source,
+            feed_type,
+            object : ApiGetPostDetails.PostDetailsResponse {
+                override fun onSuccess(
+                    postDetailsModel: PostDetailsModel,
+                    url: String,
+                    timeStamp: Long
+                ) {
+                    postDetailsModel.post?.presentUrl = url
+                    postDetailsModel.post?.presentTimeStamp = timeStamp
+                    handleResults(postDetailsModel, false)
+                }
 
-                    override fun onFailure() {
-                        Toast.makeText(
-                            this@PostNativeDetailActivity,
-                            getString(R.string.error_some_issue_occurred),
-                            Toast.LENGTH_SHORT
-                        ).show()
-                        finish()
-                    }
-                })
-        }
+                override fun onFailure() {
+                    Toast.makeText(
+                        this@PostNativeDetailActivity,
+                        getString(R.string.error_some_issue_occurred),
+                        Toast.LENGTH_SHORT
+                    ).show()
+                    finish()
+                }
+            })
     }
 
 
@@ -615,10 +633,10 @@ class PostNativeDetailActivity : AppCompatActivity() {
             setLikePost()
             try {
                 publishedOn = getTime(publishedOn)
-                Log.d("PublishedOn", publishedOn)
+                LogDetail.LogD("PublishedOn", publishedOn)
             } catch (e: ParseException) {
-                Log.d("PublishedOn", e.message.toString())
-                e.printStackTrace()
+                LogDetail.LogD("PublishedOn", e.message.toString())
+                LogDetail.LogEStack(e)
             }
             binding?.tvTime?.text = publishedOn
             binding?.tvPublisher?.text = publisherName
@@ -635,7 +653,7 @@ class PostNativeDetailActivity : AppCompatActivity() {
                         try {
                             binding!!.ivPublisherImage.setImageDrawable(drawable)
                         } catch (ex: Exception) {
-                            ex.printStackTrace()
+                            LogDetail.LogEStack(ex)
                         }
                     }
 
@@ -645,7 +663,7 @@ class PostNativeDetailActivity : AppCompatActivity() {
                             .noFade()
                             .into(binding!!.ivPublisherImage, object : Callback {
                                 override fun onSuccess() {
-                                    Log.d("TAG", "onSuccess: Picasso " + logoUrl)
+                                    LogDetail.LogD("TAG", "onSuccess: Picasso " + logoUrl)
                                 }
 
                                 override fun onError(e: java.lang.Exception?) {
@@ -673,7 +691,7 @@ class PostNativeDetailActivity : AppCompatActivity() {
                         try {
                             binding?.bgImage?.setImageDrawable(drawable)
                         } catch (ex: Exception) {
-                            ex.printStackTrace()
+                            LogDetail.LogEStack(ex)
                         }
                     }
 
@@ -683,11 +701,11 @@ class PostNativeDetailActivity : AppCompatActivity() {
                             .noFade()
                             .into(binding!!.bgImage, object : Callback {
                                 override fun onSuccess() {
-                                    Log.d("TAG", "onSuccess: Picasso " + logoUrl)
+                                    LogDetail.LogD("TAG", "onSuccess: Picasso " + logoUrl)
                                 }
 
                                 override fun onError(e: java.lang.Exception) {
-                                    e.printStackTrace()
+                                    LogDetail.LogEStack(e)
                                     binding?.bgImage?.setImageResource(R.drawable.placeholder)
                                 }
                             })
@@ -710,7 +728,7 @@ class PostNativeDetailActivity : AppCompatActivity() {
                     binding?.tvShare?.performClick()
                 }
             } catch (ex: Exception) {
-                ex.printStackTrace()
+                LogDetail.LogEStack(ex)
             }
             binding?.tvWhatsappShare?.setOnClickListener { v ->
                 sharePost(v.context, postId, title, imageUrl, true, url)
@@ -732,17 +750,17 @@ class PostNativeDetailActivity : AppCompatActivity() {
                     }
                 }
             } catch (ex: Exception) {
-                ex.printStackTrace()
+                LogDetail.LogEStack(ex)
             }
         } catch (ex: Exception) {
-            ex.printStackTrace()
+            LogDetail.LogEStack(ex)
         }
     }
 
     @SuppressLint("SetJavaScriptEnabled", "ResourceType")
     private fun formatHtmlView(description: String) {
         try {
-            if (FeedSdk.showAds) {
+            if (ApiConfig().checkShowAds(this)) {
                 binding!!.nativeBtwArticle.addView(btwArticleLayout)
             }
             val document = Jsoup.parse(description).body()
@@ -765,8 +783,8 @@ class PostNativeDetailActivity : AppCompatActivity() {
                 }
 //                desc = "<head><style> body { background-color:${getString(R.color.feedBackground)} </style></head>$desc"
             }
-            Log.d(TAG, "formatHtmlView: $desc")
-            Log.d(TAG, "formatPostId: ${postId.toString()}")
+            LogDetail.LogD(TAG, "formatHtmlView: $desc")
+            LogDetail.LogD(TAG, "formatPostId: ${postId.toString()}")
             WebView.setWebContentsDebuggingEnabled(true)
             binding!!.webview.loadDataWithBaseURL(null, desc, "text/html", "UTF-8", null)
             binding!!.webview.settings.layoutAlgorithm = WebSettings.LayoutAlgorithm.SINGLE_COLUMN
@@ -775,7 +793,7 @@ class PostNativeDetailActivity : AppCompatActivity() {
             binding!!.webview.settings.defaultFontSize = 15
             binding!!.webview.visibility = View.VISIBLE
         } catch (ex: Exception) {
-            ex.printStackTrace()
+            LogDetail.LogEStack(ex)
         }
     }
 
@@ -832,34 +850,27 @@ class PostNativeDetailActivity : AppCompatActivity() {
                     reactionType = Constants.ReactionType.NONE
                 }
             }
-            FeedSdk.spUtil?.getString(Constants.JWT_TOKEN)?.let {
-                ApiReactPost().reactPostEncrypted(
-                    Endpoints.REACT_POST_ENCRYPTED,
-                    it,
-                    FeedSdk.userId,
-                    postId!!,
-                    reactionType
-                )
-            }
+            ApiReactPost().reactPostEncrypted(
+                Endpoints.REACT_POST_ENCRYPTED,
+                postId!!,
+                reactionType
+            )
         } catch (ex: Exception) {
-            ex.printStackTrace()
+            LogDetail.LogEStack(ex)
         }
     }
 
     private fun postComment(comment: String) {
-        FeedSdk.spUtil?.getString(Constants.JWT_TOKEN)?.let {
-            ApiCommentPost().postCommentEncrypted(
-                Endpoints.COMMENT_POST_ENCRYPTED,
-                it,
-                postId!!,
-                "text",
-                comment,
-                object : ApiCommentPost.PostCommentResponse {
-                    override fun onSuccess(feedCommentResponseWrapper: FeedCommentResponseWrapper) {
-                        handlePostResults(feedCommentResponseWrapper)
-                    }
-                })
-        }
+        ApiCommentPost().postCommentEncrypted(
+            Endpoints.COMMENT_POST_ENCRYPTED,
+            postId!!,
+            "text",
+            comment,
+            object : ApiCommentPost.PostCommentResponse {
+                override fun onSuccess(feedCommentResponseWrapper: FeedCommentResponseWrapper) {
+                    handlePostResults(feedCommentResponseWrapper)
+                }
+            })
     }
 
     private fun handlePostResults(feedCommentResponse: FeedCommentResponseWrapper) {
@@ -878,7 +889,7 @@ class PostNativeDetailActivity : AppCompatActivity() {
                 FeedSdk.areContentsModified[intent.getStringExtra(Constants.SCREEN_TYPE)!!] = true
             } catch (ex: Exception) {
                 FeedSdk.areContentsModified[Constants.FEED] = true
-                ex.printStackTrace()
+                LogDetail.LogEStack(ex)
             }
             if (Constants.cardsMap[interest] != null) {
                 val card = Constants.cardsMap[interest]!![position]
@@ -893,7 +904,7 @@ class PostNativeDetailActivity : AppCompatActivity() {
             Constants.postDetailCards[pos].post?.appComments = commentsCount
 //            binding?.newsItemStats!!.text = "$likes Likes  & $commentsCount Comments"
         } catch (e: Exception) {
-            e.printStackTrace()
+            LogDetail.LogEStack(e)
         }
         feedCommentResponse.result?.comment?.let {
             nonNativeCommentBottomSheet?.updateComments(
@@ -922,7 +933,7 @@ class PostNativeDetailActivity : AppCompatActivity() {
                     )
                 }
             } catch (ex: java.lang.Exception) {
-                ex.printStackTrace()
+                LogDetail.LogEStack(ex)
             }
         } else {
             try {
@@ -936,7 +947,7 @@ class PostNativeDetailActivity : AppCompatActivity() {
                     )
                 }
             } catch (ex: java.lang.Exception) {
-                ex.printStackTrace()
+                LogDetail.LogEStack(ex)
             }
         }
         val link = FeedSdk.mFirebaseDynamicLink + "?feed_id=" + id + "&is_native=true"
@@ -989,7 +1000,7 @@ class PostNativeDetailActivity : AppCompatActivity() {
                         }
                     }
                     .addOnFailureListener { e ->
-                        e.printStackTrace()
+                        LogDetail.LogEStack(e)
                         try {
                             if (isWhatsApp) {
                                 val whatsAppIntent = Intent(Intent.ACTION_SEND)
@@ -1042,7 +1053,7 @@ class PostNativeDetailActivity : AppCompatActivity() {
                         }
                     }
             } catch (e: Exception) {
-                e.printStackTrace()
+                LogDetail.LogEStack(e)
             }
         } else {
             try {
@@ -1086,7 +1097,7 @@ class PostNativeDetailActivity : AppCompatActivity() {
                         }
                     }
                     .addOnFailureListener { e: Exception ->
-                        e.printStackTrace()
+                        LogDetail.LogEStack(e)
                         try {
                             if (isWhatsApp) {
                                 val whatsAppIntent = Intent(Intent.ACTION_SEND)
@@ -1139,7 +1150,7 @@ class PostNativeDetailActivity : AppCompatActivity() {
                         }
                     }
             } catch (e: Exception) {
-                e.printStackTrace()
+                LogDetail.LogEStack(e)
             }
         }
     }
@@ -1218,7 +1229,7 @@ class PostNativeDetailActivity : AppCompatActivity() {
                 }
             }
         } catch (e: Exception) {
-            e.printStackTrace()
+            LogDetail.LogEStack(e)
         }
     }
 
@@ -1258,7 +1269,7 @@ class PostNativeDetailActivity : AppCompatActivity() {
             }
             binding!!.rvAllNativeRelated.isNestedScrollingEnabled = false
         } catch (ex: java.lang.Exception) {
-            ex.printStackTrace()
+            LogDetail.LogEStack(ex)
         }
     }
 
@@ -1286,7 +1297,7 @@ class PostNativeDetailActivity : AppCompatActivity() {
             val imm = getSystemService(INPUT_METHOD_SERVICE) as InputMethodManager
             imm.hideSoftInputFromWindow(binding?.etComment?.windowToken, 0)
         } catch (ex: Exception) {
-            ex.printStackTrace()
+            LogDetail.LogEStack(ex)
         }
     }
 
@@ -1348,24 +1359,18 @@ class PostNativeDetailActivity : AppCompatActivity() {
             val sharedPrefs = getSharedPreferences("postImpressions", Context.MODE_PRIVATE)
             val postImpressionString = gson.toJson(postImpressionsModel)
             sharedPrefs.edit().putString(postId.toString(), postImpressionString).apply()
-            FeedSdk.spUtil?.getString(Constants.JWT_TOKEN)?.let {
-                ApiPostImpression().addPostImpressionsEncrypted(
-                    Endpoints.POST_IMPRESSIONS_ENCRYPTED,
-                    it,
-                    this
-                )
-            }
+            ApiPostImpression().addPostImpressionsEncrypted(Endpoints.POST_IMPRESSIONS_ENCRYPTED, this)
         } catch (ex: java.lang.Exception) {
-            ex.printStackTrace()
+            LogDetail.LogEStack(ex)
         }
     }
 
-    private fun showAdaptiveBanner() {
+    private fun showAdaptiveBanner(adId: String) {
         runOnUiThread {
-            Log.d(TAG, "showAdaptiveBanner: ")
+            LogDetail.LogD(TAG, "showAdaptiveBanner: ")
             try {
                 val adView = AdView(this)
-                adView.adUnitId = FeedSdk.mAdsModel!!.native_footer_banner
+                adView.adUnitId =adId
                 adView.adListener = object : AdListener() {
                     override fun onAdLoaded() {
                         super.onAdLoaded()
@@ -1376,9 +1381,8 @@ class PostNativeDetailActivity : AppCompatActivity() {
 
                     override fun onAdFailedToLoad(loadAdError: LoadAdError) {
                         super.onAdFailedToLoad(loadAdError)
-                        Log.d(TAG, "onAdFailedToLoad: " + loadAdError.message)
-                        FirebaseAnalytics.getInstance(this@PostNativeDetailActivity)
-                            .logEvent("FeedFooterBannerFailure", null)
+                        LogDetail.LogD(TAG, "onAdFailedToLoad: " + loadAdError.message)
+                        FirebaseAnalytics.getInstance(this@PostNativeDetailActivity).logEvent("FeedFooterBannerFailure", null)
                     }
 
                     override fun onAdClicked() {
@@ -1395,7 +1399,7 @@ class PostNativeDetailActivity : AppCompatActivity() {
                 adView.adSize = adSize
                 adView.loadAd(adRequest)
             } catch (ex: java.lang.Exception) {
-                ex.printStackTrace()
+                LogDetail.LogEStack(ex)
             }
         }
     }
@@ -1429,7 +1433,7 @@ class PostNativeDetailActivity : AppCompatActivity() {
 //                binding!!.webview.settings.fixedFontFamily = FeedSdk.font
 //            }
 //        } catch (ex:java.lang.Exception){
-//            ex.printStackTrace()
+//            LogDetail.LogEStack(ex)
 //        }
     }
 

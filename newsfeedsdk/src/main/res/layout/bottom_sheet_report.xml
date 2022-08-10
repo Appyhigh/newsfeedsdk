@@ -1,103 +1,62 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:orientation="vertical"
-    android:paddingStart="10dp"
-    android:paddingTop="20dp"
-    android:paddingEnd="10dp"
-    android:paddingBottom="30dp">
-
-    <RadioGroup
-        android:id="@+id/rgReport"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content">
-
-        <RadioButton
-            android:id="@+id/fakeNews"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:buttonTint="@color/purple"
-            android:padding="10dp"
-            android:text="It’s fake news"
-            android:textSize="16sp" />
-
-        <View
-            android:layout_width="match_parent"
-            android:layout_height="0.5dp"
-            android:background="@android:color/darker_gray" />
-
-        <RadioButton
-            android:id="@+id/violent"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:buttonTint="@color/purple"
-            android:padding="10dp"
-            android:text="It’s violent"
-            android:textSize="16sp" />
-
-        <View
-            android:layout_width="match_parent"
-            android:layout_height="0.5dp"
-            android:background="@android:color/darker_gray" />
-
-        <RadioButton
-            android:id="@+id/obscene"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:buttonTint="@color/purple"
-            android:padding="10dp"
-            android:text="It’s obscene"
-            android:textSize="16sp" />
-
-        <View
-            android:layout_width="match_parent"
-            android:layout_height="0.5dp"
-            android:background="@android:color/darker_gray" />
-
-        <RadioButton
-            android:id="@+id/other"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:buttonTint="@color/purple"
-            android:padding="10dp"
-            android:text="Other"
-            android:textSize="16sp" />
-    </RadioGroup>
-
-    <RelativeLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content">
-
-        <androidx.appcompat.widget.AppCompatButton
-            android:id="@+id/btnSave"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="10dp"
-            android:layout_marginTop="20dp"
-            android:layout_marginEnd="10dp"
-            android:layout_marginBottom="20dp"
-            android:background="@drawable/bg_round_button"
-            android:textStyle="bold"
-            android:gravity="center"
-            android:padding="10dp"
-            android:text="Save"
-            android:textColor="@color/white"
-            android:textSize="20sp" />
-        <ProgressBar
-            android:id="@+id/pbSaving"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_centerInParent="true"
-            android:visibility="gone"
-            android:indeterminateTint="@color/purple"/>
-    </RelativeLayout>
-
-    <androidx.appcompat.widget.AppCompatTextView
-        android:id="@+id/tvGoBack"
+    android:layout_height="wrap_content"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:background="@color/feedBackground">
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:gravity="center"
-        android:text="Go back" />
+        android:orientation="vertical"
+        android:paddingStart="10dp"
+        android:paddingTop="20dp"
+        android:paddingEnd="10dp"
+        android:paddingBottom="30dp">
 
-</LinearLayout>
+        <RadioGroup
+            android:id="@+id/rgReport"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+
+        </RadioGroup>
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <androidx.appcompat.widget.AppCompatButton
+                android:id="@+id/btnSave"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="10dp"
+                android:layout_marginTop="20dp"
+                android:layout_marginEnd="10dp"
+                android:layout_marginBottom="20dp"
+                android:background="@drawable/bg_round_button"
+                android:textStyle="bold"
+                android:gravity="center"
+                android:padding="10dp"
+                android:text="Save"
+                android:textColor="@color/white"
+                android:textSize="20sp" />
+            <ProgressBar
+                android:id="@+id/pbSaving"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerInParent="true"
+                android:visibility="gone"
+                android:indeterminateTint="@color/purple"/>
+        </RelativeLayout>
+
+        <androidx.appcompat.widget.AppCompatTextView
+            android:id="@+id/tvGoBack"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:textColor="@color/feedPrimaryTextColor"
+            android:text="Go back" />
+
+    </LinearLayout>
+</ScrollView>

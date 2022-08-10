@@ -15,14 +15,13 @@ import com.appyhigh.newsfeedsdk.Constants.POSITION
 import com.appyhigh.newsfeedsdk.Constants.POST_SOURCE
 import com.appyhigh.newsfeedsdk.Constants.PROFILE_PIC
 import com.appyhigh.newsfeedsdk.Constants.PUBLISHER_ID
-import com.appyhigh.newsfeedsdk.FeedSdk
 import com.appyhigh.newsfeedsdk.R
 import com.appyhigh.newsfeedsdk.activity.PublisherPageActivity
 import com.appyhigh.newsfeedsdk.apicalls.ApiFollowPublihser
 import com.appyhigh.newsfeedsdk.apiclient.Endpoints
 import com.appyhigh.newsfeedsdk.callbacks.PopularAccountClickListener
-import com.appyhigh.newsfeedsdk.callbacks.PopularAccountsFollowListener
 import com.appyhigh.newsfeedsdk.databinding.ItemPopularAccountBinding
+import com.appyhigh.newsfeedsdk.encryption.LogDetail
 import com.appyhigh.newsfeedsdk.model.feeds.Item
 import com.appyhigh.newsfeedsdk.utils.SpUtil
 
@@ -64,7 +63,7 @@ class PopularAccountsAdapter(var popularAccounts: List<Item>) :
         try {
             SpUtil.eventsListener?.onExploreInteraction("Popular Accounts", popularAccounts[position].fullname!!, popularAccounts[position].publisherId!!)
         } catch (ex:java.lang.Exception){
-            ex.printStackTrace()
+            LogDetail.LogEStack(ex)
         }
         intent.putExtra(FULL_NAME, popularAccounts[position].fullname)
         intent.putExtra(PROFILE_PIC, popularAccounts[position].profilePic)
@@ -87,14 +86,10 @@ class PopularAccountsAdapter(var popularAccounts: List<Item>) :
         popularAccounts[position].isFollowingPublisher =
             !popularAccounts[position].isFollowingPublisher!!
         popularAccounts[position].publisherId?.let {
-            FeedSdk.spUtil?.getString(Constants.JWT_TOKEN)?.let { it1 ->
-                ApiFollowPublihser().followPublisherEncrypted(
-                    Endpoints.FOLLOW_PUBLISHER_ENCRYPTED,
-                    it1,
-                    FeedSdk.userId,
-                    it
-                )
-            }
+            ApiFollowPublihser().followPublisherEncrypted(
+                Endpoints.FOLLOW_PUBLISHER_ENCRYPTED,
+                it
+            )
         }
     }
 }

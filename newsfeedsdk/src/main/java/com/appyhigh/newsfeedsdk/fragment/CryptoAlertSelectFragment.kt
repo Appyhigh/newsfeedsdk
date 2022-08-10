@@ -14,13 +14,13 @@ import androidx.core.widget.doOnTextChanged
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.appyhigh.newsfeedsdk.Constants
-import com.appyhigh.newsfeedsdk.FeedSdk
 import com.appyhigh.newsfeedsdk.R
 import com.appyhigh.newsfeedsdk.adapter.CryptoDetailsAdapter
 import com.appyhigh.newsfeedsdk.apicalls.ApiCrypto
 import com.appyhigh.newsfeedsdk.apiclient.Endpoints
 import com.appyhigh.newsfeedsdk.callbacks.OnFragmentClickListener
 import com.appyhigh.newsfeedsdk.databinding.FragmentCryptoAlertSelectBinding
+import com.appyhigh.newsfeedsdk.encryption.LogDetail
 import com.appyhigh.newsfeedsdk.model.crypto.CryptoSearchResponse
 import com.appyhigh.newsfeedsdk.model.feeds.Card
 import com.appyhigh.newsfeedsdk.model.feeds.Item
@@ -76,7 +76,7 @@ class CryptoAlertSelectFragment : Fragment(), ApiCrypto.CryptoSearchListener {
                     val imm = requireContext().getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
                     imm.toggleSoftInput(InputMethodManager.SHOW_FORCED, 0)
                 } catch (ex:java.lang.Exception){
-                    ex.printStackTrace()
+                    LogDetail.LogEStack(ex)
                 }
             }
         }
@@ -84,23 +84,18 @@ class CryptoAlertSelectFragment : Fragment(), ApiCrypto.CryptoSearchListener {
             if(text.isNullOrEmpty()){
                 cryptoAdapter?.updateWatchList(cryptoAlertItems)
             } else{
-                FeedSdk.spUtil?.getString(Constants.JWT_TOKEN)?.let {
-                    ApiCrypto().searchCryptoCoinsEncrypted(
-                        Endpoints.CRYPTO_SEARCH_ENCRYPTED,
-                        it,
-                        text.toString(),this)
-                }
+                ApiCrypto().searchCryptoCoinsEncrypted(
+                    Endpoints.CRYPTO_SEARCH_ENCRYPTED,
+                    text.toString(),this)
             }
         }
         fetchData()
     }
 
     private fun fetchData(){
-        FeedSdk.spUtil?.getString(Constants.JWT_TOKEN)?.let {
-            ApiCrypto().getCryptoDetailsEncrypted(
-                Endpoints.GET_CRYPTO_DETAILS_ENCRYPTED,
-                it,
-                0, null, null, object : ApiCrypto.CryptoDetailsResponseListener {
+        ApiCrypto().getCryptoDetailsEncrypted(
+            Endpoints.GET_CRYPTO_DETAILS_ENCRYPTED,
+            0, null, null, object : ApiCrypto.CryptoDetailsResponseListener {
                 override fun onSuccess(cryptoResponse: ApiCrypto.CryptoDetailsResponse, url: String, timeStamp: Long) {
                     val cryptoCard = cryptoResponse.cards
                     val newCryptoCardItems = ArrayList<Item>()
@@ -137,8 +132,7 @@ class CryptoAlertSelectFragment : Fragment(), ApiCrypto.CryptoSearchListener {
                     setEndlessScrolling()
                 }
             }
-            )
-        }
+        )
     }
 
     private fun setEndlessScrolling() {
@@ -157,16 +151,14 @@ class CryptoAlertSelectFragment : Fragment(), ApiCrypto.CryptoSearchListener {
                 binding.rvPosts.addOnScrollListener(endlessScrolling!!)
             }
         } catch (e: Exception) {
-            e.printStackTrace()
+            LogDetail.LogEStack(e)
         }
     }
 
     fun getMoreCryptoPosts(){
-        FeedSdk.spUtil?.getString(Constants.JWT_TOKEN)?.let {
-            ApiCrypto().getCryptoDetailsEncrypted(
-                Endpoints.GET_CRYPTO_DETAILS_ENCRYPTED,
-                it,
-                pageNo, null, null, object : ApiCrypto.CryptoDetailsResponseListener {
+        ApiCrypto().getCryptoDetailsEncrypted(
+            Endpoints.GET_CRYPTO_DETAILS_ENCRYPTED,
+            pageNo, null, null, object : ApiCrypto.CryptoDetailsResponseListener {
                 override fun onSuccess(cryptoResponse: ApiCrypto.CryptoDetailsResponse, url: String, timeStamp: Long) {
                     val cryptoCard = cryptoResponse.cards
                     val newCryptoCardItems = ArrayList<Item>()
@@ -180,7 +172,6 @@ class CryptoAlertSelectFragment : Fragment(), ApiCrypto.CryptoSearchListener {
                     }
                 }
             })
-        }
     }
 
     override fun onDestroy() {
@@ -193,7 +184,7 @@ class CryptoAlertSelectFragment : Fragment(), ApiCrypto.CryptoSearchListener {
             val imm = requireContext().getSystemService(AppCompatActivity.INPUT_METHOD_SERVICE) as InputMethodManager
             imm.hideSoftInputFromWindow(binding.searchText.windowToken, 0)
         } catch (ex:Exception){
-            ex.printStackTrace()
+            LogDetail.LogEStack(ex)
         }
     }
 

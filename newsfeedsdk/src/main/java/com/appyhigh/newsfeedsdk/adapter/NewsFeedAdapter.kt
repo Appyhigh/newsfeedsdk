@@ -12,7 +12,6 @@ import android.os.Build
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -26,7 +25,6 @@ import androidx.core.content.ContextCompat
 import androidx.core.text.HtmlCompat
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.FragmentActivity
-import androidx.fragment.app.FragmentManager
 import androidx.recyclerview.widget.RecyclerView
 import com.appyhigh.newsfeedsdk.Constants
 import com.appyhigh.newsfeedsdk.Constants.AD
@@ -52,6 +50,7 @@ import com.appyhigh.newsfeedsdk.apiclient.Endpoints
 import com.appyhigh.newsfeedsdk.callbacks.*
 import com.appyhigh.newsfeedsdk.customview.NewsFeedList
 import com.appyhigh.newsfeedsdk.databinding.*
+import com.appyhigh.newsfeedsdk.encryption.LogDetail
 import com.appyhigh.newsfeedsdk.fragment.AddInterestBottomSheet
 import com.appyhigh.newsfeedsdk.fragment.CryptoAlertPriceFragment
 import com.appyhigh.newsfeedsdk.fragment.FeedMenuBottomSheetFragment
@@ -79,8 +78,6 @@ import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.listeners.Abs
 import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.listeners.YouTubePlayerCallback
 import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.views.YouTubePlayerView
 import java.util.*
-import kotlin.collections.ArrayList
-import kotlin.collections.HashMap
 
 class NewsFeedAdapter(
     private var newsFeedList: ArrayList<Card>,
@@ -538,13 +535,11 @@ class NewsFeedAdapter(
                 val holder = mainHolder as AdViewHolder
                 holder.view.card = newsFeedList[position]
                 holder.view.contentUrls = getContentUrls(position)
-                holder.view.adUnit = FeedSdk.mAdsModel?.feed_native
             }
             NATIVE_AD_LARGE -> {
                 val holder = mainHolder as LargeAdViewHolder
                 holder.view.card = newsFeedList[position]
                 holder.view.contentUrls = getContentUrls(position)
-                holder.view.adUnit = FeedSdk.mAdsModel?.video_ad_native
             }
             RATING_CARD -> {
                 if(FeedSdk.isCryptoApp){
@@ -964,7 +959,7 @@ class NewsFeedAdapter(
                 getContentPostUrl(position+1)?.let { contentUrls.add(it) }
             }
         } catch (ex:Exception){
-            ex.printStackTrace()
+            LogDetail.LogEStack(ex)
         }
         return contentUrls
     }
@@ -980,7 +975,7 @@ class NewsFeedAdapter(
                 return content.url!!
             } else return null
         } catch (ex:Exception){
-            ex.printStackTrace()
+            LogDetail.LogEStack(ex)
             return null
         }
     }
@@ -1054,7 +1049,7 @@ class NewsFeedAdapter(
                     }
                 }
             } catch (ex: java.lang.Exception) {
-                ex.printStackTrace()
+                LogDetail.LogEStack(ex)
             }
             v.context.startActivity(intent)
             Handler(Looper.getMainLooper()).postDelayed({
@@ -1066,6 +1061,7 @@ class NewsFeedAdapter(
     override fun onMoreOptionsClicked(v: View, position: Int) {
         val reportBottomSheet = FeedMenuBottomSheetFragment.newInstance(
             newsFeedList[position].items[0].publisherContactUs ?: "",
+            newsFeedList[position].items[0].publisherId ?: "",
             newsFeedList[position].items[0].postId.toString()
         )
         if (v.context is FragmentActivity) {
@@ -1123,7 +1119,7 @@ class NewsFeedAdapter(
                 )
             }
         } catch (e: Exception) {
-            e.printStackTrace()
+            LogDetail.LogEStack(e)
         }
     }
 
@@ -1153,7 +1149,7 @@ class NewsFeedAdapter(
             }
 
         } catch (ex: java.lang.Exception) {
-            ex.printStackTrace()
+            LogDetail.LogEStack(ex)
         }
         reactionCount?.let {
             try{
@@ -1172,7 +1168,7 @@ class NewsFeedAdapter(
                     tvLikes.text = likeCount.toString()
                 }
             } catch (ex:Exception){
-                ex.printStackTrace()
+                LogDetail.LogEStack(ex)
             }
         }
         val ivLike: AppCompatImageView = v.findViewById(R.id.ivLike)
@@ -1205,18 +1201,15 @@ class NewsFeedAdapter(
                     ivLike.setColorFilter(ContextCompat.getColor(ivLike.context, R.color.feedSecondaryTintColor))
                 }
             } catch (ex:Exception){
-                ex.printStackTrace()
+                LogDetail.LogEStack(ex)
             }
         }
 
         newsFeedList[position].items[0].isReacted = reaction.toString()
         card.items[0].postId?.let {
-            FeedSdk.spUtil?.getString(Constants.JWT_TOKEN)?.let { it1 ->
-                ApiReactPost().reactPostEncrypted(
-                    Endpoints.REACT_POST_ENCRYPTED,
-                    it1,
-                    FeedSdk.userId, it, reaction)
-            }
+            ApiReactPost().reactPostEncrypted(
+                Endpoints.REACT_POST_ENCRYPTED,
+                it, reaction)
         }
     }
 
@@ -1229,14 +1222,10 @@ class NewsFeedAdapter(
         newsFeedList[position].items[0].isFollowingPublisher =
             !newsFeedList[position].items[0].isFollowingPublisher!!
         newsFeedList[position].items[0].publisherId?.let {
-            FeedSdk.spUtil?.getString(Constants.JWT_TOKEN)?.let { it1 ->
-                ApiFollowPublihser().followPublisherEncrypted(
-                    Endpoints.FOLLOW_PUBLISHER_ENCRYPTED,
-                    it1,
-                    FeedSdk.userId,
-                    it
-                )
-            }
+            ApiFollowPublihser().followPublisherEncrypted(
+                Endpoints.FOLLOW_PUBLISHER_ENCRYPTED,
+                it
+            )
         }
     }
 
@@ -1402,7 +1391,7 @@ class NewsFeedAdapter(
                 ApiCreateOrUpdateUser().updateUserInterests(interests)
             }
         } catch (ex:Exception){
-            ex.printStackTrace()
+            LogDetail.LogEStack(ex)
         }
     }
 
@@ -1459,7 +1448,7 @@ class NewsFeedAdapter(
                         }
                     }
                     .addOnFailureListener { e ->
-                        e.printStackTrace()
+                        LogDetail.LogEStack(e)
                         try {
                             if (isWhatsApp) {
                                 val whatsAppIntent = Intent(Intent.ACTION_SEND)
@@ -1506,7 +1495,7 @@ class NewsFeedAdapter(
                         }
                     }
             } catch (e: Exception) {
-                e.printStackTrace()
+                LogDetail.LogEStack(e)
             }
             Handler(Looper.getMainLooper()).postDelayed({
                 onSomethingClicked = false
@@ -1550,7 +1539,7 @@ class NewsFeedAdapter(
                     }
                 }
             } catch (ex: java.lang.Exception) {
-                ex.printStackTrace()
+                LogDetail.LogEStack(ex)
             }
             val link: String = FeedSdk.mFirebaseDynamicLink + "?feed_id=" + card.items[0].postId!!
             try {
@@ -1607,7 +1596,7 @@ class NewsFeedAdapter(
                         }
                     }
                     .addOnFailureListener { e ->
-                        e.printStackTrace()
+                        LogDetail.LogEStack(e)
                         try {
                             if (isWhatsApp) {
                                 val whatsAppIntent = Intent(Intent.ACTION_SEND)
@@ -1652,7 +1641,7 @@ class NewsFeedAdapter(
                         }
                     }
             } catch (e: Exception) {
-                e.printStackTrace()
+                LogDetail.LogEStack(e)
             }
             Handler(Looper.getMainLooper()).postDelayed({
                 onSomethingClicked = false
@@ -1713,7 +1702,7 @@ class NewsFeedAdapter(
 
     @Suppress("DEPRECATION")
     override fun onViewAttachedToWindow(v: View, position: Int) {
-        Log.d("onViewAttached", "onViewAttachedToWindow")
+        LogDetail.LogD("onViewAttached", "onViewAttachedToWindow")
         try{
             if (v is StyledPlayerView) {
                 Handler(Looper.getMainLooper()).postDelayed({
@@ -1729,13 +1718,13 @@ class NewsFeedAdapter(
                 }, 100)
             }
         } catch (ex:Exception){
-            ex.printStackTrace()
+            LogDetail.LogEStack(ex)
         }
     }
 
     @Suppress("DEPRECATION")
     override fun onViewDetachedFromWindow(v: View, position: Int) {
-        Log.d("onViewDetached", "onViewDetachedFromWindow")
+        LogDetail.LogD("onViewDetached", "onViewDetachedFromWindow")
         if (v is StyledPlayerView) {
             v.player?.playWhenReady = false
             try {
@@ -1755,7 +1744,7 @@ class NewsFeedAdapter(
                     )
                 }
             } catch (ex:Exception){
-                ex.printStackTrace()
+                LogDetail.LogEStack(ex)
             }
         }
     }
@@ -1831,7 +1820,7 @@ class NewsFeedAdapter(
                 duration
             )
         } catch (e: Exception) {
-            e.printStackTrace()
+            LogDetail.LogEStack(e)
         }
     }
 
@@ -1843,7 +1832,7 @@ class NewsFeedAdapter(
                 }
             }
         }catch (ex: Exception){
-            ex.printStackTrace()
+            LogDetail.LogEStack(ex)
         }
     }
 
@@ -1859,13 +1848,13 @@ class NewsFeedAdapter(
                 }
             })
         } catch (e: Exception) {
-            e.printStackTrace()
+            LogDetail.LogEStack(e)
         }
     }
 
     fun pausePlayer(holder: BigVideoViewHolder) {
         try {
-            Log.d("Check", "pausePlayer " + holder.view.position)
+            LogDetail.LogD("Check", "pausePlayer " + holder.view.position)
             if (holder.view.llYoutubeView.visibility == View.VISIBLE){
                 youtubePlayerView.keys.forEach {
                     youtubePlayerView[it]?.getYouTubePlayerWhenReady(object: YouTubePlayerCallback {
@@ -1891,18 +1880,18 @@ class NewsFeedAdapter(
                         duration
                     )
                 } catch (ex:Exception){
-                    ex.printStackTrace()
+                    LogDetail.LogEStack(ex)
                 }
             }
         } catch (e: Exception) {
-            e.printStackTrace()
+            LogDetail.LogEStack(e)
         }
     }
 
     fun playVideo(holder: BigVideoViewHolder, position: Int) {
         Handler(Looper.getMainLooper()).postDelayed({
             try {
-                Log.d("ISPLAYING", "position: $position == ${holder.view.position}")
+                LogDetail.LogD("ISPLAYING", "position: $position == ${holder.view.position}")
                 if (holder.view.llYoutubeView.visibility == View.VISIBLE){
                     youtubePlayerView.keys.forEach {
                         if (it == position){
@@ -1923,7 +1912,7 @@ class NewsFeedAdapter(
                     }
                 }else {
                     holder.view.llYoutubeView.removeAllViewsInLayout()
-                    Log.d("Check", "playVideo " + holder.view.position)
+                    LogDetail.LogD("Check", "playVideo " + holder.view.position)
                     AudioTracker.init(holder.itemView.context, "Reels", AudioTracker.REELS, newsFeedList[holder.bindingAdapterPosition].items[0].postId,object : AudioTrackerListener{
                         override fun onSuccess() {
                             holder.view.newsItemVideo.player?.playWhenReady = true
@@ -1935,7 +1924,7 @@ class NewsFeedAdapter(
                     })
                 }
             } catch (e: Exception) {
-                e.printStackTrace()
+                LogDetail.LogEStack(e)
             }
         }, 100)
     }
@@ -1948,7 +1937,7 @@ class NewsFeedAdapter(
         try {
             llYoutubeView.removeAllViews()
         }catch (e: java.lang.Exception){
-            e.printStackTrace()
+            LogDetail.LogEStack(e)
         }
 
         youtubePlayerView[position] = YouTubePlayerView(mContext)
@@ -1957,10 +1946,10 @@ class NewsFeedAdapter(
             observeYoutubePlayer(youtubePlay)
         }
 
-        val youtubeUI = youtubePlay?.getPlayerUiController()
-        youtubeUI?.apply {
-            showUi(false)
-        }
+//        val youtubeUI = youtubePlay?.ui()
+//        youtubeUI?.apply {
+//            showUi(false)
+//        }
         youtubePlay?.setOnClickListener {
             if (mute.visibility == View.GONE) {
                 mute.visibility = View.VISIBLE
@@ -1977,8 +1966,10 @@ class NewsFeedAdapter(
                 mute.visibility = View.GONE
             }
         }
+        var currentYouTubePlayer: YouTubePlayer?=null
         youtubePlay?.addYouTubePlayerListener(object : AbstractYouTubePlayerListener() {
             override fun onReady(youTubePlayer: YouTubePlayer) {
+                currentYouTubePlayer = youTubePlayer
                 youTubePlayer.cueVideo(youtubeUrl, 0f)
                 (view.parent as ConstraintLayout).setOnClickListener {
                     if (mute.visibility == View.GONE) {
@@ -2031,6 +2022,23 @@ class NewsFeedAdapter(
             }
         })
 
+        llYoutubeView.setOnClickListener {
+            currentYouTubePlayer?.loadVideo(youtubeUrl, 0f)
+            if (mute.visibility == View.GONE) {
+                mute.visibility = View.VISIBLE
+                if (Constants.isMuted) {
+                    mute.setImageResource(R.drawable.ic_feed_mute)
+                } else {
+                    mute.setImageResource(R.drawable.ic_feed_unmute)
+                }
+                Handler(Looper.getMainLooper()).postDelayed(
+                    { (view.parent as ConstraintLayout).performClick() },
+                    3000
+                )
+            } else {
+                mute.visibility = View.GONE
+            }
+        }
         llYoutubeView.addView(youtubePlay)
     }
 
@@ -2049,7 +2057,7 @@ class NewsFeedAdapter(
                 totalDuration
             )
         } catch (ex:Exception){
-            ex.printStackTrace()
+            LogDetail.LogEStack(ex)
         }
     }
 

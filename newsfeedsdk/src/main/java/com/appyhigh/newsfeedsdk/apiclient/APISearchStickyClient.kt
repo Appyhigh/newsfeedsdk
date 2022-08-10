@@ -3,6 +3,7 @@ package com.appyhigh.newsfeedsdk.apiclient
 import com.appyhigh.newsfeedsdk.BuildConfig
 import com.appyhigh.newsfeedsdk.Constants
 import com.appyhigh.newsfeedsdk.FeedSdk
+import com.appyhigh.newsfeedsdk.encryption.LogDetail
 import com.appyhigh.newsfeedsdk.utils.SpUtil
 import com.appyhigh.newsfeedsdk.utils.StickyRSAKeyGenerator
 import com.mocklets.pluto.PlutoInterceptor
@@ -35,7 +36,7 @@ class APISearchStickyClient {
                 StickyRSAKeyGenerator.getStickyJwtToken(FeedSdk.appId, FeedSdk.userId) ?: ""
             SpUtil.spUtilInstance!!.putString(Constants.SEARCH_STICKY_JWT_TOKEN, token)
         } catch (e: Exception) {
-            e.printStackTrace()
+            LogDetail.LogEStack(e)
         }
         return Retrofit.Builder()
             .baseUrl(BuildConfig.SEARCH_STICKY_BASE_URL)

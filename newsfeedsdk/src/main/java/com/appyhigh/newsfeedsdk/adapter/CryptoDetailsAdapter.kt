@@ -20,6 +20,7 @@ import com.appyhigh.newsfeedsdk.apiclient.Endpoints
 import com.appyhigh.newsfeedsdk.callbacks.OnFragmentClickListener
 import com.appyhigh.newsfeedsdk.callbacks.OnRefreshListener
 import com.appyhigh.newsfeedsdk.databinding.*
+import com.appyhigh.newsfeedsdk.encryption.LogDetail
 import com.appyhigh.newsfeedsdk.fragment.CryptoAlertPriceFragment
 import com.appyhigh.newsfeedsdk.model.feeds.Item
 import com.appyhigh.newsfeedsdk.utils.SpUtil
@@ -28,14 +29,12 @@ import com.github.mikephil.charting.data.Entry
 import com.github.mikephil.charting.data.LineData
 import com.github.mikephil.charting.data.LineDataSet
 import com.github.mikephil.charting.interfaces.datasets.ILineDataSet
-import it.sephiroth.android.library.xtooltip.ClosePolicy
 import it.sephiroth.android.library.xtooltip.Tooltip
 import java.math.BigDecimal
 import java.math.RoundingMode
 import java.sql.Timestamp
 import java.text.DecimalFormat
 import java.util.*
-import kotlin.collections.ArrayList
 
 class CryptoDetailsAdapter(var cryptoItems: ArrayList<Item>, var isEditable: Boolean=false,
                            var cardType:String="", var isFromListActivity:Boolean=false, var interest:String="", var listener: OnFragmentClickListener?=null) :
@@ -214,7 +213,7 @@ class CryptoDetailsAdapter(var cryptoItems: ArrayList<Item>, var isEditable: Boo
                             tooltipShown = true
                             SpUtil.spUtilInstance!!.putLong("showWatchlistTooltip", SpUtil.spUtilInstance!!.getLong("showWatchlistTooltip", 0)+1)
                         } catch (ex:java.lang.Exception){
-                            ex.printStackTrace()
+                            LogDetail.LogEStack(ex)
                         }
                     }
                 }
@@ -239,12 +238,9 @@ class CryptoDetailsAdapter(var cryptoItems: ArrayList<Item>, var isEditable: Boo
                 cryptoWatchList.add(cryptoItem)
                 cryptoWatchListMap[cryptoItem.coinId!!] = cryptoItem.coinId
             }
-            FeedSdk.spUtil?.getString(Constants.JWT_TOKEN)?.let { it1 ->
-                ApiCreateOrUpdateUser().updateCryptoWatchlistEncrypted(
-                    Endpoints.UPDATE_USER_ENCRYPTED,
-                    it1
-                )
-            }
+            ApiCreateOrUpdateUser().updateCryptoWatchlistEncrypted(
+                Endpoints.UPDATE_USER_ENCRYPTED
+            )
             when(interest){
                 "crypto_gainers" -> SpUtil.cryptoEventsListener?.onAddWatchlist(cryptoItem.coinId!!, "Top Gainers", isSelected)
                 "crypto_losers" -> SpUtil.cryptoEventsListener?.onAddWatchlist(cryptoItem.coinId!!, "Top Losers", isSelected)
@@ -353,7 +349,7 @@ class CryptoDetailsAdapter(var cryptoItems: ArrayList<Item>, var isEditable: Boo
                 price = cryptoItem.usd?.currPrice
             }
         } catch (ex:Exception){
-            ex.printStackTrace()
+            LogDetail.LogEStack(ex)
         }
         holder.itemView.setOnClickListener {
             if(cardType==Constants.CRYPTO_CONVERTER){
@@ -399,7 +395,7 @@ class CryptoDetailsAdapter(var cryptoItems: ArrayList<Item>, var isEditable: Boo
                 try{
                     values.add(Entry(Timestamp.valueOf(xList[i]).time.toFloat(), yList[i].toFloat()))
                 } catch (ex:Exception){
-                    ex.printStackTrace()
+                    LogDetail.LogEStack(ex)
                 }
             }
             // create a dataset and give it a type
@@ -423,7 +419,7 @@ class CryptoDetailsAdapter(var cryptoItems: ArrayList<Item>, var isEditable: Boo
             chart.setScaleEnabled(false)
             chart.setPinchZoom(false)
         } catch (ex:Exception){
-            ex.printStackTrace()
+            LogDetail.LogEStack(ex)
         }
     }
 

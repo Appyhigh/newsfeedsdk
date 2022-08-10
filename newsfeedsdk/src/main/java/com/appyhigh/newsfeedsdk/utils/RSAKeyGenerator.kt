@@ -54,7 +54,7 @@ object RSAKeyGenerator {
             e.printStackTrace()
         }
         val jws = Jwts.builder()
-            .claim("sdk_version", 1007)
+            .claim("sdk_version", FeedSdk.getSDKVersion())
             .claim("app_id", appId)
             .claim("user_id", userId)
             .claim("app_version_code", FeedSdk.appVersionCode)
@@ -108,7 +108,7 @@ object RSAKeyGenerator {
                 e.printStackTrace()
             }
             val jws = Jwts.builder()
-                .claim("sdk_version", 1007)
+                .claim("sdk_version", FeedSdk.getSDKVersion())
                 .claim("app_id", appId)
                 .claim("user_id", userId)
                 .claim("app_version_code", FeedSdk.appVersionCode)

@@ -10,7 +10,6 @@ import android.os.Build
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
-import android.util.Log
 import android.view.View
 import android.view.ViewGroup
 import android.webkit.CookieManager
@@ -24,6 +23,7 @@ import com.appyhigh.newsfeedsdk.Constants.isNetworkAvailable
 import com.appyhigh.newsfeedsdk.FeedSdk
 import com.appyhigh.newsfeedsdk.R
 import com.appyhigh.newsfeedsdk.databinding.ActivityPwaMatchScoreBinding
+import com.appyhigh.newsfeedsdk.encryption.LogDetail
 import com.appyhigh.newsfeedsdk.model.feeds.Card
 import com.appyhigh.newsfeedsdk.utils.RSAKeyGenerator
 import com.appyhigh.newsfeedsdk.utils.SpUtil
@@ -61,7 +61,7 @@ class PWAMatchScoreActivity : AppCompatActivity(), AdvancedWebView.Listener {
                 prevWeb = findViewById(prevWebView!!.id)
                 alreadyExists = true
             } catch (ex:Exception){
-                ex.printStackTrace()
+                LogDetail.LogEStack(ex)
             }
         } else{
             binding?.webview?.visibility = View.VISIBLE
@@ -87,7 +87,7 @@ class PWAMatchScoreActivity : AppCompatActivity(), AdvancedWebView.Listener {
         link = (intent.getStringExtra("link")?: "https://masterfeed.io/crichouse/match/$filename")+"?filename=$filename&language=$language&post_source=$postSource&platform=$platform&theme=${FeedSdk.sdkTheme}"
         cookieManager.setCookie(link, "token="+ RSAKeyGenerator.getJwtToken(FeedSdk.appId, FeedSdk.userId) ?: "")
         cookieManager.setCookie(link, "user_info="+ Gson().toJson(Constants.userDetails))
-        Log.d("webtest", "link: $link")
+        LogDetail.LogD("webtest", "link: $link")
         binding?.webview?.webViewClient = object : WebViewClient() {
             override fun shouldOverrideUrlLoading(view: WebView, url: String): Boolean {
                 if(url!=link) {
@@ -183,7 +183,7 @@ class PWAMatchScoreActivity : AppCompatActivity(), AdvancedWebView.Listener {
                     }
                 }
                 .addOnFailureListener { e: Exception ->
-                    e.printStackTrace()
+                    LogDetail.LogEStack(e)
                     try {
                         if (isWhatsApp) {
                             val whatsAppIntent = Intent(Intent.ACTION_SEND)
@@ -210,7 +210,7 @@ class PWAMatchScoreActivity : AppCompatActivity(), AdvancedWebView.Listener {
                     }
                 }
         } catch (ex:Exception){
-            ex.printStackTrace()
+            LogDetail.LogEStack(ex)
         }
     }
 
@@ -222,7 +222,7 @@ class PWAMatchScoreActivity : AppCompatActivity(), AdvancedWebView.Listener {
                 startActivity(Intent(this, activity).putExtra("fromSticky", "true"))
                 finish()
             } catch (ex:Exception){
-                ex.printStackTrace()
+                LogDetail.LogEStack(ex)
             }
         } else{
             super.onBackPressed()
@@ -272,7 +272,7 @@ class PWAMatchScoreActivity : AppCompatActivity(), AdvancedWebView.Listener {
                 ).show()
             }
         } catch (ex:Exception){
-            ex.printStackTrace()
+            LogDetail.LogEStack(ex)
         }
     }
 

@@ -49,9 +49,10 @@
         </RelativeLayout>
 
         <LinearLayout
-            android:layout_width="match_parent"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_gravity="center_vertical"
+            android:layout_weight="9"
             android:layout_marginStart="10dp"
             android:orientation="vertical">
 
@@ -86,6 +87,20 @@
                     android:layout_marginStart="5dp"
                     tools:src="@drawable/ic_featured_app_instagram" />
             </LinearLayout>
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_gravity="center"
+            android:layout_weight="1">
+            <androidx.appcompat.widget.AppCompatImageView
+                android:id="@+id/news_item_more_option"
+                android:layout_width="30dp"
+                android:layout_height="30dp"
+                android:layout_gravity="center"
+                app:tint="@color/feedSecondaryTintColor"
+                app:srcCompat="@drawable/ic_feed_more" />
         </LinearLayout>
 
     </LinearLayout>

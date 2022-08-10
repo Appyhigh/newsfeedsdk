@@ -22,6 +22,7 @@ import com.appyhigh.newsfeedsdk.Constants.cardsMap
 import com.appyhigh.newsfeedsdk.FeedSdk
 import com.appyhigh.newsfeedsdk.R
 import com.appyhigh.newsfeedsdk.adapter.NewsFeedAdapter
+import com.appyhigh.newsfeedsdk.apicalls.ApiConfig
 import com.appyhigh.newsfeedsdk.apicalls.ApiFollowPublihser
 import com.appyhigh.newsfeedsdk.apicalls.ApiGetPublisherPosts
 import com.appyhigh.newsfeedsdk.apicalls.ApiPostImpression
@@ -29,12 +30,12 @@ import com.appyhigh.newsfeedsdk.apiclient.Endpoints
 import com.appyhigh.newsfeedsdk.callbacks.GlideCallbackListener
 import com.appyhigh.newsfeedsdk.callbacks.PostImpressionListener
 import com.appyhigh.newsfeedsdk.databinding.ActivityPublisherPageBinding
+import com.appyhigh.newsfeedsdk.encryption.LogDetail
 import com.appyhigh.newsfeedsdk.fragment.FeedMenuBottomSheetFragment
 import com.appyhigh.newsfeedsdk.model.PostImpressionsModel
 import com.appyhigh.newsfeedsdk.model.PostView
 import com.appyhigh.newsfeedsdk.model.feeds.Card
 import com.appyhigh.newsfeedsdk.model.feeds.GetFeedsResponse
-import com.appyhigh.newsfeedsdk.utils.SpUtil
 import com.appyhigh.newsfeedsdk.utils.showAdaptiveBanner
 import com.google.gson.Gson
 import com.squareup.picasso.Callback
@@ -64,7 +65,7 @@ class PublisherPageActivity : AppCompatActivity() {
         val view = binding?.root
         setContentView(view)
         setFonts(view)
-        if(FeedSdk.showAds && Constants.checkFeedApp()){
+        if(ApiConfig().checkShowAds(this) && Constants.checkFeedApp()){
             showAdaptiveBanner(this, Constants.getHomeBannerAd(), binding!!.bannerAd)
         }
         if (!intent.hasExtra(PUBLISHER_ID)) {
@@ -86,71 +87,66 @@ class PublisherPageActivity : AppCompatActivity() {
         binding?.profileLayoutProgressBar!!.visibility = View.GONE
         binding?.noPosts!!.visibility = View.GONE
 
-        FeedSdk.spUtil?.getString(Constants.JWT_TOKEN)?.let {
-            ApiGetPublisherPosts().getPublisherPostsEncrypted(
-                Endpoints.GET_PUBLISHER_POSTS_ENCRYPTED,
-                it,
-                FeedSdk.userId,
-                pageNo,
-                publisherId,
-                object : ApiGetPublisherPosts.PublisherPostsResponseListener {
-                    override fun onSuccess(feedsResponse: GetFeedsResponse, url: String, timeStamp: Long) {
-                        storeData(presentUrl, presentTimeStamp)
-                        presentTimeStamp = timeStamp
-                        presentUrl = url
-                        feedsResponseModel = feedsResponse
+        ApiGetPublisherPosts().getPublisherPostsEncrypted(
+            Endpoints.GET_PUBLISHER_POSTS_ENCRYPTED,
+            pageNo,
+            publisherId,
+            object : ApiGetPublisherPosts.PublisherPostsResponseListener {
+                override fun onSuccess(feedsResponse: GetFeedsResponse, url: String, timeStamp: Long) {
+                    storeData(presentUrl, presentTimeStamp)
+                    presentTimeStamp = timeStamp
+                    presentUrl = url
+                    feedsResponseModel = feedsResponse
 
-                        if (feedsResponseModel?.cards!!.isEmpty()) {
-                            binding?.publishLayout!!.visibility = View.VISIBLE
-                            binding?.noPosts!!.visibility = View.VISIBLE
-                            binding?.publishProgress!!.visibility = View.GONE
-                        } else {
-                            layoutManager = LinearLayoutManager(this@PublisherPageActivity)
-                            binding?.publishPageRecycler!!.layoutManager = layoutManager
-                            newsFeedAdapter =
-                                NewsFeedAdapter(
-                                    feedsResponseModel?.cards as ArrayList<Card>,
-                                    null,
-                                    "publishPage",
-                                    null,
-                                    object : PostImpressionListener {
-                                        override fun addImpression(card: Card, totalDuration: Int?, watchedDuration: Int?) {
-                                            try {
-                                                val postView = PostView(
-                                                    FeedSdk.sdkCountryCode ?: "in",
-                                                    "explore_publisher",
-                                                    card.items[0].isVideo,
-                                                    card.items[0].languageString,
-                                                    Constants.getInterestsString(card.items[0].interests),
-                                                    card.items[0].postId,
-                                                    card.items[0].postSource,
-                                                    card.items[0].publisherId,
-                                                    card.items[0].shortVideo,
-                                                    card.items[0].source,
-                                                    totalDuration,
-                                                    watchedDuration
-                                                )
-                                                postImpressions.put(card.items[0].postId!!,postView)
-                                            } catch (ex:java.lang.Exception){
-                                                ex.printStackTrace()
-                                            }
+                    if (feedsResponseModel?.cards!!.isEmpty()) {
+                        binding?.publishLayout!!.visibility = View.VISIBLE
+                        binding?.noPosts!!.visibility = View.VISIBLE
+                        binding?.publishProgress!!.visibility = View.GONE
+                    } else {
+                        layoutManager = LinearLayoutManager(this@PublisherPageActivity)
+                        binding?.publishPageRecycler!!.layoutManager = layoutManager
+                        newsFeedAdapter =
+                            NewsFeedAdapter(
+                                feedsResponseModel?.cards as ArrayList<Card>,
+                                null,
+                                "publishPage",
+                                null,
+                                object : PostImpressionListener {
+                                    override fun addImpression(card: Card, totalDuration: Int?, watchedDuration: Int?) {
+                                        try {
+                                            val postView = PostView(
+                                                FeedSdk.sdkCountryCode ?: "in",
+                                                "explore_publisher",
+                                                card.items[0].isVideo,
+                                                card.items[0].languageString,
+                                                Constants.getInterestsString(card.items[0].interests),
+                                                card.items[0].postId,
+                                                card.items[0].postSource,
+                                                card.items[0].publisherId,
+                                                card.items[0].shortVideo,
+                                                card.items[0].source,
+                                                totalDuration,
+                                                watchedDuration
+                                            )
+                                            postImpressions.put(card.items[0].postId!!,postView)
+                                        } catch (ex:java.lang.Exception){
+                                            LogDetail.LogEStack(ex)
                                         }
-                                    })
-                            binding?.publishPageRecycler!!.adapter = newsFeedAdapter
-                            binding?.publishProgress!!.visibility = View.GONE
-                            binding?.followers!!.text =
-                                reformatFollowers((feedsResponseModel?.followers!!))
-                            binding?.profileFollowers!!.text =
-                                (feedsResponseModel?.followers!!).toString()
-                            binding?.publishProgress!!.visibility = View.GONE
-                            binding?.publishLayout!!.visibility = View.VISIBLE
-                            cardsMap["publishPage"] = feedsResponse.cards as ArrayList<Card>
-                        }
+                                    }
+                                })
+                        binding?.publishPageRecycler!!.adapter = newsFeedAdapter
+                        binding?.publishProgress!!.visibility = View.GONE
+                        binding?.followers!!.text =
+                            reformatFollowers((feedsResponseModel?.followers!!))
+                        binding?.profileFollowers!!.text =
+                            (feedsResponseModel?.followers!!).toString()
+                        binding?.publishProgress!!.visibility = View.GONE
+                        binding?.publishLayout!!.visibility = View.VISIBLE
+                        cardsMap["publishPage"] = feedsResponse.cards as ArrayList<Card>
                     }
                 }
-            )
-        }
-
+            }
+        )
         binding?.backBtn?.setOnClickListener {
             onBackPressed()
         }
@@ -159,12 +155,12 @@ class PublisherPageActivity : AppCompatActivity() {
         }
 
         binding?.moreBtn?.setOnClickListener {
-            val reportBottomSheet = FeedMenuBottomSheetFragment.newInstance(publisherContactUs, "")
+            val reportBottomSheet = FeedMenuBottomSheetFragment.newInstance(publisherContactUs, publisherId, "")
             reportBottomSheet.show(supportFragmentManager, "reportBottomSheet")
         }
 
         binding?.profileMoreBtn?.setOnClickListener {
-            val reportBottomSheet = FeedMenuBottomSheetFragment.newInstance(publisherContactUs, "")
+            val reportBottomSheet = FeedMenuBottomSheetFragment.newInstance(publisherContactUs, publisherId,  "")
             reportBottomSheet.show(supportFragmentManager, "reportBottomSheet")
         }
 
@@ -184,7 +180,7 @@ class PublisherPageActivity : AppCompatActivity() {
                     FeedSdk.areContentsModified[intent.getStringExtra(Constants.SCREEN_TYPE)!!] = true
                 }
             } catch (ex:Exception){
-                ex.printStackTrace()
+                LogDetail.LogEStack(ex)
             }
 //            binding?.followBtn!!.visibility = View.GONE
 //            binding?.profileFollowBtn!!.visibility = View.GONE
@@ -210,14 +206,11 @@ class PublisherPageActivity : AppCompatActivity() {
                     }
                 }
             } catch (ex:Exception){
-                ex.printStackTrace()
+                LogDetail.LogEStack(ex)
             }
-            FeedSdk.spUtil?.getString(Constants.JWT_TOKEN)?.let { it1 ->
-                ApiFollowPublihser().followPublisherEncrypted(
-                    Endpoints.FOLLOW_PUBLISHER_ENCRYPTED,
-                    it1,
-                    FeedSdk.userId, publisherId)
-            }
+            ApiFollowPublihser().followPublisherEncrypted(
+                Endpoints.FOLLOW_PUBLISHER_ENCRYPTED,
+                publisherId)
         }
 
         binding?.publishProgress!!.visibility = View.VISIBLE
@@ -279,7 +272,7 @@ class PublisherPageActivity : AppCompatActivity() {
                     try{
                         binding?.publishProfilePic?.setImageDrawable(drawable)
                     } catch (ex:Exception){
-                        ex.printStackTrace()
+                        LogDetail.LogEStack(ex)
                     }
                 }
 
@@ -307,7 +300,7 @@ class PublisherPageActivity : AppCompatActivity() {
                     try{
                         binding?.profilePic?.setImageDrawable(drawable)
                     } catch (ex:Exception){
-                        ex.printStackTrace()
+                        LogDetail.LogEStack(ex)
                     }
                 }
 
@@ -374,7 +367,7 @@ class PublisherPageActivity : AppCompatActivity() {
                 }
             }
         } catch (e: Exception) {
-            e.printStackTrace()
+            LogDetail.LogEStack(e)
         }
     }
 
@@ -396,7 +389,7 @@ class PublisherPageActivity : AppCompatActivity() {
                 binding?.profileFollowBtn!!.setTextColor(Color.WHITE)
             }
         } catch (ex:Exception){
-            ex.printStackTrace()
+            LogDetail.LogEStack(ex)
         }
     }
 
@@ -412,15 +405,12 @@ class PublisherPageActivity : AppCompatActivity() {
             val postImpressionString = gson.toJson(postImpressionsModel)
             sharedPrefs.edit().putString(timeStamp.toString(), postImpressionString).apply()
             postImpressions = HashMap()
-            FeedSdk.spUtil?.getString(Constants.JWT_TOKEN)?.let {
-                ApiPostImpression().addPostImpressionsEncrypted(
-                    Endpoints.POST_IMPRESSIONS_ENCRYPTED,
-                    it,
-                    this
-                )
-            }
+            ApiPostImpression().addPostImpressionsEncrypted(
+                Endpoints.POST_IMPRESSIONS_ENCRYPTED,
+                this
+            )
         } catch (ex:java.lang.Exception){
-            ex.printStackTrace()
+            LogDetail.LogEStack(ex)
         }
     }
 

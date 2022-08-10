@@ -18,17 +18,15 @@ import com.appyhigh.newsfeedsdk.apicalls.ApiGetInterests
 import com.appyhigh.newsfeedsdk.apicalls.ApiUpdateUserPersonalization
 import com.appyhigh.newsfeedsdk.apicalls.ApiUserDetails
 import com.appyhigh.newsfeedsdk.apiclient.Endpoints
+import com.appyhigh.newsfeedsdk.encryption.LogDetail
 import com.appyhigh.newsfeedsdk.model.Interest
 import com.appyhigh.newsfeedsdk.model.InterestResponseModel
 import com.appyhigh.newsfeedsdk.model.UserResponse
 import com.appyhigh.newsfeedsdk.model.feeds.Card
-import com.appyhigh.newsfeedsdk.utils.SpUtil
 import com.google.android.flexbox.FlexboxLayoutManager
 import com.google.android.flexbox.JustifyContent
 import retrofit2.Retrofit
 import java.util.*
-import kotlin.collections.ArrayList
-import kotlin.collections.HashMap
 
 class AddInterestsActivity : AppCompatActivity() {
     private lateinit var flexLayoutManager: FlexboxLayoutManager
@@ -58,32 +56,22 @@ class AddInterestsActivity : AppCompatActivity() {
         Card.setFontFamily(manageCategory, true)
         Constants.setFontFamily(etSearch)
         etSearch?.typeface = FeedSdk.font
-        FeedSdk.spUtil?.getString(Constants.JWT_TOKEN)?.let {
-            ApiGetInterests().getInterestsEncrypted(
-                Endpoints.GET_INTERESTS_ENCRYPTED,
-                it,
-                object : ApiGetInterests.InterestResponseListener {
-                    override fun onSuccess(interestResponseModel: InterestResponseModel) {
-                        mInterestResponseModel = interestResponseModel
-                        setUpInterests()
-                    }
-                })
-        }
-
-        FeedSdk.spUtil?.getString(Constants.JWT_TOKEN)?.let {
-            ApiUserDetails().getUserResponseEncrypted(
-                Endpoints.USER_DETAILS_ENCRYPTED,
-                it,
-                object : ApiUserDetails.UserResponseListener {
-                    override fun onSuccess(userDetails: UserResponse) {
-                        mUserDetails = userDetails
-                        setUpInterests()
-                    }
-                })
-        }
-
-
-
+        ApiGetInterests().getInterestsEncrypted(
+            Endpoints.GET_INTERESTS_ENCRYPTED,
+            object : ApiGetInterests.InterestResponseListener {
+                override fun onSuccess(interestResponseModel: InterestResponseModel) {
+                    mInterestResponseModel = interestResponseModel
+                    setUpInterests()
+                }
+            })
+        ApiUserDetails().getUserResponseEncrypted(
+            Endpoints.USER_DETAILS_ENCRYPTED,
+            object : ApiUserDetails.UserResponseListener {
+                override fun onSuccess(userDetails: UserResponse) {
+                    mUserDetails = userDetails
+                    setUpInterests()
+                }
+            })
         rvSelectedInterest = findViewById(R.id.rvSelectedInterests)
         rvAllInterests = findViewById(R.id.rvAllInterests)
 
@@ -100,7 +88,7 @@ class AddInterestsActivity : AppCompatActivity() {
                     }
                     interestChooserAdapter.updateData(filteredList as ArrayList<Interest>)
                 } catch (ex: Exception) {
-                    ex.printStackTrace()
+                    LogDetail.LogEStack(ex)
                 }
             }
 
@@ -170,26 +158,21 @@ class AddInterestsActivity : AppCompatActivity() {
 
     override fun onBackPressed() {
         if (interestList.size > 2 && isChanged) {
-            FeedSdk.userId?.let {
-                FeedSdk.spUtil?.getString(Constants.JWT_TOKEN)?.let { it1 ->
-                    ApiUpdateUserPersonalization().updateUserPersonalizationEncrypted(
-                        Endpoints.UPDATE_USER_ENCRYPTED,
-                        it,
-                        interestList,
-                        ArrayList(),
-                        object : ApiUpdateUserPersonalization.UpdatePersonalizationListener {
-                            override fun onFailure() {
-                                finish()
-                            }
+            ApiUpdateUserPersonalization().updateUserPersonalizationEncrypted(
+                Endpoints.UPDATE_USER_ENCRYPTED,
+                interestList,
+                ArrayList(),
+                object : ApiUpdateUserPersonalization.UpdatePersonalizationListener {
+                    override fun onFailure() {
+                        finish()
+                    }
 
-                            override fun onSuccess() {
-                                FeedSdk.isRefreshNeeded = true
-                                finish()
-                            }
-                        }
-                    )
+                    override fun onSuccess() {
+                        FeedSdk.isRefreshNeeded = true
+                        finish()
+                    }
                 }
-            }
+            )
         } else {
             finish()
         }

@@ -2,7 +2,6 @@ package com.appyhigh.newsfeedsdk.customview
 
 import android.annotation.SuppressLint
 import android.content.Context
-import android.graphics.Canvas
 import android.graphics.Rect
 import android.os.Handler
 import android.os.Looper
@@ -15,7 +14,6 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.PagerSnapHelper
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.SnapHelper
-import androidx.viewpager2.widget.ViewPager2
 import com.appyhigh.newsfeedsdk.Constants
 import com.appyhigh.newsfeedsdk.Constants.cardsMap
 import com.appyhigh.newsfeedsdk.Constants.getLifecycleOwner
@@ -27,6 +25,7 @@ import com.appyhigh.newsfeedsdk.apiclient.Endpoints
 import com.appyhigh.newsfeedsdk.callbacks.OnRefreshListener
 import com.appyhigh.newsfeedsdk.callbacks.PostImpressionListener
 import com.appyhigh.newsfeedsdk.callbacks.VideoPlayerListener
+import com.appyhigh.newsfeedsdk.encryption.LogDetail
 import com.appyhigh.newsfeedsdk.model.*
 import com.appyhigh.newsfeedsdk.model.feeds.Card
 import com.appyhigh.newsfeedsdk.model.feeds.GetFeedsResponse
@@ -36,8 +35,6 @@ import com.appyhigh.newsfeedsdk.utils.SpUtil
 import com.google.android.exoplayer2.ui.StyledPlayerView
 import com.google.gson.Gson
 import java.util.*
-import kotlin.collections.ArrayList
-import kotlin.collections.HashMap
 
 class VideoFeed : LinearLayout, OnRefreshListener {
     private var mUserDetails: UserResponse? = null
@@ -105,33 +102,27 @@ class VideoFeed : LinearLayout, OnRefreshListener {
         ConnectivityLiveData(context).observeForever {
             when (it) {
                 Constants.NetworkState.CONNECTED -> {
-                    Log.d("NETWORK", "AVAILABLE")
+                    LogDetail.LogD("NETWORK", "AVAILABLE")
                     holders = HashMap<Int, NewsFeedAdapter.BigVideoViewHolder?>()
                     noNetworkLayout?.visibility = GONE
                     rvShortBytes?.visibility = VISIBLE
-                    FeedSdk.spUtil?.getString(Constants.JWT_TOKEN)?.let {
-                        ApiUserDetails().getUserResponseEncrypted(
-                            Endpoints.USER_DETAILS_ENCRYPTED,
-                            it,
-                            object : ApiUserDetails.UserResponseListener {
-                                override fun onSuccess(userDetails: UserResponse) {
-                                    mUserDetails = userDetails
-                                    getVideos()
-                                }
-                            })
-                    }
-                    FeedSdk.spUtil?.getString(Constants.JWT_TOKEN)?.let {
-                        ApiGetInterests().getInterestsEncrypted(
-                            Endpoints.GET_INTERESTS_ENCRYPTED,
-                            it,
-                            object : ApiGetInterests.InterestResponseListener {
-                                override fun onSuccess(interestResponseModel: InterestResponseModel) {
-                                    mInterestResponseModel = interestResponseModel
-                                    getVideos()
-                                }
-                            })
-                    }
-
+                    ApiUserDetails().getUserResponseEncrypted(
+                        Endpoints.USER_DETAILS_ENCRYPTED,
+                        object : ApiUserDetails.UserResponseListener {
+                            override fun onSuccess(userDetails: UserResponse) {
+                                mUserDetails = userDetails
+                                getVideos()
+                            }
+                        })
+                    ApiGetInterests().getInterestsEncrypted(
+                        Endpoints.GET_INTERESTS_ENCRYPTED,
+                        object : ApiGetInterests.InterestResponseListener {
+                            override fun onSuccess(interestResponseModel: InterestResponseModel) {
+                                mInterestResponseModel = interestResponseModel
+                                getVideos()
+                            }
+                        }
+                    )
                     ApiGetLanguages().getLanguagesEncrypted(
                         Endpoints.GET_LANGUAGES_ENCRYPTED,
                         object : ApiGetLanguages.LanguageResponseListener {
@@ -145,14 +136,14 @@ class VideoFeed : LinearLayout, OnRefreshListener {
                     )
                 }
                 Constants.NetworkState.DISCONNECTED -> {
-                    Log.d("NETWORK", "LOST")
+                    LogDetail.LogD("NETWORK", "LOST")
                     try {
                         onFocusChanged()
                         newsFeedList = ArrayList()
                         currentPosition = 0
                         rvShortBytes?.adapter = NewsFeedAdapter(newsFeedList, null, "videofeed")
                     } catch (ex: Exception) {
-                        ex.printStackTrace()
+                        LogDetail.LogEStack(ex)
                     }
                     loadLayout?.visibility = VISIBLE
                     noNetworkLayout?.visibility = VISIBLE
@@ -218,80 +209,76 @@ class VideoFeed : LinearLayout, OnRefreshListener {
                 }
             }
             adIndex = 0
-            FeedSdk.spUtil?.getString(Constants.JWT_TOKEN)?.let {
-                ApiGetFeeds().getVideoFeedsEncrypted(
-                    Endpoints.GET_FEEDS_ENCRYPTED,
-                    it,
-                    FeedSdk.userId,
-                    FeedSdk.sdkCountryCode ?: "in",
-                    interestQuery,
-                    languages,
-                    pageNo,
-                    feedType,
-                    true,
-                    true,
-                    object : ApiGetFeeds.GetFeedsResponseListener {
-                        override fun onSuccess(
-                            getFeedsResponse: GetFeedsResponse,
-                            url: String,
-                            timeStamp: Long
-                        ) {
-                            Handler(Looper.getMainLooper()).post{
-                                storeData(presentUrl, presentTimeStamp)
-                                presentTimeStamp = timeStamp
-                                presentUrl = url
-                                adIndex += getFeedsResponse.adPlacement[0]
-                                pageNo += 1
-                                loadLayout?.visibility = View.GONE
-                                for (card in getFeedsResponse.cards) {
-                                    card.cardType =
-                                        Constants.CardType.MEDIA_VIDEO_BIG.toString()
-                                            .lowercase(Locale.getDefault())
-                                    newsFeedList.add(card)
-                                }
-                                if (FeedSdk.showAds) {
-                                    try {
-                                        val adItem = Card()
-                                        adItem.cardType = Constants.AD_LARGE
-                                        newsFeedList.add(adIndex, adItem)
-                                        Log.d("Ad index", adIndex.toString())
-                                    } catch (ex: Exception) {
-                                        ex.printStackTrace()
-                                    }
-                                }
-                                initNewsAdapter(newsFeedList)
-                                rvShortBytes?.apply {
-                                    layoutManager = linearLayoutManager
-                                    adapter = newsFeedAdapter
-                                    itemAnimator = null
-                                }
-                                cardsMap["videofeed"] = newsFeedList
-                                rvShortBytes?.onFlingListener = null
-                                val mSnapHelper: SnapHelper = PagerSnapHelper()
-                                mSnapHelper.attachToRecyclerView(rvShortBytes)
-                                setEndlessScrolling()
-                                rvShortBytes?.addOnScrollListener(object :
-                                    RecyclerView.OnScrollListener() {
-
-                                    override fun onScrolled(
-                                        recyclerView: RecyclerView,
-                                        dx: Int,
-                                        dy: Int
-                                    ) {
-                                        super.onScrolled(recyclerView, dx, dy)
-                                        val newPos =
-                                            linearLayoutManager!!.findFirstCompletelyVisibleItemPosition()
-                                        if (newPos > -1 && newPos != currentPosition) {
-                                            togglePlaying(currentPosition, false)
-                                            togglePlaying(newPos, true)
-                                        }
-                                    }
-                                })
+            ApiGetFeeds().getVideoFeedsEncrypted(
+                Endpoints.GET_FEEDS_ENCRYPTED,
+                FeedSdk.sdkCountryCode ?: "in",
+                interestQuery,
+                languages,
+                pageNo,
+                feedType,
+                true,
+                true,
+                object : ApiGetFeeds.GetFeedsResponseListener {
+                    override fun onSuccess(
+                        getFeedsResponse: GetFeedsResponse,
+                        url: String,
+                        timeStamp: Long
+                    ) {
+                        Handler(Looper.getMainLooper()).post{
+                            storeData(presentUrl, presentTimeStamp)
+                            presentTimeStamp = timeStamp
+                            presentUrl = url
+                            adIndex += getFeedsResponse.adPlacement[0]
+                            pageNo += 1
+                            loadLayout?.visibility = View.GONE
+                            for (card in getFeedsResponse.cards) {
+                                card.cardType =
+                                    Constants.CardType.MEDIA_VIDEO_BIG.toString()
+                                        .lowercase(Locale.getDefault())
+                                newsFeedList.add(card)
                             }
+                            if (ApiConfig().checkShowAds(context)) {
+                                try {
+                                    val adItem = Card()
+                                    adItem.cardType = Constants.AD_LARGE
+                                    newsFeedList.add(adIndex, adItem)
+                                    LogDetail.LogD("Ad index", adIndex.toString())
+                                } catch (ex: Exception) {
+                                    LogDetail.LogEStack(ex)
+                                }
+                            }
+                            initNewsAdapter(newsFeedList)
+                            rvShortBytes?.apply {
+                                layoutManager = linearLayoutManager
+                                adapter = newsFeedAdapter
+                                itemAnimator = null
+                            }
+                            cardsMap["videofeed"] = newsFeedList
+                            rvShortBytes?.onFlingListener = null
+                            val mSnapHelper: SnapHelper = PagerSnapHelper()
+                            mSnapHelper.attachToRecyclerView(rvShortBytes)
+                            setEndlessScrolling()
+                            rvShortBytes?.addOnScrollListener(object :
+                                RecyclerView.OnScrollListener() {
 
+                                override fun onScrolled(
+                                    recyclerView: RecyclerView,
+                                    dx: Int,
+                                    dy: Int
+                                ) {
+                                    super.onScrolled(recyclerView, dx, dy)
+                                    val newPos =
+                                        linearLayoutManager!!.findFirstCompletelyVisibleItemPosition()
+                                    if (newPos > -1 && newPos != currentPosition) {
+                                        togglePlaying(currentPosition, false)
+                                        togglePlaying(newPos, true)
+                                    }
+                                }
+                            })
                         }
-                    })
-            }
+
+                    }
+                })
         }
     }
 
@@ -347,7 +334,7 @@ class VideoFeed : LinearLayout, OnRefreshListener {
                             )
                             postImpressions.put(card.items[0].postId!!, postView)
                         } catch (ex: java.lang.Exception) {
-                            ex.printStackTrace()
+                            LogDetail.LogEStack(ex)
                         }
                     }
                 }, observeYoutubePlayer = { youtube ->
@@ -358,7 +345,7 @@ class VideoFeed : LinearLayout, OnRefreshListener {
                         )
                         context.getLifecycleOwner().lifecycle.addObserver(youtube)
                     } catch (ex: Exception) {
-                        ex.printStackTrace()
+                        LogDetail.LogEStack(ex)
                     }
                 })
 
@@ -378,66 +365,62 @@ class VideoFeed : LinearLayout, OnRefreshListener {
                 rvShortBytes?.addOnScrollListener(endlessScrolling!!)
             }
         } catch (e: Exception) {
-            e.printStackTrace()
+            LogDetail.LogEStack(e)
         }
     }
 
     private fun getMoreFeeds() {
-        FeedSdk.spUtil?.getString(Constants.JWT_TOKEN)?.let {
-            ApiGetFeeds().getVideoFeedsEncrypted(
-                Endpoints.GET_FEEDS_ENCRYPTED,
-                it,
-                FeedSdk.userId,
-                FeedSdk.sdkCountryCode ?: "in",
-                interestQuery,
-                languages,
-                pageNo,
-                feedType,
-                true,
-                true,
-                object : ApiGetFeeds.GetFeedsResponseListener {
-                    override fun onSuccess(
-                        getFeedsResponse: GetFeedsResponse,
-                        url: String,
-                        timeStamp: Long
-                    ) {
-                        storeData(presentUrl, presentTimeStamp)
-                        presentTimeStamp = timeStamp
-                        presentUrl = url
-                        adIndex += getFeedsResponse.adPlacement[0]
-                        pageNo += 1
-                        for (card in getFeedsResponse.cards) {
-                            card.cardType = Constants.CardType.MEDIA_VIDEO_BIG.toString()
-                                .lowercase(Locale.getDefault())
-                            newsFeedList.add(card)
-                        }
-                        if (FeedSdk.showAds) {
-                            val adItem = Card()
-                            adItem.cardType = Constants.AD_LARGE
-                            try {
-                                if (newsFeedList.size > adIndex) {
-                                    newsFeedList.add(adIndex, adItem)
-                                    Log.d("Ad index", (adIndex).toString())
-                                }
-                                if (adIndex + getFeedsResponse.adPlacement[0] < newsFeedList.size) {
-                                    adIndex += getFeedsResponse.adPlacement[0]
-                                    newsFeedList.add(adIndex, adItem)
-                                    Log.d("Ad index", (adIndex).toString())
-                                }
-                            } catch (e: java.lang.Exception) {
-                                e.printStackTrace()
-                            }
-                        }
-                        newsFeedAdapter?.updateList(
-                            newsFeedList,
-                            "videofeed",
-                            pageNo - 1,
-                            presentUrl,
-                            presentTimeStamp
-                        )
+        ApiGetFeeds().getVideoFeedsEncrypted(
+            Endpoints.GET_FEEDS_ENCRYPTED,
+            FeedSdk.sdkCountryCode ?: "in",
+            interestQuery,
+            languages,
+            pageNo,
+            feedType,
+            true,
+            true,
+            object : ApiGetFeeds.GetFeedsResponseListener {
+                override fun onSuccess(
+                    getFeedsResponse: GetFeedsResponse,
+                    url: String,
+                    timeStamp: Long
+                ) {
+                    storeData(presentUrl, presentTimeStamp)
+                    presentTimeStamp = timeStamp
+                    presentUrl = url
+                    adIndex += getFeedsResponse.adPlacement[0]
+                    pageNo += 1
+                    for (card in getFeedsResponse.cards) {
+                        card.cardType = Constants.CardType.MEDIA_VIDEO_BIG.toString()
+                            .lowercase(Locale.getDefault())
+                        newsFeedList.add(card)
                     }
-                })
-        }
+                    if (ApiConfig().checkShowAds(context)) {
+                        val adItem = Card()
+                        adItem.cardType = Constants.AD_LARGE
+                        try {
+                            if (newsFeedList.size > adIndex) {
+                                newsFeedList.add(adIndex, adItem)
+                                LogDetail.LogD("Ad index", (adIndex).toString())
+                            }
+                            if (adIndex + getFeedsResponse.adPlacement[0] < newsFeedList.size) {
+                                adIndex += getFeedsResponse.adPlacement[0]
+                                newsFeedList.add(adIndex, adItem)
+                                LogDetail.LogD("Ad index", (adIndex).toString())
+                            }
+                        } catch (e: java.lang.Exception) {
+                            LogDetail.LogEStack(e)
+                        }
+                    }
+                    newsFeedAdapter?.updateList(
+                        newsFeedList,
+                        "videofeed",
+                        pageNo - 1,
+                        presentUrl,
+                        presentTimeStamp
+                    )
+                }
+            })
     }
 
     fun togglePlaying(position: Int, isPlaying: Boolean, from: String = "") {
@@ -455,25 +438,25 @@ class VideoFeed : LinearLayout, OnRefreshListener {
             }
             if (holder != null) {
                 if (isPlaying) {
-                    Log.d("Check", "togglePlaying: play $position from $from")
+                    LogDetail.LogD("Check", "togglePlaying: play $position from $from")
                     newsFeedAdapter?.playVideo(holder, position)
                     currentPosition = position
                 } else {
-                    Log.d("Check", "togglePlaying: pause  $position from $from")
+                    LogDetail.LogD("Check", "togglePlaying: pause  $position from $from")
                     newsFeedAdapter?.pausePlayer(holder)
                 }
             } else {
                 currentPosition = position
             }
         } catch (ex: Exception) {
-            ex.printStackTrace()
+            LogDetail.LogEStack(ex)
         }
     }
 
     override fun onWindowFocusChanged(hasWindowFocus: Boolean) {
         super.onWindowFocusChanged(hasWindowFocus)
         val isVisible = getGlobalVisibleRect(tempR)
-        Log.d("VideoFeed", "onWindowFocusChanged: $isVisible")
+        LogDetail.LogD("VideoFeed", "onWindowFocusChanged: $isVisible")
         if (hasWindowFocus) {
             if (FeedSdk.areContentsModified[Constants.VIDEO_FEED] == true) {
                 FeedSdk.areContentsModified[Constants.VIDEO_FEED] = false
@@ -516,15 +499,12 @@ class VideoFeed : LinearLayout, OnRefreshListener {
             val postImpressionString = gson.toJson(postImpressionsModel)
             sharedPrefs.edit().putString(timeStamp.toString(), postImpressionString).apply()
             postImpressions = HashMap()
-            FeedSdk.spUtil?.getString(Constants.JWT_TOKEN)?.let {
-                ApiPostImpression().addPostImpressionsEncrypted(
-                    Endpoints.POST_IMPRESSIONS_ENCRYPTED,
-                    it,
-                    context
-                )
-            }
+            ApiPostImpression().addPostImpressionsEncrypted(
+                Endpoints.POST_IMPRESSIONS_ENCRYPTED,
+                context
+            )
         } catch (ex: java.lang.Exception) {
-            ex.printStackTrace()
+            LogDetail.LogEStack(ex)
         }
     }
 
@@ -536,7 +516,7 @@ class VideoFeed : LinearLayout, OnRefreshListener {
                 newsFeedAdapter?.pausePlayer(holder)
             }
         } catch (ex: Exception) {
-            ex.printStackTrace()
+            LogDetail.LogEStack(ex)
         }
     }
 

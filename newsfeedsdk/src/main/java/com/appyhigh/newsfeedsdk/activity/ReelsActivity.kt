@@ -16,6 +16,7 @@ import com.appyhigh.newsfeedsdk.Constants.cardsMap
 import com.appyhigh.newsfeedsdk.Constants.reels
 import com.appyhigh.newsfeedsdk.FeedSdk
 import com.appyhigh.newsfeedsdk.adapter.NewsFeedAdapter
+import com.appyhigh.newsfeedsdk.apicalls.ApiConfig
 import com.appyhigh.newsfeedsdk.apicalls.ApiGetFeeds
 import com.appyhigh.newsfeedsdk.apicalls.ApiPostImpression
 import com.appyhigh.newsfeedsdk.apiclient.Endpoints
@@ -23,19 +24,16 @@ import com.appyhigh.newsfeedsdk.callbacks.PostImpressionListener
 import com.appyhigh.newsfeedsdk.callbacks.VideoPlayerListener
 import com.appyhigh.newsfeedsdk.customview.NewsFeedList
 import com.appyhigh.newsfeedsdk.databinding.ActivityReelsBinding
+import com.appyhigh.newsfeedsdk.encryption.LogDetail
 import com.appyhigh.newsfeedsdk.model.PostImpressionsModel
 import com.appyhigh.newsfeedsdk.model.PostView
 import com.appyhigh.newsfeedsdk.model.feeds.Card
 import com.appyhigh.newsfeedsdk.model.feeds.GetFeedsResponse
 import com.appyhigh.newsfeedsdk.utils.EndlessScrolling
-import com.appyhigh.newsfeedsdk.utils.SpUtil
 import com.appyhigh.newsfeedsdk.utils.showAdaptiveBanner
-import com.google.android.exoplayer2.ui.PlayerView
 import com.google.android.exoplayer2.ui.StyledPlayerView
 import com.google.gson.Gson
 import java.util.*
-import kotlin.collections.ArrayList
-import kotlin.collections.HashMap
 
 class ReelsActivity : AppCompatActivity() {
     var mAdapter: NewsFeedAdapter? = null
@@ -55,7 +53,7 @@ class ReelsActivity : AppCompatActivity() {
         binding = ActivityReelsBinding.inflate(layoutInflater)
         val view = binding?.root
         setContentView(view)
-        if(FeedSdk.showAds && Constants.checkFeedApp()){
+        if(ApiConfig().checkShowAds(this) && Constants.checkFeedApp()){
             showAdaptiveBanner(this, Constants.getHomeBannerAd(), binding!!.bannerAd)
         }
         presentUrl = intent.getStringExtra("postUrl")?:""
@@ -96,7 +94,7 @@ class ReelsActivity : AppCompatActivity() {
                         )
                         postImpressions.put(card.items[0].postId!!,postView)
                     } catch (ex:java.lang.Exception){
-                        ex.printStackTrace()
+                        LogDetail.LogEStack(ex)
                     }
                 }
             })
@@ -144,7 +142,7 @@ class ReelsActivity : AppCompatActivity() {
             }
 
         } catch (ex:Exception){
-            ex.printStackTrace()
+            LogDetail.LogEStack(ex)
         }
     }
 
@@ -182,7 +180,7 @@ class ReelsActivity : AppCompatActivity() {
                 binding?.rvReels?.addOnScrollListener(endlessScrolling!!)
             }
         } catch (e: Exception) {
-            e.printStackTrace()
+            LogDetail.LogEStack(e)
         }
     }
 
@@ -193,34 +191,31 @@ class ReelsActivity : AppCompatActivity() {
         } else{
             lang = null
         }
-        FeedSdk.spUtil?.getString(Constants.JWT_TOKEN)?.let {
-            ApiGetFeeds().getVideoFeedsEncrypted(
-                Endpoints.GET_FEEDS_ENCRYPTED,
-                it,
-                FeedSdk.userId,
-                FeedSdk.sdkCountryCode ?: "in",
-                Constants.exploreInterest,
-                lang,
-                pageNo,
-                feedType,
-                true,
-                true,
-                object : ApiGetFeeds.GetFeedsResponseListener {
-                    override fun onSuccess(getFeedsResponse: GetFeedsResponse, url: String, timeStamp: Long) {
-                        storeData(presentUrl, presentTimeStamp)
-                        presentTimeStamp = timeStamp
-                        presentUrl = url
-                        pageNo += 1
-                        val cards = ArrayList<Card>()
-                        for (card in getFeedsResponse.cards) {
-                            card.cardType = Constants.CardType.MEDIA_VIDEO_BIG.toString().lowercase(Locale.getDefault())
-                            cards.add(card)
-                        }
-                        cardsMap["reels"]?.addAll(cards)
-                        mAdapter?.updateExploreReelsList(cards, pageNo-1)
+        ApiGetFeeds().getVideoFeedsEncrypted(
+            Endpoints.GET_FEEDS_ENCRYPTED,
+            FeedSdk.sdkCountryCode ?: "in",
+            Constants.exploreInterest,
+            lang,
+            pageNo,
+            feedType,
+            true,
+            true,
+            object : ApiGetFeeds.GetFeedsResponseListener {
+                override fun onSuccess(getFeedsResponse: GetFeedsResponse, url: String, timeStamp: Long) {
+                    storeData(presentUrl, presentTimeStamp)
+                    presentTimeStamp = timeStamp
+                    presentUrl = url
+                    pageNo += 1
+                    val cards = ArrayList<Card>()
+                    for (card in getFeedsResponse.cards) {
+                        card.cardType = Constants.CardType.MEDIA_VIDEO_BIG.toString().lowercase(
+                            Locale.getDefault())
+                        cards.add(card)
                     }
-                })
-        }
+                    cardsMap["reels"]?.addAll(cards)
+                    mAdapter?.updateExploreReelsList(cards, pageNo-1)
+                }
+            })
     }
 
     @SuppressLint("CommitPrefEdits")
@@ -235,15 +230,12 @@ class ReelsActivity : AppCompatActivity() {
             val postImpressionString = gson.toJson(postImpressionsModel)
             sharedPrefs.edit().putString(timeStamp.toString(), postImpressionString).apply()
             postImpressions = HashMap()
-            FeedSdk.spUtil?.getString(Constants.JWT_TOKEN)?.let {
-                ApiPostImpression().addPostImpressionsEncrypted(
-                    Endpoints.POST_IMPRESSIONS_ENCRYPTED,
-                    it,
-                    this
-                )
-            }
+            ApiPostImpression().addPostImpressionsEncrypted(
+                Endpoints.POST_IMPRESSIONS_ENCRYPTED,
+                this
+            )
         } catch (ex:java.lang.Exception){
-            ex.printStackTrace()
+            LogDetail.LogEStack(ex)
         }
     }
 }

@@ -1,16 +1,14 @@
 package com.appyhigh.newsfeedsdk.customview
 
 import android.content.Context
-import android.text.method.NumberKeyListener
 import android.util.AttributeSet
-import android.util.Log
 import android.widget.EditText
 import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.appcompat.widget.AppCompatImageView
 import com.appyhigh.newsfeedsdk.R
 import com.appyhigh.newsfeedsdk.callbacks.NumberKeyboardListener
-import java.lang.Exception
+import com.appyhigh.newsfeedsdk.encryption.LogDetail
 
 class CustomNumPad : LinearLayout {
 
@@ -99,9 +97,9 @@ class CustomNumPad : LinearLayout {
                             valueString = valueString.removeRange(startPos, endPos)
                             cursorAt = startPos
                         }
-                        Log.d("CustomKeyPad", "initView: "+valueString)
+                        LogDetail.LogD("CustomKeyPad", "initView: "+valueString)
                     } catch (ex:Exception){
-                        ex.printStackTrace()
+                        LogDetail.LogEStack(ex)
                     }
                 } else{
                     valueString = valueString.dropLast(1)

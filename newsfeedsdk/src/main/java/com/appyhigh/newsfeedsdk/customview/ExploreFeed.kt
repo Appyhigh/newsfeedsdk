@@ -28,9 +28,6 @@ import com.appyhigh.newsfeedsdk.utils.ConnectivityLiveData
 import com.appyhigh.newsfeedsdk.utils.PodcastMediaPlayer
 import com.appyhigh.newsfeedsdk.utils.SpUtil
 import java.util.*
-import kotlin.collections.ArrayList
-import kotlin.collections.HashMap
-import kotlin.collections.LinkedHashMap
 
 class ExploreFeed : LinearLayout,OnRefreshListener {
     private var newsFeedAdapter: NewsFeedAdapter? = null
@@ -102,28 +99,22 @@ class ExploreFeed : LinearLayout,OnRefreshListener {
     private fun callAPI(){
         noNetworkLayout?.visibility = GONE
         rvExplore?.visibility = VISIBLE
-        FeedSdk.spUtil?.getString(Constants.JWT_TOKEN)?.let {
-            ApiUserDetails().getUserResponseEncrypted(
-                Endpoints.USER_DETAILS_ENCRYPTED,
-                it,
-                object : ApiUserDetails.UserResponseListener {
-                    override fun onSuccess(userDetails: UserResponse) {
-                        mUserDetails = userDetails
-                        fetchExploreFeed()
-                    }
-                })
-        }
-        FeedSdk.spUtil?.getString(Constants.JWT_TOKEN)?.let {
-            ApiGetInterests().getInterestsEncrypted(
-                Endpoints.GET_INTERESTS_ENCRYPTED,
-                it,
-                object : ApiGetInterests.InterestResponseListener {
-                    override fun onSuccess(interestResponseModel: InterestResponseModel) {
-                        mInterestResponseModel = interestResponseModel
-                        fetchExploreFeed()
-                    }
-                })
-        }
+        ApiUserDetails().getUserResponseEncrypted(
+            Endpoints.USER_DETAILS_ENCRYPTED,
+            object : ApiUserDetails.UserResponseListener {
+                override fun onSuccess(userDetails: UserResponse) {
+                    mUserDetails = userDetails
+                    fetchExploreFeed()
+                }
+            })
+        ApiGetInterests().getInterestsEncrypted(
+            Endpoints.GET_INTERESTS_ENCRYPTED,
+            object : ApiGetInterests.InterestResponseListener {
+                override fun onSuccess(interestResponseModel: InterestResponseModel) {
+                    mInterestResponseModel = interestResponseModel
+                    fetchExploreFeed()
+                }
+            })
     }
 
     private fun fetchExploreFeed() {
@@ -166,34 +157,30 @@ class ExploreFeed : LinearLayout,OnRefreshListener {
                     unSelectedInterestsList.random().keyId.toString()
                 })!!
             }
-            FeedSdk.spUtil?.getString(Constants.JWT_TOKEN)?.let {
-                ApiExplore().exploreEncrypted(
-                    Endpoints.EXPLORE_ENCRYPTED,
-                    it,
-                    FeedSdk.userId,
-                    languages,
-                    FeedSdk.sdkCountryCode ?: "in",
-                    Constants.exploreInterest,
-                    object : ApiExplore.ExploreResponseListener {
-                        override fun onSuccess(
-                            exploreResponseModel: ExploreResponseModel,
-                            url: String,
-                            timeStamp: Long
-                        ) {
-                            exploreResponseDetails.api_uri = url
-                            exploreResponseDetails.timestamp = timeStamp
-                            cardsMap["explore"] = exploreResponseModel.cards as ArrayList<Card>
-                            loadLayout?.visibility = GONE
-                            newsFeedList = ArrayList()
-                            newsFeedList.addAll(exploreResponseModel.cards)
-                            newsFeedAdapter = NewsFeedAdapter(newsFeedList, null, "explore",null, null)
-                            rvExplore?.apply {
-                                layoutManager = LinearLayoutManager(context)
-                                adapter = newsFeedAdapter
-                            }
+            ApiExplore().exploreEncrypted(
+                Endpoints.EXPLORE_ENCRYPTED,
+                languages,
+                FeedSdk.sdkCountryCode ?: "in",
+                Constants.exploreInterest,
+                object : ApiExplore.ExploreResponseListener {
+                    override fun onSuccess(
+                        exploreResponseModel: ExploreResponseModel,
+                        url: String,
+                        timeStamp: Long
+                    ) {
+                        exploreResponseDetails.api_uri = url
+                        exploreResponseDetails.timestamp = timeStamp
+                        cardsMap["explore"] = exploreResponseModel.cards as ArrayList<Card>
+                        loadLayout?.visibility = GONE
+                        newsFeedList = ArrayList()
+                        newsFeedList.addAll(exploreResponseModel.cards)
+                        newsFeedAdapter = NewsFeedAdapter(newsFeedList, null, "explore",null, null)
+                        rvExplore?.apply {
+                            layoutManager = LinearLayoutManager(context)
+                            adapter = newsFeedAdapter
                         }
-                    })
-            }
+                    }
+                })
         }
     }
 

@@ -1,6 +1,5 @@
 package com.appyhigh.newsfeedsdk.activity
 
-import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
 import android.os.Handler
@@ -8,7 +7,6 @@ import android.os.Looper
 import android.view.View
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.FragmentActivity
-import androidx.fragment.app.FragmentManager
 import androidx.recyclerview.widget.GridLayoutManager
 import com.appyhigh.newsfeedsdk.Constants
 import com.appyhigh.newsfeedsdk.FeedSdk
@@ -22,7 +20,6 @@ import com.appyhigh.newsfeedsdk.model.Language
 import com.appyhigh.newsfeedsdk.model.feeds.Card
 import com.appyhigh.newsfeedsdk.utils.SpUtil
 import java.util.*
-import kotlin.collections.ArrayList
 
 class FeedLanguageActivity : AppCompatActivity() {
 
@@ -74,45 +71,40 @@ class FeedLanguageActivity : AppCompatActivity() {
                 binding!!.btnProceed.visibility = View.GONE
                 binding!!.pbLoader.visibility = View.VISIBLE
                 FeedSdk.languagesList = languageList
-                FeedSdk.userId?.let { it1 ->
-                    FeedSdk.spUtil?.getString(Constants.JWT_TOKEN)?.let { it2 ->
-                        ApiUpdateUserPersonalization().updateUserPersonalizationEncrypted(
-                            Endpoints.UPDATE_USER_ENCRYPTED,
-                            it1,
-                            FeedSdk.interestsList,
-                            FeedSdk.languagesList,
-                            object : ApiUpdateUserPersonalization.UpdatePersonalizationListener {
-                                override fun onSuccess() {
-                                    for (listener in SpUtil.onRefreshListeners) {
-                                        listener.value.onRefreshNeeded()
-                                    }
-                                    callPersonaliseEvent()
-                                    if(FeedSdk.interestsList.isEmpty()){
-                                        try{
-                                            val bottomSheet = AddInterestBottomSheet.newInstance()
-                                            bottomSheet.show((FeedSdk.mContext as FragmentActivity).supportFragmentManager,"BottomSheet")
-                                            finish()
-                                        } catch (ex:Exception){
-                                            val intent = Intent(this@FeedLanguageActivity, FeedInterestsActivity::class.java)
-                                            startActivity(intent)
-                                            setResult(RESULT_OK)
-                                            finish()
-                                        }
-                                    } else{
-                                        Handler(Looper.getMainLooper()).postDelayed({
-                                            setResult(RESULT_OK)
-                                            finish()
-                                        },1000)
-                                    }
-                                }
-
-                                override fun onFailure() {
-
-                                }
+                ApiUpdateUserPersonalization().updateUserPersonalizationEncrypted(
+                    Endpoints.UPDATE_USER_ENCRYPTED,
+                    FeedSdk.interestsList,
+                    FeedSdk.languagesList,
+                    object : ApiUpdateUserPersonalization.UpdatePersonalizationListener {
+                        override fun onSuccess() {
+                            for (listener in SpUtil.onRefreshListeners) {
+                                listener.value.onRefreshNeeded()
                             }
-                        )
+                            callPersonaliseEvent()
+                            if(FeedSdk.interestsList.isEmpty()){
+                                try{
+                                    val bottomSheet = AddInterestBottomSheet.newInstance()
+                                    bottomSheet.show((FeedSdk.mContext as FragmentActivity).supportFragmentManager,"BottomSheet")
+                                    finish()
+                                } catch (ex:Exception){
+                                    val intent = Intent(this@FeedLanguageActivity, FeedInterestsActivity::class.java)
+                                    startActivity(intent)
+                                    setResult(RESULT_OK)
+                                    finish()
+                                }
+                            } else{
+                                Handler(Looper.getMainLooper()).postDelayed({
+                                    setResult(RESULT_OK)
+                                    finish()
+                                },1000)
+                            }
+                        }
+
+                        override fun onFailure() {
+
+                        }
                     }
-                }
+                )
             }
         }
         binding!!.ivBack.setOnClickListener {

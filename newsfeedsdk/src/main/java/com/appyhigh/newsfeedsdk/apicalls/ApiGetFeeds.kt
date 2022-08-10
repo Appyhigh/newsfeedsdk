@@ -1,9 +1,7 @@
 package com.appyhigh.newsfeedsdk.apicalls
 
-import android.util.Log
 import com.appyhigh.newsfeedsdk.Constants
 import com.appyhigh.newsfeedsdk.FeedSdk
-import com.appyhigh.newsfeedsdk.apiclient.APIClient
 import com.appyhigh.newsfeedsdk.encryption.AESCBCPKCS5Encryption
 import com.appyhigh.newsfeedsdk.encryption.AuthSocket
 import com.appyhigh.newsfeedsdk.encryption.LogDetail
@@ -13,22 +11,15 @@ import com.appyhigh.newsfeedsdk.utils.SpUtil
 import com.google.common.reflect.TypeToken
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
-import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
-import io.reactivex.rxjava3.schedulers.Schedulers
 import okhttp3.Call
-import org.json.JSONArray
-import org.json.JSONObject
 import retrofit2.Response
 import java.io.IOException
 import java.nio.charset.StandardCharsets
 
 class ApiGetFeeds {
-    private var spUtil = SpUtil.spUtilInstance
 
     fun getFeedsEncrypted(
         apiUrl: String,
-        token: String,
-        userId: String?,
         countryCode: String,
         interests: String?,
         languages: String?,
@@ -70,8 +61,6 @@ class ApiGetFeeds {
         if (hasFirstPostId) {
             getFeedsForFirstPostIdEncrypted(
                 apiUrl,
-                token,
-                userId,
                 countryCode,
                 interestsString,
                 languageString,
@@ -88,21 +77,22 @@ class ApiGetFeeds {
             keys.add(Constants.INTERESTS)
             keys.add(Constants.PAGE_NUMBER)
             keys.add(Constants.LANGUAGE)
-            keys.add(Constants.POST_SOURCE)
             keys.add(Constants.FEED_TYPE)
+            keys.add(Constants.POST_SOURCE)
+            keys.add(Constants.BLOCKED_PUBLISHERS)
 
             values.add(countryCode)
             values.add(interestsString)
             values.add(pageSkip.toString())
             values.add(languageString)
-            values.add(postSource)
             values.add(newFeedType)
+            values.add(postSource)
+            values.add(Constants.userDetails?.let { Constants.getStringFromList(it.blockedPublishers) })
 
             val allDetails =
                 BaseAPICallObject().getBaseObjectWithAuth(
                     Constants.GET,
                     apiUrl,
-                    token,
                     keys,
                     values
                 )
@@ -119,13 +109,13 @@ class ApiGetFeeds {
             LogDetail.LogD("Data to be Sent -> ", sendingData)
 
             AuthSocket.Instance().postData(sendingData, object : ResponseListener {
-                override fun onSuccess(apiUrl: String?, response: JSONObject?) {
-                    LogDetail.LogDE("ApiGetFeeds $apiUrl", response.toString())
+                override fun onSuccess(apiUrl: String, response: String) {
+                    LogDetail.LogDE("ApiGetFeeds $apiUrl", response)
 
                     val gson: Gson = GsonBuilder().create()
                     val getFeedsResponseBase: GetFeedsResponse =
                         gson.fromJson(
-                            response.toString(),
+                            response,
                             object : TypeToken<GetFeedsResponse>() {}.type
                         )
                     val getFeedsResponse: Response<GetFeedsResponse> =
@@ -136,15 +126,6 @@ class ApiGetFeeds {
                         getFeedsResponse.raw().request.url.toString(),
                         getFeedsResponse.raw().sentRequestAtMillis
                     )
-
-                }
-
-                override fun onSuccess(apiUrl: String?, response: JSONArray?) {
-                    LogDetail.LogDE("ApiGetFeeds $apiUrl", response.toString())
-                }
-
-                override fun onSuccess(apiUrl: String?, response: String?) {
-                    LogDetail.LogDE("ApiGetFeeds $apiUrl", response.toString())
                 }
 
                 override fun onError(call: Call, e: IOException) {
@@ -156,7 +137,6 @@ class ApiGetFeeds {
 
     fun getRegionalFeedsEncrypted(
         apiUrl: String,
-        token: String,
         latitude: Double?,
         longitude: Double?,
         stateCode: String,
@@ -170,17 +150,18 @@ class ApiGetFeeds {
         keys.add(Constants.LONGITUDE)
         keys.add(Constants.STATE_CODE)
         keys.add(Constants.PAGE_NUMBER)
+        keys.add(Constants.BLOCKED_PUBLISHERS)
 
         values.add(latitude?.toString() ?: "")
         values.add(longitude?.toString() ?: "")
         values.add(stateCode)
         values.add(pageSkip.toString())
+        values.add(Constants.userDetails?.let { Constants.getStringFromList(it.blockedPublishers) })
 
         val allDetails =
             BaseAPICallObject().getBaseObjectWithAuth(
                 Constants.GET,
                 apiUrl,
-                token,
                 keys,
                 values
             )
@@ -197,13 +178,13 @@ class ApiGetFeeds {
         LogDetail.LogD("Data to be Sent -> ", sendingData)
 
         AuthSocket.Instance().postData(sendingData, object : ResponseListener {
-            override fun onSuccess(apiUrl: String?, response: JSONObject?) {
-                LogDetail.LogDE("ApiGetFeeds $apiUrl", response.toString())
+            override fun onSuccess(apiUrl: String, response: String) {
+                LogDetail.LogDE("ApiGetFeeds $apiUrl", response)
 
                 val gson: Gson = GsonBuilder().create()
                 val getFeedsResponseBase: GetFeedsResponse =
                     gson.fromJson(
-                        response.toString(),
+                        response,
                         object : TypeToken<GetFeedsResponse>() {}.type
                     )
                 val getFeedsResponse: Response<GetFeedsResponse> =
@@ -214,15 +195,6 @@ class ApiGetFeeds {
                     getFeedsResponse.raw().request.url.toString(),
                     getFeedsResponse.raw().sentRequestAtMillis
                 )
-
-            }
-
-            override fun onSuccess(apiUrl: String?, response: JSONArray?) {
-                LogDetail.LogDE("ApiGetFeeds $apiUrl", response.toString())
-            }
-
-            override fun onSuccess(apiUrl: String?, response: String?) {
-                LogDetail.LogDE("ApiGetFeeds $apiUrl", response.toString())
             }
 
             override fun onError(call: Call, e: IOException) {
@@ -231,44 +203,9 @@ class ApiGetFeeds {
         })
     }
 
-//    fun getRegionalFeeds(
-//        latitude: Double?,
-//        longitude: Double?,
-//        stateCode: String,
-//        pageSkip: Int,
-//        feedsResponseListener: GetFeedsResponseListener
-//    ) {
-//        APIClient().getApiInterface()
-//            ?.getRegionalFeeds(
-//                spUtil?.getString(Constants.JWT_TOKEN),
-//                latitude,
-//                longitude,
-//                stateCode,
-//                pageSkip
-//            )?.subscribeOn(Schedulers.io())
-//            ?.observeOn(AndroidSchedulers.mainThread())
-//            ?.subscribe(
-//                {
-//                    try {
-//                        feedsResponseListener.onSuccess(
-//                            it.body()!!,
-//                            it.raw().request.url.toString(),
-//                            it.raw().sentRequestAtMillis
-//                        )
-//                    } catch (ex: Exception) {
-//                        ex.printStackTrace()
-//                    }
-//                }, {
-//                    it?.let { error -> handleApiError(error) }
-//                }
-//            )
-//    }
-
 
     fun getFeedsForFirstPostIdEncrypted(
         apiUrl: String,
-        token: String,
-        userId: String?,
         countryCode: String,
         interests: String?,
         languages: String?,
@@ -287,6 +224,7 @@ class ApiGetFeeds {
         keys.add(Constants.FEED_TYPE)
         keys.add(Constants.FIRST_POST_ID)
         keys.add(Constants.POST_SOURCE)
+        keys.add(Constants.BLOCKED_PUBLISHERS)
 
         values.add(
             if (SpUtil.pushIntent!!.hasExtra("country_code")) SpUtil.pushIntent!!.getStringExtra(
@@ -311,9 +249,10 @@ class ApiGetFeeds {
         )
         values.add(SpUtil.pushIntent!!.getStringExtra("post_id"))
         values.add(SpUtil.pushIntent!!.getStringExtra("post_source"))
+        values.add(Constants.userDetails?.let { Constants.getStringFromList(it.blockedPublishers) })
 
         val allDetails =
-            BaseAPICallObject().getBaseObjectWithAuth(Constants.GET, apiUrl, token, keys, values)
+            BaseAPICallObject().getBaseObjectWithAuth(Constants.GET, apiUrl, keys, values)
 
         LogDetail.LogDE("Test Data", allDetails.toString())
         val publicKey = SessionUser.Instance().publicKey
@@ -327,13 +266,13 @@ class ApiGetFeeds {
         ) + "." + publicKey
         LogDetail.LogD("Data to be Sent -> ", sendingData)
         AuthSocket.Instance().postData(sendingData, object : ResponseListener {
-            override fun onSuccess(apiUrl: String?, response: JSONObject?) {
-                LogDetail.LogDE("ApiGetFeeds $apiUrl", response.toString())
+            override fun onSuccess(apiUrl: String, response: String) {
+                LogDetail.LogDE("ApiGetFeeds $apiUrl", response)
 
                 val gson: Gson = GsonBuilder().create()
                 val getFeedsResponseBase: GetFeedsResponse =
                     gson.fromJson(
-                        response.toString(),
+                        response,
                         object : TypeToken<GetFeedsResponse>() {}.type
                     )
                 val getFeedsResponse: Response<GetFeedsResponse> =
@@ -344,15 +283,6 @@ class ApiGetFeeds {
                     getFeedsResponse.raw().request.url.toString(),
                     getFeedsResponse.raw().sentRequestAtMillis
                 )
-
-            }
-
-            override fun onSuccess(apiUrl: String?, response: JSONArray?) {
-                LogDetail.LogDE("ApiGetFeeds $apiUrl", response.toString())
-            }
-
-            override fun onSuccess(apiUrl: String?, response: String?) {
-                LogDetail.LogDE("ApiGetFeeds $apiUrl", response.toString())
             }
 
             override fun onError(call: Call, e: IOException) {
@@ -364,8 +294,6 @@ class ApiGetFeeds {
 
     fun getVideoFeedsEncrypted(
         apiUrl: String,
-        token: String,
-        userId: String?,
         countryCode: String,
         interests: String?,
         languages: String?,
@@ -416,8 +344,6 @@ class ApiGetFeeds {
         if (hasFirstPostId) {
             getVideoFeedsForFirstPostIdEncrypted(
                 apiUrl,
-                token,
-                userId,
                 countryCode,
                 interestsString,
                 languageString,
@@ -438,8 +364,9 @@ class ApiGetFeeds {
             keys.add(Constants.SHORT_VIDEO)
             keys.add(Constants.INTERESTS)
             keys.add(Constants.LANGUAGE)
-            keys.add(Constants.POST_SOURCE)
             keys.add(Constants.FEED_TYPE)
+            keys.add(Constants.POST_SOURCE)
+            keys.add(Constants.BLOCKED_PUBLISHERS)
 
             values.add(countryCode)
             values.add(pageSkip.toString())
@@ -447,14 +374,14 @@ class ApiGetFeeds {
             values.add(shortVideo.toString())
             values.add(interests)
             values.add(languages)
-            values.add(postSource)
             values.add(feedType)
+            values.add(postSource)
+            values.add(Constants.userDetails?.let { Constants.getStringFromList(it.blockedPublishers) })
 
             val allDetails =
                 BaseAPICallObject().getBaseObjectWithAuth(
                     Constants.GET,
                     apiUrl,
-                    token,
                     keys,
                     values
                 )
@@ -471,13 +398,13 @@ class ApiGetFeeds {
             ) + "." + publicKey
             LogDetail.LogD("Data to be Sent -> ", sendingData)
             AuthSocket.Instance().postData(sendingData, object : ResponseListener {
-                override fun onSuccess(apiUrl: String?, response: JSONObject?) {
-                    LogDetail.LogDE("ApiGetFeeds $apiUrl", response.toString())
+                override fun onSuccess(apiUrl: String, response: String) {
+                    LogDetail.LogDE("ApiGetFeeds $apiUrl", response)
 
                     val gson: Gson = GsonBuilder().create()
                     val getFeedsResponseBase: GetFeedsResponse =
                         gson.fromJson(
-                            response.toString(),
+                            response,
                             object : TypeToken<GetFeedsResponse>() {}.type
                         )
                     val getFeedsResponse: Response<GetFeedsResponse> =
@@ -488,15 +415,6 @@ class ApiGetFeeds {
                         getFeedsResponse.raw().request.url.toString(),
                         getFeedsResponse.raw().sentRequestAtMillis
                     )
-
-                }
-
-                override fun onSuccess(apiUrl: String?, response: JSONArray?) {
-                    LogDetail.LogDE("ApiGetFeeds $apiUrl", response.toString())
-                }
-
-                override fun onSuccess(apiUrl: String?, response: String?) {
-                    LogDetail.LogDE("ApiGetFeeds $apiUrl", response.toString())
                 }
 
                 override fun onError(call: Call, e: IOException) {
@@ -509,8 +427,6 @@ class ApiGetFeeds {
 
     fun getVideoFeedsForFirstPostIdEncrypted(
         apiUrl: String,
-        token: String,
-        userId: String?,
         countryCode: String,
         interests: String?,
         languages: String?,
@@ -532,6 +448,7 @@ class ApiGetFeeds {
         keys.add(Constants.FEED_TYPE)
         keys.add(Constants.FIRST_POST_ID)
         keys.add(Constants.POST_SOURCE)
+        keys.add(Constants.BLOCKED_PUBLISHERS)
 
         values.add(
             if (SpUtil.pushIntent!!.hasExtra("country_code")) SpUtil.pushIntent!!.getStringExtra(
@@ -564,9 +481,10 @@ class ApiGetFeeds {
         )
         values.add(SpUtil.pushIntent!!.getStringExtra("post_id"))
         values.add(SpUtil.pushIntent!!.getStringExtra("post_source"))
+        values.add(Constants.userDetails?.let { Constants.getStringFromList(it.blockedPublishers) })
 
         val allDetails =
-            BaseAPICallObject().getBaseObjectWithAuth(Constants.GET, apiUrl, token, keys, values)
+            BaseAPICallObject().getBaseObjectWithAuth(Constants.GET, apiUrl, keys, values)
 
         LogDetail.LogDE("Test Data", allDetails.toString())
         val publicKey = SessionUser.Instance().publicKey
@@ -580,13 +498,13 @@ class ApiGetFeeds {
         ) + "." + publicKey
         LogDetail.LogD("Data to be Sent -> ", sendingData)
         AuthSocket.Instance().postData(sendingData, object : ResponseListener {
-            override fun onSuccess(apiUrl: String?, response: JSONObject?) {
-                LogDetail.LogDE("ApiGetFeeds $apiUrl", response.toString())
+            override fun onSuccess(apiUrl: String, response: String) {
+                LogDetail.LogDE("ApiGetFeeds $apiUrl", response)
 
                 val gson: Gson = GsonBuilder().create()
                 val getFeedsResponseBase: GetFeedsResponse =
                     gson.fromJson(
-                        response.toString(),
+                        response,
                         object : TypeToken<GetFeedsResponse>() {}.type
                     )
                 val getFeedsResponse: Response<GetFeedsResponse> =
@@ -597,15 +515,6 @@ class ApiGetFeeds {
                     getFeedsResponse.raw().request.url.toString(),
                     getFeedsResponse.raw().sentRequestAtMillis
                 )
-
-            }
-
-            override fun onSuccess(apiUrl: String?, response: JSONArray?) {
-                LogDetail.LogDE("ApiGetFeeds $apiUrl", response.toString())
-            }
-
-            override fun onSuccess(apiUrl: String?, response: String?) {
-                LogDetail.LogDE("ApiGetFeeds $apiUrl", response.toString())
             }
 
             override fun onError(call: Call, e: IOException) {
@@ -621,7 +530,7 @@ class ApiGetFeeds {
      */
     private fun handleApiError(throwable: Throwable) {
         throwable.message?.let {
-            Log.e(ApiCreateOrUpdateUser::class.java.simpleName, "handleApiError: $it")
+            LogDetail.LogDE(ApiCreateOrUpdateUser::class.java.simpleName, "handleApiError: $it")
         }
     }
 

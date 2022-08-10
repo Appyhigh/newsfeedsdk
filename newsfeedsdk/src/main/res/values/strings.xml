@@ -112,4 +112,12 @@
     <string name="make_feed">Create Interest Feed</string>
     <string name="gurgaon">Gurgaon</string>
     <string name="location_msg">Select Location</string>
+    <string name="report_1">It’s fake, false information or spam</string>
+    <string name="report_2">Nudity or obscene content</string>
+    <string name="report_3">Violent or triggers hate</string>
+    <string name="report_4">Intellectual property violation</string>
+    <string name="others">Others</string>
+    <string name="blocked_publishers">Blocked Publishers</string>
+    <string name="feed_language">Feed Language</string>
+    <string name="interest">Interest</string>
 </resources>

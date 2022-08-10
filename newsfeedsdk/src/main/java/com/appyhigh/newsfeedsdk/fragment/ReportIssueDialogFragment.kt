@@ -1,15 +1,12 @@
 package com.appyhigh.newsfeedsdk.fragment
 
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.view.WindowManager
 import android.widget.Toast
 import androidx.fragment.app.DialogFragment
-import com.appyhigh.newsfeedsdk.Constants
-import com.appyhigh.newsfeedsdk.FeedSdk
 import com.appyhigh.newsfeedsdk.adapter.FeedReportIssueAdapter
 import com.appyhigh.newsfeedsdk.adapter.FeedReportIssueListener
 import com.appyhigh.newsfeedsdk.adapter.FeedReportIssueModel
@@ -112,18 +109,15 @@ class ReportIssueDialogFragment: DialogFragment() {
                         ","+item!!.interests!![i]
                     }
                 }
-                FeedSdk.spUtil?.getString(Constants.JWT_TOKEN)?.let { it1 ->
-                    ApiReportIssues().reportIssuesEncrypted(
-                        Endpoints.REPORT_ISSUES_ENCRYPTED,
-                        it1,
-                        ReportIssueModel(postId, interestsString, item!!.feedType, pageNo, item!!.languageString, item!!.postSource, issueSelected, additionalComments),
-                        object : ApiReportIssueListener {
-                            override fun onSuccess() {
-                                dismiss()
-                            }
+                ApiReportIssues().reportIssuesEncrypted(
+                    Endpoints.REPORT_ISSUES_ENCRYPTED,
+                    ReportIssueModel(postId, interestsString, item!!.feedType, pageNo, item!!.languageString, item!!.postSource, issueSelected, additionalComments),
+                    object : ApiReportIssueListener {
+                        override fun onSuccess() {
+                            dismiss()
+                        }
 
-                        })
-                }
+                    })
             }
         }
     }

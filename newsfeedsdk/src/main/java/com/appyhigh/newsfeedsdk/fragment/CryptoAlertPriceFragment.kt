@@ -1,20 +1,18 @@
 package com.appyhigh.newsfeedsdk.fragment
 
 import android.os.Bundle
-import android.os.Handler
-import android.os.Looper
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 import com.appyhigh.newsfeedsdk.Constants
-import com.appyhigh.newsfeedsdk.FeedSdk
 import com.appyhigh.newsfeedsdk.R
 import com.appyhigh.newsfeedsdk.apicalls.ApiCrypto
 import com.appyhigh.newsfeedsdk.apiclient.Endpoints
 import com.appyhigh.newsfeedsdk.callbacks.NumberKeyboardListener
 import com.appyhigh.newsfeedsdk.databinding.FragmentCryptoAlertPriceBinding
+import com.appyhigh.newsfeedsdk.encryption.LogDetail
 import com.appyhigh.newsfeedsdk.model.feeds.Card
 import com.appyhigh.newsfeedsdk.model.feeds.Item
 import com.appyhigh.newsfeedsdk.utils.SpUtil
@@ -61,21 +59,18 @@ class CryptoAlertPriceFragment : Fragment() {
         if(currPrice!=null){
             binding.currPrice.text = Constants.getCryptoCoinSymbol()+ BigDecimal(currPrice!!).setScale(2, RoundingMode.HALF_EVEN)
         } else{
-            FeedSdk.spUtil?.getString(Constants.JWT_TOKEN)?.let {
-                ApiCrypto().getCryptoCoinDetailsEncrypted(
-                    Endpoints.GET_CRYPTO_COIN_DETAILS_ENCRYPTED,
-                    it,
-                    coinId, null, null, null, null, object : ApiCrypto.CryptoResponseListener{
-                        override fun onSuccess(cryptoResponse: ApiCrypto.CryptoResponse, url: String, timeStamp: Long) {
-                            try{
-                                currPrice = cryptoResponse.cards[0].items[0].current_price
-                                binding.currPrice.text = Constants.getCryptoCoinSymbol()+ BigDecimal(currPrice!!).setScale(2, RoundingMode.HALF_EVEN)
-                            } catch (ex:Exception){
-                                ex.printStackTrace()
-                            }
+            ApiCrypto().getCryptoCoinDetailsEncrypted(
+                Endpoints.GET_CRYPTO_COIN_DETAILS_ENCRYPTED,
+                coinId, null, null, null, null, object : ApiCrypto.CryptoResponseListener{
+                    override fun onSuccess(cryptoResponse: ApiCrypto.CryptoResponse, url: String, timeStamp: Long) {
+                        try{
+                            currPrice = cryptoResponse.cards[0].items[0].current_price
+                            binding.currPrice.text = Constants.getCryptoCoinSymbol()+ BigDecimal(currPrice!!).setScale(2, RoundingMode.HALF_EVEN)
+                        } catch (ex:Exception){
+                            LogDetail.LogEStack(ex)
                         }
-                    })
-            }
+                    }
+                })
         }
         binding.cryptoPriceAlert.setOnClickListener {
             try{
@@ -83,7 +78,7 @@ class CryptoAlertPriceFragment : Fragment() {
                     return@setOnClickListener
                 }
             } catch (ex: Exception){
-                ex.printStackTrace()
+                LogDetail.LogEStack(ex)
             }
             binding.cryptoPriceAlert.visibility = View.GONE
             binding.priceSaving.visibility = View.VISIBLE
@@ -96,25 +91,23 @@ class CryptoAlertPriceFragment : Fragment() {
                     lowerThreshold = binding.editPrice.text.toString().toDouble()
                 }
             } catch (ex:Exception){
-                ex.printStackTrace()
+                LogDetail.LogEStack(ex)
                 binding.cryptoPriceAlert.visibility = View.VISIBLE
                 binding.priceSaving.visibility = View.GONE
                 return@setOnClickListener
             }
-            FeedSdk.spUtil?.getString(Constants.JWT_TOKEN)?.let { it1 ->
-                ApiCrypto().addCryptoAlertEncrypted(
-                    Endpoints.CRYPTO_ALERT_ADD_ENCRYPTED,
-                    it1,
-                    coinId, upperThreshold, lowerThreshold, object : ApiCrypto.CryptoAlertResponseListener{
-                        override fun onSuccess() {
-                            parentFragmentManager.popBackStackImmediate(null, FragmentManager.POP_BACK_STACK_INCLUSIVE);
-                            parentFragmentManager.beginTransaction()
-                                .add(R.id.baseFragment, CryptoAlertListFragment.newInstance())
-                                .disallowAddToBackStack()
-                                .commit()
-                        }
-                    })
-            }
+            ApiCrypto().addCryptoAlertEncrypted(
+                Endpoints.CRYPTO_ALERT_ADD_ENCRYPTED,
+                coinId, upperThreshold, lowerThreshold, object : ApiCrypto.CryptoAlertResponseListener{
+                    override fun onSuccess() {
+                        val parentManager = parentFragmentManager
+                        parentManager.popBackStackImmediate(null, FragmentManager.POP_BACK_STACK_INCLUSIVE);
+                        parentManager.beginTransaction()
+                            .add(R.id.baseFragment, CryptoAlertListFragment.newInstance())
+                            .disallowAddToBackStack()
+                            .commit()
+                    }
+                })
         }
         binding.numPad.setListener(object : NumberKeyboardListener{
             override fun onResult(value: String, cursorAt: Int) {
@@ -126,7 +119,7 @@ class CryptoAlertPriceFragment : Fragment() {
                         binding.thresholdIcon.setImageResource(R.drawable.ic_crypto_alert_lower_threshold)
                     }
                 } catch (ex:Exception){
-                    ex.printStackTrace()
+                    LogDetail.LogEStack(ex)
                 }
             }
         })

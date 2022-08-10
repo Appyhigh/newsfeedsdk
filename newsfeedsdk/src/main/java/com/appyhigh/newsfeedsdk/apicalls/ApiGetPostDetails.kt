@@ -1,26 +1,16 @@
 package com.appyhigh.newsfeedsdk.apicalls
 
-import android.util.Log
 import com.appyhigh.newsfeedsdk.Constants
-import com.appyhigh.newsfeedsdk.apiclient.APIClient
 import com.appyhigh.newsfeedsdk.encryption.AESCBCPKCS5Encryption
 import com.appyhigh.newsfeedsdk.encryption.AuthSocket
 import com.appyhigh.newsfeedsdk.encryption.LogDetail
 import com.appyhigh.newsfeedsdk.encryption.SessionUser
-import com.appyhigh.newsfeedsdk.model.FeedReactionRequest
-import com.appyhigh.newsfeedsdk.model.FeedResponseModel
 import com.appyhigh.newsfeedsdk.model.PostDetailsModel
-import com.appyhigh.newsfeedsdk.model.UserResponse
-import com.appyhigh.newsfeedsdk.model.feeds.GetFeedsResponse
 import com.appyhigh.newsfeedsdk.utils.SpUtil
 import com.google.common.reflect.TypeToken
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
-import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
-import io.reactivex.rxjava3.schedulers.Schedulers
 import okhttp3.Call
-import org.json.JSONArray
-import org.json.JSONObject
 import retrofit2.Response
 import java.io.IOException
 import java.nio.charset.StandardCharsets
@@ -29,8 +19,6 @@ class ApiGetPostDetails {
     private var spUtil = SpUtil.spUtilInstance
     fun getPostDetailsEncrypted(
         apiUrl: String,
-        token: String,
-        userId: String?,
         postId: String,
         postSource: String,
         feedType: String,
@@ -54,7 +42,6 @@ class ApiGetPostDetails {
             BaseAPICallObject().getBaseObjectWithAuth(
                 Constants.GET,
                 apiUrl,
-                token,
                 keys,
                 values
             )
@@ -71,7 +58,7 @@ class ApiGetPostDetails {
         LogDetail.LogD("Data to be Sent -> ", sendingData)
 
         AuthSocket.Instance().postData(sendingData, object : ResponseListener {
-            override fun onSuccess(apiUrl: String?, response: JSONObject?) {
+            override fun onSuccess(apiUrl: String, response: String) {
                 LogDetail.LogDE("ApiGetPostDetails $apiUrl", response.toString())
 
                 val gson: Gson = GsonBuilder().create()
@@ -90,17 +77,8 @@ class ApiGetPostDetails {
                         postDetailsModel.raw().sentRequestAtMillis
                     )
                 } catch (e: Exception) {
-                    e.printStackTrace()
+                    LogDetail.LogEStack(e)
                 }
-
-            }
-
-            override fun onSuccess(apiUrl: String?, response: JSONArray?) {
-                LogDetail.LogDE("ApiGetPostDetails $apiUrl", response.toString())
-            }
-
-            override fun onSuccess(apiUrl: String?, response: String?) {
-                LogDetail.LogDE("ApiGetPostDetails $apiUrl", response.toString())
             }
 
             override fun onError(call: Call, e: IOException) {
@@ -116,7 +94,7 @@ class ApiGetPostDetails {
      */
     private fun handleApiError(throwable: Throwable) {
         throwable.message?.let {
-            Log.e(ApiCreateOrUpdateUser::class.java.simpleName, "handleApiError: $it")
+            LogDetail.LogDE(ApiCreateOrUpdateUser::class.java.simpleName, "handleApiError: $it")
         }
     }
 

@@ -6,10 +6,8 @@ import android.graphics.Color
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
-import android.util.Log
 import android.view.OrientationEventListener
 import android.view.View
-import android.webkit.ValueCallback
 import android.webkit.WebView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.coordinatorlayout.widget.CoordinatorLayout
@@ -30,6 +28,7 @@ import com.appyhigh.newsfeedsdk.apiclient.Endpoints
 import com.appyhigh.newsfeedsdk.callbacks.OnRefreshListener
 import com.appyhigh.newsfeedsdk.callbacks.TabSelectedListener
 import com.appyhigh.newsfeedsdk.databinding.ActivityCryptoCoinDetailsBinding
+import com.appyhigh.newsfeedsdk.encryption.LogDetail
 import com.appyhigh.newsfeedsdk.fragment.ChartFragment
 import com.appyhigh.newsfeedsdk.fragment.CryptoCoinFragment
 import com.appyhigh.newsfeedsdk.model.crypto.CryptoFinderResponse
@@ -47,7 +46,6 @@ import com.github.mikephil.charting.data.LineData
 import com.github.mikephil.charting.data.LineDataSet
 import com.github.mikephil.charting.interfaces.datasets.ILineDataSet
 import com.google.android.material.appbar.AppBarLayout
-import java.lang.String.valueOf
 import java.math.BigDecimal
 import java.math.RoundingMode
 import java.sql.Timestamp
@@ -153,36 +151,33 @@ class CryptoCoinDetailsActivity : AppCompatActivity() {
 
             }
         )
-        FeedSdk.spUtil?.getString(Constants.JWT_TOKEN)?.let {
-            ApiCrypto().getCryptoCoinDetailsEncrypted(
-                Endpoints.GET_CRYPTO_COIN_DETAILS_ENCRYPTED,
-                it,
-                coinId,
-                null,
-                null,
-                null, feedType, object : ApiCrypto.CryptoResponseListener {
-                    override fun onSuccess(
-                        cryptoResponse: ApiCrypto.CryptoResponse,
-                        url: String,
-                        timeStamp: Long
-                    ) {
-                        cards = cryptoResponse.cards as ArrayList<Card>
-                        for (i in cards.indices) {
-                            setData(cards[i], i)
-                        }
-                        binding!!.pbLoading.visibility = View.GONE
-                        listener?.onRefreshNeeded()
-                        binding!!.mainLayout.visibility = View.VISIBLE
+        ApiCrypto().getCryptoCoinDetailsEncrypted(
+            Endpoints.GET_CRYPTO_COIN_DETAILS_ENCRYPTED,
+            coinId,
+            null,
+            null,
+            null, feedType, object : ApiCrypto.CryptoResponseListener {
+                override fun onSuccess(
+                    cryptoResponse: ApiCrypto.CryptoResponse,
+                    url: String,
+                    timeStamp: Long
+                ) {
+                    cards = cryptoResponse.cards as ArrayList<Card>
+                    for (i in cards.indices) {
+                        setData(cards[i], i)
                     }
+                    binding!!.pbLoading.visibility = View.GONE
+                    listener?.onRefreshNeeded()
+                    binding!!.mainLayout.visibility = View.VISIBLE
                 }
-            )
-        }
+            }
+        )
     }
 
     fun setData(card: Card, position: Int) {
         try {
             val myFormatter = DecimalFormat("#,##,###.##")
-            Log.d("CARD_ITEMS", card.toString())
+            LogDetail.LogD("CARD_ITEMS", card.toString())
             when (card.cardType) {
                 "coin_title" -> {
                     binding!!.coinId.text = card.items[0].coinName
@@ -212,12 +207,9 @@ class CryptoCoinDetailsActivity : AppCompatActivity() {
                             )
                             Constants.cryptoWatchListMap[coinId] = coinId
                         }
-                        FeedSdk.spUtil?.getString(Constants.JWT_TOKEN)?.let { it1 ->
-                            ApiCreateOrUpdateUser().updateCryptoWatchlistEncrypted(
-                                Endpoints.UPDATE_USER_ENCRYPTED,
-                                it1
-                            )
-                        }
+                        ApiCreateOrUpdateUser().updateCryptoWatchlistEncrypted(
+                            Endpoints.UPDATE_USER_ENCRYPTED
+                        )
                         listener?.onRefreshNeeded()
                     }
                     val cryptoValue =
@@ -316,7 +308,7 @@ class CryptoCoinDetailsActivity : AppCompatActivity() {
                 }
             }
         } catch (ex: Exception) {
-            ex.printStackTrace()
+            LogDetail.LogEStack(ex)
         }
     }
 
@@ -336,7 +328,7 @@ class CryptoCoinDetailsActivity : AppCompatActivity() {
                 setNewChartData(interval)
             }
         } catch (ex:Exception){
-            ex.printStackTrace()
+            LogDetail.LogEStack(ex)
         }
     }
 
@@ -355,32 +347,29 @@ class CryptoCoinDetailsActivity : AppCompatActivity() {
             5 -> end-(365*day)
             else -> 1329004800 //12 Feb 2012
         }
-        FeedSdk.spUtil?.getString(Constants.JWT_TOKEN)?.let {
-            ApiCrypto().getCryptoCoinDetailsEncrypted(
-                Endpoints.GET_CRYPTO_COIN_DETAILS_ENCRYPTED,
-                it,
-                coinId,
-                null,
-                start,
-                end, feedType,  object : ApiCrypto.CryptoResponseListener {
-                    override fun onSuccess(
-                        cryptoResponse: ApiCrypto.CryptoResponse,
-                        url: String,
-                        timeStamp: Long
-                    ) {
-                        try{
-                            val cards = cryptoResponse.cards
-                            if(cards.size>1){
-                                setNativeChartData(binding!!.nativeChart, cards[1].items[0].timestamps as ArrayList<String>, cards[1].items[0].prices as ArrayList<Double>, position)
-                            }
-                            SpUtil.cryptoEventsListener?.onCoinDetailDateChanged(coinId, graphTabs[position].value!!)
-                        } catch (ex:Exception){
-                            ex.printStackTrace()
+        ApiCrypto().getCryptoCoinDetailsEncrypted(
+            Endpoints.GET_CRYPTO_COIN_DETAILS_ENCRYPTED,
+            coinId,
+            null,
+            start,
+            end, feedType,  object : ApiCrypto.CryptoResponseListener {
+                override fun onSuccess(
+                    cryptoResponse: ApiCrypto.CryptoResponse,
+                    url: String,
+                    timeStamp: Long
+                ) {
+                    try{
+                        val cards = cryptoResponse.cards
+                        if(cards.size>1){
+                            setNativeChartData(binding!!.nativeChart, cards[1].items[0].timestamps as ArrayList<String>, cards[1].items[0].prices as ArrayList<Double>, position)
                         }
+                        SpUtil.cryptoEventsListener?.onCoinDetailDateChanged(coinId, graphTabs[position].value!!)
+                    } catch (ex:Exception){
+                        LogDetail.LogEStack(ex)
                     }
                 }
-            )
-        }
+            }
+        )
     }
 
     private fun setNativeChartData(chart: LineChart, xList: ArrayList<String>, yList: ArrayList<Double>, type: Int) {
@@ -436,8 +425,8 @@ class CryptoCoinDetailsActivity : AppCompatActivity() {
 
     private fun setNewChartData(interval: String) {
         val html = HtmlHelper.getSmallScreenHtml(coinSymbol, interval, FeedSdk.sdkTheme)
-        Log.d("COIN_ID", coinSymbol)
-        Log.d("HTML_SCRIPT", html)
+        LogDetail.LogD("COIN_ID", coinSymbol)
+        LogDetail.LogD("HTML_SCRIPT", html)
         chartView.loadDataWithBaseURL(null, html, "text/html", "utf-8", null)
         binding!!.chartLayout.visibility = View.VISIBLE
     }

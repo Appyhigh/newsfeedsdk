@@ -2,9 +2,9 @@ package com.appyhigh.newsfeedsdk.utils
 
 import android.os.Build
 import android.util.Base64
-import android.util.Log
 import com.appyhigh.newsfeedsdk.BuildConfig
 import com.appyhigh.newsfeedsdk.Constants
+import com.appyhigh.newsfeedsdk.encryption.LogDetail
 import io.jsonwebtoken.Jwts
 import io.jsonwebtoken.SignatureAlgorithm
 import java.security.GeneralSecurityException
@@ -49,7 +49,7 @@ object StickyRSAKeyGenerator {
             prevJwt = spUtilInstance.getString(Constants.SEARCH_STICKY_JWT_TOKEN, "")
         }
         val timeOutInMinutes = 50
-        Log.d(
+        LogDetail.LogD(
             "456__",
             "prevIAT " + prevIAT + " nowActual " + nowMillis + " diff " + (nowMillis - prevIAT)
         )
@@ -58,10 +58,10 @@ object StickyRSAKeyGenerator {
             try {
                 privateKey = StickyRSAKeyGenerator.searchStickyPrivateKey
             } catch (e: GeneralSecurityException) {
-                e.printStackTrace()
+                LogDetail.LogEStack(e)
             }
             val jws = Jwts.builder()
-                .claim("sdk_version", 1005)
+                .claim("sdk_version", 1008)
                 .claim("app_id", appId)
                 .claim("user_id", userId)
                 .claim("os_type", Constants.OS_PLATFORM)
@@ -75,7 +75,7 @@ object StickyRSAKeyGenerator {
                 .setExpiration(exp)
                 .signWith(privateKey, SignatureAlgorithm.RS256)
                 .compact()
-            Log.d(TAG, jws)
+            LogDetail.LogD(TAG, jws)
             if (spUtilInstance != null) {
                 spUtilInstance.putString(Constants.SEARCH_STICKY_JWT_TOKEN, jws)
                 spUtilInstance.putLong(Constants.SEARCH_STICKY_IAT, nowMillis)
@@ -83,7 +83,7 @@ object StickyRSAKeyGenerator {
             jws
         } else {
             prevJwt?.let {
-                Log.d(TAG, prevJwt)
+                LogDetail.LogD(TAG, prevJwt)
             }
             prevJwt
         }

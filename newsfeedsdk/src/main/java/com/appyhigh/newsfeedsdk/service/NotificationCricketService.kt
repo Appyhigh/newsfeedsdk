@@ -10,7 +10,6 @@ import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.os.Build
 import android.os.IBinder
-import android.util.Log
 import android.view.View
 import android.webkit.URLUtil.isValidUrl
 import android.widget.RemoteViews
@@ -20,6 +19,7 @@ import com.appyhigh.newsfeedsdk.Constants
 import com.appyhigh.newsfeedsdk.FeedSdk
 import com.appyhigh.newsfeedsdk.R
 import com.appyhigh.newsfeedsdk.activity.PWAMatchScoreActivity
+import com.appyhigh.newsfeedsdk.encryption.LogDetail
 import com.appyhigh.newsfeedsdk.utils.SocketConnection
 import com.appyhigh.newsfeedsdk.utils.SocketConnection.SocketClientCallback
 import com.appyhigh.newsfeedsdk.utils.SocketConnection.initSocketConnection
@@ -35,7 +35,6 @@ import org.json.JSONObject
 import java.net.HttpURLConnection
 import java.net.URL
 import java.util.*
-import kotlin.collections.HashMap
 
 
 class NotificationCricketService  : Service(){
@@ -76,7 +75,7 @@ class NotificationCricketService  : Service(){
                                         setNotification(data)
                                     }
                                 } catch (ex:Exception){
-                                    ex.printStackTrace()
+                                    LogDetail.LogEStack(ex)
                                 }
 
                             }
@@ -88,7 +87,7 @@ class NotificationCricketService  : Service(){
                 if (!isSocketConnected())
                     initSocketConnection()
             } catch (e: java.lang.Exception) {
-                e.printStackTrace()
+                LogDetail.LogEStack(e)
             }
             // add actions here !
             val intentFilter = IntentFilter()
@@ -112,7 +111,7 @@ class NotificationCricketService  : Service(){
             this@NotificationCricketService.registerReceiver(receiver, intentFilter)
         }
         catch (e: java.lang.Exception){
-            e.printStackTrace()
+            LogDetail.LogEStack(e)
             stopSelf()
         }
     }
@@ -129,7 +128,7 @@ class NotificationCricketService  : Service(){
                     NotificationManager::class.java
             )
             manager.createNotificationChannel(serviceChannel)
-            Log.d("TAG", "createNotificationChannel: ")
+            LogDetail.LogD("TAG", "createNotificationChannel: ")
         }
         val notification: Notification = NotificationCompat.Builder(this, channelID)
                 .setContentTitle("")
@@ -150,7 +149,7 @@ class NotificationCricketService  : Service(){
                     }
                 }
             }
-            Log.d("TAG", "onStartCommand: " + intent?.action)
+            LogDetail.LogD("TAG", "onStartCommand: " + intent?.action)
             when {
                 intent?.action!! == Constants.ACTION.STOPFOREGROUND.toString() -> {
                     SocketConnection.closeSocketConnection()
@@ -173,7 +172,7 @@ class NotificationCricketService  : Service(){
                 }
             }
         } catch (ex: Exception){
-            ex.printStackTrace()
+            LogDetail.LogEStack(ex)
         }
         return START_NOT_STICKY
     }
@@ -181,8 +180,8 @@ class NotificationCricketService  : Service(){
     fun setNotification(
             liveScore: JSONObject
     ) {
-        Log.d("SocketConnection", "getLiveScore: " + liveScore.toString())
-        Log.d("SocketConnection", "getLiveScore: " + notificationIds.get(liveScore.getString("filename")))
+        LogDetail.LogD("SocketConnection", "getLiveScore: " + liveScore.toString())
+        LogDetail.LogD("SocketConnection", "getLiveScore: " + notificationIds.get(liveScore.getString("filename")))
         var firstTeamLogo = "";
         var secondTeamLogo = "";
         var contentTitle = NotificationCricketService::class.java.simpleName
@@ -333,7 +332,7 @@ class NotificationCricketService  : Service(){
                     .signature(ObjectKey(key))
                     .into(secondTeamNotificationTarget)
         } catch (ex: Exception){
-            ex.printStackTrace()
+            LogDetail.LogEStack(ex)
             remoteView.setViewVisibility(R.id.firstTeamLogo, View.GONE)
             remoteView.setViewVisibility(R.id.secondTeamLogo, View.GONE)
         }
@@ -387,7 +386,7 @@ class NotificationCricketService  : Service(){
             bitmap = BitmapFactory.decodeStream(input)
             return bitmap
         } catch (e: Exception) {
-            Log.d("SocketConnection", "getBitmapfromUrl: $e")
+            LogDetail.LogD("SocketConnection", "getBitmapfromUrl: $e")
             return bitmap
         }
     }

@@ -20,15 +20,16 @@ import com.appyhigh.newsfeedsdk.R
 import com.appyhigh.newsfeedsdk.adapter.ChangeLocationAdapter
 import com.appyhigh.newsfeedsdk.apicalls.ApiExplore
 import com.appyhigh.newsfeedsdk.apicalls.ApiUpdateUserPersonalization
+import com.appyhigh.newsfeedsdk.apiclient.Endpoints
 import com.appyhigh.newsfeedsdk.callbacks.LocationClickListener
 import com.appyhigh.newsfeedsdk.databinding.LayoutSelectLocationBinding
+import com.appyhigh.newsfeedsdk.encryption.LogDetail
 import com.appyhigh.newsfeedsdk.model.StateListResponse
 import com.appyhigh.newsfeedsdk.model.feeds.Card
 import com.appyhigh.newsfeedsdk.utils.SpUtil
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
-import kotlin.collections.ArrayList
 
 const val LOCATION_DEF = "location_def"
 
@@ -74,7 +75,8 @@ class ChangeLocationBottomSheet : BottomSheetDialogFragment() {
         Constants.setFontFamily(etSearch)
         Card.setFontFamily(binding?.currLocation)
         if(Constants.stateMap.isEmpty()){
-            ApiExplore().getStateList(
+            ApiExplore().getStateListEncrypted(
+                Endpoints.GET_STATE_LIST_ENCRYPTED,
                 object : ApiExplore.StateResponseListener{
                     override fun onSuccess(response: StateListResponse, url: String, timeStamp: Long) {
                         response.cards[0].items.forEach {
@@ -91,62 +93,69 @@ class ChangeLocationBottomSheet : BottomSheetDialogFragment() {
     }
 
     private fun setData(){
-        binding?.progressLayout?.visibility = View.GONE
-        tvCurrLocation?.visibility = View.VISIBLE
-        val statesList = Constants.stateMap.keys.toList() as ArrayList<String>
-        var list = ArrayList<String>()
-        list.addAll(statesList)
-        if(currLocation.isNotEmpty()){
-            try{
-                tvCurrLocation?.text = currLocation
-                list.remove(currLocation)
-            } catch (ex:Exception){
-                ex.printStackTrace()
-            }
-        } else {
-            tvCurrLocation?.text = getString(R.string.location_msg)
-        }
-        rvAdapter = ChangeLocationAdapter(
-            list,
-            object : LocationClickListener {
-                override fun onLocationClicked(v: View, position: Int) {
-                    isChanged = true
-                    currLocation = list[position]
+        try{
+            binding?.progressLayout?.visibility = View.GONE
+            tvCurrLocation?.visibility = View.VISIBLE
+            val statesList = Constants.stateMap.keys.toList() as ArrayList<String>
+            var list = ArrayList<String>()
+            list.addAll(statesList)
+            if(currLocation.isNotEmpty()){
+                try{
                     tvCurrLocation?.text = currLocation
-                    list = ArrayList()
-                    list.addAll(statesList)
                     list.remove(currLocation)
-                    rvAdapter?.updateData(list)
+                } catch (ex:Exception){
+                    LogDetail.LogEStack(ex)
                 }
-
+            } else {
+                tvCurrLocation?.text = getString(R.string.location_msg)
             }
-        )
-        rvLocation?.apply {
-            adapter = rvAdapter
-            layoutManager = LinearLayoutManager(requireContext())
-            addItemDecoration(DividerItemDecoration(requireContext(),DividerItemDecoration.VERTICAL))
-        }
-        etSearch?.addTextChangedListener { s ->
-            try {
-                val filteredList = statesList.filter { item ->
-                    item.lowercase().contains(s.toString().lowercase())
-                }
-                list = filteredList as ArrayList<String>
-                if(currLocation.isNotEmpty()){
-                    list.remove(currLocation)
-                }
-                if(filteredList.isEmpty()){
-                    rvLocation!!.visibility = View.GONE
-                    invalidTV?.visibility = View.VISIBLE
-                }else{
-                    rvLocation!!.visibility = View.VISIBLE
-                    invalidTV?.visibility = View.GONE
-                    rvAdapter?.updateData(filteredList)
-                }
+            rvAdapter = ChangeLocationAdapter(
+                list,
+                object : LocationClickListener {
+                    override fun onLocationClicked(v: View, position: Int) {
+                        isChanged = true
+                        currLocation = list[position]
+                        tvCurrLocation?.text = currLocation
+                        list = ArrayList()
+                        list.addAll(statesList)
+                        list.remove(currLocation)
+                        rvAdapter?.updateData(list)
+                    }
 
-            } catch (ex: Exception) {
-                ex.printStackTrace()
+                }
+            )
+            rvLocation?.apply {
+                adapter = rvAdapter
+                layoutManager = LinearLayoutManager(requireContext())
+                addItemDecoration(
+                    DividerItemDecoration(requireContext(),
+                        DividerItemDecoration.VERTICAL)
+                )
             }
+            etSearch?.addTextChangedListener { s ->
+                try {
+                    val filteredList = statesList.filter { item ->
+                        item.lowercase().contains(s.toString().lowercase())
+                    }
+                    list = filteredList as ArrayList<String>
+                    if(currLocation.isNotEmpty()){
+                        list.remove(currLocation)
+                    }
+                    if(filteredList.isEmpty()){
+                        rvLocation!!.visibility = View.GONE
+                        invalidTV?.visibility = View.VISIBLE
+                    }else{
+                        rvLocation!!.visibility = View.VISIBLE
+                        invalidTV?.visibility = View.GONE
+                        rvAdapter?.updateData(filteredList)
+                    }
+
+                } catch (ex: Exception) {
+                    LogDetail.LogEStack(ex)
+                }
+            }
+        } catch (ex:Exception){
+            LogDetail.LogEStack(ex)
         }
     }
 

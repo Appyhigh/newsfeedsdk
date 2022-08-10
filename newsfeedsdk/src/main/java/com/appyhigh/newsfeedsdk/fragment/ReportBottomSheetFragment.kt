@@ -14,8 +14,8 @@ import android.widget.Toast
 import androidx.appcompat.widget.AppCompatButton
 import androidx.appcompat.widget.AppCompatTextView
 import com.appyhigh.newsfeedsdk.Constants
-import com.appyhigh.newsfeedsdk.FeedSdk
 import com.appyhigh.newsfeedsdk.R
+import com.appyhigh.newsfeedsdk.apicalls.ApiConfig
 import com.appyhigh.newsfeedsdk.apicalls.ApiReportPost
 import com.appyhigh.newsfeedsdk.apiclient.Endpoints
 import com.appyhigh.newsfeedsdk.model.feeds.Card
@@ -26,6 +26,7 @@ import com.google.android.material.snackbar.Snackbar
 class ReportBottomSheetFragment : BottomSheetDialogFragment() {
     var reportString = ""
     var postId = ""
+    var radioButton: RadioButton?=null
     private var reportPost: FeedMenuBottomSheetFragment.ReportPost? = null
 
     companion object {
@@ -58,52 +59,33 @@ class ReportBottomSheetFragment : BottomSheetDialogFragment() {
         val goBack = view.findViewById<AppCompatTextView>(R.id.tvGoBack)
         val rgReport = view.findViewById<RadioGroup>(R.id.rgReport)
         val pbSaving = view.findViewById<ProgressBar>(R.id.pbSaving)
-        rgReport.setOnCheckedChangeListener { group, checkedId ->
-            when (checkedId) {
-                R.id.fakeNews -> {
-                    reportString = view.findViewById<RadioButton>(R.id.fakeNews).text.toString()
-                }
-                R.id.violent -> {
-                    reportString = view.findViewById<RadioButton>(R.id.violent).text.toString()
-                }
-                R.id.obscene -> {
-                    reportString = view.findViewById<RadioButton>(R.id.obscene).text.toString()
-                }
-                R.id.other -> {
-                    reportString = view.findViewById<RadioButton>(R.id.other).text.toString()
-                }
-            }
-        }
+        setValues(rgReport)
         goBack.setOnClickListener {
             dismiss()
         }
         btnSave?.setOnClickListener {
             if (reportString.isNotEmpty()) {
-                FeedSdk.spUtil?.getString(Constants.JWT_TOKEN)?.let { it1 ->
-                    ApiReportPost().reportPostEncrypted(
-                        Endpoints.REPORT_POST_ENCRYPTED,
-                        it1,
-                        FeedSdk.userId,
-                        postId,
-                        reportString,
-                        object : ApiReportPost.ReportPostResponseListener {
-                            override fun onSuccess() {
-                                dismiss()
-                                reportPost?.onReportPost()
-                                Snackbar.make(btnSave, "Post Reported!", Snackbar.LENGTH_SHORT).show()
-                            }
+                ApiReportPost().reportPostEncrypted(
+                    Endpoints.REPORT_POST_ENCRYPTED,
+                    postId,
+                    reportString,
+                    object : ApiReportPost.ReportPostResponseListener {
+                        override fun onSuccess() {
+                            dismiss()
+                            reportPost?.onReportPost()
+                            Snackbar.make(btnSave, "Post Reported!", Snackbar.LENGTH_SHORT).show()
+                        }
 
-                            override fun onFailure() {
-                                dismiss()
-                                reportPost?.onReportPost()
-                                Snackbar.make(
-                                    btnSave,
-                                    "Something went wrong,Please Try again later!",
-                                    Snackbar.LENGTH_SHORT
-                                ).show()
-                            }
-                        })
-                }
+                        override fun onFailure() {
+                            dismiss()
+                            reportPost?.onReportPost()
+                            Snackbar.make(
+                                btnSave,
+                                "Something went wrong,Please Try again later!",
+                                Snackbar.LENGTH_SHORT
+                            ).show()
+                        }
+                    })
             } else {
                 Toast.makeText(
                     requireActivity(),
@@ -114,6 +96,28 @@ class ReportBottomSheetFragment : BottomSheetDialogFragment() {
 
         }
         return view
+    }
+
+    private fun setValues(rgReport: RadioGroup){
+        val reports = ApiConfig().getConfigModel(requireContext()).reportPostsText
+        for(i in reports.indices){
+            val itemView = LayoutInflater.from(requireContext()).inflate(R.layout.item_report_bottom_sheet, null)
+            val rbValue = itemView.findViewById<RadioButton>(R.id.rbValue)
+            rbValue.id = View.generateViewId()
+            rbValue.text = reports[i]
+            rbValue.setOnCheckedChangeListener { buttonView, isChecked ->
+                if(isChecked) {
+                    reportString = reports[i]
+                    radioButton?.isChecked = false
+                    radioButton = buttonView as RadioButton?
+                }
+            }
+            Constants.setFontFamily(rbValue)
+            if(i==reports.size-1){
+                itemView.findViewById<View>(R.id.vLine).visibility = View.GONE
+            }
+            rgReport.addView(itemView)
+        }
     }
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
@@ -130,10 +134,6 @@ class ReportBottomSheetFragment : BottomSheetDialogFragment() {
     }
 
     private fun setFonts(view: View?){
-        Card.setFontFamily(view?.findViewById(R.id.fakeNews))
-        Card.setFontFamily(view?.findViewById(R.id.violent))
-        Card.setFontFamily(view?.findViewById(R.id.obscene))
-        Card.setFontFamily(view?.findViewById(R.id.other))
         Card.setFontFamily(view?.findViewById(R.id.btnSave), true)
         Card.setFontFamily(view?.findViewById(R.id.tvGoBack))
     }

@@ -5,10 +5,7 @@ import com.appyhigh.newsfeedsdk.encryption.AESCBCPKCS5Encryption
 import com.appyhigh.newsfeedsdk.encryption.AuthSocket
 import com.appyhigh.newsfeedsdk.encryption.LogDetail
 import com.appyhigh.newsfeedsdk.encryption.SessionUser
-import com.appyhigh.newsfeedsdk.utils.SpUtil
 import okhttp3.Call
-import org.json.JSONArray
-import org.json.JSONObject
 import java.io.IOException
 import java.nio.charset.StandardCharsets
 
@@ -16,8 +13,6 @@ class ApiFollowPublihser {
 
     fun followPublisherEncrypted(
         apiUrl: String,
-        token: String,
-        userId: String?,
         publisherId: String
     ) {
         val keys = ArrayList<String?>()
@@ -27,7 +22,7 @@ class ApiFollowPublihser {
         values.add(publisherId)
 
         val allDetails =
-            BaseAPICallObject().getBaseObjectWithAuth(Constants.POST, apiUrl, token, keys, values)
+            BaseAPICallObject().getBaseObjectWithAuth(Constants.POST, apiUrl, keys, values)
         LogDetail.LogDE("Test Data", allDetails.toString())
         val publicKey = SessionUser.Instance().publicKey
         val instanceEncryption = AESCBCPKCS5Encryption().getInstance(
@@ -41,16 +36,8 @@ class ApiFollowPublihser {
         LogDetail.LogD("Data to be Sent -> ", sendingData)
 
         AuthSocket.Instance().postData(sendingData, object : ResponseListener {
-            override fun onSuccess(apiUrl: String?, response: JSONObject?) {
-                LogDetail.LogDE("ApiFollowPublihser $apiUrl", response.toString())
-            }
-
-            override fun onSuccess(apiUrl: String?, response: JSONArray?) {
-                LogDetail.LogDE("ApiFollowPublihser $apiUrl", response.toString())
-            }
-
-            override fun onSuccess(apiUrl: String?, response: String?) {
-                LogDetail.LogDE("ApiFollowPublihser $apiUrl", response.toString())
+            override fun onSuccess(apiUrl: String, response: String) {
+                LogDetail.LogDE("ApiFollowPublihser $apiUrl", response)
             }
 
             override fun onError(call: Call, e: IOException) {

@@ -3,28 +3,24 @@ package com.appyhigh.newsfeedsdk
 import android.content.Context
 import android.content.ContextWrapper
 import android.content.res.Configuration
-import android.graphics.*
+import android.graphics.Color
+import android.graphics.PorterDuff
+import android.graphics.PorterDuffColorFilter
+import android.graphics.Typeface
 import android.graphics.drawable.Drawable
 import android.net.ConnectivityManager
 import android.net.Uri
 import android.os.Build
 import android.widget.*
 import androidx.annotation.ColorInt
-import androidx.annotation.ColorRes
 import androidx.appcompat.app.AppCompatActivity
-import androidx.appcompat.widget.AppCompatButton
-import androidx.appcompat.widget.AppCompatTextView
 import androidx.core.content.ContextCompat
-import androidx.core.content.ContextCompat.getColor
-import androidx.core.content.res.ResourcesCompat
-import androidx.databinding.BindingAdapter
 import androidx.lifecycle.LifecycleOwner
 import androidx.recyclerview.widget.RecyclerView
 import androidx.viewpager2.widget.ViewPager2
-import com.appyhigh.newsfeedsdk.adapter.CryptoSearchItem
 import com.appyhigh.newsfeedsdk.callbacks.GlideCallbackListener
 import com.appyhigh.newsfeedsdk.callbacks.PWATabSelectedListener
-import com.appyhigh.newsfeedsdk.callbacks.TabSelectedListener
+import com.appyhigh.newsfeedsdk.encryption.LogDetail
 import com.appyhigh.newsfeedsdk.model.*
 import com.appyhigh.newsfeedsdk.model.feeds.Card
 import com.appyhigh.newsfeedsdk.model.feeds.Item
@@ -79,6 +75,7 @@ object Constants {
     const val APP_NAME = "app_name"
     const val FEED_TARGET_ACTIVITY = "feed_target_activity"
     const val FEED_APP_ICON = "feed_app_icon"
+    const val FEED_DEBUGGER = "feeds_debugger"
     const val COUNTRY_CODE = "country_code"
     const val LATITUDE = "lat"
     const val LONGITUDE = "long"
@@ -92,11 +89,30 @@ object Constants {
     const val IS_VIDEO = "is_video"
     const val SHORT_VIDEO = "short_video"
     const val PAGE_NUMBER = "page_number"
+    const val PAGE = "page"
     const val PUBLISHER_ID = "publisher_id"
+    const val PUBLISHER_IDS = "publisher_ids"
     const val LANGUAGE = "language"
     const val FEED_TYPE = "feed_type"
     const val FEED_ID = "feed_id"
+    const val IS_NATIVE = "is_native"
+    const val TRUE = "true"
+    const val COVID_CARD = "covid_card"
+    const val PODCAST_ID = "podcast_id"
+    const val PUSH_SOURCE = "push_source"
+    const val FEEDSDK = "feedsdk"
+    const val WHICH = "which"
+    const val FROM_STICKY = "fromSticky"
+    const val FROM_LIVE_MATCH = "fromLiveMatch"
+    const val SDK_EXPLORE = "SDK://explore"
+    const val SDK_REELS = "SDK://reels"
+    const val SDK_PODCAST_DETAIL = "SDK://podcastDetail"
+    const val SDK_POST_DETAIL = "SDK://feedDetail"
+    const val SDK_CRYPTO_DETAIL = "SDK://cryptoCoinDetail"
+    const val SDK_CRICKET_DETAIL = "SDK://cricketMatchDetail"
     const val POST_SOURCE = "post_source"
+    const val BLOCKED_PUBLISHERS = "blocked_publishers"
+    const val IPL_PUSH = "ipl_push"
     const val STATE = "state"
     const val STATE_CODE = "state_code"
     const val FIRST_POST_ID = "first_post"
@@ -113,11 +129,17 @@ object Constants {
     const val SCREEN_TYPE = "screenType"
     const val FEED = "feed"
     const val EXPLORE = "explore"
+    const val REELS = "reels"
     const val VIDEO_FEED = "videoFeed"
     const val HASHTAG = "hashtag"
     const val ALREADY_EXISTS = "already_exists"
     const val MATCH_TYPE = "match_type"
     const val FILENAME = "filename"
+    const val LAUNCHTYPE = "launchType"
+    const val CRICKET = "cricket"
+    const val MATCHTYPE = "matchType"
+    const val PWA = "pwa"
+    const val MATCHES_MODE = "matchesMode"
     const val TAB = "tab"
     const val INNINGS = "innings"
     const val OVER = "over"
@@ -136,12 +158,12 @@ object Constants {
     var isVideoFromSticky = false
     var videoUnitAdFromSticky = ""
     const val STICKY_NOTIFICATION = "search_sticky_notification"
+    const val STICKY_BG = "sticky_bg"
     const val WEB_PLATFORMS = "search_web_platforms"
     const val IS_STICKY_NOTIFICATION_ON = "is_sticky_notification_on"
     const val IS_STICKY_SERVICE_ON = "is_sticky_service_on"
     const val PLAYER_RANKING_FRAGMENT = 0
     const val POINTS_TABLE_FRAGMENT = 1
-    const val FEED_SDK_CONFIG = "feedSdkConfig"
     const val SOCKET_SERIES = "socket_series"
     const val FEED_NATIVE_AD_INTEVRAL = "feed_native_ad_interval"
     const val WEB_HISTORY = "web_history"
@@ -167,6 +189,7 @@ object Constants {
     const val DEVICE_DETAIL = "deviceDetail"
     const val POST = "POST"
     const val GET = "GET"
+    const val CONFIG_MODEL = "config_model"
 
     var isChecked = true
     var impreesionModel: Impressions? = null
@@ -492,6 +515,19 @@ object Constants {
         }
     }
 
+    fun getStringFromList(arrayList:ArrayList<String>): String?{
+        var res: String = ""
+        for(i in arrayList.indices){
+            res += if(i==arrayList.size-1){
+                arrayList[i]
+            } else{
+                arrayList[i]+","
+            }
+        }
+        return if(res.isEmpty()) null else res
+    }
+
+
     fun getEValueFormat(value: Double, exp: Int): String {
         if (value > 1 && value % 10 == 0.0) {
             return getEValueFormat(value / 10, exp + 1)
@@ -508,7 +544,7 @@ object Constants {
                 formatter.maximumFractionDigits = 25
                 formatter.format(value).toString()
             } catch (ex: java.lang.Exception) {
-                ex.printStackTrace()
+                LogDetail.LogEStack(ex)
                 result
             }
         } else {
@@ -527,7 +563,7 @@ object Constants {
             }
             return formatter.format(value).toString()
         } catch (ex: java.lang.Exception) {
-            ex.printStackTrace()
+            LogDetail.LogEStack(ex)
             return result
         }
     }
@@ -558,7 +594,6 @@ object Constants {
             ).toString() + "K"
         }
     }
-
 
     fun getCryptoCoinSymbol(): String {
         return if (FeedSdk.sdkCountryCode == null || FeedSdk.sdkCountryCode!!.lowercase() == "in") "₹" else "$"
@@ -599,7 +634,7 @@ object Constants {
                 }
             }
         } catch (ex: Exception) {
-            ex.printStackTrace()
+            LogDetail.LogEStack(ex)
         }
         return if (interestsString.isEmpty()) {
             null
@@ -627,7 +662,7 @@ object Constants {
                 view!!.typeface = FeedSdk.font
             }
         } catch (ex: java.lang.Exception) {
-            ex.printStackTrace()
+            LogDetail.LogEStack(ex)
         }
     }
 
@@ -639,7 +674,7 @@ object Constants {
                 view!!.typeface = FeedSdk.font
             }
         } catch (ex: java.lang.Exception) {
-            ex.printStackTrace()
+            LogDetail.LogEStack(ex)
         }
     }
 
@@ -704,7 +739,7 @@ object Constants {
                     .into(view!!)
             }
         } catch (ex: java.lang.Exception) {
-            ex.printStackTrace()
+            LogDetail.LogEStack(ex)
         }
     }
 
@@ -730,7 +765,7 @@ object Constants {
                     toast.show()
                 }
             } catch (ex: Exception) {
-                ex.printStackTrace()
+                LogDetail.LogEStack(ex)
             }
         }
     }
@@ -764,7 +799,7 @@ object Constants {
                 it.colorFilter = PorterDuffColorFilter(color, PorterDuff.Mode.SRC_IN)
             }
         } catch (ex:Exception){
-            ex.printStackTrace()
+            LogDetail.LogEStack(ex)
         }
     }
 

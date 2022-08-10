@@ -13,13 +13,10 @@ import android.content.res.Configuration
 import android.graphics.Bitmap
 import android.graphics.Color
 import android.media.AudioAttributes
-import android.media.AudioFocusRequest
-import android.media.AudioManager
 import android.media.MediaPlayer
 import android.os.Build
 import android.os.Handler
 import android.os.Looper
-import android.util.Log
 import android.view.View
 import android.webkit.URLUtil
 import android.widget.ImageView
@@ -33,12 +30,11 @@ import com.appyhigh.newsfeedsdk.R
 import com.appyhigh.newsfeedsdk.activity.PodcastPlayerActivity
 import com.appyhigh.newsfeedsdk.apicalls.ApiPostImpression
 import com.appyhigh.newsfeedsdk.apiclient.Endpoints
+import com.appyhigh.newsfeedsdk.encryption.LogDetail
 import com.appyhigh.newsfeedsdk.model.PostImpressionsModel
 import com.appyhigh.newsfeedsdk.model.PostView
 import com.bumptech.glide.Glide
-import com.bumptech.glide.request.target.NotificationTarget
 import com.google.gson.Gson
-import java.lang.Exception
 
 class PodcastMediaPlayer {
 
@@ -78,7 +74,7 @@ class PodcastMediaPlayer {
             try{
                 if(mediaPlayer==null || podcastCard.postId!= podcastMediaCard.postId){
                     releasePlayer(context)
-                    Log.d(TAG, "init: $context")
+                    LogDetail.LogD(TAG, "init: $context")
                     podcastListeners[screen] = podcastMediaPlayerListener
                     podcastMediaCard = podcastCard
                     mediaPlayer = MediaPlayer()
@@ -117,7 +113,7 @@ class PodcastMediaPlayer {
                     podcastListeners[screen] = podcastMediaPlayerListener
                 }
             } catch (ex:Exception){
-                ex.printStackTrace()
+                LogDetail.LogEStack(ex)
             }
         }
 
@@ -171,7 +167,7 @@ class PodcastMediaPlayer {
         }
 
         fun releasePlayer(context: Context){
-            Log.d(TAG, "releasePlayer: called")
+            LogDetail.LogD(TAG, "releasePlayer: called")
             try {
                 if(mediaPlayer!=null){
                     storeData(context)
@@ -184,7 +180,7 @@ class PodcastMediaPlayer {
                 podcastMediaCard = PodcastMediaCard()
                 mediaPlayer = null
             } catch (ex:Exception){
-                ex.printStackTrace()
+                LogDetail.LogEStack(ex)
             }
         }
 
@@ -358,13 +354,13 @@ class PodcastMediaPlayer {
                     .setGroup("Podcast Notification")
                     .setGroupSummary(true)
                     .build()
-                Log.d(TAG, "setNotification: image "+podcastCard.imageUrl)
+                LogDetail.LogD(TAG, "setNotification: image "+podcastCard.imageUrl)
                 val notificationManager = context.getSystemService(Service.NOTIFICATION_SERVICE) as NotificationManager
                 notificationManager.notify(NOTIFICATION_ID, notification)
                 serviceRunning = true
             } catch (ex:Exception){
-                ex.printStackTrace()
-                Log.d(TAG, "setNotification: error $context")
+                LogDetail.LogEStack(ex)
+                LogDetail.LogD(TAG, "setNotification: error $context")
                 removeNotification(context)
             }
         }
@@ -374,9 +370,9 @@ class PodcastMediaPlayer {
                 val notificationManager = context.getSystemService(Service.NOTIFICATION_SERVICE) as NotificationManager
                 notificationManager.cancel(NOTIFICATION_ID)
                 serviceRunning = false
-                Log.d(TAG, "removeNotification: ")
+                LogDetail.LogD(TAG, "removeNotification: ")
             } catch (ex:Exception){
-                ex.printStackTrace()
+                LogDetail.LogEStack(ex)
             }
         }
 
@@ -404,7 +400,7 @@ class PodcastMediaPlayer {
                             .load(getPodcastMediaCard().imageUrl)
                             .into(image)
                     } catch (ex:Exception){
-                        ex.printStackTrace()
+                        LogDetail.LogEStack(ex)
                     }
                     if(isPlaying()){
                         playIcon.setImageResource(R.drawable.ic_podcast_pause_white)
@@ -438,7 +434,7 @@ class PodcastMediaPlayer {
                             try {
                                 image.setImageBitmap(getPodcastMediaCard().imageBitmap)
                             } catch (ex:Exception){
-                                ex.printStackTrace()
+                                LogDetail.LogEStack(ex)
                             }
                             playIcon.setImageResource(R.drawable.ic_podcast_pause_white)
                         }
@@ -463,7 +459,7 @@ class PodcastMediaPlayer {
 
                     })
             } catch (ex:java.lang.Exception){
-                ex.printStackTrace()
+                LogDetail.LogEStack(ex)
             }
         }
 
@@ -500,15 +496,12 @@ class PodcastMediaPlayer {
                 val sharedPrefs = context.getSharedPreferences("postImpressions", Context.MODE_PRIVATE)
                 val postImpressionString = gson.toJson(postImpressionsModel)
                 sharedPrefs.edit().putString(podcastMediaCard.postId, postImpressionString).apply()
-                FeedSdk.spUtil?.getString(Constants.JWT_TOKEN)?.let {
-                    ApiPostImpression().addPostImpressionsEncrypted(
-                        Endpoints.POST_IMPRESSIONS_ENCRYPTED,
-                        it,
-                        context
-                    )
-                }
+                ApiPostImpression().addPostImpressionsEncrypted(
+                    Endpoints.POST_IMPRESSIONS_ENCRYPTED,
+                    context
+                )
             } catch (ex:Exception){
-                ex.printStackTrace()
+                LogDetail.LogEStack(ex)
             }
         }
     }

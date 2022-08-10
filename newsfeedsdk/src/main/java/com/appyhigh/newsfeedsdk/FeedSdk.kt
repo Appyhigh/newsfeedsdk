@@ -1,262 +1,70 @@
 package com.appyhigh.newsfeedsdk
 
 import android.annotation.SuppressLint
+import android.app.Activity
 import android.content.Context
 import android.content.Context.CONNECTIVITY_SERVICE
 import android.content.Intent
 import android.content.pm.ApplicationInfo
+import android.content.pm.PackageInfo
 import android.content.pm.PackageManager
 import android.content.res.ColorStateList
 import android.content.res.Configuration
 import android.graphics.Color
+import android.graphics.Typeface
 import android.net.ConnectivityManager
 import android.net.NetworkCapabilities
-import android.provider.Settings
+import android.net.Uri
+import android.os.*
 import android.telephony.TelephonyManager
 import android.util.Log
-import androidx.annotation.RequiresApi
-import androidx.lifecycle.Lifecycle
-import com.appyhigh.newsfeedsdk.Constants.APP_NAME
-import com.appyhigh.newsfeedsdk.Constants.FEED_APP_ICON
-import com.appyhigh.newsfeedsdk.Constants.FEED_TARGET_ACTIVITY
-import com.appyhigh.newsfeedsdk.Constants.IS_STICKY_NOTIFICATION_ON
-import com.appyhigh.newsfeedsdk.Constants.IS_STICKY_SERVICE_ON
-import com.appyhigh.newsfeedsdk.Constants.NEWS_FEED_APP_ID
-import com.appyhigh.newsfeedsdk.Constants.STICKY_NOTIFICATION
-import com.appyhigh.newsfeedsdk.activity.*
-import com.appyhigh.newsfeedsdk.apicalls.*
-import com.appyhigh.newsfeedsdk.callbacks.PersonalizationListener
-import com.appyhigh.newsfeedsdk.model.feeds.Card
-import com.appyhigh.newsfeedsdk.service.NotificationCricketService
-import com.appyhigh.newsfeedsdk.service.StickyNotificationService
-import com.appyhigh.newsfeedsdk.utils.*
-import com.appyhigh.newsfeedsdk.utils.SocketConnection.SocketClientCallback
-import com.appyhigh.newsfeedsdk.utils.SocketConnection.initSocketConnection
-import com.appyhigh.newsfeedsdk.utils.SocketConnection.isSocketConnected
-import com.appyhigh.newsfeedsdk.utils.SocketConnection.isSocketListenersNotificationSet
-import com.appyhigh.newsfeedsdk.utils.SocketConnection.setSocketListenersNotification
-import com.google.firebase.messaging.FirebaseMessaging
-import com.google.firebase.remoteconfig.FirebaseRemoteConfig
-import com.jaredrummler.android.device.DeviceName
-import org.json.JSONObject
-import java.text.SimpleDateFormat
-import java.util.*
-import java.util.concurrent.TimeUnit
-import kotlin.collections.ArrayList
-import android.graphics.Typeface
-import android.os.*
-import android.net.Network
-import android.net.NetworkRequest
-import android.os.Bundle
-import android.os.HandlerThread
 import android.view.LayoutInflater
 import android.view.View
 import android.widget.FrameLayout
 import android.widget.TextView
+import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.appcompat.widget.AppCompatImageView
 import androidx.core.content.ContextCompat
 import androidx.core.provider.FontRequest
 import androidx.core.provider.FontsContractCompat
 import androidx.fragment.app.FragmentManager
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
-import androidx.work.*
-import com.appyhigh.newsfeedsdk.Constants.USER_ID
+import androidx.lifecycle.Lifecycle
+import com.appyhigh.newsfeedsdk.Constants.APP_NAME
+import com.appyhigh.newsfeedsdk.Constants.FEED_APP_ICON
+import com.appyhigh.newsfeedsdk.Constants.FEED_TARGET_ACTIVITY
+import com.appyhigh.newsfeedsdk.Constants.IS_STICKY_NOTIFICATION_ON
+import com.appyhigh.newsfeedsdk.Constants.IS_STICKY_SERVICE_ON
+import com.appyhigh.newsfeedsdk.Constants.STICKY_NOTIFICATION
+import com.appyhigh.newsfeedsdk.Constants.getLifecycleOwner
+import com.appyhigh.newsfeedsdk.activity.*
+import com.appyhigh.newsfeedsdk.apicalls.*
 import com.appyhigh.newsfeedsdk.apiclient.Endpoints
-import com.appyhigh.newsfeedsdk.apiclient.Endpoints.GET_FEEDS_ENCRYPTED
-import com.appyhigh.newsfeedsdk.apiclient.Endpoints.GET_INTERESTS_APPWISE_ENCRYPTED
 import com.appyhigh.newsfeedsdk.apiclient.Endpoints.GET_INTERESTS_ENCRYPTED
 import com.appyhigh.newsfeedsdk.apiclient.Endpoints.GET_LANGUAGES_ENCRYPTED
 import com.appyhigh.newsfeedsdk.apiclient.Endpoints.UPDATE_USER_ENCRYPTED
-import com.appyhigh.newsfeedsdk.apiclient.Endpoints.USER_DETAILS_ENCRYPTED
-import com.appyhigh.newsfeedsdk.encryption.AuthSocket
+import com.appyhigh.newsfeedsdk.callbacks.OnAPISuccess
+import com.appyhigh.newsfeedsdk.callbacks.PersonalizationListener
+import com.appyhigh.newsfeedsdk.callbacks.ShowFeedScreenListener
 import com.appyhigh.newsfeedsdk.encryption.LogDetail
-import com.appyhigh.newsfeedsdk.encryption.SessionUser
-import com.appyhigh.newsfeedsdk.customview.NewsFeedList
 import com.appyhigh.newsfeedsdk.fragment.AddInterestBottomSheet
-import com.appyhigh.newsfeedsdk.model.*
-import com.google.common.reflect.TypeToken
+import com.appyhigh.newsfeedsdk.model.Interest
+import com.appyhigh.newsfeedsdk.model.InterestResponseModel
+import com.appyhigh.newsfeedsdk.model.Language
+import com.appyhigh.newsfeedsdk.model.User
+import com.appyhigh.newsfeedsdk.service.StickyNotificationService
+import com.appyhigh.newsfeedsdk.utils.*
 import com.google.android.material.bottomnavigation.BottomNavigationItemView
 import com.google.android.material.bottomnavigation.BottomNavigationMenuView
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.firebase.analytics.FirebaseAnalytics
-import com.google.gson.Gson
-import com.google.gson.GsonBuilder
-import org.json.JSONArray
-import kotlin.collections.HashMap
+import com.google.firebase.dynamiclinks.FirebaseDynamicLinks
+import com.google.firebase.messaging.FirebaseMessaging
+import com.jaredrummler.android.device.DeviceName
+import java.util.*
 
 class FeedSdk {
     companion object {
-        fun handleIntent(context: Context, intentData: Intent): Boolean {
-            Log.d("cricHouse", "handleIntent: " + intentData.extras.toString())
-            if (intentData.hasExtra("page") && intentData.hasExtra("push_source")
-                && intentData.getStringExtra("push_source") == "feedsdk"
-            ) {
-                when (intentData.getStringExtra("page")) {
-                    "SDK://podcastDetail" -> {
-                        val intent = Intent(context, PodcastPlayerActivity::class.java)
-                        intent.putExtra(Constants.POSITION, 0)
-                        intentData.extras?.let { intent.putExtras(it) }
-                        if (intentData.hasExtra(Constants.POST_ID)) {
-                            context.startActivity(intent)
-                        }
-                    }
-                    "SDK://feedDetail" -> {
-                        val intent =
-                            if (intentData.hasExtra("is_native") && intentData.getStringExtra("is_native") == "true") {
-                                val bundle = Bundle()
-                                bundle.putString("NativePageOpen", "Notfication")
-                                FirebaseAnalytics.getInstance(context)
-                                    .logEvent("NativePage", bundle)
-                                Intent(context, PostNativeDetailActivity::class.java)
-                            } else {
-                                Intent(context, NewsFeedPageActivity::class.java)
-                            }
-                        intent.putExtra(Constants.POSITION, 0)
-                        intent.putExtra(Constants.FROM_APP, true)
-                        intent.putExtra(
-                            Constants.POST_ID,
-                            intentData.getStringExtra("post_id").toString()
-                        )
-                        intentData.extras?.let { intent.putExtras(it) }
-                        context.startActivity(intent)
-                    }
-                    "SDK://cryptoCoinDetail" -> {
-                        val intent = Intent(context, CryptoCoinDetailsActivity::class.java)
-                        intentData.extras?.let { intent.putExtras(it) }
-                        context.startActivity(intent)
-                    }
-                    "SDK://cricketMatchDetail" -> {
-                        val pushIntent = Intent(context, PWAMatchScoreActivity::class.java)
-                        // Need post_source value from intent to store analytics to backend
-                        if (intentData.hasExtra("ipl_push")) {
-                            pushIntent.putExtra(
-                                "post_source",
-                                intentData.getStringExtra("ipl_push")
-                            )
-                        }
-                        intentData.extras?.let { pushIntent.putExtras(it) }
-                        context.startActivity(pushIntent)
-                    }
-                }
-
-            } else if (intentData.hasExtra("podcast_id")) {
-                val intent = Intent(context, PodcastPlayerActivity::class.java)
-                intent.putExtra(Constants.POSITION, 0)
-                intentData.extras?.let { intent.putExtras(it) }
-                intent.putExtra(Constants.POST_ID, intentData.getStringExtra("podcast_id"))
-                intentData.extras?.let { intent.putExtras(it) }
-                context.startActivity(intent)
-            } else if (intentData.hasExtra("filename") && intentData.hasExtra("matchType")) {
-                val pushIntent = Intent(context, PWAMatchScoreActivity::class.java)
-                pushIntent.putExtra("from_app", true)
-                // Need post_source value from intent to store analytics to backend
-                intentData.extras?.let { pushIntent.putExtras(it) }
-                if (intentData.hasExtra("post_source")) {
-                    pushIntent.putExtra("post_source", intentData.getStringExtra("post_source"))
-                } else if (intentData.hasExtra("ipl_push")) {
-                    pushIntent.putExtra("post_source", intentData.getStringExtra("ipl_push"))
-                }
-
-                context.startActivity(pushIntent)
-            } else if (intentData.hasExtra("filename") && intentData.hasExtra("launchType") && intentData.getStringExtra(
-                    "launchType"
-                ) == "cricket"
-            ) {
-                val pushIntent = Intent(context, PWAMatchScoreActivity::class.java)
-                pushIntent.putExtra("from_app", true)
-                pushIntent.putExtra("filename", intentData.getStringExtra("filename"))
-                pushIntent.putExtra("matchType", Constants.LIVE_MATCHES)
-                // Need post_source value from intent to store analytics to backend
-                if (intentData.hasExtra("post_source")) {
-                    pushIntent.putExtra("post_source", intentData.getStringExtra("post_source"))
-                } else if (intentData.hasExtra("ipl_push")) {
-                    pushIntent.putExtra("post_source", intentData.getStringExtra("ipl_push"))
-                }
-                intentData.extras?.let { pushIntent.putExtras(it) }
-                context.startActivity(pushIntent)
-            } else if (intentData.hasExtra("post_id") && intentData.getStringExtra("post_id")!!
-                    .isNotEmpty()
-            ) {
-                val intent =
-                    if (intentData.hasExtra("is_native") && intentData.getStringExtra("is_native") == "true") {
-                        val bundle = Bundle()
-                        bundle.putString("NativePageOpen", "Notfication")
-                        FirebaseAnalytics.getInstance(context).logEvent("NativePage", bundle)
-                        Intent(context, PostNativeDetailActivity::class.java)
-                    } else {
-                        Intent(context, NewsFeedPageActivity::class.java)
-                    }
-                intent.putExtra(Constants.INTEREST, "dynamicUrl") // send interest
-                intent.putExtra(Constants.POSITION, 0)
-                intent.putExtra(Constants.FROM_APP, true)
-                intentData.extras?.let { intent.putExtras(it) }
-                intent.putExtra(Constants.POST_ID, intentData.getStringExtra("post_id").toString())
-                intentData.extras?.let { intent.putExtras(it) }
-                context.startActivity(intent)
-            } else if (intentData.hasExtra("push_source") && (intentData.getStringExtra("push_source") == "feedsdk") && intentData.hasExtra(
-                    "which"
-                )
-            ) {
-                Log.i("Result", "Got the data " + intentData.getStringExtra("which"))
-                val which: String = intentData.getStringExtra("which").toString()
-                if (which.equals("L", ignoreCase = true)) {
-                    try {
-                        if (intentData.hasExtra("post_id")) {
-                            val bundle = Bundle()
-                            bundle.putString("NativePageOpen", "Notfication")
-                            FirebaseAnalytics.getInstance(context).logEvent("NativePage", bundle)
-                            val intent =
-                                if (intentData.hasExtra("is_native") && intentData.getStringExtra("is_native") == "true") {
-                                    Intent(context, PostNativeDetailActivity::class.java)
-                                } else {
-                                    Intent(context, NewsFeedPageActivity::class.java)
-                                }
-                            intent.putExtra("from_app", true)
-                            intentData.extras?.let { intent.putExtras(it) }
-                            context.startActivity(intent)
-                        }
-                    } catch (e: java.lang.Exception) {
-                        e.printStackTrace()
-                    }
-                }
-            } else {
-                return false
-            }
-            return true
-        }
-
-        fun isScreenNotification(intent: Intent): Boolean {
-            if (intent.hasExtra("push_source") && (intent.getStringExtra("push_source") == "feedsdk")) {
-                if (intent.hasExtra("interests") && intent.hasExtra("post_id") && intent.hasExtra("short_video")) {
-                    return true
-                } else if (intent.hasExtra("page") && intent.getStringExtra("page")!!
-                        .contains("SDK://") && !intent.getStringExtra("page")!!.contains("Detail")
-                ) {
-                    return true
-                } else if (intent.hasExtra("fromSticky")) {
-                    return true
-                }
-            }
-            return false
-        }
-
-        fun checkFeedSdkTab(tab: String, intent: Intent): Boolean {
-            return when (tab) {
-                "explore" -> (intent.hasExtra("interests") && intent.getStringExtra("interests") == "explore")
-                        || (intent.hasExtra("page") && intent.getStringExtra("page")!!
-                    .contains("SDK://explore"))
-                "reels" -> (intent.hasExtra("short_video") && intent.getStringExtra("short_video") == "true")
-                        || (intent.hasExtra("page") && intent.getStringExtra("page")!!
-                    .contains("SDK://reels"))
-                else -> true
-            }
-        }
-
-        fun fromLiveMatch(intent: Intent): Boolean {
-            return intent.hasExtra("fromLiveMatch") && intent.hasExtra("interests")
-        }
 
         fun onDestroyCalled(context: Context) {
             PodcastMediaPlayer.releasePlayer(context)
@@ -301,10 +109,15 @@ class FeedSdk {
                 }
                 FontsContractCompat.requestFont(context, request, callback, mHandler)
             } catch (ex: Exception) {
-                ex.printStackTrace()
+                LogDetail.LogEStack(ex)
             }
         }
 
+        fun getSDKVersion(): Long {
+            return sdkVersion.toLong()
+        }
+
+        @SuppressLint("StaticFieldLeak")
         var mContext: Context? = null
         var mLifecycle: Lifecycle? = null
         var mUser: User? = null
@@ -322,18 +135,16 @@ class FeedSdk {
         var isExploreInitializationSuccessful = false
         private var mSharePrefixText = ""
         var mFirebaseDynamicLink = ""
-        var mAdsModel: AdsModel? = AdsModel("", "", "", "", "", "", "", "", "", "")
         var onUserInitialized: ArrayList<OnUserInitialized?> = ArrayList()
         var onExploreInitialized: OnUserInitialized? = null
         var personalizationListener: PersonalizationListener? = null
         var isRefreshNeeded = false
         var areContentsModified: HashMap<String, Boolean> = HashMap()
-        var interestsList = ArrayList<com.appyhigh.newsfeedsdk.model.Interest>()
-        var languagesList = ArrayList<com.appyhigh.newsfeedsdk.model.Language>()
+        var interestsList = ArrayList<Interest>()
+        var languagesList = ArrayList<Language>()
         var shareBody = ""
         var feedTargetActivity = ""
         var feedAppIcon = 0
-        var showAds = true
         var showFeedAdAtFirst = true
         var hasPluto = false
         var searchStickyBackground = "#337CFF"
@@ -347,26 +158,20 @@ class FeedSdk {
         var isExistingUser: Boolean = false
         var isCryptoApp = false
         var parentNudgeView: FrameLayout? = null
+        private var sdkVersion = 1008
     }
 
-    fun refreshToken(): String {
-        return try {
-            RSAKeyGenerator.getNewJwtToken(appId, userId)!!
-        } catch (e: Exception) {
-            ""
-        }
-    }
+    private var parentAppIntent = Intent()
 
     fun initializeSdk(
-        context: Context, lifecycle: Lifecycle, versionCode: String, versionName: String,
-        user: User? = null, showCricketNotification: Boolean? = true, isDark: Boolean? = false
+        activity: Activity, intent: Intent, user: User? = null, showCricketNotification: Boolean? = true, isDark: Boolean? = false
     ) {
-        Log.d("FeedSdk", "initializeSdk")
+        LogDetail.LogD("FeedSdk", "initializeSdk")
         if (font == null && !isFontDownloading)
-            applyFont(context, "Roboto", false)
+            applyFont(activity.baseContext, "Roboto", false)
         onUserInitialized = ArrayList()
-        mContext = context
-        mLifecycle = lifecycle
+        mContext = activity.baseContext
+        mLifecycle = activity.getLifecycleOwner().lifecycle
         mUser = user ?: run {
             val defaultUser = User()
             defaultUser.firstName =
@@ -374,76 +179,60 @@ class FeedSdk {
             spUtil?.putString(Constants.GUEST_USER_SDK, defaultUser.firstName ?: "")
             defaultUser
         }
-
-        SpUtil.spUtilInstance?.init(context)
+        SpUtil.spUtilInstance?.init(activity.baseContext)
         spUtil = SpUtil.spUtilInstance
-        appVersionCode = versionCode
-        appVersionName = versionName
+        val info: PackageInfo = mContext!!.packageManager.getPackageInfo(mContext!!.packageName, 0)
+        appVersionCode = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+            info.longVersionCode.toString()
+        } else{
+            info.versionCode.toString()
+        }
+        appVersionName = info.versionName.toString()
+        setIntentBeforeInitialise(intent)
         setTheme(isDark)
         setShareBody(null)
         getCountryCode()
-        getAppIdFromManifest()
         getAppNameFromManifest()
         getFeedTargetActivityFromManifest()
         getFeedAppIconFromManifest()
-        setUserId()
         setDeviceDetailsToLocal()
         initializeContentModified()
         spUtil!!.putString(Constants.NETWORK, checkAndSetNetworkType())
-        FeedSdk.showCricketNotification =
-            showCricketNotification == null || showCricketNotification
+        FeedSdk.showCricketNotification = showCricketNotification == null || showCricketNotification
+        ApiConfig().configEncrypted()
         getFirebasePushToken(object : FirebaseTokenListener {
             override fun onSuccess(token: String) {
                 LogDetail.LogDE("getFirebasePushToken", "getInterestsApiCall")
-                val mDataIntent = Intent()
-                mDataIntent.putExtra(AuthSocket.INTENT_CONSTANTS.AUTH_USER_EMAIL, user?.email)
-                mDataIntent.putExtra(
-                    AuthSocket.INTENT_CONSTANTS.AUTH_USER_NUMBER,
-                    user?.phoneNumber
+                ApiCreateOrUpdateUser().createOrUpdateUserEncrypted(
+                    UPDATE_USER_ENCRYPTED,
+                    firebaseToken,
+                    sdkCountryCode,
+                    mUser
                 )
-                mDataIntent.putExtra(AuthSocket.INTENT_CONSTANTS.AUTH_USER_NAME, user?.username)
-                mDataIntent.putExtra(AuthSocket.INTENT_CONSTANTS.AUTH_USER_ID, userId)
-                mDataIntent.putExtra(AuthSocket.INTENT_CONSTANTS.AUTH_USER_FCM, firebaseToken)
-                SessionUser.Instance().setData(mDataIntent)
-
-                spUtil!!.getString(Constants.JWT_TOKEN)?.let {
-                    ApiCreateOrUpdateUser().createOrUpdateUserEncrypted(
-                        UPDATE_USER_ENCRYPTED,
-                        it,
-                        firebaseToken,
-                        sdkCountryCode,
-                        mUser
-                    )
-                }
                 apiGetInterests()
                 sendPostImpressions()
-                setDataFromFirebase()
             }
 
             override fun onFailure() {
-                Log.e(logTag, "Failed to generate Firebase Push Token")
+                LogDetail.LogDE(logTag, "Failed to generate Firebase Push Token")
                 apiGetInterests()
                 sendPostImpressions()
-                setDataFromFirebase()
             }
         })
-        ImpressionUtils().initialize(context)
+        ImpressionUtils().initialize(activity.baseContext)
     }
 
     private fun apiGetInterests() {
-        spUtil!!.getString(Constants.JWT_TOKEN)?.let {
-            ApiGetInterests().getInterestsEncrypted(
-                GET_INTERESTS_ENCRYPTED,
-                it,
-                object : ApiGetInterests.InterestResponseListener {
-                    override fun onSuccess(interestResponseModel: InterestResponseModel) {
-                        for (interest in interestResponseModel.interestList) {
-                            Constants.allInterestsMap[interest.keyId!!] = interest
-                        }
+        ApiGetInterests().getInterestsEncrypted(
+            GET_INTERESTS_ENCRYPTED,
+            object : ApiGetInterests.InterestResponseListener {
+                override fun onSuccess(interestResponseModel: InterestResponseModel) {
+                    for (interest in interestResponseModel.interestList) {
+                        Constants.allInterestsMap[interest.keyId!!] = interest
                     }
                 }
-            )
-        }
+            }
+        )
     }
 
     fun setTheme(isDark: Boolean?) {
@@ -460,7 +249,7 @@ class FeedSdk {
                 AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM)
             }
         } catch (ex: Exception) {
-            ex.printStackTrace()
+            LogDetail.LogEStack(ex)
         }
     }
 
@@ -529,7 +318,7 @@ class FeedSdk {
             }
             itemView
         } catch (ex: Exception) {
-            ex.printStackTrace()
+            LogDetail.LogEStack(ex)
             null
         }
     }
@@ -540,7 +329,7 @@ class FeedSdk {
                 parentNudgeView!!.visibility = View.GONE
             }
         } catch (ex: Exception) {
-            ex.printStackTrace()
+            LogDetail.LogEStack(ex)
         }
     }
 
@@ -566,24 +355,19 @@ class FeedSdk {
                             languageList.add(language)
                         }
                     }
-                    FeedSdk.userId?.let {
-                        FeedSdk.spUtil?.getString(Constants.JWT_TOKEN)?.let { it1 ->
-                            ApiUpdateUserPersonalization().updateUserPersonalizationEncrypted(
-                                Endpoints.UPDATE_USER_ENCRYPTED,
-                                it,
-                                FeedSdk.interestsList,
-                                languageList,
-                                object :
-                                    ApiUpdateUserPersonalization.UpdatePersonalizationListener {
-                                    override fun onFailure() {}
+                    ApiUpdateUserPersonalization().updateUserPersonalizationEncrypted(
+                        Endpoints.UPDATE_USER_ENCRYPTED,
+                        FeedSdk.interestsList,
+                        languageList,
+                        object :
+                            ApiUpdateUserPersonalization.UpdatePersonalizationListener {
+                            override fun onFailure() {}
 
-                                    override fun onSuccess() {
-                                        FeedSdk.isRefreshNeeded = true
-                                    }
-                                }
-                            )
+                            override fun onSuccess() {
+                                FeedSdk.isRefreshNeeded = true
+                            }
                         }
-                    }
+                    )
                     FeedSdk.languagesList = languageList
                 }
             }
@@ -591,40 +375,35 @@ class FeedSdk {
     }
 
     fun setInterestsForFeedSDK(interests: String) {
-        FeedSdk.spUtil?.getString(Constants.JWT_TOKEN)?.let {
-            ApiGetInterests().getInterestsEncrypted(
-                Endpoints.GET_INTERESTS_ENCRYPTED,
-                it,
-                object : ApiGetInterests.InterestResponseListener {
-                    override fun onSuccess(interestResponseModel: InterestResponseModel) {
-                        val paramInterestList = interests.split(",")
-                        val mInterestResponseModel =
-                            interestResponseModel.interestList as ArrayList<Interest>
-                        val interestList = ArrayList<Interest>()
-                        for (interest in mInterestResponseModel) {
-                            if (paramInterestList.contains(interest.keyId)) {
-                                interestList.add(interest)
+        ApiGetInterests().getInterestsEncrypted(
+            Endpoints.GET_INTERESTS_ENCRYPTED,
+            object : ApiGetInterests.InterestResponseListener {
+                override fun onSuccess(interestResponseModel: InterestResponseModel) {
+                    val paramInterestList = interests.split(",")
+                    val mInterestResponseModel =
+                        interestResponseModel.interestList as ArrayList<Interest>
+                    val interestList = ArrayList<Interest>()
+                    for (interest in mInterestResponseModel) {
+                        if (paramInterestList.contains(interest.keyId)) {
+                            interestList.add(interest)
+                        }
+                    }
+                    ApiUpdateUserPersonalization().updateUserPersonalizationEncrypted(
+                        Endpoints.UPDATE_USER_ENCRYPTED,
+                        interestList,
+                        FeedSdk.languagesList,
+                        object : ApiUpdateUserPersonalization.UpdatePersonalizationListener {
+                            override fun onFailure() {}
+
+                            override fun onSuccess() {
+                                FeedSdk.isRefreshNeeded = true
                             }
                         }
-                        ApiUpdateUserPersonalization().updateUserPersonalizationEncrypted(
-                            Endpoints.UPDATE_USER_ENCRYPTED,
-                            it,
-                            interestList,
-                            FeedSdk.languagesList,
-                            object :
-                                ApiUpdateUserPersonalization.UpdatePersonalizationListener {
-                                override fun onFailure() {}
-
-                                override fun onSuccess() {
-                                    FeedSdk.isRefreshNeeded = true
-                                }
-                            }
-                        )
-                        FeedSdk.interestsList = interestList
-                    }
+                    )
+                    FeedSdk.interestsList = interestList
                 }
-            )
-        }
+            }
+        )
     }
 
     fun setShowFeedAdFirst(show: Boolean) {
@@ -660,7 +439,7 @@ class FeedSdk {
                             param.onFailure()
                         }
                     } catch (ex: Exception) {
-                        ex.printStackTrace()
+                        LogDetail.LogEStack(ex)
                         param.onSuccess("")
                     }
                 }.addOnFailureListener {
@@ -681,7 +460,7 @@ class FeedSdk {
             val activeNetworkInfo = connectivityManager.activeNetworkInfo
             return activeNetworkInfo != null && activeNetworkInfo.isConnected
         } catch (ex: Exception) {
-            ex.printStackTrace()
+            LogDetail.LogEStack(ex)
             return false
         }
     }
@@ -734,32 +513,14 @@ class FeedSdk {
      * Fetch device details and set to local store
      */
     private fun setDeviceDetailsToLocal() {
-        DeviceName.with(mContext).request { info, _ ->
-            spUtil!!.putString(
-                Constants.DEVICE_MODEL,
-                info.manufacturer.toString() + " " + info.marketName + " " + info.model
-            )
-        }
-    }
-
-
-    /**
-     * Verify if NEWS_FEED_APP_ID is provided or not
-     * if not throw an error
-     */
-    private fun getAppIdFromManifest() {
-        val ai: ApplicationInfo? = mContext?.packageManager?.getApplicationInfo(
-            mContext?.packageName!!,
-            PackageManager.GET_META_DATA
-        )
-        val bundle = ai?.metaData
-        appId = bundle?.getString(NEWS_FEED_APP_ID)!!.toString()
-//        val tempId = bundle?.get(NEWS_FEED_APP_ID)!!.toString()
-//        if(tempId.contains("E")){
-//            val tempIds = tempId.split("E")
-//            val result = BigDecimal(tempIds[0].toDouble() * Math.exp(tempIds[1].toDouble()))
-//            Log.d(TAG, "getAppIdFromManifest: "+result)
-//        }
+        try {
+            DeviceName.with(mContext).request { info, _ ->
+                spUtil!!.putString(
+                    Constants.DEVICE_MODEL,
+                    info.manufacturer.toString() + " " + info.marketName + " " + info.model
+                )
+            }
+        } catch (ex:Exception){ }
     }
 
     private fun getAppNameFromManifest() {
@@ -790,27 +551,6 @@ class FeedSdk {
     }
 
     /**
-     * Set User Id
-     */
-    @SuppressLint("HardwareIds")
-    private fun setUserId() {
-        val existingId = SpUtil.spUtilInstance?.getString(USER_ID, "")
-        userId = if (!existingId.isNullOrEmpty()) {
-            existingId
-        } else {
-            appId + "_" + Settings.Secure.getString(
-                mContext?.contentResolver,
-                Settings.Secure.ANDROID_ID
-            )
-        }
-        try {
-            RSAKeyGenerator.getNewJwtToken(appId, userId)
-        } catch (ex: Exception) {
-            ex.printStackTrace()
-        }
-    }
-
-    /**
      * Get Sdk Country Code
      */
     private fun getCountryCode() {
@@ -825,10 +565,6 @@ class FeedSdk {
 
     fun setHideFilters(hide: Boolean) {
         hideFilters = hide
-    }
-
-    fun setShowAds(show: Boolean) {
-        showAds = show
     }
 
     /**
@@ -853,17 +589,6 @@ class FeedSdk {
         return mFirebaseDynamicLink
     }
 
-    /**
-     * Set prefix Share text for posts
-     */
-    fun setAdsModel(adsModel: AdsModel) {
-        mAdsModel = adsModel
-    }
-
-    fun getAdsModel(): AdsModel? {
-        return mAdsModel
-    }
-
     private fun initializeContentModified() {
         areContentsModified[Constants.FEED] = false
         areContentsModified[Constants.EXPLORE] = false
@@ -871,14 +596,11 @@ class FeedSdk {
     }
 
     private fun sendPostImpressions() {
-        FeedSdk.spUtil?.getString(Constants.JWT_TOKEN)?.let { token ->
-            mContext?.let { context ->
-                ApiPostImpression().addPostImpressionsEncrypted(
-                    Endpoints.POST_IMPRESSIONS_ENCRYPTED,
-                    token,
-                    context
-                )
-            }
+        mContext?.let { context ->
+            ApiPostImpression().addPostImpressionsEncrypted(
+                Endpoints.POST_IMPRESSIONS_ENCRYPTED,
+                context
+            )
         }
     }
 
@@ -891,52 +613,6 @@ class FeedSdk {
         } else {
             shareBody = shareText
         }
-    }
-
-    private fun setDataFromFirebase() {
-        val spUtil = SpUtil.spUtilInstance!!
-        val remoteConfig = FirebaseRemoteConfig.getInstance()
-        val map = mutableMapOf<String, Any>()
-        map[Constants.FEED_SDK_CONFIG] =
-            "{\"socket_series\":\"\",\"feed_native_ad_interval\":60,\"searchSticky\":{\"timer\":300,\"workManager\":6}}"
-        remoteConfig.setDefaultsAsync(map)
-        remoteConfig.fetch(if (BuildConfig.DEBUG) 0 else TimeUnit.HOURS.toSeconds(12))
-            .addOnCompleteListener {
-                if (it.isSuccessful) {
-                    remoteConfig.activate()
-                }
-                try {
-                    val feedSdkConfig =
-                        JSONObject(remoteConfig.getString(Constants.FEED_SDK_CONFIG))
-                    try {
-                        val socketSeries = feedSdkConfig.getString(Constants.SOCKET_SERIES)
-                        spUtil.putString(Constants.SOCKET_SERIES, socketSeries)
-                        if (FeedSdk.showCricketNotification) {
-                            handleCricketNotification()
-                            setSocketNotificationIntervals()
-                        }
-                    } catch (ex: Exception) {
-                    }
-                    try {
-                        nativeAdInterval = feedSdkConfig.getLong(Constants.FEED_NATIVE_AD_INTEVRAL)
-                    } catch (e: java.lang.Exception) {
-                    }
-                    try {
-                        val searchStickyConfig = feedSdkConfig.getJSONObject("searchSticky")
-                        SpUtil.spUtilInstance!!.putLong(
-                            "stickyTimerInterval",
-                            searchStickyConfig.getLong("timer")
-                        )
-                        SpUtil.spUtilInstance!!.putLong(
-                            "stickyWorkInterval",
-                            searchStickyConfig.getLong("workManager")
-                        )
-                    } catch (ex: Exception) {
-                    }
-                } catch (e: java.lang.Exception) {
-                    e.printStackTrace()
-                }
-            }
     }
 
     fun setSearchStickyNotification(defaultBackground: String, intent: Intent) {
@@ -967,7 +643,7 @@ class FeedSdk {
                 }
             }
         } catch (ex: Exception) {
-            ex.printStackTrace()
+            LogDetail.LogEStack(ex)
         }
     }
 
@@ -981,147 +657,274 @@ class FeedSdk {
                 mContext!!.stopStickyNotificationService()
             }
         } catch (ex: Exception) {
-            ex.printStackTrace()
+            LogDetail.LogEStack(ex)
         }
     }
 
-    private fun setSocketNotificationIntervals() {
-        val socketSeries =
-            SpUtil.spUtilInstance!!.getString(Constants.SOCKET_SERIES, "")!!.split(",")
-        var call = 0
-        FeedSdk.spUtil?.getString(Constants.JWT_TOKEN)?.let {
-            ApiCricketSchedule().getCricketScheduleEncrypt(
-                Endpoints.GET_CRICKET_SCHEDULE_ENCRYPTED,
-                it,
-                Constants.UPCOMING_MATCHES,
-                object : ApiCricketSchedule.CricketScheduleResponseListener {
-                    override fun onSuccess(cricketScheduleResponse: CricketScheduleResponse) {
-                        for (match in cricketScheduleResponse.cards) {
-                            if (match.items[0].teama.lowercase() == "india"
-                                || match.items[0].teamb.lowercase() == "india"
-                                || socketSeries.contains(match.items[0].seriesname)
-                            ) {
-                                val matchDateTimeString =
-                                    match.items[0].matchdate_gmt + " " + match.items[0].matchtime_gmt
-                                val formatter = SimpleDateFormat("MM/dd/yyyy hh:mm", Locale.US)
-                                formatter.timeZone = TimeZone.getTimeZone("UTC");
-                                val matchDateTime = formatter.parse(matchDateTimeString).time
-                                val currentDateTime =
-                                    Calendar.getInstance(TimeZone.getTimeZone("UTC")).time.time
-                                val socketWorkRequest = OneTimeWorkRequestBuilder<SocketWorker>()
-                                    .setInitialDelay(
-                                        matchDateTime - currentDateTime,
-                                        TimeUnit.MILLISECONDS
-                                    )
-                                    .build()
-                                WorkManager.getInstance(mContext!!).enqueueUniqueWork(
-                                    match.items[0].seriesname + match.items[0].matchdate_gmt + match.items[0].matchtime_gmt,
-                                    ExistingWorkPolicy.REPLACE,
-                                    socketWorkRequest
-                                )
+    fun getDynamicUrlData(activity: Activity, intent: Intent, listener: OnAPISuccess) {
+        FirebaseDynamicLinks.getInstance()
+            .getDynamicLink(intent)
+            .addOnSuccessListener(activity) { pendingDynamicLinkData ->
+                // Get deep link from result (may be null if no link is found)
+                var deepLink: Uri? = null
+                try {
+                    if (pendingDynamicLinkData != null) {
+                        deepLink = pendingDynamicLinkData.link
+                        try {
+                            if (deepLink!!.getQueryParameter(Constants.FEED_ID) != null) {
+                                if (deepLink!!.getQueryParameter(Constants.IS_NATIVE) != null) {
+                                    parentAppIntent.putExtra(Constants.IS_NATIVE, true)
+                                }
+                                parentAppIntent.putExtra(Constants.POST_ID, pendingDynamicLinkData.link?.getQueryParameter(Constants.FEED_ID)!!)
                             }
-                            //                    call+=1
-                            //                    Log.d("check777", "onSuccess: "+call*10000)
-                            //                    val socketWorkRequest = OneTimeWorkRequestBuilder<SocketWorker>()
-                            //                        .setInitialDelay((call*10000).toLong(), TimeUnit.MILLISECONDS)
-                            //                        .build()
-                            //                    WorkManager.getInstance(mContext!!).
-                            //                    enqueueUniqueWork(match.items[0].seriesname+match.items[0].matchdate_gmt+match.items[0].matchtime_gmt,
-                            //                        ExistingWorkPolicy.REPLACE,
-                            //                        socketWorkRequest)
+                            if (deepLink!!.getQueryParameter(Constants.COVID_CARD) != null) {
+                                parentAppIntent.putExtra(Constants.COVID_CARD, pendingDynamicLinkData.link?.getQueryParameter(Constants.COVID_CARD)!!)
+                            }
+                            if (deepLink!!.getQueryParameter(Constants.PODCAST_ID) != null) {
+                                parentAppIntent.putExtra(Constants.PODCAST_ID, deepLink.getQueryParameter(Constants.PODCAST_ID)!!)
+
+                            }
+                            if (deepLink!!.getQueryParameter(Constants.FILENAME) != null
+                                && deepLink.getQueryParameter(Constants.MATCHTYPE) != null
+                                && deepLink.getQueryParameter(Constants.PWA) != null
+                            ) {
+                                parentAppIntent.putExtra(Constants.FILENAME, deepLink.getQueryParameter(Constants.FILENAME)!!)
+                                parentAppIntent.putExtra(Constants.MATCHTYPE, deepLink.getQueryParameter(Constants.MATCHTYPE)!!)
+                                parentAppIntent.putExtra(Constants.PWA, deepLink.getQueryParameter(Constants.PWA)!!)
+                            }
+                            if (deepLink.getQueryParameter(Constants.MATCHES_MODE) != null) {
+                                parentAppIntent.putExtra(Constants.MATCHES_MODE, deepLink.getQueryParameter(Constants.MATCHES_MODE)!!)
+                            }
+                        } catch (ex: Exception) {
                         }
                     }
+                    listener.onSuccess()
+                } catch (e: Exception) {
+                    LogDetail.LogEStack(e)
+                    listener.onSuccess()
+                }
+            }
+            .addOnFailureListener(activity) { e ->
+                LogDetail.LogEStack(e)
+                listener.onSuccess()
+            }
 
-                    override fun onFailure(error: Throwable) {
-                        error.printStackTrace()
-                    }
-                },
-                0
-            )
+    }
+
+    private fun isScreenNotification(intent: Intent): Boolean {
+        if (intent.hasExtra(Constants.PUSH_SOURCE) && (intent.getStringExtra(Constants.PUSH_SOURCE) == Constants.FEEDSDK)) {
+            if (intent.hasExtra(Constants.INTERESTS) && intent.hasExtra(Constants.POST_ID) && intent.hasExtra(Constants.SHORT_VIDEO)) {
+                return true
+            } else if (intent.hasExtra(Constants.PAGE) && intent.getStringExtra(Constants.PAGE)!!
+                    .contains("SDK://") && !intent.getStringExtra(Constants.PAGE)!!.contains("Detail")
+            ) {
+                return true
+            } else if (intent.hasExtra(Constants.FROM_STICKY)) {
+                return true
+            }
+        }
+        return false
+    }
+
+    private fun setIntentBeforeInitialise(intent: Intent){
+        if(isScreenNotification(intent)){
+            SpUtil.pushIntent = intent
+        } else{
+            SpUtil.pushIntent = null
+        }
+        if(intent.hasExtra(Constants.FROM_STICKY) && intent.getStringExtra(Constants.FROM_STICKY)==Constants.REELS){
+            Constants.isVideoFromSticky = true
+        } else{
+            Constants.videoUnitAdFromSticky = ""
         }
     }
 
-    private fun handleCricketNotification() {
-        val socketSeries =
-            SpUtil.spUtilInstance!!.getString(Constants.SOCKET_SERIES, "")!!.split(",")
-        SpUtil.spUtilInstance?.getString(Constants.JWT_TOKEN)?.let {
-            ApiCricketSchedule().getCricketScheduleEncrypt(
-                Endpoints.GET_CRICKET_SCHEDULE_ENCRYPTED,
-                it,
-                Constants.LIVE_MATCHES,
-                object : ApiCricketSchedule.CricketScheduleResponseListener {
-                    override fun onSuccess(cricketScheduleResponse: CricketScheduleResponse) {
-                        val cards = ArrayList<Card>()
-                        for (card in cricketScheduleResponse.cards) {
-                            if (card.items[0].matchstatus.lowercase() != "stumps"
-                                && (card.items[0].teama.lowercase() == "india"
-                                        || card.items[0].teamb.lowercase() == "india"
-                                        || socketSeries.contains(card.items[0].seriesname))
-                            ) {
-                                cards.add(card)
-                            }
-                        }
-                        if (cards.isEmpty() && mContext!!.isMyServiceRunning(
-                                NotificationCricketService::class.java
-                            )
-                        ) {
-                            mContext?.stopNotificationCricketService()
+    fun checkFeedSDKNotifications(activity: Activity, intent: Intent, showFeedScreenListener: ShowFeedScreenListener){
+        getDynamicUrlData(activity, intent) {
+            parentAppIntent.extras?.let { intent.putExtras(it) }
+            intent.extras?.let {
+                for(key in it.keySet()){
+                    LogDetail.LogD("Feedsdk", "handleIntent: $key ${it.get(key)}")
+                }
+            }
+            if (intent.hasExtra(Constants.FROM_STICKY)) {
+                Handler(Looper.getMainLooper()).postDelayed({
+                    if (intent.getStringExtra(Constants.FROM_STICKY) == Constants.REELS) {
+                        showFeedScreenListener.showReels()
+                    } else {
+                        showFeedScreenListener.showFeeds()
+                    }
+                }, 1000)
+            } else if (isScreenNotification(intent) || fromLiveMatch(intent)) {
+                Handler(Looper.getMainLooper()).postDelayed({
+                    if (checkFeedSdkTab(Constants.EXPLORE, intent)) {
+                        showFeedScreenListener.showExplore()
+                    } else if (checkFeedSdkTab(Constants.REELS, intent)) {
+                        showFeedScreenListener.showReels()
+                    } else {
+                        showFeedScreenListener.showFeeds()
+                    }
+                }, 1000)
+            } else if (intent.extras != null && !handleIntent(activity.baseContext, intent)) {
+                showFeedScreenListener.checkParentAppNotifications()
+            }
+        }
+    }
+
+    private fun fromLiveMatch(intent: Intent): Boolean {
+        return intent.hasExtra(Constants.FROM_LIVE_MATCH) && intent.hasExtra(Constants.INTERESTS)
+    }
+
+    private fun checkFeedSdkTab(tab: String, intent: Intent): Boolean {
+        return when (tab) {
+            Constants.EXPLORE -> (intent.hasExtra(Constants.INTERESTS) && intent.getStringExtra(Constants.INTERESTS) == Constants.EXPLORE)
+                    || (intent.hasExtra(Constants.PAGE) && intent.getStringExtra(Constants.PAGE)!!.contains(Constants.SDK_EXPLORE))
+            Constants.REELS -> (intent.hasExtra(Constants.SHORT_VIDEO) && intent.getStringExtra(Constants.SHORT_VIDEO) == Constants.TRUE)
+                    || (intent.hasExtra(Constants.PAGE) && intent.getStringExtra(Constants.PAGE)!!.contains(Constants.SDK_REELS))
+            else -> true
+        }
+    }
+
+    private fun handleIntent(context: Context, intentData: Intent): Boolean {
+        if (intentData.hasExtra(Constants.PAGE) && intentData.hasExtra(Constants.PUSH_SOURCE)
+            && intentData.getStringExtra(Constants.PUSH_SOURCE) == Constants.FEEDSDK
+        ) {
+            when (intentData.getStringExtra(Constants.PAGE)) {
+                Constants.SDK_PODCAST_DETAIL -> {
+                    val intent = Intent(context, PodcastPlayerActivity::class.java)
+                    intent.putExtra(Constants.POSITION, 0)
+                    intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
+                    intentData.extras?.let { intent.putExtras(it) }
+                    if (intentData.hasExtra(Constants.POST_ID)) {
+                        context.startActivity(intent)
+                    }
+                }
+                Constants.SDK_POST_DETAIL -> {
+                    val intent =
+                        if (intentData.hasExtra(Constants.IS_NATIVE) && intentData.getStringExtra(Constants.IS_NATIVE) == Constants.TRUE) {
+                            val bundle = Bundle()
+                            bundle.putString("NativePageOpen", "Notfication")
+                            FirebaseAnalytics.getInstance(context).logEvent("NativePage", bundle)
+                            Intent(context, PostNativeDetailActivity::class.java)
                         } else {
-                            try {
-                                //            var scoreObject = JSONObject("{\"data\":{\"filename\":\"innz11252021205688\",\"Status\":\"PlayInProgress\",\"Equation\":\"NewZealandtrailby256runs\",\"Innings\":{\"First\":{\"BattingteamId\":\"4\",\"BowlingteamId\":\"5\",\"BattingteamImage\":\"https:\\/\\/cricketimage.blob.core.windows.net\\/teams\\/4.png\",\"BowlingteamImage\":\"https:\\/\\/cricketimage.blob.core.windows.net\\/teams\\/5.png\",\"BattingteamShort\":\"IND\",\"BowlingteamShort\":\"NZ\",\"Battingteam\":\"India\",\"Bowlingteam\":\"NewZealand\",\"Runs\":\"345\",\"Wickets\":\"10\",\"Overs\":\"111.1\",\"Runrate\":\"3.1\"},\"Second\":{\"BattingteamId\":\"5\",\"BowlingteamId\":\"4\",\"BattingteamImage\":\"https:\\/\\/cricketimage.blob.core.windows.net\\/teams\\/5.png\",\"BowlingteamImage\":\"https:\\/\\/cricketimage.blob.core.windows.net\\/teams\\/4.png\",\"BattingteamShort\":\"NZ\",\"BowlingteamShort\":\"IND\",\"Battingteam\":\"NewZealand\",\"Bowlingteam\":\"India\",\"Runs\":\"89\",\"Wickets\":\"0\",\"Overs\":\"33.2\",\"Runrate\":\"2.67\"},\"Third\":{\"BattingteamId\":\"4\",\"BowlingteamId\":\"5\",\"BattingteamImage\":\"https:\\/\\/cricketimage.blob.core.windows.net\\/teams\\/4.png\",\"BowlingteamImage\":\"https:\\/\\/cricketimage.blob.core.windows.net\\/teams\\/5.png\",\"BattingteamShort\":\"IND\",\"BowlingteamShort\":\"NZ\",\"Battingteam\":\"India\",\"Bowlingteam\":\"NewZealand\",\"Runs\":\"345\",\"Wickets\":\"10\",\"Overs\":\"111.1\",\"Runrate\":\"3.1\"},\"Fourth\":{\"BattingteamId\":\"5\",\"BowlingteamId\":\"4\",\"BattingteamImage\":\"https:\\/\\/cricketimage.blob.core.windows.net\\/teams\\/5.png\",\"BowlingteamImage\":\"https:\\/\\/cricketimage.blob.core.windows.net\\/teams\\/4.png\",\"BattingteamShort\":\"NZ\",\"BowlingteamShort\":\"IND\",\"Battingteam\":\"NewZealand\",\"Bowlingteam\":\"India\",\"Runs\":\"89\",\"Wickets\":\"0\",\"Overs\":\"33.2\",\"Runrate\":\"2.67\"}},\"TourName\":\"NewZealandtourofIndia,2021\"}}")
-                                //            Log.d("TAG", "onBindViewHolder: "+scoreObject.toString());
-                                //
-                                //            mContext?.startNotificationCricketService(scoreObject)
-                                //            var scoreObject = JSONObject("{\"data\":{\"filename\":\"sapk04102021200557\",\"status\":\"play in progress\",\"Equation\":\"pakistan need 34 runs in 17 balls at 12 rpo\",\"Innings\"" +
-                                //                    ":{\"First\":{\"battingteamid\":\"7\",\"bowlingteamid\":\"6\",\"BattingteamImage\":\"https:\\/\\/cricketimage.blob.core.windows.net\\/teams\\/7.png\",\"BowlingteamImage\":\"https:\\/\\/cricketimage.blob.core.windows.net\\/teams\\/6.png\",\"BattingteamShort\":\"sa\",\"BowlingteamShort\":\"pak\",\"battingteam\":\"south africa\",\"bowlingteam\":\"pakistan\",\"Runs\":\"188\",\"Wickets\":\"6\",\"Overs\":\"20.0\",\"Runrate\":\"9.40\",\"Allottedovers\":\"20\"}," +
-                                //                    "\"Second\":{\"battingteamid\":\"6\",\"bowlingteamid\":\"7\",\"BattingteamImage\":\"https:\\/\\/cricketimage.blob.core.windows.net\\/teams\\/6.png\",\"BowlingteamImage\":\"https:\\/\\/cricketimage.blob.core.windows.net\\/teams\\/7.png\",\"battingteamshort\":\"pak\",\"BowlingteamShort\":\"sa\",\"battingteam\":\"pakistan\",\"bowlingteam\":\"south africa\",\"Runs\":\"155\",\"Wickets\":\"5\",\"Overs\":\"17.1\",\"Runrate\":\"9.02\",\"Allottedovers\":\"20\"}},\"Tourname\":\"pakistan tour of south africa, 2021\"}}");
-                                //            Log.d("TAG", "onBindViewHolder: "+scoreObject.toString());
-                                //            mContext?.startNotificationCricketService(scoreObject);
-                                spUtil?.putBoolean("dismissCricket", false)
-                                if (!isSocketListenersNotificationSet()) {
-                                    val socketClientCallback: SocketClientCallback =
-                                        object : SocketClientCallback {
-                                            override fun onLiveScoreUpdate(liveScoreData: String) {}
-                                            override fun getLiveScore(liveScoreObject: JSONObject) {
-                                                if (!spUtil!!.getBoolean("dismissCricket", false))
-                                                    try {
-                                                        if (liveScoreObject.getJSONObject("data")
-                                                                .getString("Status")
-                                                                .lowercase(Locale.getDefault()) == "match ended" && mContext!!.isMyServiceRunning(
-                                                                NotificationCricketService::class.java
-                                                            )
-                                                        ) {
-                                                            val intent = Intent("dismissCricket")
-                                                            mContext?.sendBroadcast(intent)
-                                                        } else {
-                                                            mContext?.startNotificationCricketService(
-                                                                liveScoreObject
-                                                            )
-                                                        }
-                                                    } catch (ex: Exception) {
-                                                        ex.printStackTrace()
-                                                    }
-                                            }
-                                        }
-                                    setSocketListenersNotification(socketClientCallback)
-                                }
-                                if (!isSocketConnected()) {
-                                    initSocketConnection()
-                                }
-                            } catch (e: java.lang.Exception) {
-                                e.printStackTrace()
-                            }
+                            Intent(context, NewsFeedPageActivity::class.java)
                         }
+                    intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
+                    intent.putExtra(Constants.POSITION, 0)
+                    intent.putExtra(Constants.FROM_APP, true)
+                    intent.putExtra(
+                        Constants.POST_ID,
+                        intentData.getStringExtra(Constants.POST_ID).toString()
+                    )
+                    intentData.extras?.let { intent.putExtras(it) }
+                    context.startActivity(intent)
+                }
+                Constants.SDK_CRYPTO_DETAIL -> {
+                    val intent = Intent(context, CryptoCoinDetailsActivity::class.java)
+                    intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
+                    intentData.extras?.let { intent.putExtras(it) }
+                    context.startActivity(intent)
+                }
+                Constants.SDK_CRICKET_DETAIL -> {
+                    val pushIntent = Intent(context, PWAMatchScoreActivity::class.java)
+                    // Need post_source value from intent to store analytics to backend
+                    if (intentData.hasExtra(Constants.IPL_PUSH)) {
+                        pushIntent.putExtra(Constants.POST_SOURCE, intentData.getStringExtra(Constants.IPL_PUSH))
                     }
+                    pushIntent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
+                    intentData.extras?.let { pushIntent.putExtras(it) }
+                    context.startActivity(pushIntent)
+                }
+            }
 
-                    override fun onFailure(error: Throwable) {
+        } else if (intentData.hasExtra(Constants.PODCAST_ID)) {
+            val intent = Intent(context, PodcastPlayerActivity::class.java)
+            intent.putExtra(Constants.POSITION, 0)
+            intentData.extras?.let { intent.putExtras(it) }
+            intent.putExtra(Constants.POST_ID, intentData.getStringExtra(Constants.PODCAST_ID))
+            intentData.extras?.let { intent.putExtras(it) }
+            intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
+            context.startActivity(intent)
+        } else if (intentData.hasExtra(Constants.FILENAME) && intentData.hasExtra(Constants.MATCHTYPE)) {
+            val pushIntent = Intent(context, PWAMatchScoreActivity::class.java)
+            pushIntent.putExtra(Constants.FROM_APP, true)
+            // Need post_source value from intent to store analytics to backend
+            intentData.extras?.let { pushIntent.putExtras(it) }
+            pushIntent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
+            if (intentData.hasExtra(Constants.POST_SOURCE)) {
+                pushIntent.putExtra(Constants.POST_SOURCE, intentData.getStringExtra(Constants.POST_SOURCE))
+            } else if (intentData.hasExtra(Constants.IPL_PUSH)) {
+                pushIntent.putExtra(Constants.POST_SOURCE, intentData.getStringExtra(Constants.IPL_PUSH))
+            }
 
+            context.startActivity(pushIntent)
+        } else if (intentData.hasExtra(Constants.FILENAME) && intentData.hasExtra(Constants.LAUNCHTYPE)
+            && intentData.getStringExtra(Constants.LAUNCHTYPE) == Constants.CRICKET
+        ) {
+            val pushIntent = Intent(context, PWAMatchScoreActivity::class.java)
+            pushIntent.putExtra(Constants.FROM_APP, true)
+            pushIntent.putExtra(Constants.FILENAME, intentData.getStringExtra(Constants.FILENAME))
+            pushIntent.putExtra(Constants.MATCHTYPE, Constants.LIVE_MATCHES)
+            pushIntent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
+            if (intentData.hasExtra(Constants.POST_SOURCE)) {
+                pushIntent.putExtra(Constants.POST_SOURCE, intentData.getStringExtra(Constants.POST_SOURCE))
+            } else if (intentData.hasExtra(Constants.IPL_PUSH)) {
+                pushIntent.putExtra(Constants.POST_SOURCE, intentData.getStringExtra(Constants.IPL_PUSH))
+            }
+            intentData.extras?.let { pushIntent.putExtras(it) }
+            context.startActivity(pushIntent)
+        } else if (intentData.hasExtra(Constants.POST_ID) && intentData.getStringExtra(Constants.POST_ID)!!
+                .isNotEmpty()
+        ) {
+            val intent =
+                if (intentData.hasExtra(Constants.IS_NATIVE) && intentData.getStringExtra(Constants.IS_NATIVE) == Constants.TRUE) {
+                    val bundle = Bundle()
+                    bundle.putString("NativePageOpen", "Notfication")
+                    FirebaseAnalytics.getInstance(context).logEvent("NativePage", bundle)
+                    Intent(context, PostNativeDetailActivity::class.java)
+                } else {
+                    Intent(context, NewsFeedPageActivity::class.java)
+                }
+            intent.putExtra(Constants.INTEREST, "dynamicUrl") // send interest
+            intent.putExtra(Constants.POSITION, 0)
+            intent.putExtra(Constants.FROM_APP, true)
+            intentData.extras?.let { intent.putExtras(it) }
+            intent.putExtra(Constants.POST_ID, intentData.getStringExtra(Constants.POST_ID).toString())
+            intentData.extras?.let { intent.putExtras(it) }
+            intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
+            context.startActivity(intent)
+        } else if (intentData.hasExtra(Constants.PUSH_SOURCE) && (intentData.getStringExtra(Constants.PUSH_SOURCE) == Constants.FEEDSDK)
+            && intentData.hasExtra(Constants.WHICH)) {
+            LogDetail.LogD("Result", "Got the data " + intentData.getStringExtra(Constants.WHICH))
+            val which: String = intentData.getStringExtra(Constants.WHICH).toString()
+            if (which.equals("L", ignoreCase = true)) {
+                try {
+                    if (intentData.hasExtra(Constants.POST_ID)) {
+                        val bundle = Bundle()
+                        bundle.putString("NativePageOpen", "Notfication")
+                        FirebaseAnalytics.getInstance(context).logEvent("NativePage", bundle)
+                        val intent =
+                            if (intentData.hasExtra(Constants.IS_NATIVE) && intentData.getStringExtra(Constants.IS_NATIVE) == Constants.TRUE) {
+                                Intent(context, PostNativeDetailActivity::class.java)
+                            } else {
+                                Intent(context, NewsFeedPageActivity::class.java)
+                            }
+                        intent.putExtra(Constants.FROM_APP, true)
+                        intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
+                        intentData.extras?.let { intent.putExtras(it) }
+                        context.startActivity(intent)
                     }
-                }, 0
-            )
+                } catch (e: java.lang.Exception) {
+                    LogDetail.LogEStack(e)
+                }
+            }
+        } else {
+            return false
         }
-
+        return true
     }
+
+
 
     interface FirebaseTokenListener {
         fun onSuccess(token: String)

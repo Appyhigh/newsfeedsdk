@@ -16,6 +16,7 @@ import com.appyhigh.newsfeedsdk.callbacks.TabSelectedListener
 import com.appyhigh.newsfeedsdk.databinding.ItemCricketTabBinding
 import com.appyhigh.newsfeedsdk.databinding.ItemCryptoLearnTabBinding
 import com.appyhigh.newsfeedsdk.databinding.ItemCryptoTabBinding
+import com.appyhigh.newsfeedsdk.encryption.LogDetail
 import com.appyhigh.newsfeedsdk.model.feeds.Item
 
 class TabsAdapter(
@@ -108,7 +109,7 @@ class TabsAdapter(
                 } else if(tabList[holder.absoluteAdapterPosition].key_id=="results" && tabList[holder.absoluteAdapterPosition].selected){
                     hitCricketPostImpression(holder.itemView.context, 0, Constants.cricketPastMatchURI, 1)
                 } else if(tabList[holder.absoluteAdapterPosition].key_id=="live_matches" && tabList[holder.absoluteAdapterPosition].selected){
-                    ApiPostImpression().addCricketPostImpression(holder.itemView.context, Constants.cricketLiveMatchURI)
+                    ApiPostImpression().addCricketPostImpression(Constants.cricketLiveMatchURI)
                 }
             }
         }
@@ -122,7 +123,7 @@ class TabsAdapter(
             Handler(Looper.getMainLooper()).postDelayed({ alreadyCalled = -1 }, 2000)
         }
         if(url.isNotEmpty()){
-            ApiPostImpression().addCricketPostImpression(context, url)
+            ApiPostImpression().addCricketPostImpression(url)
         } else{
             Handler(Looper.getMainLooper()).postDelayed({ hitCricketPostImpression(context, tryCount+1, if(type==0) Constants.cricketUpcomingMatchURI else Constants.cricketPastMatchURI, type) }, 5000)
         }
@@ -144,7 +145,7 @@ class TabsAdapter(
             currentPosition = position
             notifyDataSetChanged()
         } catch (ex:Exception){
-            ex.printStackTrace()
+            LogDetail.LogEStack(ex)
         }
     }
 

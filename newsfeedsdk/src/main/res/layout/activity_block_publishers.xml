@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:paddingHorizontal="16dp"
+    android:paddingVertical="16dp"
+    android:background="@color/feedBackground">
+
+    <LinearLayout
+        android:id="@+id/headerLayout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+        <androidx.appcompat.widget.AppCompatImageView
+            android:id="@+id/ivBack"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:layout_gravity="center"
+            app:tint="@color/feedSecondaryTintColor"
+            app:srcCompat="@drawable/ic_back_btn" />
+
+        <androidx.appcompat.widget.AppCompatTextView
+            android:id="@+id/tvTitle"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="7"
+            android:layout_gravity="center"
+            android:layout_marginStart="16dp"
+            android:text="Blocked Publishers"
+            android:textColor="@color/feedPrimaryTextColor"
+            android:textSize="18sp" />
+
+        <androidx.appcompat.widget.AppCompatTextView
+            android:id="@+id/tvSelectAll"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Select All"
+            android:layout_gravity="center"
+            android:textColor="@color/purple_500"/>
+    </LinearLayout>
+
+    <androidx.appcompat.widget.AppCompatImageView
+        android:id="@+id/closeSelector"
+        android:layout_width="24dp"
+        android:layout_height="24dp"
+        android:layout_gravity="start"
+        android:visibility="gone"
+        app:srcCompat="@drawable/ic_close"
+        />
+
+    <ProgressBar
+        android:id="@+id/pbLoading"
+        android:layout_width="30dp"
+        android:layout_height="match_parent"
+        android:indeterminateTint="@color/purple_500"
+        android:layout_gravity="center"
+        tools:visibility="gone"
+        tools:ignore="UnusedAttribute" />
+
+    <androidx.appcompat.widget.AppCompatEditText
+        android:id="@+id/et_search"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:background="@drawable/bg_interest_edit_text"
+        android:hint="Search any publisher"
+        android:padding="10dp"
+        android:textSize="16sp"
+        android:textColorHint="#999999"
+        android:drawableStart="@drawable/ic_search_icon"
+        android:drawablePadding="10dp"
+        android:drawableTint="#999999" />
+
+    <androidx.appcompat.widget.AppCompatTextView
+        android:id="@+id/tvNoPublisher"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_gravity="center"
+        android:text="No Publishers found!"
+        android:gravity="center"
+        android:visibility="gone"
+        android:textSize="16sp"
+        android:textColor="@color/darker_gray"/>
+
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/rvBlockList"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="7"
+        android:layout_above="@+id/btnProceed"
+        android:layout_below="@+id/tvTitle"
+        android:layout_marginTop="10dp"
+        app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+        tools:itemCount="10"
+        tools:listitem="@layout/item_publisher_block" />
+
+    <androidx.appcompat.widget.AppCompatButton
+        android:id="@+id/btnProceed"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="16dp"
+        android:layout_marginEnd="16dp"
+        android:gravity="center"
+        android:padding="10dp"
+        android:background="@drawable/bg_round_blue_10"
+        android:text="Unblock All"
+        android:visibility="gone"
+        android:textColor="@color/white"
+        android:textSize="16sp" />
+
+</LinearLayout>

@@ -33,6 +33,31 @@
     </LinearLayout>
 
     <LinearLayout
+        android:id="@+id/llBlockPublisher"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center"
+        android:padding="10dp">
+
+        <androidx.appcompat.widget.AppCompatImageView
+            android:layout_width="20dp"
+            android:layout_height="20dp"
+            android:layout_gravity="center"
+            android:src="@drawable/ic_block_publisher" />
+
+        <androidx.appcompat.widget.AppCompatTextView
+            android:id="@+id/blockPublisherTitle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingStart="7.5dp"
+            android:text="Block Publisher"
+            android:textColor="@android:color/black"
+            android:textSize="16sp" />
+    </LinearLayout>
+
+
+    <LinearLayout
         android:id="@+id/llReportPost"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"

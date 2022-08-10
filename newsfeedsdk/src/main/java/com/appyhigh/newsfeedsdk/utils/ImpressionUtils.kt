@@ -38,14 +38,11 @@ class ImpressionUtils {
 
     internal class MyTask(var context: Context?) : TimerTask() {
         override fun run() {
-            FeedSdk.spUtil?.getString(Constants.JWT_TOKEN)?.let {
-                context?.let { it1 ->
-                    ApiPostImpression().addPostImpressionsEncrypted(
-                        Endpoints.POST_IMPRESSIONS_ENCRYPTED,
-                        it,
-                        it1
-                    )
-                }
+            context?.let { it1 ->
+                ApiPostImpression().addPostImpressionsEncrypted(
+                    Endpoints.POST_IMPRESSIONS_ENCRYPTED,
+                    it1
+                )
             }
         }
     }

@@ -1,10 +1,7 @@
 package com.appyhigh.newsfeedsdk.customview
 
 import android.content.Context
-import android.os.Handler
-import android.os.Looper
 import android.util.AttributeSet
-import android.util.Log
 import android.view.View
 import android.widget.LinearLayout
 import android.widget.ProgressBar
@@ -19,10 +16,10 @@ import com.appyhigh.newsfeedsdk.apicalls.ApiUserDetails
 import com.appyhigh.newsfeedsdk.apiclient.Endpoints
 import com.appyhigh.newsfeedsdk.callbacks.OnRefreshListener
 import com.appyhigh.newsfeedsdk.callbacks.PersonalizeCallListener
+import com.appyhigh.newsfeedsdk.encryption.LogDetail
 import com.appyhigh.newsfeedsdk.model.UserResponse
 import com.appyhigh.newsfeedsdk.model.feeds.Card
 import com.appyhigh.newsfeedsdk.utils.SpUtil
-import java.util.*
 
 class CryptoHomeView : LinearLayout, PersonalizeCallListener, OnRefreshListener {
 
@@ -52,12 +49,12 @@ class CryptoHomeView : LinearLayout, PersonalizeCallListener, OnRefreshListener 
 
     private fun initSDK() {
         if (FeedSdk.isSdkInitializationSuccessful) {
-            Log.d(TAG, "if isSdkInitializationSuccessful")
+            LogDetail.LogD(TAG, "if isSdkInitializationSuccessful")
             initView()
         } else {
             FeedSdk().setListener(object : FeedSdk.OnUserInitialized {
                 override fun onInitSuccess() {
-                    Log.d(TAG, "else onInitSuccess")
+                    LogDetail.LogD(TAG, "else onInitSuccess")
                     initView()
                 }
             })
@@ -71,17 +68,14 @@ class CryptoHomeView : LinearLayout, PersonalizeCallListener, OnRefreshListener 
         pbLoading?.visibility = View.VISIBLE
         rvPosts?.visibility = View.GONE
         mUserDetails = null
-        FeedSdk.spUtil?.getString(Constants.JWT_TOKEN)?.let {
-            ApiUserDetails().getUserResponseEncrypted(
-                Endpoints.USER_DETAILS_ENCRYPTED,
-                it,
-                object : ApiUserDetails.UserResponseListener {
-                    override fun onSuccess(userDetails: UserResponse) {
-                        mUserDetails = userDetails
-                        setUpHome()
-                    }
-                })
-        }
+        ApiUserDetails().getUserResponseEncrypted(
+            Endpoints.USER_DETAILS_ENCRYPTED,
+            object : ApiUserDetails.UserResponseListener {
+                override fun onSuccess(userDetails: UserResponse) {
+                    mUserDetails = userDetails
+                    setUpHome()
+                }
+            })
         val refresh = view.findViewById<SwipeRefreshLayout>(R.id.pullToRefresh)
         refresh.setOnRefreshListener {
             setUpHome(object :OnRefreshListener{
@@ -95,42 +89,39 @@ class CryptoHomeView : LinearLayout, PersonalizeCallListener, OnRefreshListener 
     private fun setUpHome(listener: OnRefreshListener?=null){
         if (mUserDetails != null){
             fetchCryptoWatchList(mUserDetails)
-            FeedSdk.spUtil?.getString(Constants.JWT_TOKEN)?.let {
-                ApiCrypto().getCryptoHomeEncrypted(
-                    Endpoints.GET_CRYPTO_HOME_ENCRYPTED,
-                    it,
-                    0,
-                    null, object : ApiCrypto.CryptoResponseListener {
-                        override fun onSuccess(
-                            cryptoResponse: ApiCrypto.CryptoResponse,
-                            url: String,
-                            timeStamp: Long
-                        ) {
-                            val cryptoList = cryptoResponse.cards as ArrayList<Card>
-                            if(!SpUtil.spUtilInstance!!.getBoolean(Constants.IS_ALREADY_JOINED, false)) {
-                                val telegramPost = Card()
-                                telegramPost.cardType = Constants.TELEGRAM_CHANNEL
-                                cryptoList.add(telegramPost)
-                            }
-                            Constants.cardsMap[interest] = cryptoList
-                            if(!SpUtil.spUtilInstance!!.getBoolean(Constants.IS_ALREADY_RATED, false)) {
-                                val ratingPost = Card()
-                                ratingPost.cardType = Constants.RATING
-                                cryptoList.add(ratingPost)
-                            }
-                            newsFeedAdapter = NewsFeedAdapter(
-                                cryptoList,
-                                null, interest)
-                            rvPosts?.apply {
-                                adapter = newsFeedAdapter
-                                itemAnimator = null
-                            }
-                            pbLoading?.visibility = View.GONE
-                            listener?.onRefreshNeeded()
-                            rvPosts?.visibility = View.VISIBLE
+            ApiCrypto().getCryptoHomeEncrypted(
+                Endpoints.GET_CRYPTO_HOME_ENCRYPTED,
+                0,
+                null, object : ApiCrypto.CryptoResponseListener {
+                    override fun onSuccess(
+                        cryptoResponse: ApiCrypto.CryptoResponse,
+                        url: String,
+                        timeStamp: Long
+                    ) {
+                        val cryptoList = cryptoResponse.cards as ArrayList<Card>
+                        if(!SpUtil.spUtilInstance!!.getBoolean(Constants.IS_ALREADY_JOINED, false)) {
+                            val telegramPost = Card()
+                            telegramPost.cardType = Constants.TELEGRAM_CHANNEL
+                            cryptoList.add(telegramPost)
                         }
-                    })
-            }
+                        Constants.cardsMap[interest] = cryptoList
+                        if(!SpUtil.spUtilInstance!!.getBoolean(Constants.IS_ALREADY_RATED, false)) {
+                            val ratingPost = Card()
+                            ratingPost.cardType = Constants.RATING
+                            cryptoList.add(ratingPost)
+                        }
+                        newsFeedAdapter = NewsFeedAdapter(
+                            cryptoList,
+                            null, interest)
+                        rvPosts?.apply {
+                            adapter = newsFeedAdapter
+                            itemAnimator = null
+                        }
+                        pbLoading?.visibility = View.GONE
+                        listener?.onRefreshNeeded()
+                        rvPosts?.visibility = View.VISIBLE
+                    }
+                })
         }
     }
 
@@ -145,7 +136,7 @@ class CryptoHomeView : LinearLayout, PersonalizeCallListener, OnRefreshListener 
                 }
             }
         } catch (ex:Exception){
-            ex.printStackTrace()
+            LogDetail.LogEStack(ex)
         }
     }
 

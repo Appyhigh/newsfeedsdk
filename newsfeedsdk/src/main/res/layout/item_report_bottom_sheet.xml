@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@color/feedBackground">
+
+    <RadioButton
+        android:id="@+id/rbValue"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:buttonTint="@color/purple"
+        android:padding="10dp"
+        android:textColor="@color/feedPrimaryTextColor"
+        tools:text="@string/report_1"
+        android:textSize="16sp"
+        tools:ignore="UnusedAttribute" />
+
+    <View
+        android:id="@+id/vLine"
+        android:layout_width="match_parent"
+        android:layout_height="0.5dp"
+        android:background="@android:color/darker_gray" />
+
+</LinearLayout>

@@ -1,25 +1,17 @@
 package com.appyhigh.newsfeedsdk.apicalls
 
-import android.util.Log
 import com.appyhigh.newsfeedsdk.Constants
-import com.appyhigh.newsfeedsdk.apiclient.APIClient
 import com.appyhigh.newsfeedsdk.encryption.AESCBCPKCS5Encryption
 import com.appyhigh.newsfeedsdk.encryption.AuthSocket
 import com.appyhigh.newsfeedsdk.encryption.LogDetail
 import com.appyhigh.newsfeedsdk.encryption.SessionUser
-import com.appyhigh.newsfeedsdk.utils.SpUtil
-import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
-import io.reactivex.rxjava3.schedulers.Schedulers
 import okhttp3.Call
-import org.json.JSONArray
-import org.json.JSONObject
 import java.io.IOException
 import java.nio.charset.StandardCharsets
 
 class ApiReportIssues {
     fun reportIssuesEncrypted(
         apiUrl: String,
-        token: String,
         reportIssueModel: ReportIssueModel,
         listener: ApiReportIssueListener
     ) {
@@ -46,7 +38,7 @@ class ApiReportIssues {
         values.add(reportIssueModel.additional_comments)
 
         val allDetails =
-            BaseAPICallObject().getBaseObjectWithAuth(Constants.POST, apiUrl, token, keys, values)
+            BaseAPICallObject().getBaseObjectWithAuth(Constants.POST, apiUrl, keys, values)
 
         LogDetail.LogDE("Test Data", allDetails.toString())
         val publicKey = SessionUser.Instance().publicKey
@@ -60,17 +52,9 @@ class ApiReportIssues {
         ) + "." + publicKey
         LogDetail.LogD("Data to be Sent -> ", sendingData)
         AuthSocket.Instance().postData(sendingData, object : ResponseListener {
-            override fun onSuccess(apiUrl: String?, response: JSONObject?) {
+            override fun onSuccess(apiUrl: String, response: String) {
                 LogDetail.LogDE("ApiReportIssues $apiUrl", response.toString())
                 listener.onSuccess()
-            }
-
-            override fun onSuccess(apiUrl: String?, response: JSONArray?) {
-                LogDetail.LogDE("ApiReportIssues $apiUrl", response.toString())
-            }
-
-            override fun onSuccess(apiUrl: String?, response: String?) {
-                LogDetail.LogDE("ApiReportIssues $apiUrl", response.toString())
             }
 
             override fun onError(call: Call, e: IOException) {
@@ -81,7 +65,7 @@ class ApiReportIssues {
 
     private fun handleApiError(throwable: Throwable) {
         throwable.message?.let {
-            Log.e(ApiReportIssues::class.java.simpleName, "handleApiError: $it")
+            LogDetail.LogDE(ApiReportIssues::class.java.simpleName, "handleApiError: $it")
         }
     }
 }
