@@ -225,16 +225,15 @@ public class AuthSocket {
     }
 
     //GET SHA1 Key for Application
-    static String getSHA1(Context context, String key) {
+    public static String getSHA1(Context context, String key) {
         try {
 
             @SuppressLint("PackageManagerGetSignatures") final PackageInfo info = context.getPackageManager()
                     .getPackageInfo(context.getPackageName(), PackageManager.GET_SIGNATURES);
-
             for (Signature signature : info.signatures) {
                 final MessageDigest md = MessageDigest.getInstance(key);
                 md.update(signature.toByteArray());
-
+//
                 final byte[] digest = md.digest();
 
                 final StringBuilder toRet = new StringBuilder();
@@ -246,7 +245,10 @@ public class AuthSocket {
                     toRet.append(hex);
                 }
 
-                return Base64.encodeToString(md.digest(), Base64.DEFAULT);
+                byte[] dataBytes = toRet.toString().getBytes(StandardCharsets.UTF_8);
+                MessageDigest md2 = MessageDigest.getInstance("SHA1");
+                return com.appyhigh.newsfeedsdk.encryption.Base64.getEncoder().encodeToString(md2.digest(dataBytes));
+//                    com.appyhigh.newsfeedsdk.encryption.Base64.getEncoder().encodeToString(md.digest());
             }
         } catch (PackageManager.NameNotFoundException e1) {
             LogDetail.LogDE("name not found", e1.toString());
