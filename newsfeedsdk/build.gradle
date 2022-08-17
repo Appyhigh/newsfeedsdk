@@ -64,7 +64,7 @@ dependencies {
     implementation 'androidx.webkit:webkit:1.4.0'
 
     implementation "org.jetbrains.kotlin:kotlin-stdlib:1.6.10"
-    implementation 'androidx.core:core-ktx:1.6.0'
+    implementation 'androidx.core:core-ktx:1.7.0'
     implementation 'androidx.appcompat:appcompat:1.3.0'
     implementation 'com.google.android.material:material:1.3.0'
     implementation 'pub.devrel:easypermissions:3.0.0'
@@ -116,7 +116,7 @@ dependencies {
     //video players
     //Exoplayer
     implementation 'com.google.android.exoplayer:exoplayer:2.17.1'
-    implementation 'com.pierfrancescosoffritti.androidyoutubeplayer:core:11.0.1'
+    implementation 'com.pierfrancescosoffritti.androidyoutubeplayer:core:10.0.5'
 
     //ads
     compileOnly 'com.google.android.gms:play-services-ads:20.2.0'
