@@ -102,6 +102,7 @@
 
     <dimen name="space_top_header">50dp</dimen>
     <dimen name="walk_through_side_spacing">60dp</dimen>
+    <dimen name="reel_item_size_medium">22dp</dimen>
 
     <dimen name="tab_selector_padding">3dp</dimen>
 

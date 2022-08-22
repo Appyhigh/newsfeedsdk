@@ -1,8 +1,11 @@
 package com.appyhigh.newsfeedsdk.encryption
 
 import android.content.Context
+import android.content.pm.ApplicationInfo
+import android.content.pm.PackageManager
 import android.util.Log
 import android.widget.Toast
+import com.appyhigh.newsfeedsdk.Constants
 
 object LogDetail {
     private var debugger = false

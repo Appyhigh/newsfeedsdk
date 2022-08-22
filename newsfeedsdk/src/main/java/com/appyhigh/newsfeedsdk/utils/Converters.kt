@@ -63,6 +63,7 @@ class Converters {
     fun getDisplayImageForVideos(reaction: String, context: Context, useDarkImages: Boolean = false): Drawable? {
         return when (reaction.uppercase()) {
             Constants.ReactionType.LIKE.toString() -> if (useDarkImages) ContextCompat.getDrawable(context, R.drawable.ic_like_new)
+            else if(SpUtil.useReelsV2) ContextCompat.getDrawable(context, R.drawable.ic_cricket_like_filled)
             else ContextCompat.getDrawable(context, R.drawable.ic_like_new_pressed)
             Constants.ReactionType.LOVE.toString() -> ContextCompat.getDrawable(context, R.drawable.img_reaction_love)
             Constants.ReactionType.LAUGH.toString() -> ContextCompat.getDrawable(context, R.drawable.img_reaction_laugh) //TODO Replace laugh image
@@ -70,6 +71,7 @@ class Converters {
             Constants.ReactionType.SAD.toString() -> ContextCompat.getDrawable(context, R.drawable.img_reaction_sad)
             Constants.ReactionType.ANGRY.toString() -> ContextCompat.getDrawable(context, R.drawable.img_reaction_angry)
             else -> if (useDarkImages) ContextCompat.getDrawable(context, R.drawable.ic_like_new)
+            else if(SpUtil.useReelsV2) ContextCompat.getDrawable(context, R.drawable.ic_like_v3)
             else ContextCompat.getDrawable(context, R.drawable.ic_like_new)
         }
 

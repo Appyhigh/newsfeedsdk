@@ -91,33 +91,45 @@ class NewsFeedList : LinearLayout, PersonalizeCallListener, OnRefreshListener {
     private fun initSDK() {
         if (FeedSdk.isSdkInitializationSuccessful) {
             LogDetail.LogD("NewsFeedList", "if isSdkInitializationSuccessful")
-            initView()
+            startInitView()
         } else {
             FeedSdk().setListener(object : FeedSdk.OnUserInitialized {
                 override fun onInitSuccess() {
                     LogDetail.LogD("NewsFeedList", "else onInitSuccess")
-                    initView()
+                    startInitView()
                 }
             })
         }
     }
 
-    private fun initView() {
+    private fun startInitView(){
+        SpUtil.onRefreshListeners["news"] = this
         val view = inflate(context, R.layout.news_feed_list, this)
-        Card.setFontFamily(view?.findViewById(R.id.podcastBottomTitle))
-        Card.setFontFamily(view?.findViewById(R.id.podcastBottomPublisherName))
+        if(!SpUtil.spUtilInstance!!.getBoolean(Constants.PRIVACY_ACCEPTED, false)){
+            Constants.setPrivacyDialog(context, view)
+        } else{
+            val llPrivacy = view.findViewById<LinearLayout>(R.id.llPrivacy)
+            llPrivacy.visibility = View.GONE
+            initView(view)
+        }
+    }
+
+
+    private fun initView(view: View) {
+        Card.setFontFamily(view.findViewById(R.id.podcastBottomTitle))
+        Card.setFontFamily(view.findViewById(R.id.podcastBottomPublisherName))
         mUserDetails = null
         mInterestResponseModel = null
         mLanguageResponseModel = null
         PodcastMediaPlayer.setPodcastListener(view, "newsFeedList")
-        rvInterests = view?.findViewById(R.id.rvInterests)
-        vpFeed = view?.findViewById(R.id.vpFeed)
-        loadLayout = view?.findViewById(R.id.loadLayout)
+        rvInterests = view.findViewById(R.id.rvInterests)
+        vpFeed = view.findViewById(R.id.vpFeed)
+        loadLayout = view.findViewById(R.id.loadLayout)
         pbLoading = loadLayout?.findViewById(R.id.progress_bar)
         noNetworkLayout = loadLayout?.findViewById(R.id.retry_network)
         loadLayout?.visibility = VISIBLE
-        ivMap = view?.findViewById(R.id.iv_map)
-        singleInterestContainer = view?.findViewById(R.id.single_interest)
+        ivMap = view.findViewById(R.id.iv_map)
+        singleInterestContainer = view.findViewById(R.id.single_interest)
 //        ivPersonalize = findViewById(R.id.ivPersonalize)
         val drawerLayout:DrawerLayout = findViewById(R.id.drawer_layout)
         val navigationView:NavigationView = findViewById(R.id.navigationView)
@@ -147,7 +159,6 @@ class NewsFeedList : LinearLayout, PersonalizeCallListener, OnRefreshListener {
             drawerLayout.closeDrawer(GravityCompat.START)
             true
         }
-        SpUtil.onRefreshListeners["news"] = this
         ivAdd = findViewById(R.id.ivAdd)
 //        if (FeedSdk.personalizationListener != null) {
 //            ivAdd?.visibility = GONE
@@ -301,7 +312,7 @@ class NewsFeedList : LinearLayout, PersonalizeCallListener, OnRefreshListener {
                                 }
 
                                 override fun onRefresh() {
-                                    initView()
+                                    startInitView()
                                 }
                             })
                     )
@@ -525,7 +536,7 @@ class NewsFeedList : LinearLayout, PersonalizeCallListener, OnRefreshListener {
                                 isSelectedInterestsEmpty,
                                 object : PersonalizationListener {
                                     override fun onRefresh() {
-                                        initView()
+                                        startInitView()
                                     }
 
                                     override fun onPersonalizationClicked() {

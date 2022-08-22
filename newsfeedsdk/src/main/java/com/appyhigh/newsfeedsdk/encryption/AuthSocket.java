@@ -162,7 +162,7 @@ public class AuthSocket {
             getAppIdFromManifest(context);
             setUserId(context);
             SessionUser.Instance().setAppDetails(context);
-            String SHA1 = getSHA1(AuthSocket.Instance().getmContext(), "SHA1");
+            String SHA1 = getSHA1(context, "SHA1");
             String NativeKey = String.valueOf(keyInit);
             byte[] decodedBytes = Base64.decode(NativeKey, Base64.DEFAULT);
             String decodedString = new String(decodedBytes);

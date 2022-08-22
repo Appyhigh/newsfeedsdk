@@ -66,6 +66,7 @@ class SpUtil private constructor() {
         var eventsListener: EventsListener? = null
         var onRefreshListeners: HashMap<String, OnRefreshListener> = HashMap()
         var isPopupAlreadyOpen = false
+        var useReelsV2 = false
         var pushIntent:Intent? = null
         var liveMatchesViewRefreshListener:OnRefreshListener? = null
         var searchStickyItemListener:SearchStickyItemListener? = null

@@ -12,6 +12,11 @@
         android:background="@color/homeBackground"
         android:orientation="vertical">
 
+        <include android:id="@+id/llPrivacy"
+            layout="@layout/dialog_privacy_policy"
+            tools:visibility="gone"
+            />
+
         <!--        <ProgressBar-->
         <!--            android:id="@+id/pbLoading"-->
         <!--            android:layout_width="wrap_content"-->

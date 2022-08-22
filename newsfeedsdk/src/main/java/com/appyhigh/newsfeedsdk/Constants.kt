@@ -2,6 +2,7 @@ package com.appyhigh.newsfeedsdk
 
 import android.content.Context
 import android.content.ContextWrapper
+import android.content.Intent
 import android.content.res.Configuration
 import android.graphics.Color
 import android.graphics.PorterDuff
@@ -11,19 +12,24 @@ import android.graphics.drawable.Drawable
 import android.net.ConnectivityManager
 import android.net.Uri
 import android.os.Build
+import android.view.View
 import android.widget.*
 import androidx.annotation.ColorInt
 import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.widget.AppCompatTextView
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.LifecycleOwner
 import androidx.recyclerview.widget.RecyclerView
 import androidx.viewpager2.widget.ViewPager2
+import com.appyhigh.newsfeedsdk.activity.WebActivity
+import com.appyhigh.newsfeedsdk.apicalls.ApiConfig
 import com.appyhigh.newsfeedsdk.callbacks.GlideCallbackListener
 import com.appyhigh.newsfeedsdk.callbacks.PWATabSelectedListener
 import com.appyhigh.newsfeedsdk.encryption.LogDetail
 import com.appyhigh.newsfeedsdk.model.*
 import com.appyhigh.newsfeedsdk.model.feeds.Card
 import com.appyhigh.newsfeedsdk.model.feeds.Item
+import com.appyhigh.newsfeedsdk.utils.SpUtil
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.DataSource
 import com.bumptech.glide.load.engine.GlideException
@@ -32,6 +38,7 @@ import com.bumptech.glide.load.model.LazyHeaders
 import com.bumptech.glide.request.RequestListener
 import com.bumptech.glide.request.RequestOptions
 import com.bumptech.glide.request.target.Target
+import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.gson.annotations.SerializedName
 import im.delight.android.webview.AdvancedWebView
 import java.math.BigDecimal
@@ -190,6 +197,8 @@ object Constants {
     const val POST = "POST"
     const val GET = "GET"
     const val CONFIG_MODEL = "config_model"
+    const val PRIVACY_ACCEPTED = "privacy_accepted"
+
 
     var isChecked = true
     var impreesionModel: Impressions? = null
@@ -743,6 +752,36 @@ object Constants {
         }
     }
 
+
+    fun setPrivacyDialog(context: Context, view: View){
+        try{
+            val tvPrivacy: AppCompatTextView = view.findViewById(R.id.tvPrivacy)
+            val tvOk: AppCompatTextView = view.findViewById(R.id.tvOk)
+            Card.setFontFamily(view.findViewById(R.id.tvTitle), true)
+            Card.setFontFamily(view.findViewById(R.id.tvBody))
+            Card.setFontFamily(tvPrivacy)
+            Card.setFontFamily(tvOk)
+            tvPrivacy.setOnClickListener {
+                val link = ApiConfig().getConfigModel(context).privacyPolicyUrl
+                link?.let{
+                    val intent = Intent(context, WebActivity::class.java)
+                    intent.putExtra("link", link)
+                    intent.putExtra("title", "Privacy Policy")
+                    intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP
+                    context.startActivity(intent)
+                }
+            }
+            tvOk.setOnClickListener {
+                SpUtil.spUtilInstance!!.putBoolean(PRIVACY_ACCEPTED, true)
+                for (listener in SpUtil.onRefreshListeners) {
+                    listener.value.onRefreshNeeded()
+                }
+                FirebaseAnalytics.getInstance(context).logEvent("Privacy_Policy_Allow", null);
+            }
+        } catch (ex:Exception){
+            ex.printStackTrace()
+        }
+    }
 
     object Toaster {
         fun show(context: Context, text: CharSequence) {
