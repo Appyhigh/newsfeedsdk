@@ -44,7 +44,10 @@ data class ConfigModel(
     val customFirebaseConfig: CustomFirebaseConfig = CustomFirebaseConfig(),
     @SerializedName("report_posts_text")
     @Expose
-    val reportPostsText: List<String> = ArrayList()
+    val reportPostsText: List<String> = ArrayList(),
+    @SerializedName("privacy_policy_url")
+    @Expose
+    val privacyPolicyUrl: String? = null
 )
 
 data class CustomFirebaseConfig(

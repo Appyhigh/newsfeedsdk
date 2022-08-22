@@ -12,6 +12,7 @@ import android.os.Build
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -129,6 +130,7 @@ class NewsFeedAdapter(
     private val TELEGRAM_CHANNEL = 42
     private val FEED_YOU_MAKE_LIKE_INTERESTS = 43
     private val NEWS_REGIONAL = 44
+    private val VIDEO_BIG_V2 = 45
     private val EMPTY = 100
     private val fromPublishPage = false
     private var onSomethingClicked = false
@@ -341,6 +343,16 @@ class NewsFeedAdapter(
                     DataBindingUtil.inflate(
                         LayoutInflater.from(parent.context),
                         R.layout.item_video_big,
+                        parent,
+                        false
+                    )
+                )
+            }
+            VIDEO_BIG_V2 -> {
+                return Big2VideoViewHolder(
+                    DataBindingUtil.inflate(
+                        LayoutInflater.from(parent.context),
+                        R.layout.item_video_big2,
                         parent,
                         false
                     )
@@ -661,6 +673,15 @@ class NewsFeedAdapter(
                 holder.view.onDetachedListener = this
                 holder.view.feedListener = this
             }
+            VIDEO_BIG_V2 -> {
+                val holder = mainHolder as Big2VideoViewHolder
+                holder.view.card = newsFeedList[position]
+                holder.view.listener = this
+                holder.view.position = position
+                holder.view.onAttachedListener = this
+                holder.view.onDetachedListener = this
+                holder.view.feedListener = this
+            }
             INTERESTS -> {
                 val holder = mainHolder as InterestsViewHolder
                 holder.view.card = newsFeedList[position]
@@ -853,7 +874,7 @@ class NewsFeedAdapter(
             }
             Constants.CardType.MEDIA_VIDEO_BIG.toString()
                 .toLowerCase(Locale.getDefault()) -> {
-                VIDEO_BIG
+                if(SpUtil.useReelsV2) VIDEO_BIG_V2 else VIDEO_BIG
             }
             Constants.CardType.FEED_INTERESTS.toString()
                 .toLowerCase(Locale.getDefault()) -> {
@@ -1772,6 +1793,9 @@ class NewsFeedAdapter(
         } else if (holder is BigVideoViewHolder) {
             holder.view.newsItemVideo.player?.playWhenReady = false
             holder.view.newsItemVideo.player?.release()
+        } else if(holder is Big2VideoViewHolder) {
+            holder.view.newsItemVideo.player?.playWhenReady = false
+            holder.view.newsItemVideo.player?.release()
         }
     }
 
@@ -1928,6 +1952,84 @@ class NewsFeedAdapter(
             }
         }, 100)
     }
+
+    fun pausePlayer(holder: Big2VideoViewHolder) {
+        try {
+            Log.d("Check", "pausePlayer " + holder.view.position)
+            if (holder.view.llYoutubeView.visibility == View.VISIBLE){
+                youtubePlayerView.keys.forEach {
+                    youtubePlayerView[it]?.getYouTubePlayerWhenReady(object: YouTubePlayerCallback {
+                        override fun onYouTubePlayer(youTubePlayer: YouTubePlayer) {
+                            youTubePlayer.pause()
+                        }
+                    })
+                }
+            }else {
+                holder.view.newsItemVideo.player!!.playWhenReady = false
+                try {
+                    var duration = 0
+                    var totalDuration = 0
+                    if (holder.view.newsItemVideo.player?.duration != null) {
+                        totalDuration = (holder.view.newsItemVideo.player!!.duration / 1000).toInt()
+                    }
+                    if (holder.view.newsItemVideo.player?.currentPosition != null) {
+                        duration = (holder.view.newsItemVideo.player!!.currentPosition / 1000).toInt()
+                    }
+                    postImpressionListener?.addImpression(
+                        newsFeedList[holder.view.position!!],
+                        totalDuration,
+                        duration
+                    )
+                } catch (ex:Exception){
+                    ex.printStackTrace()
+                }
+            }
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
+    }
+
+    fun playVideo(holder: Big2VideoViewHolder, position: Int) {
+        Handler(Looper.getMainLooper()).postDelayed({
+            try {
+                Log.d("ISPLAYING", "position: $position == ${holder.view.position}")
+                if (holder.view.llYoutubeView.visibility == View.VISIBLE){
+                    youtubePlayerView.keys.forEach {
+                        if (it == position){
+                            youtubePlayerView[it]?.getYouTubePlayerWhenReady(object: YouTubePlayerCallback{
+                                override fun onYouTubePlayer(youTubePlayer: YouTubePlayer) {
+                                    Handler(Looper.getMainLooper()).postDelayed({
+                                        youTubePlayer.play()
+                                    }, 300)
+                                }
+                            })
+                        }else{
+                            youtubePlayerView[it]?.getYouTubePlayerWhenReady(object: YouTubePlayerCallback{
+                                override fun onYouTubePlayer(youTubePlayer: YouTubePlayer) {
+                                    youTubePlayer.pause()
+                                }
+                            })
+                        }
+                    }
+                }else {
+                    holder.view.llYoutubeView.removeAllViewsInLayout()
+                    Log.d("Check", "playVideo " + holder.view.position)
+                    AudioTracker.init(holder.itemView.context, "Reels", AudioTracker.REELS, newsFeedList[holder.bindingAdapterPosition].items[0].postId,object : AudioTrackerListener{
+                        override fun onSuccess() {
+                            holder.view.newsItemVideo.player?.playWhenReady = true
+                        }
+
+                        override fun onFailure() {
+                            holder.view.newsItemVideo.player?.playWhenReady = false
+                        }
+                    })
+                }
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
+        }, 100)
+    }
+
 
     override fun setUpYoutubeVideo(view: StyledPlayerView, position: Int, youtubeUrl: String){
         var youtubeVidDuration = 10000L
@@ -2090,6 +2192,7 @@ class NewsFeedAdapter(
 
     class EmptyViewHolder(val view: ItemEmptyBinding) : RecyclerView.ViewHolder(view.root)
     class BigVideoViewHolder(val view: ItemVideoBigBinding) : RecyclerView.ViewHolder(view.root)
+    class Big2VideoViewHolder(val view: ItemVideoBig2Binding) : RecyclerView.ViewHolder(view.root)
     class InterestsViewHolder(val view: ItemInterestsCardBinding) :
         RecyclerView.ViewHolder(view.root)
 

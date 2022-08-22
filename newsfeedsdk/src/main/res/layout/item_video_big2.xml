@@ -1,0 +1,257 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+        <import type="android.view.View"/>
+
+        <variable
+            name="buildConfig"
+            type="com.appyhigh.newsfeedsdk.BuildConfig" />
+
+        <variable
+            name="card"
+            type="com.appyhigh.newsfeedsdk.model.feeds.Card" />
+
+        <variable
+            name="listener"
+            type="com.appyhigh.newsfeedsdk.callbacks.PostViewsClickListener" />
+
+        <variable
+            name="position"
+            type="Integer" />
+
+        <variable
+            name="onAttachedListener"
+            type="com.appyhigh.newsfeedsdk.callbacks.OnViewAttachedToWindow" />
+
+        <variable
+            name="onDetachedListener"
+            type="com.appyhigh.newsfeedsdk.callbacks.OnViewDetachedFromWindow" />
+
+        <variable
+            name="feedListener"
+            type="com.appyhigh.newsfeedsdk.callbacks.VideoPlayerListener" />
+
+        <import type="com.appyhigh.newsfeedsdk.R" />
+
+    </data>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:id="@+id/parent"
+        android:background="@android:color/black">
+
+        <LinearLayout
+            android:id="@+id/unavailable"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@android:color/black"
+            android:gravity="center"
+            android:orientation="vertical"
+            android:padding="50dp"
+            android:visibility="gone"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent">
+
+            <androidx.appcompat.widget.AppCompatImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:srcCompat="@drawable/ic_broken_link" />
+
+            <androidx.appcompat.widget.AppCompatTextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="20dp"
+                app:isBold="@{true}"
+                android:text="@string/error_video_unavailable"
+                android:textColor="#bfffffff"
+                android:textSize="18sp"
+                android:textStyle="bold" />
+
+            <androidx.appcompat.widget.AppCompatTextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="5dp"
+                android:text="@string/error_video_description"
+                android:textColor="#bfffffff"
+                android:textSize="16sp" />
+
+        </LinearLayout>
+
+        <com.google.android.exoplayer2.ui.StyledPlayerView
+            android:id="@+id/news_item_video"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:minHeight="200dp"
+            android:visibility="visible"
+            app:isYoutubeVideo="@{card.items[0].platform}"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:resize_mode="fixed_width"
+            app:position="@{position}"
+            app:listener="@{feedListener}"
+            app:videoUrl="@{card.items[0].content.mediaList.get(0)}"
+            app:youtubeUrl='@{card.items[0].content.shortCode ?? ""}' />
+
+        <LinearLayout
+            android:id="@+id/llYoutubeView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:minHeight="200dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"/>
+
+        <androidx.appcompat.widget.AppCompatImageView
+            android:id="@+id/mute"
+            android:layout_width="56dp"
+            android:layout_height="56dp"
+            app:srcCompat="@drawable/ic_feed_mute"
+            android:layout_gravity="center"
+            android:visibility="gone"
+            android:elevation="20dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:visibility="visible"
+            tools:ignore="UnusedAttribute" />
+
+
+        <LinearLayout
+            android:id="@+id/llProfile"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginStart="16dp"
+            android:layout_marginBottom="18dp"
+            android:layout_marginEnd="42dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toStartOf="@id/ll_post_actions">
+            <androidx.appcompat.widget.AppCompatImageView
+                android:id="@+id/feed_publisher_logo"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:layout_gravity="center"
+                android:onClick="@{(v) ->listener.onPostClicked(v, position)}"
+                app:imageUrl="@{card.items[0].publisherProfilePic}"
+                tools:srcCompat="@tools:sample/avatars" />
+
+            <androidx.appcompat.widget.AppCompatTextView
+                android:id="@+id/feed_title"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="10dp"
+                android:layout_marginEnd="10dp"
+                android:ellipsize="end"
+                android:maxLines="3"
+                android:gravity="center_vertical"
+                android:layout_gravity="center_vertical"
+                android:onClick="@{(v) ->listener.onPostClicked(v, position)}"
+                android:textColor="@android:color/white"
+                app:description="@{card.items[0].content.description}"
+                app:title="@{card.items[0].content.title}"
+                tools:text="Chhangte has got some moves" />
+
+        </LinearLayout>
+        <LinearLayout
+            android:id="@+id/ll_post_actions"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:background="@android:color/transparent"
+            android:gravity="bottom|end"
+            android:layout_marginEnd="10dp"
+            android:onClick="@{(v) ->listener.onPostClicked(v, position)}"
+            android:orientation="vertical"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent">
+
+            <androidx.appcompat.widget.AppCompatImageView
+                android:id="@+id/ivWhatsapp"
+                android:layout_width="30dp"
+                android:layout_height="30dp"
+                android:scaleType="fitCenter"
+                android:layout_marginBottom="24dp"
+                android:onClick="@{(v) -> listener.onSharePost(v, position, card, true)}"
+                app:srcCompat="@drawable/ic_whatsapp_v3" />
+
+            <androidx.appcompat.widget.AppCompatImageView
+                android:id="@+id/ivComment"
+                android:layout_width="@dimen/reel_item_size_medium"
+                android:layout_height="@dimen/reel_item_size_medium"
+                android:scaleType="fitCenter"
+                android:layout_marginBottom="24dp"
+                android:layout_marginEnd="3dp"
+                android:onClick="@{(v) -> listener.onPostClicked(v, position)}"
+                app:srcCompat="@drawable/ic_comment_v3" />
+
+            <androidx.appcompat.widget.AppCompatImageView
+                android:id="@+id/ivLike"
+                android:layout_width="30dp"
+                android:layout_height="30dp"
+                android:layout_marginBottom="24dp"
+                android:onClick="@{(v) -> listener.onLikeClicked(v, position, card)}"
+                android:scaleType="fitCenter"
+                app:isLikedVideo="@{card.items[0].isReacted}"
+                app:srcCompat="@drawable/ic_like_v3"/>
+
+
+
+            <androidx.appcompat.widget.AppCompatImageView
+                android:id="@+id/ivShare"
+                android:layout_width="30dp"
+                android:layout_height="30dp"
+                android:layout_marginBottom="24dp"
+                android:onClick="@{(v) -> listener.onSharePost(v, position, card, false)}"
+                app:srcCompat="@drawable/ic_share_v3"/>
+
+            <androidx.appcompat.widget.AppCompatImageView
+                android:layout_width="@dimen/reel_item_size_medium"
+                android:layout_height="@dimen/reel_item_size_medium"
+                android:elevation="10dp"
+                android:layout_marginBottom="24dp"
+                app:srcCompat="@drawable/ic_feed_report"
+                app:visible="@{buildConfig.DEBUG}"
+                android:onClick='@{(v) -> listener.onReportClicked(v, position, card, "")}'
+                tools:visibility="visible"
+                tools:ignore="UnusedAttribute" />
+
+            <androidx.appcompat.widget.AppCompatImageView
+                android:id="@+id/news_item_more_option"
+                android:layout_width="@dimen/reel_item_size_medium"
+                android:layout_height="@dimen/reel_item_size_medium"
+                android:layout_marginBottom="24dp"
+                android:onClick="@{ (v) -> listener.onMoreOptionsClicked(v, position)}"
+                app:srcCompat="@drawable/ic_menu_v3" />
+        </LinearLayout>
+
+
+        <com.airbnb.lottie.LottieAnimationView
+            android:id="@+id/animation_view"
+            android:layout_width="60dp"
+            android:layout_height="60dp"
+            app:lottie_fileName="swipe_animation.json"
+            app:tint="@color/colorWhite"
+            android:layout_gravity="end"
+            app:lottie_autoPlay="true"
+            app:lottie_loop="true"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            android:elevation="10dp"
+            android:visibility="@{position==0? View.VISIBLE: View.GONE}"
+            tools:ignore="UnusedAttribute" />
+
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</layout>

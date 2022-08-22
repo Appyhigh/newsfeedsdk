@@ -30,6 +30,7 @@ import com.appyhigh.newsfeedsdk.model.PostView
 import com.appyhigh.newsfeedsdk.model.feeds.Card
 import com.appyhigh.newsfeedsdk.model.feeds.GetFeedsResponse
 import com.appyhigh.newsfeedsdk.utils.EndlessScrolling
+import com.appyhigh.newsfeedsdk.utils.SpUtil
 import com.appyhigh.newsfeedsdk.utils.showAdaptiveBanner
 import com.google.android.exoplayer2.ui.StyledPlayerView
 import com.google.gson.Gson
@@ -46,7 +47,7 @@ class ReelsActivity : AppCompatActivity() {
     private var presentTimeStamp:Long = 0
     var postImpressions = HashMap<String, PostView>()
     var currentPosition = 0
-    var holders = HashMap<Int,NewsFeedAdapter.BigVideoViewHolder>()
+    var holders = HashMap<Int,RecyclerView.ViewHolder>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -131,14 +132,27 @@ class ReelsActivity : AppCompatActivity() {
             val holder = if(holders.containsKey(position)){
                  holders[position]
             } else{
-                holders[position] = binding?.rvReels?.findViewHolderForAdapterPosition(position) as NewsFeedAdapter.BigVideoViewHolder
+                if(SpUtil.useReelsV2){
+                    holders[position] = binding?.rvReels?.findViewHolderForAdapterPosition(position) as NewsFeedAdapter.Big2VideoViewHolder
+                } else {
+                    holders[position] = binding?.rvReels?.findViewHolderForAdapterPosition(position) as NewsFeedAdapter.BigVideoViewHolder
+                }
                 holders[position]
             }
-            if(isPlaying){
-                mAdapter?.playVideo(holder!!, position)
-                currentPosition = position
-            } else{
-                mAdapter?.pausePlayer(holder!!)
+            if(holder is NewsFeedAdapter.BigVideoViewHolder){
+                if(isPlaying){
+                    mAdapter?.playVideo(holder!!, position)
+                    currentPosition = position
+                } else{
+                    mAdapter?.pausePlayer(holder!!)
+                }
+            } else if(holder is NewsFeedAdapter.Big2VideoViewHolder) {
+                if(isPlaying){
+                    mAdapter?.playVideo(holder!!, position)
+                    currentPosition = position
+                } else{
+                    mAdapter?.pausePlayer(holder!!)
+                }
             }
 
         } catch (ex:Exception){
