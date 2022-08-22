@@ -60,20 +60,31 @@ class ExploreFeed : LinearLayout,OnRefreshListener {
 
     private fun initSDK() {
         if (FeedSdk.isExploreInitializationSuccessful) {
-            initView()
+            startInitView()
         } else {
             FeedSdk().setExploreListener(object : FeedSdk.OnUserInitialized {
                 override fun onInitSuccess() {
-                    initView()
+                    startInitView()
                 }
             })
         }
     }
 
-    private fun initView() {
-        val view = inflate(context, R.layout.explore_feed, this)
-        setFonts(view)
+    private fun startInitView(){
         SpUtil.onRefreshListeners["explore"] = this
+        val view = inflate(context, R.layout.explore_feed, this)
+        if(!SpUtil.spUtilInstance!!.getBoolean(Constants.PRIVACY_ACCEPTED, false)){
+            Constants.setPrivacyDialog(context, view)
+        } else{
+            val llPrivacy = view.findViewById<LinearLayout>(R.id.llPrivacy)
+            llPrivacy.visibility = View.GONE
+            initView(view)
+        }
+    }
+
+
+    private fun initView(view: View) {
+        setFonts(view)
         PodcastMediaPlayer.setPodcastListener(view, "explore")
         rvExplore = view.findViewById(R.id.rvExplore)
         loadLayout = view?.findViewById(R.id.loadLayout)

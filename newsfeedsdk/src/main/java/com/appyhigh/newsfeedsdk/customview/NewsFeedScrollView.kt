@@ -79,32 +79,43 @@ class NewsFeedScrollView : LinearLayout, PersonalizeCallListener, OnRefreshListe
     private fun initSDK() {
         if (FeedSdk.isSdkInitializationSuccessful) {
             LogDetail.LogD("FeedSdk", "if isSdkInitializationSuccessful")
-            initView()
+            startInitView()
         } else {
             FeedSdk().setListener(object : FeedSdk.OnUserInitialized {
                 override fun onInitSuccess() {
                     LogDetail.LogD("FeedSdk", "else onInitSuccess")
-                    initView()
+                    startInitView()
                 }
             })
         }
     }
 
-    private fun initView() {
+    private fun startInitView(){
+        SpUtil.onRefreshListeners["news"] = this
         val view = inflate(context, R.layout.layout_news_feed_scroll_view, this)
-        Card.setFontFamily(view?.findViewById(R.id.podcastBottomTitle))
-        Card.setFontFamily(view?.findViewById(R.id.podcastBottomPublisherName))
+        if(!SpUtil.spUtilInstance!!.getBoolean(Constants.PRIVACY_ACCEPTED, false)){
+            Constants.setPrivacyDialog(context, view)
+        } else{
+            val llPrivacy = view.findViewById<LinearLayout>(R.id.llPrivacy)
+            llPrivacy.visibility = View.GONE
+            initView(view)
+        }
+    }
+
+
+    private fun initView(view: View) {
+        Card.setFontFamily(view.findViewById(R.id.podcastBottomTitle))
+        Card.setFontFamily(view.findViewById(R.id.podcastBottomPublisherName))
         mUserDetails = null
         mInterestResponseModel = null
         mLanguageResponseModel = null
         PodcastMediaPlayer.setPodcastListener(view, "newsFeedList")
-        rvInterests = view?.findViewById(R.id.rvInterests)
-        vpFeed = view?.findViewById(R.id.vpFeed)
-        loadLayout = view?.findViewById(R.id.loadLayout)
+        rvInterests = view.findViewById(R.id.rvInterests)
+        vpFeed = view.findViewById(R.id.vpFeed)
+        loadLayout = view.findViewById(R.id.loadLayout)
         pbLoading = loadLayout?.findViewById(R.id.progress_bar)
         noNetworkLayout = loadLayout?.findViewById(R.id.retry_network)
         loadLayout?.visibility = VISIBLE
-        SpUtil.onRefreshListeners["news"] = this
         ivAdd = findViewById(R.id.ivAdd)
         ivMap = findViewById(R.id.iv_map)
         if (FeedSdk.personalizationListener != null) {
@@ -508,7 +519,7 @@ class NewsFeedScrollView : LinearLayout, PersonalizeCallListener, OnRefreshListe
                                     }
 
                                     override fun onRefresh() {
-                                        initView()
+                                        startInitView()
                                     }
                                 },
                                 null,

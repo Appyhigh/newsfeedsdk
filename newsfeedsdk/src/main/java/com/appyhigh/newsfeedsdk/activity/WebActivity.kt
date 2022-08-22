@@ -140,7 +140,7 @@ class WebActivity : AppCompatActivity(), AdvancedWebView.Listener {
             setSocialData()
             setSearchBar()
         } else {
-            binding?.appBar?.visibility = View.GONE
+            binding?.appBar?.visibility = View.VISIBLE
             binding?.coLayout?.visibility = View.GONE
             binding?.adContainer?.visibility = View.GONE
             binding?.webview?.visibility = View.VISIBLE
