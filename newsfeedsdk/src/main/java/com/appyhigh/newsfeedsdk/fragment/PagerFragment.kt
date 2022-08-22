@@ -235,6 +235,7 @@ class PagerFragment : Fragment(), EasyPermissions.PermissionCallbacks {
                     url: String,
                     timeStamp: Long
                 ) {
+
                     storeData(presentUrl, presentTimeStamp)
                     presentTimeStamp = timeStamp
                     presentUrl = url
@@ -251,72 +252,76 @@ class PagerFragment : Fragment(), EasyPermissions.PermissionCallbacks {
                     val loadMore = Card()
                     loadMore.cardType = LOADER
                     adItem.cardType = AD
-                    if (ApiConfig().checkShowAds(requireContext()) && FeedSdk.showFeedAdAtFirst && newsFeedList.size > 0 && newsFeedList[0].cardType != Constants.AD) {
-                        newsFeedList.add(0, adItem)
-                    }
-                    try {
-                        if (cardsFromIntent.size == 0 && ApiConfig().checkShowAds(requireContext())) {
-                            newsFeedList.add(adIndex, adItem)
+                    if (activity != null && isAdded) {
+                        if (ApiConfig().checkShowAds(requireContext()) && FeedSdk.showFeedAdAtFirst && newsFeedList.size > 0 && newsFeedList[0].cardType != Constants.AD) {
+                            newsFeedList.add(0, adItem)
                         }
-                    } catch (ex: Exception) {
-                        LogDetail.LogEStack(ex)
+                        try {
+                            if (cardsFromIntent.size == 0 && ApiConfig().checkShowAds(requireContext())) {
+                                newsFeedList.add(adIndex, adItem)
+                            }
+                        } catch (ex: Exception) {
+                            LogDetail.LogEStack(ex)
+                        }
                     }
                     newsFeedList.add(loadMore)
                     LogDetail.LogD("Ad index", adIndex.toString())
-                    linearLayoutManager = LinearLayoutManager(requireActivity())
-                    cardsMap[selectedInterest.toString()] = newsFeedList
-                    newsFeedAdapter = NewsFeedAdapter(
-                        newsFeedList,
-                        object : NewsFeedList.PersonalizationListener {
-                            override fun onPersonalizationClicked() {
-                                personalizeListener?.onPersonalizationClicked()
-                            }
-
-                            override fun onRefresh() {
-
-                            }
-                        }, selectedInterest.toString(), null,
-                        object : PostImpressionListener {
-                            override fun addImpression(
-                                card: Card,
-                                totalDuration: Int?,
-                                watchedDuration: Int?
-                            ) {
-                                try {
-                                    val postView = PostView(
-                                        FeedSdk.sdkCountryCode ?: "in",
-                                        feedType,
-                                        card.items[0].isVideo,
-                                        card.items[0].languageString,
-                                        Constants.getInterestsString(card.items[0].interests),
-                                        card.items[0].postId,
-                                        card.items[0].postSource,
-                                        card.items[0].publisherId,
-                                        card.items[0].shortVideo,
-                                        card.items[0].source,
-                                        totalDuration,
-                                        watchedDuration
-                                    )
-                                    postImpressions[card.items[0].postId!!] = postView
-                                    storeImpressions(url, timeStamp)
-                                } catch (ex: java.lang.Exception) {
-                                    LogDetail.LogEStack(ex)
+                    if (activity!=null && isAdded) {
+                        linearLayoutManager = LinearLayoutManager(requireActivity())
+                        cardsMap[selectedInterest.toString()] = newsFeedList
+                        newsFeedAdapter = NewsFeedAdapter(
+                            newsFeedList,
+                            object : NewsFeedList.PersonalizationListener {
+                                override fun onPersonalizationClicked() {
+                                    personalizeListener?.onPersonalizationClicked()
                                 }
-                            }
-                        })
-                    rvPosts?.apply {
-                        layoutManager = linearLayoutManager
-                        adapter = newsFeedAdapter
-                        itemAnimator = null
-                    }
 
-                    newsFeedList.forEachIndexed { index, card ->
-                        if (card.cardType == "feed_covid_tracker") {
-                            if (dynamicLinkToCovidCard) {
-                                rvPosts?.scrollToPosition(index)
-                            }
+                                override fun onRefresh() {
 
-                            return@forEachIndexed
+                                }
+                            }, selectedInterest.toString(), null,
+                            object : PostImpressionListener {
+                                override fun addImpression(
+                                    card: Card,
+                                    totalDuration: Int?,
+                                    watchedDuration: Int?
+                                ) {
+                                    try {
+                                        val postView = PostView(
+                                            FeedSdk.sdkCountryCode ?: "in",
+                                            feedType,
+                                            card.items[0].isVideo,
+                                            card.items[0].languageString,
+                                            Constants.getInterestsString(card.items[0].interests),
+                                            card.items[0].postId,
+                                            card.items[0].postSource,
+                                            card.items[0].publisherId,
+                                            card.items[0].shortVideo,
+                                            card.items[0].source,
+                                            totalDuration,
+                                            watchedDuration
+                                        )
+                                        postImpressions[card.items[0].postId!!] = postView
+                                        storeImpressions(url, timeStamp)
+                                    } catch (ex: java.lang.Exception) {
+                                        LogDetail.LogEStack(ex)
+                                    }
+                                }
+                            })
+                        rvPosts?.apply {
+                            layoutManager = linearLayoutManager
+                            adapter = newsFeedAdapter
+                            itemAnimator = null
+                        }
+
+                        newsFeedList.forEachIndexed { index, card ->
+                            if (card.cardType == "feed_covid_tracker") {
+                                if (dynamicLinkToCovidCard) {
+                                    rvPosts?.scrollToPosition(index)
+                                }
+
+                                return@forEachIndexed
+                            }
                         }
                     }
 
@@ -403,7 +408,10 @@ class PagerFragment : Fragment(), EasyPermissions.PermissionCallbacks {
                                 }
                             }
                             try {
-                                if (cardsFromIntent.size == 0 && ApiConfig().checkShowAds(requireContext())) {
+                                if (cardsFromIntent.size == 0 && ApiConfig().checkShowAds(
+                                        requireContext()
+                                    )
+                                ) {
                                     newsFeedList.add(adIndex, adItem)
                                 }
                             } catch (ex: Exception) {

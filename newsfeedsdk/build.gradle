@@ -116,7 +116,7 @@ dependencies {
     //video players
     //Exoplayer
     implementation 'com.google.android.exoplayer:exoplayer:2.17.1'
-    implementation 'com.pierfrancescosoffritti.androidyoutubeplayer:core:11.0.1'
+    implementation 'com.pierfrancescosoffritti.androidyoutubeplayer:core:10.0.5'
 
     //ads
     compileOnly 'com.google.android.gms:play-services-ads:20.2.0'
