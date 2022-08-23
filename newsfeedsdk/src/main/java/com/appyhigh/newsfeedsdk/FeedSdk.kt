@@ -164,7 +164,11 @@ class FeedSdk {
     private var parentAppIntent = Intent()
 
     fun initializeSdk(
-        activity: Activity, intent: Intent, user: User? = null, showCricketNotification: Boolean? = true, isDark: Boolean? = false
+        activity: Activity,
+        intent: Intent,
+        user: User? = null,
+        showCricketNotification: Boolean? = true,
+        isDark: Boolean? = false
     ) {
         LogDetail.LogD("FeedSdk", "initializeSdk")
         if (font == null && !isFontDownloading)
@@ -184,7 +188,7 @@ class FeedSdk {
         val info: PackageInfo = mContext!!.packageManager.getPackageInfo(mContext!!.packageName, 0)
         appVersionCode = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
             info.longVersionCode.toString()
-        } else{
+        } else {
             info.versionCode.toString()
         }
         appVersionName = info.versionName.toString()
@@ -414,9 +418,10 @@ class FeedSdk {
         personalizationListener = personalizationListenerCallback
     }
 
-    fun setListener(userInitialize: OnUserInitialized) {
-        LogDetail.LogD("FeedSdk", "add userInitialize")
+    fun setListener(userInitialize: OnUserInitialized, tag: String? = "") {
+        LogDetail.LogD("FeedSdk $tag", "add userInitialize")
         onUserInitialized.add(userInitialize)
+        LogDetail.LogD("FeedSdk $tag", "add userInitialize size ${onUserInitialized.size}")
     }
 
     fun setExploreListener(userInitialize: OnUserInitialized) {
@@ -521,7 +526,8 @@ class FeedSdk {
                     info.manufacturer.toString() + " " + info.marketName + " " + info.model
                 )
             }
-        } catch (ex:Exception){ }
+        } catch (ex: Exception) {
+        }
     }
 
     private fun getAppNameFromManifest() {
@@ -676,25 +682,46 @@ class FeedSdk {
                                 if (deepLink!!.getQueryParameter(Constants.IS_NATIVE) != null) {
                                     parentAppIntent.putExtra(Constants.IS_NATIVE, true)
                                 }
-                                parentAppIntent.putExtra(Constants.POST_ID, pendingDynamicLinkData.link?.getQueryParameter(Constants.FEED_ID)!!)
+                                parentAppIntent.putExtra(
+                                    Constants.POST_ID,
+                                    pendingDynamicLinkData.link?.getQueryParameter(Constants.FEED_ID)!!
+                                )
                             }
                             if (deepLink!!.getQueryParameter(Constants.COVID_CARD) != null) {
-                                parentAppIntent.putExtra(Constants.COVID_CARD, pendingDynamicLinkData.link?.getQueryParameter(Constants.COVID_CARD)!!)
+                                parentAppIntent.putExtra(
+                                    Constants.COVID_CARD,
+                                    pendingDynamicLinkData.link?.getQueryParameter(Constants.COVID_CARD)!!
+                                )
                             }
                             if (deepLink!!.getQueryParameter(Constants.PODCAST_ID) != null) {
-                                parentAppIntent.putExtra(Constants.PODCAST_ID, deepLink.getQueryParameter(Constants.PODCAST_ID)!!)
+                                parentAppIntent.putExtra(
+                                    Constants.PODCAST_ID,
+                                    deepLink.getQueryParameter(Constants.PODCAST_ID)!!
+                                )
 
                             }
                             if (deepLink!!.getQueryParameter(Constants.FILENAME) != null
                                 && deepLink.getQueryParameter(Constants.MATCHTYPE) != null
                                 && deepLink.getQueryParameter(Constants.PWA) != null
                             ) {
-                                parentAppIntent.putExtra(Constants.FILENAME, deepLink.getQueryParameter(Constants.FILENAME)!!)
-                                parentAppIntent.putExtra(Constants.MATCHTYPE, deepLink.getQueryParameter(Constants.MATCHTYPE)!!)
-                                parentAppIntent.putExtra(Constants.PWA, deepLink.getQueryParameter(Constants.PWA)!!)
+                                parentAppIntent.putExtra(
+                                    Constants.FILENAME,
+                                    deepLink.getQueryParameter(Constants.FILENAME)!!
+                                )
+                                parentAppIntent.putExtra(
+                                    Constants.MATCHTYPE,
+                                    deepLink.getQueryParameter(Constants.MATCHTYPE)!!
+                                )
+                                parentAppIntent.putExtra(
+                                    Constants.PWA,
+                                    deepLink.getQueryParameter(Constants.PWA)!!
+                                )
                             }
                             if (deepLink.getQueryParameter(Constants.MATCHES_MODE) != null) {
-                                parentAppIntent.putExtra(Constants.MATCHES_MODE, deepLink.getQueryParameter(Constants.MATCHES_MODE)!!)
+                                parentAppIntent.putExtra(
+                                    Constants.MATCHES_MODE,
+                                    deepLink.getQueryParameter(Constants.MATCHES_MODE)!!
+                                )
                             }
                         } catch (ex: Exception) {
                         }
@@ -714,10 +741,14 @@ class FeedSdk {
 
     private fun isScreenNotification(intent: Intent): Boolean {
         if (intent.hasExtra(Constants.PUSH_SOURCE) && (intent.getStringExtra(Constants.PUSH_SOURCE) == Constants.FEEDSDK)) {
-            if (intent.hasExtra(Constants.INTERESTS) && intent.hasExtra(Constants.POST_ID) && intent.hasExtra(Constants.SHORT_VIDEO)) {
+            if (intent.hasExtra(Constants.INTERESTS) && intent.hasExtra(Constants.POST_ID) && intent.hasExtra(
+                    Constants.SHORT_VIDEO
+                )
+            ) {
                 return true
             } else if (intent.hasExtra(Constants.PAGE) && intent.getStringExtra(Constants.PAGE)!!
-                    .contains("SDK://") && !intent.getStringExtra(Constants.PAGE)!!.contains("Detail")
+                    .contains("SDK://") && !intent.getStringExtra(Constants.PAGE)!!
+                    .contains("Detail")
             ) {
                 return true
             } else if (intent.hasExtra(Constants.FROM_STICKY)) {
@@ -727,24 +758,28 @@ class FeedSdk {
         return false
     }
 
-    private fun setIntentBeforeInitialise(intent: Intent){
-        if(isScreenNotification(intent)){
+    private fun setIntentBeforeInitialise(intent: Intent) {
+        if (isScreenNotification(intent)) {
             SpUtil.pushIntent = intent
-        } else{
+        } else {
             SpUtil.pushIntent = null
         }
-        if(intent.hasExtra(Constants.FROM_STICKY) && intent.getStringExtra(Constants.FROM_STICKY)==Constants.REELS){
+        if (intent.hasExtra(Constants.FROM_STICKY) && intent.getStringExtra(Constants.FROM_STICKY) == Constants.REELS) {
             Constants.isVideoFromSticky = true
-        } else{
+        } else {
             Constants.videoUnitAdFromSticky = ""
         }
     }
 
-    fun checkFeedSDKNotifications(activity: Activity, intent: Intent, showFeedScreenListener: ShowFeedScreenListener){
+    fun checkFeedSDKNotifications(
+        activity: Activity,
+        intent: Intent,
+        showFeedScreenListener: ShowFeedScreenListener
+    ) {
         getDynamicUrlData(activity, intent) {
             parentAppIntent.extras?.let { intent.putExtras(it) }
             intent.extras?.let {
-                for(key in it.keySet()){
+                for (key in it.keySet()) {
                     LogDetail.LogD("Feedsdk", "handleIntent: $key ${it.get(key)}")
                 }
             }
@@ -778,10 +813,16 @@ class FeedSdk {
 
     private fun checkFeedSdkTab(tab: String, intent: Intent): Boolean {
         return when (tab) {
-            Constants.EXPLORE -> (intent.hasExtra(Constants.INTERESTS) && intent.getStringExtra(Constants.INTERESTS) == Constants.EXPLORE)
-                    || (intent.hasExtra(Constants.PAGE) && intent.getStringExtra(Constants.PAGE)!!.contains(Constants.SDK_EXPLORE))
-            Constants.REELS -> (intent.hasExtra(Constants.SHORT_VIDEO) && intent.getStringExtra(Constants.SHORT_VIDEO) == Constants.TRUE)
-                    || (intent.hasExtra(Constants.PAGE) && intent.getStringExtra(Constants.PAGE)!!.contains(Constants.SDK_REELS))
+            Constants.EXPLORE -> (intent.hasExtra(Constants.INTERESTS) && intent.getStringExtra(
+                Constants.INTERESTS
+            ) == Constants.EXPLORE)
+                    || (intent.hasExtra(Constants.PAGE) && intent.getStringExtra(Constants.PAGE)!!
+                .contains(Constants.SDK_EXPLORE))
+            Constants.REELS -> (intent.hasExtra(Constants.SHORT_VIDEO) && intent.getStringExtra(
+                Constants.SHORT_VIDEO
+            ) == Constants.TRUE)
+                    || (intent.hasExtra(Constants.PAGE) && intent.getStringExtra(Constants.PAGE)!!
+                .contains(Constants.SDK_REELS))
             else -> true
         }
     }
@@ -802,7 +843,10 @@ class FeedSdk {
                 }
                 Constants.SDK_POST_DETAIL -> {
                     val intent =
-                        if (intentData.hasExtra(Constants.IS_NATIVE) && intentData.getStringExtra(Constants.IS_NATIVE) == Constants.TRUE) {
+                        if (intentData.hasExtra(Constants.IS_NATIVE) && intentData.getStringExtra(
+                                Constants.IS_NATIVE
+                            ) == Constants.TRUE
+                        ) {
                             val bundle = Bundle()
                             bundle.putString("NativePageOpen", "Notfication")
                             FirebaseAnalytics.getInstance(context).logEvent("NativePage", bundle)
@@ -830,7 +874,10 @@ class FeedSdk {
                     val pushIntent = Intent(context, PWAMatchScoreActivity::class.java)
                     // Need post_source value from intent to store analytics to backend
                     if (intentData.hasExtra(Constants.IPL_PUSH)) {
-                        pushIntent.putExtra(Constants.POST_SOURCE, intentData.getStringExtra(Constants.IPL_PUSH))
+                        pushIntent.putExtra(
+                            Constants.POST_SOURCE,
+                            intentData.getStringExtra(Constants.IPL_PUSH)
+                        )
                     }
                     pushIntent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
                     intentData.extras?.let { pushIntent.putExtras(it) }
@@ -853,9 +900,15 @@ class FeedSdk {
             intentData.extras?.let { pushIntent.putExtras(it) }
             pushIntent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
             if (intentData.hasExtra(Constants.POST_SOURCE)) {
-                pushIntent.putExtra(Constants.POST_SOURCE, intentData.getStringExtra(Constants.POST_SOURCE))
+                pushIntent.putExtra(
+                    Constants.POST_SOURCE,
+                    intentData.getStringExtra(Constants.POST_SOURCE)
+                )
             } else if (intentData.hasExtra(Constants.IPL_PUSH)) {
-                pushIntent.putExtra(Constants.POST_SOURCE, intentData.getStringExtra(Constants.IPL_PUSH))
+                pushIntent.putExtra(
+                    Constants.POST_SOURCE,
+                    intentData.getStringExtra(Constants.IPL_PUSH)
+                )
             }
 
             context.startActivity(pushIntent)
@@ -868,9 +921,15 @@ class FeedSdk {
             pushIntent.putExtra(Constants.MATCHTYPE, Constants.LIVE_MATCHES)
             pushIntent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
             if (intentData.hasExtra(Constants.POST_SOURCE)) {
-                pushIntent.putExtra(Constants.POST_SOURCE, intentData.getStringExtra(Constants.POST_SOURCE))
+                pushIntent.putExtra(
+                    Constants.POST_SOURCE,
+                    intentData.getStringExtra(Constants.POST_SOURCE)
+                )
             } else if (intentData.hasExtra(Constants.IPL_PUSH)) {
-                pushIntent.putExtra(Constants.POST_SOURCE, intentData.getStringExtra(Constants.IPL_PUSH))
+                pushIntent.putExtra(
+                    Constants.POST_SOURCE,
+                    intentData.getStringExtra(Constants.IPL_PUSH)
+                )
             }
             intentData.extras?.let { pushIntent.putExtras(it) }
             context.startActivity(pushIntent)
@@ -890,12 +949,18 @@ class FeedSdk {
             intent.putExtra(Constants.POSITION, 0)
             intent.putExtra(Constants.FROM_APP, true)
             intentData.extras?.let { intent.putExtras(it) }
-            intent.putExtra(Constants.POST_ID, intentData.getStringExtra(Constants.POST_ID).toString())
+            intent.putExtra(
+                Constants.POST_ID,
+                intentData.getStringExtra(Constants.POST_ID).toString()
+            )
             intentData.extras?.let { intent.putExtras(it) }
             intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
             context.startActivity(intent)
-        } else if (intentData.hasExtra(Constants.PUSH_SOURCE) && (intentData.getStringExtra(Constants.PUSH_SOURCE) == Constants.FEEDSDK)
-            && intentData.hasExtra(Constants.WHICH)) {
+        } else if (intentData.hasExtra(Constants.PUSH_SOURCE) && (intentData.getStringExtra(
+                Constants.PUSH_SOURCE
+            ) == Constants.FEEDSDK)
+            && intentData.hasExtra(Constants.WHICH)
+        ) {
             LogDetail.LogD("Result", "Got the data " + intentData.getStringExtra(Constants.WHICH))
             val which: String = intentData.getStringExtra(Constants.WHICH).toString()
             if (which.equals("L", ignoreCase = true)) {
@@ -905,7 +970,10 @@ class FeedSdk {
                         bundle.putString("NativePageOpen", "Notfication")
                         FirebaseAnalytics.getInstance(context).logEvent("NativePage", bundle)
                         val intent =
-                            if (intentData.hasExtra(Constants.IS_NATIVE) && intentData.getStringExtra(Constants.IS_NATIVE) == Constants.TRUE) {
+                            if (intentData.hasExtra(Constants.IS_NATIVE) && intentData.getStringExtra(
+                                    Constants.IS_NATIVE
+                                ) == Constants.TRUE
+                            ) {
                                 Intent(context, PostNativeDetailActivity::class.java)
                             } else {
                                 Intent(context, NewsFeedPageActivity::class.java)
@@ -924,7 +992,6 @@ class FeedSdk {
         }
         return true
     }
-
 
 
     interface FirebaseTokenListener {

@@ -87,7 +87,7 @@ class NewsFeedScrollView : LinearLayout, PersonalizeCallListener, OnRefreshListe
                     LogDetail.LogD("FeedSdk", "else onInitSuccess")
                     startInitView()
                 }
-            })
+            }, "scroll view")
         }
     }
 
