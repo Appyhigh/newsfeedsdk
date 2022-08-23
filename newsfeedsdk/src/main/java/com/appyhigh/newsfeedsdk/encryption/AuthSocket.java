@@ -94,21 +94,6 @@ public class AuthSocket {
 
     }
 
-
-    @NonNull
-    public String license() {
-        if (this.license == null)
-            return "";
-        return this.license;
-    }
-
-    public synchronized void license(@NonNull String license) {
-        boolean changed = !license.equals(this.license);
-        if (changed && this.started)
-            throw new RuntimeException("Error: cannot change license once Auth Session is started");
-        this.license = license;
-    }
-
     /**
      * Verify if NEWS_FEED_APP_ID is provided or not
      * if not throw an error
@@ -142,8 +127,9 @@ public class AuthSocket {
         return userId;
     }
 
-    public void start(Context context, AuthenticationSuccess authenticationSuccess) {
+    public void start(Context context, String license, AuthenticationSuccess authenticationSuccess) {
         try {
+            this.license = license;
             String keyInit = adea(nativeKey1());
             this.authenticationSuccess = authenticationSuccess;
             if (alreadyAuthenticated) {
