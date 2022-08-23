@@ -91,10 +91,11 @@ class PagerFragment : Fragment(), EasyPermissions.PermissionCallbacks {
     var intent: Intent? = null
     var dynamicLinkToCovidCard = false
     private var locationPopup: CardView? = null
-
+    private var TAG = "PagerFragment"
     private var personalizeListener: NewsFeedList.PersonalizationListener? = null
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        LogDetail.LogD(TAG, "onCreate")
         arguments?.let {
             selectedInterest = it.getString(SELECTED_INTEREST)
             currentPosition = it.getInt(CURRENT_POSITION)
@@ -118,11 +119,13 @@ class PagerFragment : Fragment(), EasyPermissions.PermissionCallbacks {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
+        LogDetail.LogD(TAG, "onCreateView")
         return inflater.inflate(R.layout.fragment_pager, container, false)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        LogDetail.LogD(TAG, "onViewCreated")
         pbLoading = view.findViewById(R.id.pbLoading)
         rvPosts = view.findViewById(R.id.rvPosts)
         locationPopup = view.findViewById(R.id.location_popup)
@@ -238,6 +241,7 @@ class PagerFragment : Fragment(), EasyPermissions.PermissionCallbacks {
                     timeStamp: Long
                 ) {
                     Handler(Looper.getMainLooper()).post {
+                        LogDetail.LogD(TAG, "apigetfeeds started")
                         storeData(presentUrl, presentTimeStamp)
                         presentTimeStamp = timeStamp
                         presentUrl = url
@@ -259,7 +263,10 @@ class PagerFragment : Fragment(), EasyPermissions.PermissionCallbacks {
                                 newsFeedList.add(0, adItem)
                             }
                             try {
-                                if (cardsFromIntent.size == 0 && ApiConfig().checkShowAds(requireContext())) {
+                                if (cardsFromIntent.size == 0 && ApiConfig().checkShowAds(
+                                        requireContext()
+                                    )
+                                ) {
                                     newsFeedList.add(adIndex, adItem)
                                 }
                             } catch (ex: Exception) {
@@ -267,8 +274,9 @@ class PagerFragment : Fragment(), EasyPermissions.PermissionCallbacks {
                             }
                         }
                         newsFeedList.add(loadMore)
-                        LogDetail.LogD("Ad index", adIndex.toString())
-                        if (activity!=null && isAdded) {
+                        LogDetail.LogD(TAG, adIndex.toString())
+                        if (activity != null && isAdded) {
+                            LogDetail.LogD(TAG, "apigetfeeds adapter setup")
                             linearLayoutManager = LinearLayoutManager(requireActivity())
                             cardsMap[selectedInterest.toString()] = newsFeedList
                             newsFeedAdapter = NewsFeedAdapter(
@@ -310,6 +318,7 @@ class PagerFragment : Fragment(), EasyPermissions.PermissionCallbacks {
                                         }
                                     }
                                 })
+                            LogDetail.LogD(TAG, "apigetfeeds set recycler")
                             rvPosts?.apply {
                                 layoutManager = linearLayoutManager
                                 adapter = newsFeedAdapter
@@ -325,8 +334,8 @@ class PagerFragment : Fragment(), EasyPermissions.PermissionCallbacks {
                                     return@forEachIndexed
                                 }
                             }
-                        }else{
-                            LogDetail.LogD("apiFetFeeds","adapter not attached")
+                        } else {
+                            LogDetail.LogD("apiFetFeeds", "adapter not attached")
                         }
 
                         adCheckerList.addAll(newsFeedList)
