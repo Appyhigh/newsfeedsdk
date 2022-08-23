@@ -8,7 +8,7 @@ import android.widget.Toast
 import com.appyhigh.newsfeedsdk.Constants
 
 object LogDetail {
-    private var debugger = false
+    private var debugger = true
     
 //    @JvmStatic
 //    fun init(context: Context){
