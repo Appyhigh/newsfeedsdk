@@ -325,6 +325,8 @@ class PagerFragment : Fragment(), EasyPermissions.PermissionCallbacks {
                                     return@forEachIndexed
                                 }
                             }
+                        }else{
+                            LogDetail.LogD("apiFetFeeds","adapter not attached")
                         }
 
                         adCheckerList.addAll(newsFeedList)
