@@ -779,7 +779,7 @@ object Constants {
                 FirebaseAnalytics.getInstance(context).logEvent("Privacy_Policy_Allow", null);
             }
         } catch (ex:Exception){
-            ex.printStackTrace()
+           LogDetail.LogEStack(ex)
         }
     }
 
