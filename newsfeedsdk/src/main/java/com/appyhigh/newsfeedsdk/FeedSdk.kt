@@ -415,6 +415,7 @@ class FeedSdk {
     }
 
     fun setListener(userInitialize: OnUserInitialized) {
+        LogDetail.LogD("FeedSdk", "add userInitialize")
         onUserInitialized.add(userInitialize)
     }
 

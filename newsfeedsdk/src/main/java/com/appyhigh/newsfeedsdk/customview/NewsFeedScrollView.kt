@@ -81,6 +81,7 @@ class NewsFeedScrollView : LinearLayout, PersonalizeCallListener, OnRefreshListe
             LogDetail.LogD("FeedSdk", "if isSdkInitializationSuccessful")
             startInitView()
         } else {
+            LogDetail.LogD("FeedSdk", "setup listener")
             FeedSdk().setListener(object : FeedSdk.OnUserInitialized {
                 override fun onInitSuccess() {
                     LogDetail.LogD("FeedSdk", "else onInitSuccess")
