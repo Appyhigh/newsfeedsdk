@@ -7,6 +7,11 @@
     android:background="@color/homeBackground"
     android:orientation="vertical">
 
+    <include android:id="@+id/llPrivacy"
+        layout="@layout/dialog_privacy_policy"
+        tools:visibility="gone"
+        />
+
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="0dp"

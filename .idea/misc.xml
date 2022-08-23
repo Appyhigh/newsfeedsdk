@@ -7,12 +7,15 @@
         <entry key="../../../../.gradle/caches/transforms-2/files-2.1/35eb826b2db1e250cefbb912cd110b0c/jetified-exoplayer-ui-2.15.0/res/drawable-anydpi-v21/exo_icon_play.xml" value="0.15" />
         <entry key="../../.gradle/caches/transforms-3/79e3835cb956a10f03345f207aaee207/transformed/appcompat-1.3.0/res/layout/support_simple_spinner_dropdown_item.xml" value="0.39739583333333334" />
         <entry key="app/src/main/res/layout/activity_main.xml" value="0.1703125" />
+        <entry key="newsfeedsdk/src/main/res/drawable-night/ic_like_v3.xml" value="0.2125" />
         <entry key="newsfeedsdk/src/main/res/drawable/bg_interest_edit_text.xml" value="0.2125" />
         <entry key="newsfeedsdk/src/main/res/drawable/bg_location_search.xml" value="0.2125" />
         <entry key="newsfeedsdk/src/main/res/drawable/bg_location_search_border.xml" value="0.2125" />
         <entry key="newsfeedsdk/src/main/res/drawable/bg_round_filled.xml" value="0.23072916666666668" />
         <entry key="newsfeedsdk/src/main/res/drawable/bg_share_whatsapp.xml" value="0.23072916666666668" />
         <entry key="newsfeedsdk/src/main/res/drawable/btn_round_filled.xml" value="0.23072916666666668" />
+        <entry key="newsfeedsdk/src/main/res/drawable/ic_like_v3.xml" value="0.2125" />
+        <entry key="newsfeedsdk/src/main/res/drawable/ic_menu_v3.xml" value="0.2125" />
         <entry key="newsfeedsdk/src/main/res/drawable/ic_whatsapp_share.xml" value="0.23072916666666668" />
         <entry key="newsfeedsdk/src/main/res/layout/activity_crypto_coin_details.xml" value="0.2203125" />
         <entry key="newsfeedsdk/src/main/res/layout/activity_feed_language.xml" value="0.21458333333333332" />
@@ -23,8 +26,10 @@
         <entry key="newsfeedsdk/src/main/res/layout/activity_search_sticky_web.xml" value="0.13802083333333334" />
         <entry key="newsfeedsdk/src/main/res/layout/bottom_sheet_non_native_comments.xml" value="0.2203125" />
         <entry key="newsfeedsdk/src/main/res/layout/crypto_rating_card.xml" value="0.14010416666666667" />
+        <entry key="newsfeedsdk/src/main/res/layout/dialog_privacy_policy.xml" value="0.20520833333333333" />
         <entry key="newsfeedsdk/src/main/res/layout/exo_playback_control_view.xml" value="0.39521433512369797" />
         <entry key="newsfeedsdk/src/main/res/layout/exo_styled_controls.xml" value="0.16375274658203132" />
+        <entry key="newsfeedsdk/src/main/res/layout/explore_feed.xml" value="0.20520833333333333" />
         <entry key="newsfeedsdk/src/main/res/layout/fragment_cricket_pwa.xml" value="0.2006079027355623" />
         <entry key="newsfeedsdk/src/main/res/layout/fragment_crypto_alert_list.xml" value="0.2203125" />
         <entry key="newsfeedsdk/src/main/res/layout/fragment_crypto_learn_common.xml" value="0.2203125" />
@@ -43,8 +48,12 @@
         <entry key="newsfeedsdk/src/main/res/layout/item_related_native_post.xml" value="0.2203125" />
         <entry key="newsfeedsdk/src/main/res/layout/item_trending_post_card.xml" value="0.2203125" />
         <entry key="newsfeedsdk/src/main/res/layout/item_video_big.xml" value="0.2203125" />
+        <entry key="newsfeedsdk/src/main/res/layout/item_video_big2.xml" value="0.20520833333333333" />
         <entry key="newsfeedsdk/src/main/res/layout/layout_intrest_select.xml" value="0.20520833333333333" />
+        <entry key="newsfeedsdk/src/main/res/layout/layout_news_feed_scroll_view.xml" value="0.20520833333333333" />
         <entry key="newsfeedsdk/src/main/res/layout/layout_report_issue_dialog.xml" value="0.2203125" />
+        <entry key="newsfeedsdk/src/main/res/layout/news_feed_list.xml" value="0.20520833333333333" />
+        <entry key="newsfeedsdk/src/main/res/layout/video_feed.xml" value="0.20520833333333333" />
       </map>
     </option>
   </component>

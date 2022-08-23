@@ -58,7 +58,7 @@ class VideoFeed : LinearLayout, OnRefreshListener {
     private var presentUrl = ""
     private var presentTimeStamp: Long = 0
     var currentPosition = 0
-    var holders = HashMap<Int, NewsFeedAdapter.BigVideoViewHolder?>()
+    var holders = HashMap<Int, RecyclerView.ViewHolder?>()
     var postImpressions = HashMap<String, PostView>()
     var tempR: Rect = Rect()
 
@@ -80,20 +80,31 @@ class VideoFeed : LinearLayout, OnRefreshListener {
 
     private fun initSDK() {
         if (FeedSdk.isSdkInitializationSuccessful) {
-            initView()
+            startInitView()
         } else {
             FeedSdk().setListener(object : FeedSdk.OnUserInitialized {
                 override fun onInitSuccess() {
-                    initView()
+                    startInitView()
                 }
             })
         }
     }
 
-    private fun initView() {
-        val view = inflate(context, R.layout.video_feed, this)
+    private fun startInitView(){
         SpUtil.onRefreshListeners["reels"] = this
-        loadLayout = view?.findViewById(R.id.loadLayout)
+        val view = inflate(context, R.layout.video_feed, this)
+        if(!SpUtil.spUtilInstance!!.getBoolean(Constants.PRIVACY_ACCEPTED, false)){
+            Constants.setPrivacyDialog(context, view)
+        } else{
+            val llPrivacy = view.findViewById<LinearLayout>(R.id.llPrivacy)
+            llPrivacy.visibility = View.GONE
+            initView(view)
+        }
+    }
+
+
+    private fun initView(view: View) {
+        loadLayout = view.findViewById(R.id.loadLayout)
         pbLoading = loadLayout?.findViewById(R.id.progress_bar)
         noNetworkLayout = loadLayout?.findViewById(R.id.retry_network)
         loadLayout?.visibility = VISIBLE
@@ -103,7 +114,7 @@ class VideoFeed : LinearLayout, OnRefreshListener {
             when (it) {
                 Constants.NetworkState.CONNECTED -> {
                     LogDetail.LogD("NETWORK", "AVAILABLE")
-                    holders = HashMap<Int, NewsFeedAdapter.BigVideoViewHolder?>()
+                    holders = HashMap<Int, RecyclerView.ViewHolder?>()
                     noNetworkLayout?.visibility = GONE
                     rvShortBytes?.visibility = VISIBLE
                     ApiUserDetails().getUserResponseEncrypted(
@@ -423,33 +434,46 @@ class VideoFeed : LinearLayout, OnRefreshListener {
             })
     }
 
-    fun togglePlaying(position: Int, isPlaying: Boolean, from: String = "") {
-        try {
-            val holder = if (holders.containsKey(position)) {
+    fun togglePlaying(position:Int, isPlaying:Boolean, from:String=""){
+        try{
+            val holder = if(holders.containsKey(position)){
                 holders[position]
             } else {
                 if (rvShortBytes?.findViewHolderForAdapterPosition(position) is NewsFeedAdapter.BigVideoViewHolder) {
                     holders[position] =
                         rvShortBytes?.findViewHolderForAdapterPosition(position) as NewsFeedAdapter.BigVideoViewHolder
                     holders[position]
+                } else if (rvShortBytes?.findViewHolderForAdapterPosition(position) is NewsFeedAdapter.Big2VideoViewHolder) {
+                    holders[position] =
+                        rvShortBytes?.findViewHolderForAdapterPosition(position) as NewsFeedAdapter.Big2VideoViewHolder
+                    holders[position]
                 } else {
                     null
                 }
             }
-            if (holder != null) {
+            if(holder is NewsFeedAdapter.BigVideoViewHolder) {
                 if (isPlaying) {
-                    LogDetail.LogD("Check", "togglePlaying: play $position from $from")
+                    Log.d("Check", "togglePlaying: play $position from $from")
                     newsFeedAdapter?.playVideo(holder, position)
                     currentPosition = position
                 } else {
-                    LogDetail.LogD("Check", "togglePlaying: pause  $position from $from")
+                    Log.d("Check", "togglePlaying: pause  $position from $from")
                     newsFeedAdapter?.pausePlayer(holder)
                 }
-            } else {
+            } else if(holder is NewsFeedAdapter.Big2VideoViewHolder) {
+                if (isPlaying) {
+                    Log.d("Check", "togglePlaying: play $position from $from")
+                    newsFeedAdapter?.playVideo(holder, position)
+                    currentPosition = position
+                } else {
+                    Log.d("Check", "togglePlaying: pause  $position from $from")
+                    newsFeedAdapter?.pausePlayer(holder)
+                }
+            } else{
                 currentPosition = position
             }
-        } catch (ex: Exception) {
-            LogDetail.LogEStack(ex)
+        } catch (ex:Exception){
+            ex.printStackTrace()
         }
     }
 
@@ -510,13 +534,15 @@ class VideoFeed : LinearLayout, OnRefreshListener {
 
     fun onDestroy() {
         storeData(presentUrl, presentTimeStamp)
-        try {
+        try{
             val holder = holders[currentPosition]
-            if (holder != null) {
+            if(holder is NewsFeedAdapter.BigVideoViewHolder) {
+                newsFeedAdapter?.pausePlayer(holder)
+            } else if(holder is NewsFeedAdapter.Big2VideoViewHolder) {
                 newsFeedAdapter?.pausePlayer(holder)
             }
-        } catch (ex: Exception) {
-            LogDetail.LogEStack(ex)
+        } catch (ex:Exception){
+            ex.printStackTrace()
         }
     }
 
