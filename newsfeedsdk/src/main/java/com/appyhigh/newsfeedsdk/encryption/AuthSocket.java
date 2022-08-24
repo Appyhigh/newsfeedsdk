@@ -30,6 +30,7 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.util.Locale;
 
 import io.socket.client.Socket;
 import okhttp3.Call;
@@ -99,16 +100,16 @@ public class AuthSocket {
      * if not throw an error
      */
     private String getAppIdFromManifest(Context context) {
-       String appId = "";
-       try {
+        String appId = "";
+        try {
             ApplicationInfo ai = context.getPackageManager().getApplicationInfo(context.getPackageName(), PackageManager.GET_META_DATA);
             Bundle bundle = ai.metaData;
             appId = bundle.getString(NEWS_FEED_APP_ID);
         } catch (Exception e) {
             LogDetail.LogEStack(e);
         }
-       FeedSdk.Companion.setAppId(appId);
-       return appId;
+        FeedSdk.Companion.setAppId(appId);
+        return appId;
     }
 
 
@@ -119,10 +120,10 @@ public class AuthSocket {
     private String setUserId(Context context) {
         String existingId =  SpUtil.Companion.getSpUtilInstance().getString(USER_ID, "");
         String userId = (existingId!=null && !existingId.isEmpty())? existingId :
-            FeedSdk.Companion.getAppId() + "_" + Settings.Secure.getString(
-                    context.getContentResolver(),
-                    Settings.Secure.ANDROID_ID
-            );
+                FeedSdk.Companion.getAppId() + "_" + Settings.Secure.getString(
+                        context.getContentResolver(),
+                        Settings.Secure.ANDROID_ID
+                );
         FeedSdk.Companion.setUserId(userId);
         return userId;
     }
@@ -148,7 +149,7 @@ public class AuthSocket {
             getAppIdFromManifest(context);
             setUserId(context);
             SessionUser.Instance().setAppDetails(context);
-            String SHA1 = getSHA1(context, "SHA1");
+            String SHA1 = getSHA1(context);
             String NativeKey = String.valueOf(keyInit);
             byte[] decodedBytes = Base64.decode(NativeKey, Base64.DEFAULT);
             String decodedString = new String(decodedBytes);
@@ -211,13 +212,12 @@ public class AuthSocket {
     }
 
     //GET SHA1 Key for Application
-    public static String getSHA1(Context context, String key) {
+    private String getSHA1(Context context) {
         try {
-
             @SuppressLint("PackageManagerGetSignatures") final PackageInfo info = context.getPackageManager()
                     .getPackageInfo(context.getPackageName(), PackageManager.GET_SIGNATURES);
             for (Signature signature : info.signatures) {
-                final MessageDigest md = MessageDigest.getInstance(key);
+                final MessageDigest md = MessageDigest.getInstance("SHA1");
                 md.update(signature.toByteArray());
 //
                 final byte[] digest = md.digest();
@@ -247,6 +247,20 @@ public class AuthSocket {
             return "";
         }
         return "";
+    }
+
+    private static String getBase64SHA1FromHex(String hex){
+        String baseRes = "";
+        try{
+            LogDetail.LogDE("Hexa", hex);
+            byte[] dataBytes = hex.toLowerCase(Locale.ROOT).getBytes(StandardCharsets.UTF_8);
+            MessageDigest md2 = MessageDigest.getInstance("SHA1");
+            baseRes =  com.appyhigh.newsfeedsdk.encryption.Base64.getEncoder().encodeToString(md2.digest(dataBytes));
+            LogDetail.LogDE("Hexa", "Base 64 "+baseRes);
+        } catch (Exception ex){
+            ex.printStackTrace();
+        }
+        return baseRes;
     }
 
     public void verifyData(String sendingData, com.appyhigh.newsfeedsdk.apicalls.ResponseListener responseListener) {

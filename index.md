@@ -2,6 +2,14 @@
 
        | SDK Name         | Lib Version  | SDK Version Code |
        |------------------|--------------|------------------|
+       | newsfeedsdk      |    1.0.2     |      1008        |
+
+1. Added getBase64SHA1FromHex() function in AuthSocket.
+
+----------------------------------------------------------------------------------------------------------------------------
+
+       | SDK Name         | Lib Version  | SDK Version Code |
+       |------------------|--------------|------------------|
        | newsfeedsdk      |    1.0.1     |      1008        |
 
 1. Added privacy policy popup for UGC.
