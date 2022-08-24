@@ -86,7 +86,7 @@ class VideoFeed : LinearLayout, OnRefreshListener {
                 override fun onInitSuccess() {
                     startInitView()
                 }
-            })
+            },"feed view")
         }
     }
 

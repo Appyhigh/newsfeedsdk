@@ -75,7 +75,7 @@ class SearchFeedView : LinearLayout, OnRefreshListener {
                 override fun onInitSuccess() {
                     initView()
                 }
-            })
+            },"search view")
         }
     }
 

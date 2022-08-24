@@ -269,6 +269,7 @@ class ApiCreateOrUpdateUser {
         LogDetail.LogD("FeedSdk", "handleCreateUserResponse")
         FeedSdk.onExploreInitialized?.onInitSuccess()
         for (userIntialiser in FeedSdk.onUserInitialized) {
+            LogDetail.LogD("FeedSdk", "userIntialiser")
             userIntialiser?.onInitSuccess()
         }
         FeedSdk.isSdkInitializationSuccessful = true

@@ -6,6 +6,7 @@ import android.content.ContextWrapper
 import android.os.Handler
 import android.os.Looper
 import android.util.AttributeSet
+import android.view.Gravity
 import android.view.View
 import android.widget.LinearLayout
 import android.widget.ProgressBar
@@ -81,22 +82,24 @@ class NewsFeedScrollView : LinearLayout, PersonalizeCallListener, OnRefreshListe
             LogDetail.LogD("FeedSdk", "if isSdkInitializationSuccessful")
             startInitView()
         } else {
+            LogDetail.LogD("FeedSdk", "setup listener")
             FeedSdk().setListener(object : FeedSdk.OnUserInitialized {
                 override fun onInitSuccess() {
                     LogDetail.LogD("FeedSdk", "else onInitSuccess")
                     startInitView()
                 }
-            })
+            }, "scroll view")
         }
     }
 
     private fun startInitView(){
         SpUtil.onRefreshListeners["news"] = this
         val view = inflate(context, R.layout.layout_news_feed_scroll_view, this)
+        val llPrivacy = view.findViewById<LinearLayout>(R.id.llPrivacy)
         if(!SpUtil.spUtilInstance!!.getBoolean(Constants.PRIVACY_ACCEPTED, false)){
+            llPrivacy.gravity = Gravity.TOP
             Constants.setPrivacyDialog(context, view)
         } else{
-            val llPrivacy = view.findViewById<LinearLayout>(R.id.llPrivacy)
             llPrivacy.visibility = View.GONE
             initView(view)
         }

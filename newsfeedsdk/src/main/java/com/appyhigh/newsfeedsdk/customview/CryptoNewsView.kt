@@ -56,7 +56,7 @@ class CryptoNewsView : LinearLayout, LifecycleObserver {
                     LogDetail.LogD(TAG, "else onInitSuccess")
                     initView()
                 }
-            })
+            },"crypto news")
             initView()
         }
     }

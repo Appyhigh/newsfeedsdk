@@ -98,7 +98,7 @@ class NewsFeedList : LinearLayout, PersonalizeCallListener, OnRefreshListener {
                     LogDetail.LogD("NewsFeedList", "else onInitSuccess")
                     startInitView()
                 }
-            })
+            },"feed list")
         }
     }
 

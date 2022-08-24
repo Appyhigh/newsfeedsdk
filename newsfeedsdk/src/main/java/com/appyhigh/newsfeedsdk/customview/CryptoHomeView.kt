@@ -57,7 +57,7 @@ class CryptoHomeView : LinearLayout, PersonalizeCallListener, OnRefreshListener 
                     LogDetail.LogD(TAG, "else onInitSuccess")
                     initView()
                 }
-            })
+            },"crypto view")
         }
     }
 
