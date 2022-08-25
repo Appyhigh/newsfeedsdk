@@ -389,15 +389,17 @@ class NewsFeedScrollView : LinearLayout, PersonalizeCallListener, OnRefreshListe
                             itemAnimator = null
                         }
                     }
-                    setUpPagerAdapter(
-                        newInterestList,
-                        if (FeedSdk.interestsList.isNullOrEmpty()) {
-                            mInterestResponseModel?.interestList
-                        } else {
-                            FeedSdk.interestsList
-                        },
-                        isSelectedInterestsEmpty
-                    )
+                    Handler(Looper.getMainLooper()).post {
+                        setUpPagerAdapter(
+                            newInterestList,
+                            if (FeedSdk.interestsList.isNullOrEmpty()) {
+                                mInterestResponseModel?.interestList
+                            } else {
+                                FeedSdk.interestsList
+                            },
+                            isSelectedInterestsEmpty
+                        )
+                    }
                     vpFeed?.registerOnPageChangeCallback(object :
                         ViewPager2.OnPageChangeCallback() {
                         override fun onPageSelected(position: Int) {

@@ -35,7 +35,6 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
             android:gravity="center_vertical"
             android:orientation="horizontal"
             android:paddingHorizontal="10dp">
@@ -88,19 +87,21 @@
             </RelativeLayout>
 
             <LinearLayout
-                android:layout_width="wrap_content"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
+                android:layout_weight="5"
                 android:orientation="vertical"
                 app:position="@{position}"
                 app:publisherData="@{card.items[0]}"
                 app:postListener="@{listener}"
-                android:padding="5dp">
+                android:padding="5dp"
+                tools:ignore="NestedWeights">
 
                 <TextView
                     android:id="@+id/news_item_publisher_name"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:maxLength="30"
+                    android:maxLines="1"
                     android:ellipsize="end"
                     android:text="@{card.items[0].publisherName}"
                     android:textColor="@color/feedPrimaryTextColor"
@@ -143,9 +144,9 @@
             </LinearLayout>
 
             <LinearLayout
-                android:layout_width="match_parent"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
+                android:layout_weight="5"
                 android:gravity="end">
 
                 <androidx.appcompat.widget.AppCompatTextView

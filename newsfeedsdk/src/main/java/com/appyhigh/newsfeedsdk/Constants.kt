@@ -202,6 +202,8 @@ object Constants {
 
     var isChecked = true
     var impreesionModel: Impressions? = null
+    // value is set in Feedsdk.initialise()
+    var userAgent = "Mozilla/5.0(Linux;Android12;RMX2161Build/SP1A.210812.016;wv)AppleWebKit/537.36(KHTML,likeGecko)Version/4.0Chrome/104.0.5112.97MobileSafari/537.36"
 //    val colorsArray = arrayListOf(R.color.gnt_one, R.color.gnt_two, R.color.gnt_three, R.color.gnt_four, R.color.gnt_five, R.color.gnt_six,
 //            R.color.gnt_one, R.color.gnt_two, R.color.gnt_three, R.color.gnt_four, R.color.gnt_five, R.color.gnt_six,
 //            R.color.gnt_one, R.color.gnt_two, R.color.gnt_three, R.color.gnt_four, R.color.gnt_five, R.color.gnt_six,
@@ -716,7 +718,7 @@ object Constants {
             } else {
                 val theImage = GlideUrl(
                     imageUrl, LazyHeaders.Builder()
-                        .addHeader("User-Agent", "5")
+                        .addHeader("User-Agent", userAgent)
                         .build()
                 )
                 Glide.with(context)

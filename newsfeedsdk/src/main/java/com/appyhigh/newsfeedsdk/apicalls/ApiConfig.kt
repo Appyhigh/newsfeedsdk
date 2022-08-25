@@ -68,6 +68,10 @@ class ApiConfig {
                             ApiPrivateAds().hitAdUrls(privateAdResponse.eUrl?:"", privateAdResponse.nUrl?:"")
                         }
                     }
+
+                    override fun onFailure() {
+
+                    }
                 })
             } else if(itemConfigModel.showAdmob){
                 listener.onAdmobAdSuccess(itemConfigModel.admobId)

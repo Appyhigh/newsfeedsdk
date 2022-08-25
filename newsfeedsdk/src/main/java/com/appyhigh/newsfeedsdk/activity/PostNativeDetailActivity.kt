@@ -598,14 +598,14 @@ class PostNativeDetailActivity : AppCompatActivity() {
             } else {
                 reacted = postDetailsModel.post?.isReacted.toString()
             }
-            val logoUrl: String = postDetailsModel.post?.publisherProfilePic.toString()
+            var logoUrl: String = postDetailsModel.post?.publisherProfilePic.toString()
             val title: String = postDetailsModel.post?.content?.title.toString()
             val description: String = postDetailsModel.post?.content?.description.toString()
             formatHtmlView(description)
 //            setDescription(description)
             val publisherName: String = postDetailsModel.post?.publisherName.toString()
             var publishedOn: String = postDetailsModel.post?.publishedOn.toString()
-            val url: String = postDetailsModel.post?.content?.url.toString()
+            var url: String = postDetailsModel.post?.content?.url.toString()
             if (intent.hasExtra("reactionCount")) {
                 likes = intent.getIntExtra("reactionCount", 0)
             } else {
