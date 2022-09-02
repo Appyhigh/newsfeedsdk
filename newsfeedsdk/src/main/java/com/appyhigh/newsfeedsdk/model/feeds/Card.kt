@@ -511,7 +511,7 @@ data class Card(
                     }
 
                     override fun onAdHide() {
-                        view.visibility = View.GONE
+
                     }
 
                 })
@@ -537,7 +537,7 @@ data class Card(
                     }
 
                     override fun onAdHide() {
-                        view.visibility = View.GONE
+
                     }
 
                 })

@@ -249,7 +249,7 @@ public class AuthSocket {
         return "";
     }
 
-    private static String getBase64SHA1FromHex(String hex){
+    public static String getBase64SHA1FromHex(String hex){
         String baseRes = "";
         try{
             LogDetail.LogDE("Hexa", hex);

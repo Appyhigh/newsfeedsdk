@@ -13,6 +13,7 @@ import android.view.View.GONE
 import android.view.View.VISIBLE
 import android.view.ViewGroup
 import android.widget.ProgressBar
+import android.widget.Toast
 import androidx.cardview.widget.CardView
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -75,8 +76,8 @@ class PagerFragment : Fragment(), EasyPermissions.PermissionCallbacks {
     private var interestQuery = ""
     private var newsFeedAdapter: NewsFeedAdapter? = null
     private var adIndex = 0
-    private var exploreReelCardIndex = 1
-    private var exploreVideoCardIndex = 3
+    private var longitude: Double = 0.0
+    private var latitude: Double = 0.0
     private var gpsTracker: GPSTracker? = null
     var newsFeedList = ArrayList<Card>()
     var adCheckerList = ArrayList<Card>()
@@ -186,8 +187,6 @@ class PagerFragment : Fragment(), EasyPermissions.PermissionCallbacks {
 
     @AfterPermissionGranted(RC_LOCATION)
     private fun getRegionalFeed() {
-        var longitude = 27.9853685
-        var latitude = 76.7256248
         SpUtil.spUtilInstance?.getString(LOCATION_DEF)?.let {
             try {
                 stateCode = Constants.stateMap[it]!!
@@ -197,9 +196,14 @@ class PagerFragment : Fragment(), EasyPermissions.PermissionCallbacks {
         }
 
         mUser?.stateCode?.let { stateCode = mUser!!.stateCode!! }
-        mUser?.latitude?.let { mUser!!.latitude!! }
+        mUser?.latitude?.let { latitude = mUser!!.latitude!! }
         mUser?.longitude?.let { longitude = mUser!!.longitude!! }
-
+        if(gpsTracker?.latitude!=null && gpsTracker?.latitude!! >0){
+            latitude = gpsTracker?.latitude!!
+        }
+        if(gpsTracker?.longitude!=null && gpsTracker?.longitude!! >0){
+            longitude = gpsTracker?.longitude!!
+        }
         val perms = listOf<String>(
             Manifest.permission.ACCESS_FINE_LOCATION,
             Manifest.permission.ACCESS_COARSE_LOCATION
@@ -263,10 +267,7 @@ class PagerFragment : Fragment(), EasyPermissions.PermissionCallbacks {
                                 newsFeedList.add(0, adItem)
                             }
                             try {
-                                if (cardsFromIntent.size == 0 && ApiConfig().checkShowAds(
-                                        requireContext()
-                                    )
-                                ) {
+                                if (cardsFromIntent.size == 0 && ApiConfig().checkShowAds(requireContext()) && newsFeedList.size>5) {
                                     newsFeedList.add(adIndex, adItem)
                                 }
                             } catch (ex: Exception) {
@@ -421,10 +422,7 @@ class PagerFragment : Fragment(), EasyPermissions.PermissionCallbacks {
                                 }
                             }
                             try {
-                                if (cardsFromIntent.size == 0 && ApiConfig().checkShowAds(
-                                        requireContext()
-                                    )
-                                ) {
+                                if (cardsFromIntent.size == 0 && ApiConfig().checkShowAds(requireContext()) && newsFeedList.size>5) {
                                     newsFeedList.add(adIndex, adItem)
                                 }
                             } catch (ex: Exception) {
@@ -516,10 +514,10 @@ class PagerFragment : Fragment(), EasyPermissions.PermissionCallbacks {
             if (endlessScrolling == null) {
                 endlessScrolling = object : EndlessScrolling(linearLayoutManager!!) {
                     override fun onLoadMore(currentPages: Int) {
-                        if (feedType == "own_interests")
-                            getMoreFeeds()
-                        else {
+                        if (selectedInterest.equals("near_you"))
                             getMoreRegionalFeeds()
+                        else {
+                            getMoreFeeds()
                         }
                     }
 
@@ -543,8 +541,8 @@ class PagerFragment : Fragment(), EasyPermissions.PermissionCallbacks {
         }
         ApiGetFeeds().getRegionalFeedsEncrypted(
             Endpoints.GET_REGIONAL_FEEDS_ENCRYPTED,
-            gpsTracker?.latitude,
-            gpsTracker?.longitude,
+            round(latitude * 100000) / 100000.toDouble(),
+            round(longitude * 100000) / 100000.toDouble(),
             stateCode,
             pageNo,
             object : ApiGetFeeds.GetFeedsResponseListener {
@@ -560,6 +558,9 @@ class PagerFragment : Fragment(), EasyPermissions.PermissionCallbacks {
                     Constants.feedsResponseDetails.timestamp = timeStamp
                     adIndex += getFeedsResponse.adPlacement[0]
                     var newsFeedList = getFeedsResponse.cards as java.util.ArrayList<Card>
+                    if(newsFeedList.isEmpty()){
+                        Toast.makeText(requireContext(), "No posts found!", Toast.LENGTH_SHORT).show()
+                    }
                     adCheckerList.addAll(newsFeedList)
                     try {
                         if (ApiConfig().checkShowAds(requireContext())) {
@@ -627,6 +628,9 @@ class PagerFragment : Fragment(), EasyPermissions.PermissionCallbacks {
                     Constants.feedsResponseDetails.timestamp = timeStamp
                     adIndex += getFeedsResponse.adPlacement[0]
                     var newsFeedList = getFeedsResponse.cards as java.util.ArrayList<Card>
+                    if(newsFeedList.isEmpty()){
+                        Toast.makeText(requireContext(), "No posts found!", Toast.LENGTH_SHORT).show()
+                    }
                     adCheckerList.addAll(newsFeedList)
                     try {
                         if (ApiConfig().checkShowAds(requireContext())) {

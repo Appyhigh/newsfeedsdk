@@ -20,6 +20,7 @@ import android.telephony.TelephonyManager
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
+import android.webkit.WebSettings
 import android.widget.FrameLayout
 import android.widget.TextView
 import androidx.annotation.RequiresApi
@@ -192,6 +193,9 @@ class FeedSdk {
             info.versionCode.toString()
         }
         appVersionName = info.versionName.toString()
+        try{
+            Constants.userAgent = WebSettings.getDefaultUserAgent(mContext)
+        } catch (ex:Exception){}
         setIntentBeforeInitialise(intent)
         setTheme(isDark)
         setShareBody(null)
@@ -680,7 +684,7 @@ class FeedSdk {
                         try {
                             if (deepLink!!.getQueryParameter(Constants.FEED_ID) != null) {
                                 if (deepLink!!.getQueryParameter(Constants.IS_NATIVE) != null) {
-                                    parentAppIntent.putExtra(Constants.IS_NATIVE, true)
+                                    parentAppIntent.putExtra(Constants.IS_NATIVE, "true")
                                 }
                                 parentAppIntent.putExtra(
                                     Constants.POST_ID,
@@ -777,7 +781,9 @@ class FeedSdk {
         showFeedScreenListener: ShowFeedScreenListener
     ) {
         getDynamicUrlData(activity, intent) {
-            parentAppIntent.extras?.let { intent.putExtras(it) }
+            parentAppIntent.extras?.let {
+                intent.putExtras(it)
+            }
             intent.extras?.let {
                 for (key in it.keySet()) {
                     LogDetail.LogD("Feedsdk", "handleIntent: $key ${it.get(key)}")

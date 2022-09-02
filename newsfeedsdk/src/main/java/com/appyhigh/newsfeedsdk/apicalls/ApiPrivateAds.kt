@@ -3,7 +3,7 @@ package com.appyhigh.newsfeedsdk.apicalls
 import android.annotation.SuppressLint
 import android.content.Context
 import android.provider.Settings
-import android.webkit.WebSettings
+import com.appyhigh.newsfeedsdk.Constants
 import com.appyhigh.newsfeedsdk.FeedSdk
 import com.appyhigh.newsfeedsdk.apiclient.APISearchStickyInterface
 import com.appyhigh.newsfeedsdk.encryption.LogDetail
@@ -57,7 +57,7 @@ class ApiPrivateAds {
         val storeUrl = "https://play.google.com/store/apps/details?id=${context.packageName}"
         val privateAdRequest = PrivateAdRequest("vpv713jk24", context.packageName, deviceId,
             if(isBanner) "320x50" else "300x250", "Board Games/Puzzles", storeUrl, FeedSdk.appVersionName,
-            WebSettings.getDefaultUserAgent(context),
+            Constants.userAgent,
         getIpv4HostAddress())
         retrofit!!.create(APISearchStickyInterface::class.java).getMobAvenue(privateAdRequest)
             .subscribeOn(Schedulers.io())
@@ -66,17 +66,33 @@ class ApiPrivateAds {
                 try {
                     listener.onSuccess(it.body()!!)
                 } catch (ex: Exception) {
+                    listener.onFailure()
                     LogDetail.LogEStack(ex)
                 }
             }, {
+                listener.onFailure()
                 LogDetail.LogEStack(it)
             })
     }
 
     fun hitAdUrls(eUrl:String, nUrl: String){
         setRetrofit()
-        retrofit!!.create(APISearchStickyInterface::class.java).hitNUrl(nUrl)
-        retrofit!!.create(APISearchStickyInterface::class.java).hitEUrl(eUrl)
+        retrofit!!.create(APISearchStickyInterface::class.java).hitUrl(nUrl)
+            ?.subscribeOn(Schedulers.io())
+            ?.observeOn(AndroidSchedulers.mainThread())
+            ?.subscribe({
+                LogDetail.LogDE("hitUrl","nUrl Success")
+            }, {
+                LogDetail.LogEStack(it)
+            })
+        retrofit!!.create(APISearchStickyInterface::class.java).hitUrl(eUrl)
+            ?.subscribeOn(Schedulers.io())
+            ?.observeOn(AndroidSchedulers.mainThread())
+            ?.subscribe({
+                LogDetail.LogDE("hitUrl","eUrl Success")
+            }, {
+                LogDetail.LogEStack(it)
+            })
     }
 
     private fun getIpv4HostAddress(): String {
@@ -91,4 +107,5 @@ class ApiPrivateAds {
 
 interface PrivateAdResponseListener {
     fun onSuccess(privateAdResponse: PrivateAdResponse)
+    fun onFailure()
 }

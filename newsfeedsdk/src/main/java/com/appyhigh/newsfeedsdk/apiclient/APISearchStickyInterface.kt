@@ -40,8 +40,5 @@ interface APISearchStickyInterface {
     fun getMobAvenue(@Body privateAdRequest: PrivateAdRequest): Observable<Response<PrivateAdResponse>>
 
     @GET
-    fun hitEUrl(@Url url: String): Observable<String?>?
-
-    @GET
-    fun hitNUrl(@Url url: String): Observable<String?>?
+    fun hitUrl(@Url url: String): Observable<Response<Void>?>?
 }
