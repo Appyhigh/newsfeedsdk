@@ -298,10 +298,10 @@ class StickyNotificationService : Service(){
     }
 
     @SuppressLint("LogNotTimber")
-    override fun onStartCommand(intent: Intent, flags: Int, startId: Int): Int {
+    override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         try{
-            LogDetail.LogD(TAG, "onStartCommand: " + intent.action)
-            if(intent.action!! == Constants.ACTION.STOPFOREGROUND.toString()) {
+            LogDetail.LogD(TAG, "onStartCommand: " + intent?.action)
+            if(intent?.action!! == Constants.ACTION.STOPFOREGROUND.toString()) {
                 SpUtil.spUtilInstance?.putBoolean(IS_STICKY_NOTIFICATION_ON, false)
                 serviceRunning = false
                 stopForeground(true)

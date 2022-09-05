@@ -2,7 +2,7 @@
 
        | SDK Name         | Lib Version  | SDK Version Code |
        |------------------|--------------|------------------|
-       | newsfeedsdk      |    1.0.3     |      1008        |
+       | newsfeedsdk      |    1.0.4     |      1008        |
 
 1. made getBase64SHA1FromHex() public
 2. fix publisher name issue in feed card
