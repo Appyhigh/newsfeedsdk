@@ -10,6 +10,7 @@ import android.view.Gravity
 import android.view.View
 import android.widget.LinearLayout
 import android.widget.ProgressBar
+import android.widget.TextView
 import androidx.appcompat.widget.AppCompatImageView
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
@@ -107,8 +108,8 @@ class NewsFeedScrollView : LinearLayout, PersonalizeCallListener, OnRefreshListe
 
 
     private fun initView(view: View) {
-        Card.setFontFamily(view.findViewById(R.id.podcastBottomTitle))
-        Card.setFontFamily(view.findViewById(R.id.podcastBottomPublisherName))
+        Card.setFontFamily(view.findViewById(R.id.podcastBottomTitle) as TextView)
+        Card.setFontFamily(view.findViewById(R.id.podcastBottomPublisherName) as TextView)
         mUserDetails = null
         mInterestResponseModel = null
         mLanguageResponseModel = null

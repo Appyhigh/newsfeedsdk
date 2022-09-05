@@ -8,18 +8,15 @@ import android.util.DisplayMetrics
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.TextView
 import androidx.fragment.app.Fragment
 import androidx.viewpager2.widget.ViewPager2
 import com.appyhigh.newsfeedsdk.FeedSdk
 import com.appyhigh.newsfeedsdk.R
 import com.appyhigh.newsfeedsdk.adapter.PersonalizeAdapter
-import com.appyhigh.newsfeedsdk.apicalls.ApiGetInterests
-import com.appyhigh.newsfeedsdk.apicalls.ApiUserDetails
 import com.appyhigh.newsfeedsdk.callbacks.PersonalizeCallback
 import com.appyhigh.newsfeedsdk.model.Interest
-import com.appyhigh.newsfeedsdk.model.InterestResponseModel
 import com.appyhigh.newsfeedsdk.model.Language
-import com.appyhigh.newsfeedsdk.model.UserResponse
 import com.appyhigh.newsfeedsdk.model.feeds.Card
 import com.appyhigh.newsfeedsdk.utils.SpUtil
 import com.google.android.material.bottomsheet.BottomSheetDialog
@@ -56,7 +53,7 @@ class PersonaliseBottomSheetFragment : BottomSheetDialogFragment() {
             R.layout.bottom_sheet_personalise, container,
             false
         )
-        Card.setFontFamily(view?.findViewById(R.id.title), true)
+        Card.setFontFamily(view?.findViewById(R.id.title) as TextView, true)
         try {
             val vpPersonalize: ViewPager2 = view.findViewById(R.id.vpPersonalize)
             val fragmentList = ArrayList<Fragment>()

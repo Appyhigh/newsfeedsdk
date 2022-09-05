@@ -58,7 +58,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:textStyle="bold"
-
+                app:isBold="@{true}"
                 android:text="@{interest.label}"
                 android:textSize="15sp"
                 app:selectedText="@{interest.selected}"

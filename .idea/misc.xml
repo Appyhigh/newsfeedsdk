@@ -41,6 +41,8 @@
         <entry key="newsfeedsdk/src/main/res/layout/item_feed_like_interests.xml" value="0.20520833333333333" />
         <entry key="newsfeedsdk/src/main/res/layout/item_feed_report_issue.xml" value="0.2203125" />
         <entry key="newsfeedsdk/src/main/res/layout/item_feed_video.xml" value="0.2203125" />
+        <entry key="newsfeedsdk/src/main/res/layout/item_interest_mf.xml" value="0.19326241134751773" />
+        <entry key="newsfeedsdk/src/main/res/layout/item_language_mf.xml" value="0.33559782608695654" />
         <entry key="newsfeedsdk/src/main/res/layout/item_location.xml" value="0.20520833333333333" />
         <entry key="newsfeedsdk/src/main/res/layout/item_native_comment.xml" value="0.2203125" />
         <entry key="newsfeedsdk/src/main/res/layout/item_news_feed_small.xml" value="0.2203125" />

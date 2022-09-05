@@ -68,7 +68,7 @@
             android:textSize="14sp"
             android:layout_marginTop="10dp"
             android:textColor="@color/feedPrimaryTextColor"
-
+            app:isBold="@{false}"
             app:description="@{card.items[0].content.description}"
             app:title="@{card.items[0].content.title}"
             tools:text="Work From Your Happy Place with Belinda Ellsworth"
@@ -84,7 +84,7 @@
             android:maxLines="1"
             android:ellipsize="end"
             android:text="@{card.items[0].publisherName}"
-
+            app:isBold="@{false}"
             tools:text="Jane Cooper"
             />
 

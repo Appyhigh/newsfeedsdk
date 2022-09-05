@@ -1026,8 +1026,8 @@ class NewsFeedAdapter(
                     "reactionCount",
                     it.likeCount + it.angryCount + it.laughCount + it.wowCount + it.loveCount + it.sadCount
                 )
-                intent.putExtra("isReacted", newsFeedList[position].items[0].isReacted)
             }
+            newsFeedList[position].items[0].isReacted?.let { intent.putExtra("isReacted", it) }
             if (fromPublishPage) {
                 intent.putExtra("fromPublishPage", true)
             } else if (v.context.toString().contains("ExploreHashtag")) {

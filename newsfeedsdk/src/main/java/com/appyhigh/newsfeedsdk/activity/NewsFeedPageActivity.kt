@@ -1607,8 +1607,8 @@ class NewsFeedPageActivity : AppCompatActivity() {
         Card.setFontFamily(binding?.tvComments)
         Card.setFontFamily(binding?.tvShare)
         Card.setFontFamily(binding?.tvWhatsappShare)
-        Card.setFontFamily(view?.findViewById(R.id.podcastBottomTitle))
-        Card.setFontFamily(view?.findViewById(R.id.podcastBottomPublisherName))
+        Card.setFontFamily(view?.findViewById(R.id.podcastBottomTitle) as TextView)
+        Card.setFontFamily(view?.findViewById(R.id.podcastBottomPublisherName) as TextView)
     }
 
 }

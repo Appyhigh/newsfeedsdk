@@ -96,7 +96,7 @@
 token crosses the price you specify."
             android:textColor="#cbc4c4"
             android:textSize="16sp"
-            android:fontFamily="_regular"/>
+            />
 
         <androidx.cardview.widget.CardView
             android:id="@+id/noPriceCryptoPriceAlert"
@@ -130,7 +130,7 @@ token crosses the price you specify."
                     android:layout_gravity="center"
                     android:gravity="center"
                     android:layout_marginStart="10dp"
-                    android:fontFamily="_regular"
+
                     android:textSize="16sp"
                     android:textStyle="bold"
                     android:textColor="@color/white"

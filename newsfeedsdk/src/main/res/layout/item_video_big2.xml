@@ -78,6 +78,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="5dp"
                 android:text="@string/error_video_description"
+                app:isBold="@{false}"
                 android:textColor="#bfffffff"
                 android:textSize="16sp" />
 
@@ -159,6 +160,7 @@
                 android:layout_gravity="center_vertical"
                 android:onClick="@{(v) ->listener.onPostClicked(v, position)}"
                 android:textColor="@android:color/white"
+                app:isBold="@{false}"
                 app:description="@{card.items[0].content.description}"
                 app:title="@{card.items[0].content.title}"
                 tools:text="Chhangte has got some moves" />

@@ -78,6 +78,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="5dp"
                 android:text="@string/error_video_description"
+                app:isBold="@{false}"
                 android:textColor="#bfffffff"
                 android:textSize="16sp" />
 
@@ -145,7 +146,7 @@
             android:layout_marginEnd="20dp"
             android:layout_marginBottom="20dp"
             android:background="@drawable/video_feed_text_view_drawable"
-
+            app:isBold="@{false}"
             android:gravity="center_vertical"
             android:paddingStart="15dp"
             android:paddingTop="8dp"
@@ -204,7 +205,7 @@
             android:layout_marginBottom="70dp"
             android:ellipsize="end"
             android:maxLines="3"
-
+            app:isBold="@{false}"
             android:onClick="@{(v) ->listener.onPostClicked(v, position)}"
             android:textColor="@android:color/white"
             app:description="@{card.items[0].content.description}"
@@ -231,7 +232,7 @@
             android:layout_marginStart="10dp"
             android:onClick="@{(v) ->listener.onPostClicked(v, position)}"
             android:text="@{card.items[0].publisherName}"
-
+            app:isBold="@{false}"
             android:textColor="@android:color/white"
             android:textSize="16sp"
             app:layout_constraintBottom_toBottomOf="@+id/feed_publisher_logo"
@@ -265,6 +266,7 @@
                 android:paddingEnd="@dimen/space_small"
                 android:text="Comments"
                 android:textAlignment="textStart"
+                app:isBold="@{false}"
                 android:textColor="@color/colorWhite" />
 
             <androidx.appcompat.widget.AppCompatImageView

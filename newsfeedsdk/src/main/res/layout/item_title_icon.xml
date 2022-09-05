@@ -45,7 +45,7 @@
             android:layout_height="wrap_content"
             android:layout_weight="9"
             android:layout_marginStart="10dp"
-
+            app:isBold="@{false}"
             android:textSize="16sp"
             android:maxLines="1"
             android:ellipsize="end"
@@ -58,7 +58,7 @@
             android:layout_height="wrap_content"
             android:layout_marginStart="5dp"
             android:textSize="16sp"
-
+            app:isBold="@{false}"
             android:maxLines="1"
             android:ellipsize="end"
             android:textColor="@color/feedPrimaryColor"
@@ -79,6 +79,7 @@
             android:drawableStart="@drawable/ic_new_add"
             android:background="@drawable/bg_new_add"
             android:textColor="@color/feedPrimaryTextColor"
+            app:isBold="@{false}"
             android:text="Add"
             app:forInterest="@{card.items[0].id}"
             android:visibility="gone"

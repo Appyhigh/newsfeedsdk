@@ -35,7 +35,7 @@
             android:layout_height="wrap_content"
             android:background="@color/white"
             android:padding="10dp"
-
+            app:isBold="@{false}"
             android:text="@{tab.value}"
             android:textColor="@{tab.selected?@color/purple_500:@color/cricket_feed_grey}"
             android:textSize="16sp"

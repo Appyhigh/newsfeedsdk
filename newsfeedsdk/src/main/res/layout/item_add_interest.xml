@@ -58,7 +58,6 @@
                 android:text="@{interest.label}"
                 android:textColor="@color/text_color_black"
                 android:textStyle="bold"
-
                 app:isBold="@{true}"
                 android:textSize="14sp"
                 tools:text="For you" />

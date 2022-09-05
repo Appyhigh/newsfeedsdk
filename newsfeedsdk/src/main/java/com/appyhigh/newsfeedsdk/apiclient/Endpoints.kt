@@ -44,4 +44,6 @@ object Endpoints {
     const val GET_CONFIG_ENCRYPTED = "/api/v4/config"
     const val BLOCK_PUBLISHER = "/api/v4/block-publisher"
     const val GET_BLOCK_PUBLISHER_DETAILS = "/api/v4/get-block-publisher-details"
+    const val GET_SINGLE_POST = "/api/v4/app-lock-get-single-post"
+    const val GET_MULTIPLE_POSTS = "/api/v4/app-lock-get-multiple-posts"
 }

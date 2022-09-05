@@ -15,6 +15,6 @@
         android:ellipsize="end"
         android:maxLines="1"
         tools:text="India"
-
+        app:isBold="@{false}"
         android:textAppearance="?attr/textAppearanceSubtitle1" />
 </layout>

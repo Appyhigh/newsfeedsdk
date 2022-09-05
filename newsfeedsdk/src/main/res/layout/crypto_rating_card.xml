@@ -68,7 +68,7 @@
                 android:maxLines="1"
                 android:layout_gravity="center"
                 android:gravity="center"
-                android:fontFamily="_regular"
+
                 android:textSize="14sp"
                 android:textColor="@color/feedPrimaryTextColor"
                 android:text="Please rate us and show your love"
@@ -98,7 +98,7 @@
                 android:paddingTop="10dp"
                 android:paddingBottom="10dp"
                 android:gravity="center"
-                android:fontFamily="_regular"
+
                 android:textSize="14sp"
                 android:textColor="@color/feedPrimaryTextColor"
                 android:onClick="@{ (v) -> listener.onRatingClicked(v, position)}"

@@ -59,6 +59,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:textColor="@color/text_color_black"
+                    app:isBold="@{false}"
                     app:description="@{card.items[0].content.description}"
                     app:title="@{card.items[0].content.title}"
                     android:textSize="20sp" />
@@ -97,6 +98,7 @@
                     android:layout_height="wrap_content"
                     android:ellipsize="end"
                     android:maxLines="10"
+                    app:isBold="@{false}"
                     android:text="@{card.items[0].content.caption}"
                     android:textColor="@color/text_color_black"
                     />
@@ -104,6 +106,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Read More"
+                    app:isBold="@{false}"
                     android:textColor="@color/feedPrimaryColor"
                     android:onClick="@{(v) -> listener.onPostClicked(v, position)}"
                     />

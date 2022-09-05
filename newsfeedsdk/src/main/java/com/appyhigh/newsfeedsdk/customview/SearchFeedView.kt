@@ -5,8 +5,10 @@ import android.content.Context
 import android.graphics.Rect
 import android.util.AttributeSet
 import android.view.View
+import android.webkit.WebSettings
 import android.widget.LinearLayout
 import android.widget.ProgressBar
+import android.widget.TextView
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.appyhigh.newsfeedsdk.Constants
@@ -81,10 +83,13 @@ class SearchFeedView : LinearLayout, OnRefreshListener {
 
     private fun initView() {
         val view = inflate(context, R.layout.layout_search_feed_view, this)
-        Card.setFontFamily(view?.findViewById(R.id.trendingNewsTitle), true)
+        Card.setFontFamily(view?.findViewById(R.id.trendingNewsTitle) as TextView, true)
         pbLoading = view.findViewById(R.id.pbLoading)
         rvPosts = view.findViewById(R.id.rvPosts)
         linearLayoutManager = LinearLayoutManager(context)
+        try{
+            Constants.userAgent = WebSettings.getDefaultUserAgent(context)
+        } catch (ex:Exception){}
         ApiUserDetails().getUserResponseEncrypted(
             Endpoints.USER_DETAILS_ENCRYPTED,
             object : ApiUserDetails.UserResponseListener {

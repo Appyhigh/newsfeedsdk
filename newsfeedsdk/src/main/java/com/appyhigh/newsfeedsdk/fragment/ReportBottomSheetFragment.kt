@@ -7,10 +7,7 @@ import android.util.DisplayMetrics
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.ProgressBar
-import android.widget.RadioButton
-import android.widget.RadioGroup
-import android.widget.Toast
+import android.widget.*
 import androidx.appcompat.widget.AppCompatButton
 import androidx.appcompat.widget.AppCompatTextView
 import com.appyhigh.newsfeedsdk.Constants
@@ -134,7 +131,7 @@ class ReportBottomSheetFragment : BottomSheetDialogFragment() {
     }
 
     private fun setFonts(view: View?){
-        Card.setFontFamily(view?.findViewById(R.id.btnSave), true)
-        Card.setFontFamily(view?.findViewById(R.id.tvGoBack))
+        Card.setFontFamily(view?.findViewById(R.id.btnSave) as Button, true)
+        Card.setFontFamily(view?.findViewById(R.id.tvGoBack) as TextView)
     }
 }

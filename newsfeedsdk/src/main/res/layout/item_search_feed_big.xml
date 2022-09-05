@@ -29,13 +29,12 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         app:cardCornerRadius="10dp"
-        android:layout_marginBottom="20dp"
+        android:layout_marginBottom="10dp"
         app:cardElevation="5dp">
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="10dp"
             android:background="@color/feedSecondaryBackground"
             android:onClick="@{(v) -> listener.onPostClicked(v, position)}"
             android:orientation="vertical">
@@ -81,15 +80,13 @@
                 android:id="@+id/news_item_title"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:textStyle="bold"
-
-                app:isBold="@{true}"
+                app:isBold="@{false}"
                 android:lineSpacingExtra="3dp"
                 android:maxLines="3"
                 android:paddingStart="10dp"
-                android:paddingTop="13dp"
                 android:paddingEnd="10dp"
-                android:paddingBottom="10dp"
+                android:layout_marginTop="8dp"
+                android:layout_marginBottom="6dp"
                 android:textAlignment="textStart"
                 android:textColor="@color/feedPrimaryTextColor"
                 android:textSize="17sp"
@@ -136,7 +133,6 @@
                     android:layout_height="wrap_content"
                     android:layout_alignParentStart="true"
                     android:layout_alignParentLeft="true"
-
                     app:isBold="@{true}"
                     android:ellipsize="end"
                     android:maxLines="1"
@@ -198,7 +194,6 @@
                         android:layout_height="48dp"
                         android:background="@drawable/text_bg_red"
                         android:textStyle="bold"
-
                         app:isBold="@{true}"
                         android:gravity="center"
                         android:textColor="@color/white"
@@ -233,12 +228,13 @@
                         android:id="@+id/news_item_publisher_name"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-
                         android:text="@{card.items[0].publisherName}"
                         android:maxLines="1"
                         android:ellipsize="end"
                         android:textColor="@color/feedPrimaryTextColor"
                         android:textSize="14sp"
+                        android:textStyle="bold"
+                        app:isBold="@{true}"
                         tools:text="News18 English" />
 
                     <LinearLayout
@@ -258,9 +254,7 @@
                                 android:id="@+id/news_item_posted_on"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:textStyle="bold"
-
-                                app:isBold="@{true}"
+                                app:isBold="@{false}"
                                 android:textColor="@android:color/darker_gray"
                                 android:textSize="12sp"
                                 app:formattedTime="@{card.items[0].publishedOn}"
@@ -328,6 +322,15 @@
                         android:paddingBottom="20dp"
                         app:tint="@color/feedSecondaryTintColor"
                         app:srcCompat="@drawable/ic_cricket_share" />
+
+                    <androidx.appcompat.widget.AppCompatImageView
+                        android:id="@+id/news_item_more_option"
+                        android:layout_width="30dp"
+                        android:layout_height="30dp"
+                        android:layout_gravity="center"
+                        android:onClick="@{ (v) -> listener.onMoreOptionsClicked(v, position)}"
+                        app:tint="@color/feedSecondaryTintColor"
+                        app:srcCompat="@drawable/ic_feed_more" />
 
                 </LinearLayout>
 
