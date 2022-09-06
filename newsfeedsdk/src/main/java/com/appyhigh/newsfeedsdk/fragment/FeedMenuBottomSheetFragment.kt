@@ -3,6 +3,7 @@ package com.appyhigh.newsfeedsdk.fragment
 import android.app.Activity
 import android.app.Dialog
 import android.content.Intent
+import android.os.Build
 import android.os.Bundle
 import android.text.TextUtils
 import android.util.DisplayMetrics
@@ -131,9 +132,15 @@ class FeedMenuBottomSheetFragment :
 
 
     private fun Activity.getScreenHeight(): Int {
-        val displayMetrics = DisplayMetrics()
-        windowManager.defaultDisplay.getMetrics(displayMetrics)
-        return displayMetrics.heightPixels
+        return if (Build.VERSION.SDK_INT < Build.VERSION_CODES.R) {
+            val displayMetrics = DisplayMetrics()
+            windowManager.defaultDisplay.getMetrics(displayMetrics)
+            displayMetrics.heightPixels
+        } else{
+            val outMetrics = windowManager.currentWindowMetrics
+            val bounds = outMetrics.bounds
+            bounds.height()
+        }
     }
 
     interface ReportPost {

@@ -2,27 +2,24 @@ package com.appyhigh.newsfeedsdk.fragment
 
 import android.app.Activity
 import android.app.Dialog
+import android.os.Build
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
-import android.util.ArraySet
 import android.util.DisplayMetrics
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.*
-import androidx.appcompat.widget.AppCompatButton
-import androidx.appcompat.widget.AppCompatTextView
+import android.widget.ArrayAdapter
+import android.widget.AutoCompleteTextView
+import android.widget.Button
 import com.appyhigh.newsfeedsdk.Constants
 import com.appyhigh.newsfeedsdk.FeedSdk
 import com.appyhigh.newsfeedsdk.R
-import com.appyhigh.newsfeedsdk.apicalls.ApiReportPost
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
-import com.google.android.material.snackbar.Snackbar
 import com.google.android.material.textfield.TextInputLayout
 import java.util.*
-import kotlin.collections.ArrayList
 
 class FontChangeBottomSheet : BottomSheetDialogFragment() {
 
@@ -97,8 +94,14 @@ class FontChangeBottomSheet : BottomSheetDialogFragment() {
 
 
     fun Activity.getScreenHeight(): Int {
-        val displayMetrics = DisplayMetrics()
-        windowManager.defaultDisplay.getMetrics(displayMetrics)
-        return displayMetrics.heightPixels
+        return if (Build.VERSION.SDK_INT < Build.VERSION_CODES.R) {
+            val displayMetrics = DisplayMetrics()
+            windowManager.defaultDisplay.getMetrics(displayMetrics)
+            displayMetrics.heightPixels
+        } else{
+            val outMetrics = windowManager.currentWindowMetrics
+            val bounds = outMetrics.bounds
+            bounds.height()
+        }
     }
 }

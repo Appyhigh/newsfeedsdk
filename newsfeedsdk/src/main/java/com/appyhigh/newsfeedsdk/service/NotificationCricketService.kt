@@ -43,6 +43,11 @@ class NotificationCricketService  : Service(){
     val notificationIds:HashMap<String, Int> = HashMap()
     var serviceRunning = false
     var receiver: BroadcastReceiver?=null
+    private val flags = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+        PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+    } else{
+        PendingIntent.FLAG_UPDATE_CURRENT
+    }
     override fun onBind(intent: Intent?): IBinder? {
         return null
     }
@@ -193,6 +198,17 @@ class NotificationCricketService  : Service(){
         expandedRemoteView.setTextViewText(R.id.appName, FeedSdk.appName)
         collapsedRemoteView.setImageViewResource(R.id.appLogo, FeedSdk.feedAppIcon)
         expandedRemoteView.setImageViewResource(R.id.appLogo, FeedSdk.feedAppIcon)
+        if (Build.VERSION.SDK_INT > Build.VERSION_CODES.R){
+            collapsedRemoteView.setViewVisibility(R.id.appLogo, View.GONE)
+            collapsedRemoteView.setViewVisibility(R.id.appName, View.GONE)
+            expandedRemoteView.setViewVisibility(R.id.appLogo, View.GONE)
+            expandedRemoteView.setViewVisibility(R.id.appName, View.GONE)
+        } else{
+            collapsedRemoteView.setViewVisibility(R.id.appLogo, View.VISIBLE)
+            collapsedRemoteView.setViewVisibility(R.id.appName, View.VISIBLE)
+            expandedRemoteView.setViewVisibility(R.id.appLogo, View.VISIBLE)
+            expandedRemoteView.setViewVisibility(R.id.appName, View.VISIBLE)
+        }
         if(liveScore.has("TourName")){
             contentTitle = liveScore.getString("TourName")
             collapsedRemoteView.setTextViewText(R.id.tourName, liveScore.getString("TourName"))
@@ -265,7 +281,7 @@ class NotificationCricketService  : Service(){
 
         val intent = Intent("dismissCricket")
         intent.putExtra("filename", liveScore.getString("filename"))
-        val dismissIntent = PendingIntent.getBroadcast(this@NotificationCricketService, 1, intent, 0)
+        val dismissIntent = PendingIntent.getBroadcast(this@NotificationCricketService, 1, intent, flags)
 
         expandedRemoteView.setOnClickPendingIntent(R.id.dismiss, dismissIntent)
         val startIntent =
@@ -278,7 +294,7 @@ class NotificationCricketService  : Service(){
                 this@NotificationCricketService,
                 1,
                 startIntent,
-                PendingIntent.FLAG_UPDATE_CURRENT
+                flags
         )
         val notification = NotificationCompat.Builder(this, channelID)
                 .setContentTitle(contentTitle)

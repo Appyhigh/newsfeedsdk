@@ -125,7 +125,7 @@ class WebActivity : AppCompatActivity(), AdvancedWebView.Listener {
 
                 override fun onAdmobAdSuccess(adId: String) {
                     val adView = AdView(this@WebActivity)
-                    adView.adSize = AdSize.BANNER
+                    adView.setAdSize(AdSize.BANNER)
                     adView.adUnitId = adId
                     binding?.adContainer?.addView(adView)
                     val adRequest = AdRequest.Builder().build()

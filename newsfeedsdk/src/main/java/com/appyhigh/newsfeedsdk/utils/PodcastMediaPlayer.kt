@@ -46,6 +46,11 @@ class PodcastMediaPlayer {
         private var podcastMediaCard = PodcastMediaCard()
         private val channelID = "PodcastNotification"
         var check = false
+        private val flags = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+        } else{
+            PendingIntent.FLAG_UPDATE_CURRENT
+        }
         var receiver: BroadcastReceiver =object : BroadcastReceiver() {
             override fun onReceive(context: Context, receiveIntent: Intent) {
                 // val closeIntent = Intent(Intent.ACTION_CLOSE_SYSTEM_DIALOGS)
@@ -317,17 +322,17 @@ class PodcastMediaPlayer {
                 var intent = Intent(FeedSdk.appName + "PodcastBackward")
                 remoteView.setOnClickPendingIntent(
                     R.id.backward,
-                    PendingIntent.getBroadcast(context, 1, intent, 0)
+                    PendingIntent.getBroadcast(context, 1, intent, flags)
                 )
                 intent = Intent(FeedSdk.appName + "PodcastForward")
                 remoteView.setOnClickPendingIntent(
                     R.id.forward,
-                    PendingIntent.getBroadcast(context, 1, intent, 0)
+                    PendingIntent.getBroadcast(context, 1, intent, flags)
                 )
                 intent = Intent(FeedSdk.appName + "PodcastPlay")
                 remoteView.setOnClickPendingIntent(
                     R.id.play,
-                    PendingIntent.getBroadcast(context, 1, intent, 0)
+                    PendingIntent.getBroadcast(context, 1, intent, flags)
                 )
                 if(podcastCard.imageBitmap!=null){
                     remoteView.setImageViewBitmap(R.id.image, podcastCard.imageBitmap)
@@ -342,14 +347,14 @@ class PodcastMediaPlayer {
                 startIntent.putExtra(Constants.POST_ID, podcastCard.postId)
                 startIntent.putExtra(Constants.ALREADY_EXISTS, true)
                 startIntent.action = System.currentTimeMillis().toString()
-                val pendingIntent = PendingIntent.getActivity(context, 1, startIntent, PendingIntent.FLAG_UPDATE_CURRENT)
+                val pendingIntent = PendingIntent.getActivity(context, 1, startIntent, flags)
                 val notification = NotificationCompat.Builder(context!!, channelID)
                     .setSmallIcon(FeedSdk.feedAppIcon)
                     .setCustomContentView(remoteView)
                     .setContent(remoteView)
                     .setCustomBigContentView(remoteView)
                     .setContentIntent(pendingIntent)
-                    .setDeleteIntent(PendingIntent.getBroadcast(context, 1, Intent(FeedSdk.appName + "PodcastDismiss"), 0))
+                    .setDeleteIntent(PendingIntent.getBroadcast(context, 1, Intent(FeedSdk.appName + "PodcastDismiss"), flags))
                     .setSilent(true)
                     .setGroup("Podcast Notification")
                     .setGroupSummary(true)

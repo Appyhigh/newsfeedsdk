@@ -7,6 +7,7 @@ import android.app.Activity
 import android.content.Context
 import android.content.res.Resources
 import android.graphics.Typeface
+import android.os.Build
 import android.os.Handler
 import android.os.Looper
 import android.util.DisplayMetrics
@@ -331,11 +332,9 @@ fun loadInterstitialAd(
                             interstitialAdUtilLoadCallback?.onAdDismissedFullScreenContent()
                         }
 
-                        override fun onAdFailedToShowFullScreenContent(adError: AdError?) {
+                        override fun onAdFailedToShowFullScreenContent(p0: AdError) {
                             LogDetail.LogD(TAG, "Ad failed to show.")
-                            interstitialAdUtilLoadCallback?.onAdFailedToShowFullScreenContent(
-                                adError,
-                            )
+                            interstitialAdUtilLoadCallback?.onAdFailedToShowFullScreenContent(p0,)
                         }
 
                         override fun onAdShowedFullScreenContent() {
@@ -372,7 +371,9 @@ fun showAdaptiveBanner(context: Context, adUnit: String, bannerAd: LinearLayout)
         bannerAd.addView(adView)
         val adRequest: AdRequest = AdRequest.Builder().build()
         val adSize = getAdSize(context)
-        adView.adSize = adSize
+        if (adSize != null) {
+            adView.setAdSize(adSize)
+        }
         adView.loadAd(adRequest)
     } catch (ex:java.lang.Exception){
         LogDetail.LogEStack(ex)
@@ -381,12 +382,20 @@ fun showAdaptiveBanner(context: Context, adUnit: String, bannerAd: LinearLayout)
 
 private fun getAdSize(context: Context): AdSize? {
     try{
-        val display = (context as Activity).windowManager.defaultDisplay
-        val outMetrics = DisplayMetrics()
-        display.getMetrics(outMetrics)
-        val widthPixels = outMetrics.widthPixels.toFloat()
-        val density = outMetrics.density
-        val adWidth = (widthPixels / density).toInt()
+        val adWidth = if (Build.VERSION.SDK_INT < Build.VERSION_CODES.R) {
+            val outMetrics = DisplayMetrics()
+            val display = (context as Activity).windowManager.defaultDisplay
+            display.getMetrics(outMetrics)
+            val widthPixels = outMetrics.widthPixels.toFloat()
+            val density = outMetrics.density
+            (widthPixels / density).toInt()
+        } else{
+            val outMetrics = (context as Activity).windowManager.currentWindowMetrics
+            val bounds = outMetrics.bounds
+            val widthPixels = if (bounds.width() < bounds.height()) bounds.width() else bounds.height()
+            val scale = context.resources.configuration.densityDpi / 160f
+            (widthPixels/scale).toInt()
+        }
         return AdSize.getCurrentOrientationAnchoredAdaptiveBannerAdSize(context, adWidth)
     } catch (ex:Exception){
         LogDetail.LogEStack(ex)

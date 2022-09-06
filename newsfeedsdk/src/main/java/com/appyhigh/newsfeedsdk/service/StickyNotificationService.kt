@@ -5,19 +5,18 @@ import android.app.*
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
-import android.content.Intent.*
+import android.content.Intent.FLAG_ACTIVITY_CLEAR_TOP
+import android.content.Intent.FLAG_ACTIVITY_NEW_TASK
 import android.content.IntentFilter
-import android.content.pm.PackageManager
 import android.graphics.Color
-import android.hardware.camera2.CameraManager
-import android.os.*
-import android.provider.AlarmClock
+import android.os.Build
+import android.os.Bundle
+import android.os.IBinder
 import android.view.View
 import android.widget.LinearLayout
 import android.widget.RemoteViews
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
-import androidx.core.content.ContextCompat
 import androidx.work.ExistingPeriodicWorkPolicy
 import androidx.work.PeriodicWorkRequest
 import androidx.work.WorkManager
@@ -29,13 +28,16 @@ import com.appyhigh.newsfeedsdk.Constants.getStickyBackground
 import com.appyhigh.newsfeedsdk.Constants.getWidgetImage
 import com.appyhigh.newsfeedsdk.FeedSdk
 import com.appyhigh.newsfeedsdk.R
-import com.appyhigh.newsfeedsdk.activity.SettingsActivity
+import com.appyhigh.newsfeedsdk.activity.SdkEventsActivity
 import com.appyhigh.newsfeedsdk.activity.WebActivity
 import com.appyhigh.newsfeedsdk.apicalls.ApiConfig
 import com.appyhigh.newsfeedsdk.apicalls.ApiSearchSticky
 import com.appyhigh.newsfeedsdk.encryption.LogDetail
 import com.appyhigh.newsfeedsdk.model.SearchStickyModel
-import com.appyhigh.newsfeedsdk.utils.*
+import com.appyhigh.newsfeedsdk.utils.AdUtilsSDK
+import com.appyhigh.newsfeedsdk.utils.SpUtil
+import com.appyhigh.newsfeedsdk.utils.StickyWorker
+import com.appyhigh.newsfeedsdk.utils.startStickyNotificationService
 import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.gson.Gson
 import java.util.*
@@ -52,7 +54,13 @@ class StickyNotificationService : Service(){
     var intentFilter:IntentFilter? = null
     var notificationManager: NotificationManagerCompat? = null
     var notification: NotificationCompat.Builder? = null
+    private var packagesMap = hashMapOf("bharat.browser" to true, "u.see.browser.for.uc.browser" to true, "u.browser.for.lite.uc.browser" to true)
     private var myTimer = Timer("SearchStickyTimer", true)
+    private val flags = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+        PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+    } else{
+        PendingIntent.FLAG_UPDATE_CURRENT
+    }
 
     override fun onBind(intent: Intent?): IBinder? {
         return null
@@ -87,174 +95,14 @@ class StickyNotificationService : Service(){
             val appName = FeedSdk.appName
             // add actions here !
             intentFilter = IntentFilter()
-            intentFilter!!.addAction(appName+"Settings")
-            intentFilter!!.addAction(appName+"Flashlight")
-            intentFilter!!.addAction(appName+"Search")
-            intentFilter!!.addAction(appName+"Camera")
-            intentFilter!!.addAction(appName+"Video")
-            intentFilter!!.addAction(appName+"Weather")
-            intentFilter!!.addAction(appName+"Email")
-            intentFilter!!.addAction(appName+"Whatsapp")
-            intentFilter!!.addAction(appName+"Call")
-            intentFilter!!.addAction(appName+"Messages")
-            intentFilter!!.addAction(appName+"Alarm")
-            intentFilter!!.addAction(appName+"Calendar")
-            intentFilter!!.addAction(appName+"News")
             intentFilter!!.addAction("Dismiss")
             receiver = object : BroadcastReceiver() {
-                @SuppressLint("MissingPermission")
                 override fun onReceive(context: Context?, receiveIntent: Intent) {
                     try{
-                        val packagesMap = HashMap<String, Boolean>()
-                        packagesMap["bharat.browser"] = true
-                        packagesMap["u.see.browser.for.uc.browser"] = true
-                        packagesMap["u.browser.for.lite.uc.browser"] = true
                         if(receiveIntent.hasExtra("isCollapsed") && receiveIntent.hasExtra("widget")){
                             receiveIntent.action?.let { logEvent(it, receiveIntent.getBooleanExtra("isCollapsed", true), receiveIntent.getStringExtra("widget")!!) }
                         }
-                        val closeIntent = Intent(Intent.ACTION_CLOSE_SYSTEM_DIALOGS)
-                        sendBroadcast(closeIntent)
                         when (receiveIntent.action) {
-                            appName+"Settings" -> {
-                                val settingsIntent = Intent(this@StickyNotificationService, SettingsActivity::class.java)
-                                settingsIntent.putExtra("stickyTitle", "Settings")
-                                settingsIntent.flags = FLAG_ACTIVITY_NEW_TASK or FLAG_ACTIVITY_CLEAR_TOP
-                                startActivity(settingsIntent)
-                            }
-                            appName+"Camera" -> {
-                                try {
-                                    val intent =
-                                        Intent(android.provider.MediaStore.INTENT_ACTION_STILL_IMAGE_CAMERA)
-                                    intent.flags = FLAG_ACTIVITY_NEW_TASK or FLAG_ACTIVITY_CLEAR_TOP
-                                    startActivity(intent)
-                                } catch (ex:Exception){
-                                    LogDetail.LogEStack(ex)
-                                }
-                            }
-                            appName+"Video" -> {
-                                try{
-                                    val activity = Class.forName(FeedSdk.feedTargetActivity) as Class<out Activity?>?
-                                    val intent = Intent(this@StickyNotificationService, activity)
-                                    intent.putExtra("fromSticky", "reels")
-                                    intent.putExtra("push_source", "feedsdk")
-                                    intent.putExtra(Constants.FEED_TYPE, "search_bar_quick_bites" )
-                                    intent.action = System.currentTimeMillis().toString()
-                                    intent.flags = FLAG_ACTIVITY_NEW_TASK or FLAG_ACTIVITY_CLEAR_TOP
-                                    startActivity(intent)
-                                } catch (ex:Exception){
-                                    LogDetail.LogEStack(ex)
-                                }
-                            }
-                            appName+"Weather" -> {
-                                try {
-                                    val intent = checkAndGetIntent(packagesMap)
-                                    intent.putExtra("link","https://www.google.com/search?q=weather")
-                                    intent.putExtra("title", "Weather")
-                                    intent.putExtra("fromSticky", "true")
-                                    intent.flags = FLAG_ACTIVITY_NEW_TASK or FLAG_ACTIVITY_CLEAR_TOP
-                                    startActivity(intent)
-                                } catch (ex:java.lang.Exception){
-                                    LogDetail.LogEStack(ex)
-                                }
-                            }
-                            appName+"Email" -> {
-                                try{
-                                    val intent = this@StickyNotificationService.packageManager.getLaunchIntentForPackage("com.google.android.gm")
-                                    intent!!.flags = FLAG_ACTIVITY_NEW_TASK or FLAG_ACTIVITY_CLEAR_TOP
-                                    startActivity(intent)
-                                } catch (ex:java.lang.Exception){
-                                    LogDetail.LogEStack(ex)
-                                }
-                            }
-                            appName+"Whatsapp" -> {
-                                try {
-                                    val intent = this@StickyNotificationService.packageManager.getLaunchIntentForPackage("com.whatsapp")
-                                    intent!!.flags = FLAG_ACTIVITY_NEW_TASK or FLAG_ACTIVITY_CLEAR_TOP
-                                    startActivity(intent)
-                                } catch (ex:java.lang.Exception){
-                                    LogDetail.LogEStack(ex)
-                                }
-                            }
-                            appName+"Call" -> {
-                                try {
-                                    val intent = Intent(Intent.ACTION_DIAL)
-                                    intent!!.flags = FLAG_ACTIVITY_NEW_TASK or FLAG_ACTIVITY_CLEAR_TOP
-                                    startActivity(intent)
-                                } catch (ex:Exception){
-                                    LogDetail.LogEStack(ex)
-                                }
-                            }
-                            appName+"Messages" -> {
-                                try {
-                                    val intent = Intent(ACTION_MAIN)
-                                    intent.addCategory(CATEGORY_APP_MESSAGING)
-                                    intent!!.flags = FLAG_ACTIVITY_NEW_TASK or FLAG_ACTIVITY_CLEAR_TOP
-                                    startActivity(intent)
-                                } catch (ex:Exception){
-                                    LogDetail.LogEStack(ex)
-                                }
-                            }
-                            appName+"Alarm" -> {
-                                try {
-                                    val intent = Intent(AlarmClock.ACTION_SHOW_ALARMS)
-                                    intent.flags = FLAG_ACTIVITY_NEW_TASK or FLAG_ACTIVITY_CLEAR_TOP
-                                    startActivity(intent)
-                                } catch (ex:Exception){
-                                    LogDetail.LogEStack(ex)
-                                }
-                            }
-                            appName+"Calendar" -> {
-                                try{
-                                    val intent = Intent(ACTION_MAIN)
-                                    intent.addCategory(CATEGORY_APP_CALENDAR)
-                                    intent!!.flags = FLAG_ACTIVITY_NEW_TASK or FLAG_ACTIVITY_CLEAR_TOP
-                                    startActivity(intent)
-                                } catch (ex:java.lang.Exception){
-                                    LogDetail.LogEStack(ex)
-                                }
-                            }
-                            appName+"News" -> {
-                                try{
-                                    val activity = Class.forName(FeedSdk.feedTargetActivity) as Class<out Activity?>?
-                                    val intent = Intent(this@StickyNotificationService, activity)
-                                    intent.putExtra("fromSticky", "news")
-                                    intent.putExtra("push_source", "feedsdk")
-                                    intent.putExtra(Constants.FEED_TYPE, "search_bar_for_you" )
-                                    intent.action = System.currentTimeMillis().toString()
-                                    intent.flags = FLAG_ACTIVITY_NEW_TASK or FLAG_ACTIVITY_CLEAR_TOP
-                                    startActivity(intent)
-                                } catch (ex:Exception){
-                                    LogDetail.LogEStack(ex)
-                                }
-                            }
-                            appName+"Flashlight" -> {
-                                val isFlashAvailable = applicationContext.packageManager
-                                    .hasSystemFeature(PackageManager.FEATURE_CAMERA_FRONT)
-                                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                                    val mCameraManager = getSystemService(Context.CAMERA_SERVICE) as CameraManager
-                                    if(isFlashAvailable){
-                                        try {
-                                            val mCameraId = mCameraManager.getCameraIdList()[0];
-                                            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                                                isFlashOn = !isFlashOn
-                                                mCameraManager.setTorchMode(mCameraId, isFlashOn)
-                                                setNotification()
-                                            }
-                                        } catch (e: java.lang.Exception) {
-                                            LogDetail.LogEStack(e)
-                                        }
-                                    }
-                                }
-                            }
-                            appName+"Search" -> {
-                                val searchIntent = checkAndGetIntent(packagesMap)
-                                searchIntent.putExtra("link", receiveIntent.getStringExtra("link"))
-                                searchIntent.putExtra("title", appName)
-                                searchIntent.putExtra("showSearch", true)
-                                searchIntent.putExtra("fromSticky", "true")
-                                searchIntent.flags = FLAG_ACTIVITY_NEW_TASK or FLAG_ACTIVITY_CLEAR_TOP
-                                startActivity(searchIntent)
-                            }
                             "Dismiss" -> {
                                 SpUtil.spUtilInstance?.putBoolean(IS_STICKY_NOTIFICATION_ON, false)
                                 serviceRunning = false
@@ -368,10 +216,6 @@ class StickyNotificationService : Service(){
             serviceRunning = true
             SpUtil.spUtilInstance!!.putBoolean(IS_STICKY_NOTIFICATION_ON, true)
             SpUtil.spUtilInstance!!.putBoolean(IS_STICKY_SERVICE_ON, true)
-            val packagesMap = HashMap<String, Boolean>()
-            packagesMap["bharat.browser"] = true
-            packagesMap["u.see.browser.for.uc.browser"] = true
-            packagesMap["u.browser.for.lite.uc.browser"] = true
             if(packagesMap.containsKey(applicationContext.packageName)){
                 val stickyWorkInterval = SpUtil.spUtilInstance!!.getLong("stickyWorkInterval", 6)
                 startWorkManager(true, stickyWorkInterval)
@@ -403,58 +247,49 @@ class StickyNotificationService : Service(){
         }
     }
 
-    override fun onTaskRemoved(rootIntent: Intent?) {
-        try {
-            if(android.os.Build.VERSION.SDK_INT != Build.VERSION_CODES.O_MR1) {
-                applicationContext.stopStickyNotificationService()
-                val dismissIntent = Intent("Dismiss")
-                sendBroadcast(dismissIntent)
-                Handler(Looper.getMainLooper()).postDelayed({
-                    val startIntent = Intent(this, StickyNotificationService::class.java)
-                    startIntent.action = Constants.ACTION.STARTFOREGROUND.toString()
-                    ContextCompat.startForegroundService(this, startIntent)
-                }, 1000)
-                LogDetail.LogD("StickyWorker", "doWork: enteredTaskRemovedif")
+    @SuppressLint("UnspecifiedImmutableFlag")
+    fun openStickyTile(widget: String, isCollapsed: Boolean):PendingIntent {
+        val intentFlags = FLAG_ACTIVITY_NEW_TASK or FLAG_ACTIVITY_CLEAR_TOP
+        try{
+            return when (widget) {
+                "Flashlight" -> {
+                    getWidgetBroadcast(widget, isCollapsed)
+                }
+                "Search" -> {
+                    val searchIntent = checkAndGetIntent(packagesMap)
+                    searchIntent.putExtra("link", "google")
+                    searchIntent.putExtra("title", FeedSdk.appName)
+                    searchIntent.putExtra("showSearch", true)
+                    searchIntent.putExtra("fromSticky", "true")
+                    searchIntent.flags = intentFlags
+                    PendingIntent.getActivity(applicationContext, 1, searchIntent, flags)
+                }
+                else -> {
+                    LogDetail.LogDE("openStickyTile", widget)
+                    val sdkEventsIntent = Intent(this@StickyNotificationService, SdkEventsActivity::class.java)
+                    sdkEventsIntent.flags = intentFlags
+                    sdkEventsIntent.action = widget
+                    sdkEventsIntent.putExtra("isCollapsed", isCollapsed)
+                    sdkEventsIntent.putExtra("widget", widget)
+                    PendingIntent.getActivity(this@StickyNotificationService, 0, sdkEventsIntent, flags)
+                }
             }
-            else {
-                val restartServiceIntent = Intent(applicationContext, StickyNotificationService::class.java)
-                restartServiceIntent.action = Constants.ACTION.STARTFOREGROUND.toString()
-                restartServiceIntent.setPackage(packageName)
-
-                val restartServicePendingIntent = PendingIntent.getService(
-                    applicationContext,
-                    1,
-                    restartServiceIntent,
-                    0
-                )
-                val alarmService = applicationContext.getSystemService(ALARM_SERVICE) as AlarmManager
-                alarmService[AlarmManager.ELAPSED_REALTIME, SystemClock.elapsedRealtime() + 1000] =
-                    restartServicePendingIntent
-                LogDetail.LogD("StickyWorker", "doWork: enteredTaskRemovedelse")
-            }
+        } catch (ex: java.lang.Exception) {
+            return getWidgetBroadcast(widget, isCollapsed)
         }
-        catch (e:Exception){
-            LogDetail.LogD("StickyWorker", "doWork: enteredTaskRemovedcatch")
-        }
-        super.onTaskRemoved(rootIntent)
     }
 
-
-    @SuppressLint("UnspecifiedImmutableFlag")
-    fun openStickyTile(widget: String, isCollapsed: Boolean):PendingIntent{
-        val intent = Intent(FeedSdk.appName+widget)
+    private fun getWidgetBroadcast(widget: String, isCollapsed: Boolean):PendingIntent {
+        val intent = Intent(FeedSdk.appName + widget)
         intent.putExtra("isCollapsed", isCollapsed)
         intent.putExtra("widget", widget)
-        return PendingIntent.getBroadcast(this@StickyNotificationService, 1, intent, 0)
+        return PendingIntent.getBroadcast(this@StickyNotificationService, 1, intent, flags)
     }
 
     private fun setCollapsedData(remoteView: RemoteViews, stickyNotification: SearchStickyModel){
         try{
-            val dismissIntent = PendingIntent.getBroadcast(this@StickyNotificationService, 1, Intent(FeedSdk.appName+"Settings"), 0)
-            remoteView.setOnClickPendingIntent(R.id.settings, dismissIntent)
-            val searchPendingIntent =  PendingIntent.getBroadcast(this@StickyNotificationService, 1,
-                Intent(FeedSdk.appName+"Search").putExtra("link", "google"), 0)
-            remoteView.setOnClickPendingIntent(R.id.tile0, searchPendingIntent)
+            remoteView.setOnClickPendingIntent(R.id.settings, openStickyTile("Settings", true))
+            remoteView.setOnClickPendingIntent(R.id.tile0, openStickyTile("Search", true))
             remoteView.setTextColor(R.id.tileName0, Color.parseColor(stickyNotification.tint))
             val isColored = stickyNotification.type == "color"
             remoteView.setImageViewResource(R.id.searchIconUrl, if(isColored) R.drawable.ic_sticky_color_search else R.drawable.ic_sticky_solid_search)
@@ -466,12 +301,9 @@ class StickyNotificationService : Service(){
 
     private fun setExpandedData(remoteView: RemoteViews, stickyNotification: SearchStickyModel){
         try {
-            val searchPendingIntent =  PendingIntent.getBroadcast(this@StickyNotificationService, 1,
-                Intent(FeedSdk.appName+"Search").putExtra("link", "google"), 0)
-            remoteView.setOnClickPendingIntent(R.id.searchLayout, searchPendingIntent)
+            remoteView.setOnClickPendingIntent(R.id.searchLayout, openStickyTile("Search", true))
             remoteView.setTextViewText(R.id.searchHint, "Search Web")
-            val settingsIntent = PendingIntent.getBroadcast(this@StickyNotificationService, 1, Intent(FeedSdk.appName+"Settings"), 0)
-            remoteView.setOnClickPendingIntent(R.id.settings, settingsIntent)
+            remoteView.setOnClickPendingIntent(R.id.settings, openStickyTile("Settings", true))
             remoteView.setImageViewResource(R.id.close, R.drawable.ic_close)
             if(stickyNotification.type == "color"){
                 remoteView.setInt(R.id.close, "setColorFilter", Color.parseColor("#98B1D9"))
@@ -481,7 +313,7 @@ class StickyNotificationService : Service(){
             val closeIntent = Intent("Dismiss")
             closeIntent.putExtra("isCollapsed", false)
             closeIntent.putExtra("widget", "CloseIcon")
-            val dismissIntent = PendingIntent.getBroadcast(this@StickyNotificationService, 1, closeIntent, 0)
+            val dismissIntent = PendingIntent.getBroadcast(this@StickyNotificationService, 1, closeIntent, flags)
             remoteView.setOnClickPendingIntent(R.id.close, dismissIntent)
             setCommonData(remoteView, stickyNotification, false)
         } catch (ex:Exception){
@@ -549,7 +381,7 @@ class StickyNotificationService : Service(){
     }
 
 
-    fun logEvent(action: String, isCollapsed: Boolean, widget: String){
+    private fun logEvent(action: String, isCollapsed: Boolean, widget: String){
         try {
             val bundle = Bundle()
             bundle.putString("clickedOn", widget)

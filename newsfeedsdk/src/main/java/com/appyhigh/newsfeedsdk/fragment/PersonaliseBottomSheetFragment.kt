@@ -3,6 +3,7 @@ package com.appyhigh.newsfeedsdk.fragment
 import android.app.Activity
 import android.app.Dialog
 import android.content.DialogInterface
+import android.os.Build
 import android.os.Bundle
 import android.util.DisplayMetrics
 import android.view.LayoutInflater
@@ -152,9 +153,15 @@ class PersonaliseBottomSheetFragment : BottomSheetDialogFragment() {
     }
 
     fun Activity.getScreenHeight(): Int {
-        val displayMetrics = DisplayMetrics()
-        windowManager.defaultDisplay.getMetrics(displayMetrics)
-        return displayMetrics.heightPixels
+        return if (Build.VERSION.SDK_INT < Build.VERSION_CODES.R) {
+            val displayMetrics = DisplayMetrics()
+            windowManager.defaultDisplay.getMetrics(displayMetrics)
+            displayMetrics.heightPixels
+        } else{
+            val outMetrics = windowManager.currentWindowMetrics
+            val bounds = outMetrics.bounds
+            bounds.height()
+        }
     }
 
     override fun onDismiss(dialog: DialogInterface) {

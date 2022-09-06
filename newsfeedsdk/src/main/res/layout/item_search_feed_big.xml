@@ -184,6 +184,9 @@
                         android:layout_height="48dp"
                         android:scaleType="centerCrop"
                         app:logoSmall="@{card.items[0].publisherProfilePic}"
+                        app:position="@{position}"
+                        app:postListener="@{listener}"
+                        app:publisherData="@{card.items[0]}"
                         app:publisherName="@{card.items[0].publisherName}"
                         app:srcCompat="@drawable/ic_launcher_background"
                         app:tvPublisherImage="@{@id/tvPublisherImage}" />
@@ -222,6 +225,9 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:orientation="vertical"
+                    app:position="@{position}"
+                    app:publisherData="@{card.items[0]}"
+                    app:postListener="@{listener}"
                     android:padding="5dp">
 
                     <TextView

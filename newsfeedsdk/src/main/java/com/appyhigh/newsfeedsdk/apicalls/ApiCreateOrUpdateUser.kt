@@ -226,16 +226,20 @@ class ApiCreateOrUpdateUser {
 
         AuthSocket.Instance().postData(sendingData, object : ResponseListener {
             override fun onSuccess(apiUrl: String, response: String) {
-                LogDetail.LogDE("ApiGetPublisherPosts $apiUrl", response)
-                if(action == "block") {
-                    Constants.userDetails!!.blockedPublishers.add(publisherId)
-                } else{
-                    Constants.userDetails!!.blockedPublishers.remove(publisherId)
-                }
-                if(doRefresh){
-                    for (listener in SpUtil.onRefreshListeners) {
-                        listener.value.onRefreshNeeded()
+                try{
+                    LogDetail.LogDE("ApiGetPublisherPosts $apiUrl", response)
+                    if(action == "block") {
+                        Constants.userDetails!!.blockedPublishers.add(publisherId)
+                    } else{
+                        Constants.userDetails!!.blockedPublishers.remove(publisherId)
                     }
+                    if(doRefresh){
+                        for (listener in SpUtil.onRefreshListeners) {
+                            listener.value.onRefreshNeeded()
+                        }
+                    }
+                } catch (ex:Exception){
+                    LogDetail.LogEStack(ex)
                 }
             }
 

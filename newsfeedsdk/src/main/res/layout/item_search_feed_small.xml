@@ -57,6 +57,9 @@
                         android:layout_width="48dp"
                         android:layout_height="48dp"
                         android:scaleType="centerCrop"
+                        app:position="@{position}"
+                        app:publisherData="@{card.items[0]}"
+                        app:postListener="@{listener}"
                         app:logoSmall="@{card.items[0].publisherProfilePic}"
                         app:publisherName="@{card.items[0].publisherName}"
                         app:srcCompat="@drawable/ic_launcher_background"
@@ -98,6 +101,9 @@
                     android:layout_weight="5"
                     android:orientation="vertical"
                     android:padding="5dp"
+                    app:position="@{position}"
+                    app:publisherData="@{card.items[0]}"
+                    app:postListener="@{listener}"
                     tools:ignore="NestedWeights">
 
                     <TextView
