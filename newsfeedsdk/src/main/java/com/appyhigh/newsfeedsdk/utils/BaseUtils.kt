@@ -27,7 +27,6 @@ import com.google.android.gms.ads.interstitial.InterstitialAd
 import com.google.android.gms.ads.interstitial.InterstitialAdLoadCallback
 import com.google.android.gms.ads.nativead.NativeAd
 import com.google.android.gms.ads.nativead.NativeAdView
-import com.mocklets.pluto.PlutoLog
 import kotlin.concurrent.fixedRateTimer
 
 const val TAG = "BaseUtils"
@@ -195,16 +194,11 @@ fun requestFeedAd(view: LinearLayout, @LayoutRes layoutId: Int, adUnit:String, s
                     })
                     .withNativeAdOptions(NativeAdOptions.Builder().build()).build()
                 if(contentUrls.isNotEmpty()){
-                    PlutoLog.d("ContentMapping","requestFeedAd")
-                    for (url in contentUrls) {
-                        PlutoLog.d("ContentMapping","$url")
-                    }
                     adLoader.loadAd(
                         AdRequest.Builder()
                             .setNeighboringContentUrls(contentUrls)
                             .build())
                 } else {
-                    PlutoLog.d("ContentMapping","empty")
                     adLoader.loadAd(AdRequest.Builder().build())
                 }
             } catch (e: Exception) {
@@ -276,16 +270,11 @@ fun requestVideoAd(view: LinearLayout, @LayoutRes layoutId: Int, adUnit:String, 
                     })
                     .withNativeAdOptions(NativeAdOptions.Builder().build()).build()
                 if(contentUrls.isNotEmpty()){
-                    PlutoLog.d("ContentMapping","requestVideoFeedAd")
-                    for (url in contentUrls) {
-                        PlutoLog.d("ContentMapping","$url")
-                    }
                     adLoader.loadAd(
                         AdRequest.Builder()
                             .setNeighboringContentUrls(contentUrls)
                             .build())
                 } else {
-                    PlutoLog.d("ContentMapping","empty")
                     adLoader.loadAd(AdRequest.Builder().build())
                 }
             } catch (e: Exception) {

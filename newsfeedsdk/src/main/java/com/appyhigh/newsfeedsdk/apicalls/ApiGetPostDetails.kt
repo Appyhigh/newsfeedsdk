@@ -82,8 +82,10 @@ class ApiGetPostDetails {
             }
 
             override fun onError(call: Call, e: IOException) {
-                LogDetail.LogDE("ApiGetPostDetails $apiUrl", e.toString())
-                postDetailsResponse.onFailure()
+                try{
+                    LogDetail.LogDE("ApiGetPostDetails $apiUrl", e.toString())
+                    postDetailsResponse.onFailure()
+                } catch (ex:Exception){}
             }
         })
     }

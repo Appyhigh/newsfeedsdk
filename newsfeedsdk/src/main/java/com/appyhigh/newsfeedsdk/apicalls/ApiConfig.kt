@@ -3,6 +3,7 @@ package com.appyhigh.newsfeedsdk.apicalls
 import android.content.Context
 import android.content.Intent
 import android.webkit.WebView
+import androidx.work.Data
 import androidx.work.ExistingWorkPolicy
 import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.WorkManager
@@ -35,6 +36,10 @@ import java.util.concurrent.TimeUnit
 class ApiConfig {
     private var configModel:ConfigModel?=null
     private var showAds = false
+
+    companion object {
+        private var alreadyCalled = false
+    }
 
     fun getConfigModel(context: Context):ConfigModel{
         if(configModel==null) {
@@ -135,7 +140,8 @@ class ApiConfig {
     private fun setConfigValues(){
         try {
             SpUtil.spUtilInstance!!.putString(Constants.SOCKET_SERIES, configModel!!.customFirebaseConfig.socketSeries)
-            if (FeedSdk.showCricketNotification) {
+            if (FeedSdk.showCricketNotification && !alreadyCalled) {
+                alreadyCalled = true
                 handleCricketNotification()
                 setSocketNotificationIntervals()
             }
@@ -149,9 +155,7 @@ class ApiConfig {
     }
 
     private fun setSocketNotificationIntervals() {
-        val socketSeries =
-            SpUtil.spUtilInstance!!.getString(Constants.SOCKET_SERIES, "")!!.split(",")
-        var call = 0
+        val socketSeries = SpUtil.spUtilInstance!!.getString(Constants.SOCKET_SERIES, "")!!.split(",")
         ApiCricketSchedule().getCricketScheduleEncrypt(
             Endpoints.GET_CRICKET_SCHEDULE_ENCRYPTED,
             Constants.UPCOMING_MATCHES,
@@ -169,21 +173,25 @@ class ApiConfig {
                             val matchDateTime = formatter.parse(matchDateTimeString).time
                             val currentDateTime =
                                 Calendar.getInstance(TimeZone.getTimeZone("UTC")).time.time
-                            val socketWorkRequest = OneTimeWorkRequestBuilder<SocketWorker>()
+                            val data = Data.Builder()
+                            val workerName = match.items[0].seriesname + match.items[0].matchdate_gmt + match.items[0].matchtime_gmt
+                            data.putString("worker", workerName)
+                            val socketWorkRequest = OneTimeWorkRequestBuilder<CricketSocketWorker>()
                                 .setInitialDelay(
                                     matchDateTime - currentDateTime,
                                     TimeUnit.MILLISECONDS
                                 )
+                                .setInputData(data.build())
                                 .build()
                             WorkManager.getInstance(FeedSdk.mContext!!).enqueueUniqueWork(
-                                match.items[0].seriesname + match.items[0].matchdate_gmt + match.items[0].matchtime_gmt,
+                                workerName,
                                 ExistingWorkPolicy.REPLACE,
                                 socketWorkRequest
                             )
                         }
                         //                    call+=1
                         //                    LogDetail.LogD("check777", "onSuccess: "+call*10000)
-                        //                    val socketWorkRequest = OneTimeWorkRequestBuilder<SocketWorker>()
+                        //                    val socketWorkRequest = OneTimeWorkRequestBuilder<CricketSocketWorker>()
                         //                        .setInitialDelay((call*10000).toLong(), TimeUnit.MILLISECONDS)
                         //                        .build()
                         //                    WorkManager.getInstance(mContext!!).
@@ -241,7 +249,11 @@ class ApiConfig {
                                     object : SocketConnection.SocketClientCallback {
                                         override fun onLiveScoreUpdate(liveScoreData: String) {}
                                         override fun getLiveScore(liveScoreObject: JSONObject) {
-                                            if (!FeedSdk.spUtil!!.getBoolean("dismissCricket", false))
+                                            if (!FeedSdk.spUtil!!.getBoolean(
+                                                    "dismissCricket",
+                                                    false
+                                                )
+                                            )
                                                 try {
                                                     if (liveScoreObject.getJSONObject("data")
                                                             .getString("Status")

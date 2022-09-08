@@ -571,11 +571,15 @@ class PostNativeDetailActivity : AppCompatActivity() {
                 }
 
                 override fun onFailure() {
-                    Toast.makeText(
-                        this@PostNativeDetailActivity,
-                        getString(R.string.error_some_issue_occurred),
-                        Toast.LENGTH_SHORT
-                    ).show()
+                    Handler(Looper.getMainLooper()).post {
+                        try{
+                            Toast.makeText(
+                                this@PostNativeDetailActivity,
+                                getString(R.string.error_some_issue_occurred),
+                                Toast.LENGTH_SHORT
+                            ).show()
+                        } catch (ex:Exception){ }
+                    }
                     finish()
                 }
             })

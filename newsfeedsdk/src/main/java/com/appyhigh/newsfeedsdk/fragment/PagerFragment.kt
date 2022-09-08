@@ -213,6 +213,14 @@ class PagerFragment : Fragment(), EasyPermissions.PermissionCallbacks {
         )
         if (stateCode.isNotEmpty()) {
             locationPopup?.visibility = GONE
+            if (EasyPermissions.hasPermissions(requireContext(), *perms.toTypedArray())) {
+                SmartLocation.with(context).location()
+                    .oneFix()
+                    .start {
+                        longitude = it.longitude
+                        latitude = it.latitude
+                    }
+            }
         } else if (EasyPermissions.hasPermissions(requireContext(), *perms.toTypedArray())) {
             locationPopup?.visibility = GONE
             SmartLocation.with(context).location()

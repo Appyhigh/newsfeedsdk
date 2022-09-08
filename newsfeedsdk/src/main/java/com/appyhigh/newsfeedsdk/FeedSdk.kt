@@ -644,6 +644,13 @@ class FeedSdk {
             if (!spUtil.contains(IS_STICKY_NOTIFICATION_ON)) {
                 spUtil.putBoolean(IS_STICKY_NOTIFICATION_ON, false)
             }
+//            if (!intent.hasExtra("fromSticky")) {
+//                if (spUtil.getBoolean(IS_STICKY_SERVICE_ON) && (!spUtil.getBoolean(IS_STICKY_NOTIFICATION_ON)
+//                            || !mContext!!.isMyServiceRunning(SearchStickyWorker::class.java))
+//                ) {
+//                    mContext!!.startStickyNotificationService()
+//                }
+//            }
             if (!intent.hasExtra("fromSticky")) {
                 if (spUtil.getBoolean(IS_STICKY_SERVICE_ON) && (!spUtil.getBoolean(
                         IS_STICKY_NOTIFICATION_ON
@@ -667,6 +674,9 @@ class FeedSdk {
             if (mContext!!.isMyServiceRunning(StickyNotificationService::class.java)) {
                 mContext!!.stopStickyNotificationService()
             }
+//            if (mContext!!.isMyServiceRunning(SearchStickyWorker::class.java)) {
+//                mContext!!.stopStickyNotificationService()
+//            }
         } catch (ex: Exception) {
             LogDetail.LogEStack(ex)
         }

@@ -430,11 +430,13 @@ class NewsFeedPageActivity : AppCompatActivity() {
 
                 override fun onFailure() {
                     Handler(Looper.getMainLooper()).post {
-                        Toast.makeText(
-                            this@NewsFeedPageActivity,
-                            getString(R.string.error_some_issue_occurred),
-                            Toast.LENGTH_SHORT
-                        ).show()
+                        try{
+                            Toast.makeText(
+                                this@NewsFeedPageActivity,
+                                getString(R.string.error_some_issue_occurred),
+                                Toast.LENGTH_SHORT
+                            ).show()
+                        } catch (ex:Exception){ LogDetail.LogEStack(ex) }
                     }
                     finish()
                 }
