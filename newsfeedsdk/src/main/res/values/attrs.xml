@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <declare-styleable name="SinglePostView">
+        <attr name="showMultiplePosts" format="boolean" />
+        <attr name="interests" format="string" />
+        <attr name="language" format="string" />
+    </declare-styleable>
+</resources>

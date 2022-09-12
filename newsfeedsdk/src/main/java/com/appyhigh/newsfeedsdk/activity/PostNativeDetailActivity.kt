@@ -570,12 +570,16 @@ class PostNativeDetailActivity : AppCompatActivity() {
                 }
 
                 override fun onFailure() {
-                    Toast.makeText(
-                        this@PostNativeDetailActivity,
-                        getString(R.string.error_some_issue_occurred),
-                        Toast.LENGTH_SHORT
-                    ).show()
-                    finish()
+                    try{
+                        Handler(Looper.getMainLooper()).post {
+                            Toast.makeText(
+                                this@PostNativeDetailActivity,
+                                getString(R.string.error_some_issue_occurred),
+                                Toast.LENGTH_SHORT
+                            ).show()
+                        }
+                        finish()
+                    } catch (ex:Exception){}
                 }
             })
     }
@@ -1396,7 +1400,7 @@ class PostNativeDetailActivity : AppCompatActivity() {
                 binding?.bannerAd?.addView(adView)
                 val adRequest: AdRequest = AdRequest.Builder().build()
                 val adSize = getAdSize()
-                adView.adSize = adSize
+                adSize?.let { adView.setAdSize(it) }
                 adView.loadAd(adRequest)
             } catch (ex: java.lang.Exception) {
                 LogDetail.LogEStack(ex)

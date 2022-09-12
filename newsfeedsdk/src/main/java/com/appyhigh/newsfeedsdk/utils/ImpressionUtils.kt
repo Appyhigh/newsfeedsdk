@@ -8,6 +8,7 @@ import com.appyhigh.newsfeedsdk.Constants
 import com.appyhigh.newsfeedsdk.FeedSdk
 import com.appyhigh.newsfeedsdk.apicalls.ApiPostImpression
 import com.appyhigh.newsfeedsdk.apiclient.Endpoints
+import com.appyhigh.newsfeedsdk.encryption.LogDetail
 import java.util.*
 import java.util.concurrent.TimeUnit
 
@@ -16,23 +17,27 @@ class ImpressionUtils {
     private var mContext: Context? = null
     var timer: Timer? = null
     fun initialize(context: Context) {
-        if (timer != null) {
-            timer?.cancel()
-        }
-        timer = Timer()
-        val task: TimerTask = MyTask(mContext)
-        if (mContext == null) {
-            this.mContext = context
-        }
-        try {
-            if (Constants.impreesionModel?.impression_time_interval_in_sec != 0) {
-                startPostingData(
-                    task,
-                    (Constants.impreesionModel?.impression_time_interval_in_sec!! * 1000).toLong()
-                )
+        try{
+            if (timer != null) {
+                timer?.cancel()
             }
-        } catch (e: Exception) {
-            startPostingData(task, 60000)
+            timer = Timer()
+            val task: TimerTask = MyTask(mContext)
+            if (mContext == null) {
+                this.mContext = context
+            }
+            try {
+                if (Constants.impreesionModel?.impression_time_interval_in_sec != 0) {
+                    startPostingData(
+                        task,
+                        (Constants.impreesionModel?.impression_time_interval_in_sec!! * 1000).toLong()
+                    )
+                }
+            } catch (e: Exception) {
+                startPostingData(task, 60000)
+            }
+        } catch (ex:Exception){
+            LogDetail.LogEStack(ex)
         }
     }
 

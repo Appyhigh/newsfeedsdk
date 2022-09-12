@@ -81,9 +81,7 @@
                 android:id="@+id/news_item_title"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:textStyle="bold"
-
-                app:isBold="@{true}"
+                app:isBold="@{false}"
                 android:lineSpacingExtra="3dp"
                 android:maxLines="3"
                 android:paddingStart="10dp"
@@ -227,13 +225,17 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:orientation="vertical"
+                    app:position="@{position}"
+                    app:publisherData="@{card.items[0]}"
+                    app:postListener="@{listener}"
                     android:padding="5dp">
 
                     <TextView
                         android:id="@+id/news_item_publisher_name"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-
+                        android:textStyle="bold"
+                        app:isBold="@{true}"
                         android:text="@{card.items[0].publisherName}"
                         android:maxLines="1"
                         android:ellipsize="end"
