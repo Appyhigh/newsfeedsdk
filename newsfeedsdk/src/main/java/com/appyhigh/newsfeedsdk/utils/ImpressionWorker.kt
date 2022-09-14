@@ -13,7 +13,7 @@ class ImpressionWorker(var appContext: Context, workerParams: WorkerParameters):
     override fun doWork(): Result {
 
         // Do the work here--in this case, upload the images.
-        LogDetail.LogD("check777", "doWork: "+Date().toString())
+        LogDetail.LogDE("ImpressionUtils", "doWork: "+Date().toString())
         // Indicate whether the work finished successfully with the Result
         ApiPostImpression().addPostImpressionsEncrypted(
             Endpoints.POST_IMPRESSIONS_ENCRYPTED,

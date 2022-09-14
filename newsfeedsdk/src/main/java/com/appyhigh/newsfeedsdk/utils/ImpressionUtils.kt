@@ -1,8 +1,11 @@
 package com.appyhigh.newsfeedsdk.utils
 
+import android.app.Activity
 import android.content.Context
-import androidx.work.ExistingWorkPolicy
-import androidx.work.OneTimeWorkRequestBuilder
+import android.os.Handler
+import android.os.Looper
+import androidx.work.ExistingPeriodicWorkPolicy
+import androidx.work.PeriodicWorkRequest
 import androidx.work.WorkManager
 import com.appyhigh.newsfeedsdk.Constants
 import com.appyhigh.newsfeedsdk.FeedSdk
@@ -15,28 +18,44 @@ import java.util.concurrent.TimeUnit
 class ImpressionUtils {
 
     private var mContext: Context? = null
-    var timer: Timer? = null
-    fun initialize(context: Context) {
-        try{
-            if (timer != null) {
-                timer?.cancel()
+
+    companion object {
+        private var isThreadRunning = false
+    }
+
+//    var mRunnable: Runnable? = null
+    private var mHandler = Handler(Looper.getMainLooper())
+    private fun scheduleSyncIn(aSeconds: Int) {
+//        mRunnable = Runnable { mHandler.postDelayed(mRunnable!!, aSeconds.toLong()) }
+        mHandler.postDelayed({
+            LogDetail.LogDE("ImpressionUtils", "scheduleSyncIn")
+            mContext?.let { it1 ->
+                ApiPostImpression().addPostImpressionsEncrypted(
+                    Endpoints.POST_IMPRESSIONS_ENCRYPTED,
+                    it1
+                )
             }
-            timer = Timer()
-            val task: TimerTask = MyTask(mContext)
+            scheduleSyncIn(aSeconds)
+        }, aSeconds.toLong())
+        isThreadRunning = true
+    }
+
+    fun initialize(activity: Activity) {
+        try {
             if (mContext == null) {
-                this.mContext = context
+                this.mContext = activity.baseContext
             }
+            LogDetail.LogDE("ImpressionUtils", "initialize")
             try {
                 if (Constants.impreesionModel?.impression_time_interval_in_sec != 0) {
                     startPostingData(
-                        task,
                         (Constants.impreesionModel?.impression_time_interval_in_sec!! * 1000).toLong()
                     )
                 }
             } catch (e: Exception) {
-                startPostingData(task, 60000)
+                startPostingData(60000)
             }
-        } catch (ex:Exception){
+        } catch (ex: Exception) {
             LogDetail.LogEStack(ex)
         }
     }
@@ -52,37 +71,48 @@ class ImpressionUtils {
         }
     }
 
-    private fun startPostingData(task: TimerTask, postingInterval: Long) {
-        if (mContext != null) {
-            timer?.scheduleAtFixedRate(task, 0, postingInterval)
+    private fun startPostingData(postingInterval: Long) {
+        if (mContext != null && !isThreadRunning) {
+            scheduleSyncIn(postingInterval.toInt())
         }
         WorkManager.getInstance(FeedSdk.mContext!!).cancelAllWorkByTag("ImpressionsWork")
         try {
-            if (Constants.impreesionModel?.background_time_interval_in_min != 0) {
-                val impressionsWorkRequest = OneTimeWorkRequestBuilder<ImpressionWorker>()
-                    .setInitialDelay(
-                        Constants.impreesionModel?.background_time_interval_in_min!!.toLong(),
-                        TimeUnit.MINUTES
-                    )
+            if (Constants.impreesionModel!=null && Constants.impreesionModel!!.background_time_interval_in_min > 15) {
+                val impressionsWorkRequest = PeriodicWorkRequest.Builder(
+                    ImpressionWorker::class.java,
+                    Constants.impreesionModel?.background_time_interval_in_min!!.toLong(),
+                    TimeUnit.MINUTES,
+                    1, // flex interval - worker will run somewhen within this period of time, but at the end of repeating interval
+                    TimeUnit.MINUTES
+                ).setInitialDelay(5000, TimeUnit.MILLISECONDS)
                     .addTag("ImpressionsWork")
                     .build()
-                WorkManager.getInstance(FeedSdk.mContext!!).enqueueUniqueWork(
+                WorkManager.getInstance(FeedSdk.mContext!!).enqueueUniquePeriodicWork(
                     "ImpressionsWork",
-                    ExistingWorkPolicy.REPLACE,
-                    impressionsWorkRequest
-                )
+                    ExistingPeriodicWorkPolicy.REPLACE,
+                    impressionsWorkRequest)
+            } else{
+                defaultPeriodicWorkRequest()
             }
         } catch (e: Exception) {
-            val impressionsWorkRequest = OneTimeWorkRequestBuilder<ImpressionWorker>()
-                .setInitialDelay(15, TimeUnit.MINUTES)
-                .addTag("ImpressionsWork")
-                .build()
-            WorkManager.getInstance(FeedSdk.mContext!!).enqueueUniqueWork(
-                "ImpressionsWork",
-                ExistingWorkPolicy.REPLACE,
-                impressionsWorkRequest
-            )
+            defaultPeriodicWorkRequest()
         }
+    }
+
+    private fun defaultPeriodicWorkRequest(){
+        val impressionsWorkRequest = PeriodicWorkRequest.Builder(
+            ImpressionWorker::class.java,
+            15,
+            TimeUnit.MINUTES,
+            1, // flex interval - worker will run somewhen within this period of time, but at the end of repeating interval
+            TimeUnit.MINUTES
+        ).setInitialDelay(5000, TimeUnit.MILLISECONDS)
+            .addTag("ImpressionsWork")
+            .build()
+        WorkManager.getInstance(FeedSdk.mContext!!).enqueueUniquePeriodicWork(
+            "ImpressionsWork",
+            ExistingPeriodicWorkPolicy.REPLACE,
+            impressionsWorkRequest)
     }
 
 }
