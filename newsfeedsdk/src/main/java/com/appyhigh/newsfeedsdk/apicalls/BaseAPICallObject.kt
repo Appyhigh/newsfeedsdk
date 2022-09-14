@@ -1,5 +1,6 @@
 package com.appyhigh.newsfeedsdk.apicalls
 
+import com.appyhigh.newsfeedsdk.BuildConfig
 import com.appyhigh.newsfeedsdk.Constants
 import com.appyhigh.newsfeedsdk.encryption.LogDetail
 import com.appyhigh.newsfeedsdk.encryption.SessionUser
@@ -31,7 +32,9 @@ class BaseAPICallObject {
         } catch (e: Exception) {
             LogDetail.LogEStack(e)
         }
-        LogDetail.LogDE("Test Data Base", allDetails.toString())
+        if(BuildConfig.DEBUG) {
+            LogDetail.LogDE("Test Data Base", allDetails.toString())
+        }
         return allDetails
     }
 

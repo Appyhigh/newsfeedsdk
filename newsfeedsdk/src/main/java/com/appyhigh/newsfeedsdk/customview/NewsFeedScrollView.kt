@@ -92,14 +92,14 @@ class NewsFeedScrollView : LinearLayout, PersonalizeCallListener, OnRefreshListe
         }
     }
 
-    private fun startInitView(){
+    private fun startInitView() {
         SpUtil.onRefreshListeners["news"] = this
         val view = inflate(context, R.layout.layout_news_feed_scroll_view, this)
         val llPrivacy = view.findViewById<LinearLayout>(R.id.llPrivacy)
-        if(!SpUtil.spUtilInstance!!.getBoolean(Constants.PRIVACY_ACCEPTED, false)){
+        if (!SpUtil.spUtilInstance!!.getBoolean(Constants.PRIVACY_ACCEPTED, false)) {
             llPrivacy.gravity = Gravity.TOP
             Constants.setPrivacyDialog(context, view)
-        } else{
+        } else {
             llPrivacy.visibility = View.GONE
             initView(view)
         }
@@ -135,7 +135,10 @@ class NewsFeedScrollView : LinearLayout, PersonalizeCallListener, OnRefreshListe
         SpUtil.personalizeCallListener = this
         ivAdd?.setOnClickListener {
             val personaliseMenuBottomSheet = PersonaliseMenuBottomSheet()
-            personaliseMenuBottomSheet.show(getFragmentManager(context)!!, "personaliseMenuBottomSheet")
+            personaliseMenuBottomSheet.show(
+                getFragmentManager(context)!!,
+                "personaliseMenuBottomSheet"
+            )
         }
         ConnectivityLiveData(context).observeForever {
             when (it) {
@@ -276,7 +279,7 @@ class NewsFeedScrollView : LinearLayout, PersonalizeCallListener, OnRefreshListe
     ) {
         var interests = ""
         var pos = 0
-        if (selectedInterestsList.isEmpty()) {
+        if (selectedInterestsList.isEmpty() && Constants.allInterestsMap.values.isNotEmpty()) {
             selectedInterestsList.addAll(Constants.allInterestsMap.values.toList() as ArrayList<Interest>)
         }
         for (i in 0 until selectedInterestsList.size) {
@@ -291,31 +294,153 @@ class NewsFeedScrollView : LinearLayout, PersonalizeCallListener, OnRefreshListe
             interests,
             object : ApiGetInterests.InterestOrderResponseListener {
                 override fun onSuccess(interestList: ArrayList<String>) {
-                    newInterestList = ArrayList<Interest>()
-                    for (interest in interestList) {
-                        try {
-                            if (interest == "for_you") {
-                                newInterestList.add(
-                                    Interest("For You", "for_you", null, false)
-                                )
+                    Handler(Looper.getMainLooper()).post {
+                        newInterestList = ArrayList<Interest>()
+                        for (interest in interestList) {
+                            try {
+                                if (interest == "for_you") {
+                                    newInterestList.add(
+                                        Interest("For You", "for_you", null, false)
+                                    )
 //                                "podcast" -> Interest("Podcasts", "podcasts", null, false)
 //                                else -> Constants.allInterestsMap[interest]!!
+                                }
+                            } catch (ex: Exception) {
+                                LogDetail.LogEStack(ex)
                             }
-                        } catch (ex: Exception) {
-                            LogDetail.LogEStack(ex)
                         }
-                    }
-                    if (Constants.userDetails?.showRegionalField == true) {
-                        newInterestList.add(Interest("Near You", "near_you", null, false))
-                    }
-                    newInterestList.addAll(pinnedInterestList)
-                    if (mUserDetails != null && mInterestResponseModel != null) {
+                        if (Constants.userDetails?.showRegionalField == true) {
+                            newInterestList.add(Interest("Near You", "near_you", null, false))
+                        }
+                        newInterestList.addAll(pinnedInterestList)
+                        if (mUserDetails != null && mInterestResponseModel != null) {
+                            try {
+                                if (SpUtil.pushIntent != null && !SpUtil.pushIntent!!.getBooleanExtra(
+                                        "isForYou",
+                                        false
+                                    )
+                                    && SpUtil.pushIntent!!.hasExtra("short_video") && SpUtil.pushIntent!!.getStringExtra(
+                                        "short_video"
+                                    ) == "false"
+                                ) {
+                                    pos = isInterestFound(
+                                        SpUtil.pushIntent!!.getStringExtra("interests")!!,
+                                        newInterestList
+                                    )
+                                    if (pos == -1) {
+                                        if (Constants.allInterestsMap.containsKey(
+                                                SpUtil.pushIntent!!.getStringExtra(
+                                                    "interests"
+                                                )
+                                            )
+                                        ) {
+                                            Constants.allInterestsMap[SpUtil.pushIntent!!.getStringExtra(
+                                                "interests"
+                                            )]?.let {
+                                                newInterestList.add(it)
+                                            }
+                                        }
+                                        pos = newInterestList.size - 1
+                                    }
+                                } else if (SpUtil.pushIntent != null && SpUtil.pushIntent!!.hasExtra(
+                                        "page"
+                                    ) && (
+                                            SpUtil.pushIntent!!.getStringExtra("page")!!
+                                                .contains("SDK://feed")
+                                                    || SpUtil.pushIntent!!.getStringExtra("page")!!
+                                                .contains("SDK://podcastHome")
+                                                    || SpUtil.pushIntent!!.getStringExtra("page")!!
+                                                .contains("SDK://cryptoHome")
+                                                    || SpUtil.pushIntent!!.getStringExtra("page")!!
+                                                .contains("SDK://cricketHome")
+                                            )
+                                ) {
+                                    pos = isInterestFound(
+                                        SpUtil.pushIntent!!.getStringExtra("category")!!,
+                                        newInterestList
+                                    )
+                                    if (pos == -1) {
+                                        if (Constants.allInterestsMap.containsKey(
+                                                SpUtil.pushIntent!!.getStringExtra(
+                                                    "category"
+                                                )
+                                            )
+                                        ) {
+                                            Constants.allInterestsMap[SpUtil.pushIntent!!.getStringExtra(
+                                                "category"
+                                            )]?.let {
+                                                newInterestList.add(it)
+                                            }
+                                        }
+                                        pos = newInterestList.size - 1
+                                    }
+                                }
+                            } catch (ex: Exception) {
+                                LogDetail.LogEStack(ex)
+                            }
+                            loadLayout?.visibility = GONE
+                            val distinctList = newInterestList.distinct().toList()
+                            interestAdapter =
+                                InterestAdapter(ArrayList(distinctList), onInterestSelected)
+                            rvInterests?.apply {
+                                layoutManager =
+                                    LinearLayoutManager(
+                                        this.context,
+                                        LinearLayoutManager.HORIZONTAL,
+                                        false
+                                    )
+                                adapter = interestAdapter
+                                itemAnimator = null
+                            }
+                        }
+                        setUpPagerAdapter(
+                            newInterestList,
+                            if (FeedSdk.interestsList.isNullOrEmpty()) {
+                                mInterestResponseModel?.interestList
+                            } else {
+                                FeedSdk.interestsList
+                            },
+                            isSelectedInterestsEmpty
+                        )
+                        vpFeed?.registerOnPageChangeCallback(object :
+                            ViewPager2.OnPageChangeCallback() {
+                            override fun onPageSelected(position: Int) {
+                                super.onPageSelected(position)
+                                selectedIndex = position
+                                try {
+                                    if (newInterestList.size > 0) {
+                                        for ((index, interest) in newInterestList.withIndex()) {
+                                            if (interest.isSelected) {
+                                                newInterestList[index].isSelected = false
+                                                interestAdapter?.updateItem(
+                                                    newInterestList[index],
+                                                    index
+                                                )
+                                                interestAdapter?.notifyItemChanged(index)
+                                            }
+                                        }
+                                        newInterestList[position].isSelected = true
+                                        interestAdapter?.updateItem(
+                                            newInterestList[position],
+                                            position
+                                        )
+                                        interestAdapter?.notifyItemChanged(position)
+                                        rvInterests?.scrollToPosition(position)
+                                    }
+                                } catch (e: Exception) {
+                                    LogDetail.LogEStack(e)
+                                }
+                                try {
+                                    if (SpUtil.eventsListener != null) {
+                                        SpUtil.eventsListener!!.onFeedCategoryClick(newInterestList[position].label!!)
+                                    }
+                                } catch (ex: java.lang.Exception) {
+                                    LogDetail.LogEStack(ex)
+                                }
+                            }
+                        })
                         try {
-                            if (SpUtil.pushIntent != null && !SpUtil.pushIntent!!.getBooleanExtra(
-                                    "isForYou",
-                                    false
-                                )
-                                && SpUtil.pushIntent!!.hasExtra("short_video") && SpUtil.pushIntent!!.getStringExtra(
+                            if (SpUtil.pushIntent != null && SpUtil.pushIntent!!.hasExtra("short_video") && SpUtil.pushIntent!!.getStringExtra(
                                     "short_video"
                                 ) == "false"
                             ) {
@@ -323,24 +448,12 @@ class NewsFeedScrollView : LinearLayout, PersonalizeCallListener, OnRefreshListe
                                     SpUtil.pushIntent!!.getStringExtra("interests")!!,
                                     newInterestList
                                 )
-                                if (pos == -1) {
-                                    if (Constants.allInterestsMap.containsKey(
-                                            SpUtil.pushIntent!!.getStringExtra(
-                                                "interests"
-                                            )
-                                        )
-                                    ) {
-                                        Constants.allInterestsMap[SpUtil.pushIntent!!.getStringExtra(
-                                            "interests"
-                                        )]?.let {
-                                            newInterestList.add(it)
-                                        }
-                                    }
-                                    pos = newInterestList.size - 1
-                                }
-                            } else if (SpUtil.pushIntent != null && SpUtil.pushIntent!!.hasExtra(
-                                    "page"
-                                ) && (
+                                vpFeed?.offscreenPageLimit = pos + 1
+                                vpFeed?.currentItem = pos
+                                Handler(Looper.getMainLooper()).postDelayed({
+                                    rvInterests?.scrollToPosition(pos)
+                                }, 1000)
+                            } else if (SpUtil.pushIntent != null && SpUtil.pushIntent!!.hasExtra("page") && (
                                         SpUtil.pushIntent!!.getStringExtra("page")!!
                                             .contains("SDK://feed")
                                                 || SpUtil.pushIntent!!.getStringExtra("page")!!
@@ -355,126 +468,17 @@ class NewsFeedScrollView : LinearLayout, PersonalizeCallListener, OnRefreshListe
                                     SpUtil.pushIntent!!.getStringExtra("category")!!,
                                     newInterestList
                                 )
-                                if (pos == -1) {
-                                    if (Constants.allInterestsMap.containsKey(
-                                            SpUtil.pushIntent!!.getStringExtra(
-                                                "category"
-                                            )
-                                        )
-                                    ) {
-                                        Constants.allInterestsMap[SpUtil.pushIntent!!.getStringExtra(
-                                            "category"
-                                        )]?.let {
-                                            newInterestList.add(it)
-                                        }
-                                    }
-                                    pos = newInterestList.size - 1
-                                }
+                                vpFeed?.offscreenPageLimit = pos + 1
+                                vpFeed?.currentItem = pos
+                                Handler(Looper.getMainLooper()).postDelayed({
+                                    rvInterests?.scrollToPosition(pos)
+                                }, 1000)
                             }
                         } catch (ex: Exception) {
                             LogDetail.LogEStack(ex)
                         }
-                        loadLayout?.visibility = GONE
-                        val distinctList = newInterestList.distinct().toList()
-                        interestAdapter =
-                            InterestAdapter(ArrayList(distinctList), onInterestSelected)
-                        rvInterests?.apply {
-                            layoutManager =
-                                LinearLayoutManager(
-                                    this.context,
-                                    LinearLayoutManager.HORIZONTAL,
-                                    false
-                                )
-                            adapter = interestAdapter
-                            itemAnimator = null
-                        }
                     }
-                    Handler(Looper.getMainLooper()).post {
-                        setUpPagerAdapter(
-                            newInterestList,
-                            if (FeedSdk.interestsList.isNullOrEmpty()) {
-                                mInterestResponseModel?.interestList
-                            } else {
-                                FeedSdk.interestsList
-                            },
-                            isSelectedInterestsEmpty
-                        )
-                    }
-                    vpFeed?.registerOnPageChangeCallback(object :
-                        ViewPager2.OnPageChangeCallback() {
-                        override fun onPageSelected(position: Int) {
-                            super.onPageSelected(position)
-                            selectedIndex = position
-                            try {
-                                if (newInterestList.size > 0) {
-                                    for ((index, interest) in newInterestList.withIndex()) {
-                                        if (interest.isSelected) {
-                                            newInterestList[index].isSelected = false
-                                            interestAdapter?.updateItem(
-                                                newInterestList[index],
-                                                index
-                                            )
-                                            interestAdapter?.notifyItemChanged(index)
-                                        }
-                                    }
-                                    newInterestList[position].isSelected = true
-                                    interestAdapter?.updateItem(
-                                        newInterestList[position],
-                                        position
-                                    )
-                                    interestAdapter?.notifyItemChanged(position)
-                                    rvInterests?.scrollToPosition(position)
-                                }
-                            } catch (e: Exception) {
-                                LogDetail.LogEStack(e)
-                            }
-                            try {
-                                if (SpUtil.eventsListener != null) {
-                                    SpUtil.eventsListener!!.onFeedCategoryClick(newInterestList[position].label!!)
-                                }
-                            } catch (ex: java.lang.Exception) {
-                                LogDetail.LogEStack(ex)
-                            }
-                        }
-                    })
-                    try {
-                        if (SpUtil.pushIntent != null && SpUtil.pushIntent!!.hasExtra("short_video") && SpUtil.pushIntent!!.getStringExtra(
-                                "short_video"
-                            ) == "false"
-                        ) {
-                            pos = isInterestFound(
-                                SpUtil.pushIntent!!.getStringExtra("interests")!!,
-                                newInterestList
-                            )
-                            vpFeed?.offscreenPageLimit = pos + 1
-                            vpFeed?.currentItem = pos
-                            Handler(Looper.getMainLooper()).postDelayed({
-                                rvInterests?.scrollToPosition(pos)
-                            }, 1000)
-                        } else if (SpUtil.pushIntent != null && SpUtil.pushIntent!!.hasExtra("page") && (
-                                    SpUtil.pushIntent!!.getStringExtra("page")!!
-                                        .contains("SDK://feed")
-                                            || SpUtil.pushIntent!!.getStringExtra("page")!!
-                                        .contains("SDK://podcastHome")
-                                            || SpUtil.pushIntent!!.getStringExtra("page")!!
-                                        .contains("SDK://cryptoHome")
-                                            || SpUtil.pushIntent!!.getStringExtra("page")!!
-                                        .contains("SDK://cricketHome")
-                                    )
-                        ) {
-                            pos = isInterestFound(
-                                SpUtil.pushIntent!!.getStringExtra("category")!!,
-                                newInterestList
-                            )
-                            vpFeed?.offscreenPageLimit = pos + 1
-                            vpFeed?.currentItem = pos
-                            Handler(Looper.getMainLooper()).postDelayed({
-                                rvInterests?.scrollToPosition(pos)
-                            }, 1000)
-                        }
-                    } catch (ex: Exception) {
-                        LogDetail.LogEStack(ex)
-                    }
+
                 }
             })
     }
@@ -504,7 +508,7 @@ class NewsFeedScrollView : LinearLayout, PersonalizeCallListener, OnRefreshListe
                 "podcasts" -> fragmentList.add(PodcastsFragment.newInstance())
                 "crypto" -> fragmentList.add(CryptoFragment.newInstance())
                 else -> {
-                    if(!interest.pwaLink.isNullOrEmpty()){
+                    if (!interest.pwaLink.isNullOrEmpty()) {
                         interest.keyId?.let {
                             fragmentList.add(
                                 PWAFragment.newInstance(
@@ -512,7 +516,7 @@ class NewsFeedScrollView : LinearLayout, PersonalizeCallListener, OnRefreshListe
                                 )
                             )
                         }
-                    } else{
+                    } else {
                         fragmentList.add(
                             PagerFragment.newInstance(
                                 interest.keyId.toString(), i,
@@ -535,22 +539,24 @@ class NewsFeedScrollView : LinearLayout, PersonalizeCallListener, OnRefreshListe
                 }
             }
         }
-        vpFeed?.adapter = NewsFeedSliderAdapter(
-            if ((context as ContextWrapper).baseContext is FragmentActivity)
-                (context as ContextWrapper).baseContext as FragmentActivity
-            else context as FragmentActivity, fragmentList
-        )
-        vpFeed?.isUserInputEnabled = false
-        try {
-            val recyclerViewField = ViewPager2::class.java.getDeclaredField("mRecyclerView")
-            recyclerViewField.isAccessible = true
-            val recyclerView = recyclerViewField.get(vpFeed) as RecyclerView
-            val touchSlopField = RecyclerView::class.java.getDeclaredField("mTouchSlop")
-            touchSlopField.isAccessible = true
-            val touchSlop = touchSlopField.get(recyclerView) as Int
-            touchSlopField.set(recyclerView, touchSlop * 6) //6 is empirical value
-        } catch (ex: java.lang.Exception) {
-            LogDetail.LogEStack(ex)
+        Handler(Looper.getMainLooper()).post {
+            try {
+                vpFeed?.adapter = NewsFeedSliderAdapter(
+                    if ((context as ContextWrapper).baseContext is FragmentActivity)
+                        (context as ContextWrapper).baseContext as FragmentActivity
+                    else context as FragmentActivity, fragmentList
+                )
+                vpFeed?.isUserInputEnabled = false
+                val recyclerViewField = ViewPager2::class.java.getDeclaredField("mRecyclerView")
+                recyclerViewField.isAccessible = true
+                val recyclerView = recyclerViewField.get(vpFeed) as RecyclerView
+                val touchSlopField = RecyclerView::class.java.getDeclaredField("mTouchSlop")
+                touchSlopField.isAccessible = true
+                val touchSlop = touchSlopField.get(recyclerView) as Int
+                touchSlopField.set(recyclerView, touchSlop * 6) //6 is empirical value
+            } catch (ex: java.lang.Exception) {
+                LogDetail.LogEStack(ex)
+            }
         }
     }
 

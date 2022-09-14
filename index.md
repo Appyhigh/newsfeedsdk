@@ -2,6 +2,16 @@
 
        | SDK Name         | Lib Version  | SDK Version Code |
        |------------------|--------------|------------------|
+       | newsfeedsdk      |    1.0.5     |      1008        |
+
+1. Fixed issues from 1.0.4v
+2. Fixed oom leak for Impression Utils
+3. Fixed regional feeds feedType issue for impressions
+
+----------------------------------------------------------------------------------------------------------------------------
+
+       | SDK Name         | Lib Version  | SDK Version Code |
+       |------------------|--------------|------------------|
        | newsfeedsdk      |    1.0.4     |      1008        |
 
 1. made getBase64SHA1FromHex() public

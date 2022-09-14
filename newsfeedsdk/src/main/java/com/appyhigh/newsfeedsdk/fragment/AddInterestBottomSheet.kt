@@ -218,17 +218,19 @@ class AddInterestBottomSheet :
                 }
             )
 
-            rvAllInterests.apply {
-                adapter = interestChooserAdapter
-                layoutManager = LinearLayoutManager(requireActivity())
-                addItemDecoration(
-                    DividerItemDecoration(
-                        requireContext(),
-                        DividerItemDecoration.VERTICAL
-                    ).also {
-                        it.setDrawable(ColorDrawable(ContextCompat.getColor(requireContext(),R.color.dividerColor)))
-                    }
-                )
+            if(isAdded){
+                rvAllInterests.apply {
+                    adapter = interestChooserAdapter
+                    layoutManager = LinearLayoutManager(requireActivity())
+                    addItemDecoration(
+                        DividerItemDecoration(
+                            requireContext(),
+                            DividerItemDecoration.VERTICAL
+                        ).also {
+                            it.setDrawable(ColorDrawable(ContextCompat.getColor(requireContext(),R.color.dividerColor)))
+                        }
+                    )
+                }
             }
         }
     }

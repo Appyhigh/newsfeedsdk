@@ -331,11 +331,9 @@ fun loadInterstitialAd(
                             interstitialAdUtilLoadCallback?.onAdDismissedFullScreenContent()
                         }
 
-                        override fun onAdFailedToShowFullScreenContent(adError: AdError?) {
+                        override fun onAdFailedToShowFullScreenContent(p0: AdError) {
                             LogDetail.LogD(TAG, "Ad failed to show.")
-                            interstitialAdUtilLoadCallback?.onAdFailedToShowFullScreenContent(
-                                adError,
-                            )
+                            interstitialAdUtilLoadCallback?.onAdFailedToShowFullScreenContent(p0)
                         }
 
                         override fun onAdShowedFullScreenContent() {
@@ -372,7 +370,7 @@ fun showAdaptiveBanner(context: Context, adUnit: String, bannerAd: LinearLayout)
         bannerAd.addView(adView)
         val adRequest: AdRequest = AdRequest.Builder().build()
         val adSize = getAdSize(context)
-        adView.adSize = adSize
+        adSize?.let { adView.setAdSize(it) }
         adView.loadAd(adRequest)
     } catch (ex:java.lang.Exception){
         LogDetail.LogEStack(ex)

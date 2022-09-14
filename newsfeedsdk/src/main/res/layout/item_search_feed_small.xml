@@ -28,14 +28,12 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         app:cardCornerRadius="10dp"
-        android:layout_marginBottom="20dp"
+        android:layout_marginBottom="10dp"
         app:cardElevation="5dp">
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="10dp"
-            android:layout_marginBottom="10dp"
             android:background="@color/feedSecondaryBackground"
             android:orientation="vertical"
             android:onClick="@{(v) -> listener.onPostClicked(v, position)}">
@@ -70,7 +68,6 @@
                         android:layout_height="40dp"
                         android:background="@drawable/text_bg_red"
                         android:textStyle="bold"
-
                         app:isBold="@{true}"
                         android:gravity="center"
                         android:text="A"
@@ -99,6 +96,9 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:orientation="vertical"
+                    app:position="@{position}"
+                    app:publisherData="@{card.items[0]}"
+                    app:postListener="@{listener}"
                     android:padding="5dp">
 
                     <TextView
@@ -107,6 +107,8 @@
                         android:layout_height="wrap_content"
                         android:maxLength="30"
                         android:ellipsize="end"
+                        android:textStyle="bold"
+                        app:isBold="@{true}"
                         android:text="@{card.items[0].publisherName}"
                         android:textColor="@color/feedPrimaryTextColor"
                         android:textSize="14sp"
@@ -288,9 +290,8 @@
                         android:paddingEnd="10dp"
                         android:textColor="@color/feedPrimaryTextColor"
                         android:textSize="17sp"
-                        android:textStyle="bold"
                         app:description="@{card.items[0].content.description}"
-                        app:isBold="@{true}"
+                        app:isBold="@{false}"
                         app:title="@{card.items[0].content.title}"
                         tools:text="Schools, Colleges  " />
 

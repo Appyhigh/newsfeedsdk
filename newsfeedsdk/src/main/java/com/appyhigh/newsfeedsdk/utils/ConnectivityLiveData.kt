@@ -24,31 +24,42 @@ class ConnectivityLiveData(val context: Context) : LiveData<NetworkState>() {
 
     override fun onActive() {
         super.onActive()
-        notifyNetworkStatus()
-        when {
-            // for devices above Nougat
-            Build.VERSION.SDK_INT >= Build.VERSION_CODES.N -> connectivityManager.registerDefaultNetworkCallback(getConnectivityManagerCallback())
+        try{
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                connectivityManager.unregisterNetworkCallback(networkCallback)
+            } else {
+                context.unregisterReceiver(networkReceiver)
+            }
+        } catch (ex:Exception){}
+        try{
+            notifyNetworkStatus()
+            when {
+                // for devices above Nougat
+                Build.VERSION.SDK_INT >= Build.VERSION_CODES.N -> connectivityManager.registerDefaultNetworkCallback(getConnectivityManagerCallback())
 
-            // for devices b/w Lollipop and Nougat
-            Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP -> lollipopNetworkAvailableRequest()
+                // for devices b/w Lollipop and Nougat
+                Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP -> lollipopNetworkAvailableRequest()
 
-            //below lollipop
-            else -> {
-                if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
-                    context.registerReceiver(networkReceiver, IntentFilter("android.net.conn.CONNECTIVITY_CHANGE"))
+                //below lollipop
+                else -> {
+                    if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
+                        context.registerReceiver(networkReceiver, IntentFilter("android.net.conn.CONNECTIVITY_CHANGE"))
+                    }
                 }
             }
-        }
+        } catch (ex:Exception){}
     }
 
     override fun onInactive() {
         // When all observers are gone, remove connectivity callback or un register the receiver.
         super.onInactive()
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            connectivityManager.unregisterNetworkCallback(networkCallback)
-        } else {
-            context.unregisterReceiver(networkReceiver)
-        }
+        try{
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                connectivityManager.unregisterNetworkCallback(networkCallback)
+            } else {
+                context.unregisterReceiver(networkReceiver)
+            }
+        } catch (ex:Exception){}
     }
 
     @TargetApi(Build.VERSION_CODES.LOLLIPOP)

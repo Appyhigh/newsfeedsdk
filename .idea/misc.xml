@@ -17,6 +17,8 @@
         <entry key="newsfeedsdk/src/main/res/drawable/ic_like_v3.xml" value="0.2125" />
         <entry key="newsfeedsdk/src/main/res/drawable/ic_menu_v3.xml" value="0.2125" />
         <entry key="newsfeedsdk/src/main/res/drawable/ic_whatsapp_share.xml" value="0.23072916666666668" />
+        <entry key="newsfeedsdk/src/main/res/layout/activity_add_interests.xml" value="0.33559782608695654" />
+        <entry key="newsfeedsdk/src/main/res/layout/activity_block_publishers.xml" value="0.33559782608695654" />
         <entry key="newsfeedsdk/src/main/res/layout/activity_crypto_coin_details.xml" value="0.2203125" />
         <entry key="newsfeedsdk/src/main/res/layout/activity_feed_language.xml" value="0.21458333333333332" />
         <entry key="newsfeedsdk/src/main/res/layout/activity_news_feed_page.xml" value="0.4225461655768795" />
@@ -41,14 +43,19 @@
         <entry key="newsfeedsdk/src/main/res/layout/item_feed_like_interests.xml" value="0.20520833333333333" />
         <entry key="newsfeedsdk/src/main/res/layout/item_feed_report_issue.xml" value="0.2203125" />
         <entry key="newsfeedsdk/src/main/res/layout/item_feed_video.xml" value="0.2203125" />
+        <entry key="newsfeedsdk/src/main/res/layout/item_interest_mf.xml" value="0.19326241134751773" />
+        <entry key="newsfeedsdk/src/main/res/layout/item_language_mf.xml" value="0.33559782608695654" />
         <entry key="newsfeedsdk/src/main/res/layout/item_location.xml" value="0.20520833333333333" />
         <entry key="newsfeedsdk/src/main/res/layout/item_native_comment.xml" value="0.2203125" />
         <entry key="newsfeedsdk/src/main/res/layout/item_news_feed_small.xml" value="0.2203125" />
         <entry key="newsfeedsdk/src/main/res/layout/item_regional_news.xml" value="0.20520833333333333" />
         <entry key="newsfeedsdk/src/main/res/layout/item_related_native_post.xml" value="0.2203125" />
+        <entry key="newsfeedsdk/src/main/res/layout/item_search_feed_big.xml" value="0.20520833333333333" />
+        <entry key="newsfeedsdk/src/main/res/layout/item_search_feed_small.xml" value="0.20520833333333333" />
         <entry key="newsfeedsdk/src/main/res/layout/item_trending_post_card.xml" value="0.2203125" />
         <entry key="newsfeedsdk/src/main/res/layout/item_video_big.xml" value="0.2203125" />
         <entry key="newsfeedsdk/src/main/res/layout/item_video_big2.xml" value="0.20520833333333333" />
+        <entry key="newsfeedsdk/src/main/res/layout/layout_app_lock_posts.xml" value="0.20520833333333333" />
         <entry key="newsfeedsdk/src/main/res/layout/layout_intrest_select.xml" value="0.20520833333333333" />
         <entry key="newsfeedsdk/src/main/res/layout/layout_news_feed_scroll_view.xml" value="0.20520833333333333" />
         <entry key="newsfeedsdk/src/main/res/layout/layout_report_issue_dialog.xml" value="0.2203125" />

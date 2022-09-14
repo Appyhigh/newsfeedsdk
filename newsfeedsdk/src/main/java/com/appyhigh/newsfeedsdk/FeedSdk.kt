@@ -227,7 +227,7 @@ class FeedSdk {
                 sendPostImpressions()
             }
         })
-        ImpressionUtils().initialize(activity.baseContext)
+        ImpressionUtils().initialize(activity)
     }
 
     private fun apiGetInterests() {

@@ -353,7 +353,7 @@ class NewsFeedList : LinearLayout, PersonalizeCallListener, OnRefreshListener {
         LogDetail.LogD("NewsFeedList", "getInterestsOrder: start")
         var interests = ""
         var pos = 0
-        if (selectedInterestsList.isEmpty()) {
+        if (selectedInterestsList.isEmpty() && Constants.allInterestsMap.values.isNotEmpty()) {
             selectedInterestsList.addAll(Constants.allInterestsMap.values.toList() as ArrayList<Interest>)
         }
         for (i in 0 until selectedInterestsList.size) {
@@ -419,14 +419,16 @@ class NewsFeedList : LinearLayout, PersonalizeCallListener, OnRefreshListener {
                         } catch (ex:Exception){
                             LogDetail.LogEStack(ex)
                         }
-                        loadLayout?.visibility = GONE
-                        val distinctList = newInterestList.distinct().toList()
-                        interestAdapter = InterestAdapter(ArrayList(distinctList), onInterestSelected)
-                        rvInterests?.apply {
-                            layoutManager =
-                                LinearLayoutManager(this.context, LinearLayoutManager.HORIZONTAL, false)
-                            adapter = interestAdapter
-                            itemAnimator = null
+                        Handler(Looper.getMainLooper()).post{
+                            loadLayout?.visibility = GONE
+                            val distinctList = newInterestList.distinct().toList()
+                            interestAdapter = InterestAdapter(ArrayList(distinctList), onInterestSelected)
+                            rvInterests?.apply {
+                                layoutManager =
+                                    LinearLayoutManager(this.context, LinearLayoutManager.HORIZONTAL, false)
+                                adapter = interestAdapter
+                                itemAnimator = null
+                            }
                         }
                     }
                     setUpPagerAdapter(
@@ -551,20 +553,22 @@ class NewsFeedList : LinearLayout, PersonalizeCallListener, OnRefreshListener {
                 }
             }
         }
-        vpFeed?.adapter = NewsFeedSliderAdapter(if ((context as ContextWrapper).baseContext is FragmentActivity)
-            (context as ContextWrapper).baseContext as FragmentActivity
-        else context as FragmentActivity, fragmentList)
-        vpFeed?.isUserInputEnabled = false
-        try {
-            val recyclerViewField = ViewPager2::class.java.getDeclaredField("mRecyclerView")
-            recyclerViewField.isAccessible = true
-            val recyclerView = recyclerViewField.get(vpFeed) as RecyclerView
-            val touchSlopField = RecyclerView::class.java.getDeclaredField("mTouchSlop")
-            touchSlopField.isAccessible = true
-            val touchSlop = touchSlopField.get(recyclerView) as Int
-            touchSlopField.set(recyclerView, touchSlop * 6) //6 is empirical value
-        } catch (ex: java.lang.Exception) {
-            LogDetail.LogEStack(ex)
+        Handler(Looper.getMainLooper()).post {
+            try {
+                vpFeed?.adapter = NewsFeedSliderAdapter(if ((context as ContextWrapper).baseContext is FragmentActivity)
+                    (context as ContextWrapper).baseContext as FragmentActivity
+                else context as FragmentActivity, fragmentList)
+                vpFeed?.isUserInputEnabled = false
+                val recyclerViewField = ViewPager2::class.java.getDeclaredField("mRecyclerView")
+                recyclerViewField.isAccessible = true
+                val recyclerView = recyclerViewField.get(vpFeed) as RecyclerView
+                val touchSlopField = RecyclerView::class.java.getDeclaredField("mTouchSlop")
+                touchSlopField.isAccessible = true
+                val touchSlop = touchSlopField.get(recyclerView) as Int
+                touchSlopField.set(recyclerView, touchSlop * 6) //6 is empirical value
+            } catch (ex: java.lang.Exception) {
+                LogDetail.LogEStack(ex)
+            }
         }
     }
 

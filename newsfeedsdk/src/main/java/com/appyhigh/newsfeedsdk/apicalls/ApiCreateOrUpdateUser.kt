@@ -266,13 +266,17 @@ class ApiCreateOrUpdateUser {
      * Handle create user response
      */
     private fun handleCreateUserResponse() {
-        LogDetail.LogD("FeedSdk", "handleCreateUserResponse")
-        FeedSdk.onExploreInitialized?.onInitSuccess()
-        for (userIntialiser in FeedSdk.onUserInitialized) {
-            LogDetail.LogD("FeedSdk", "userIntialiser")
-            userIntialiser?.onInitSuccess()
+        try{
+            LogDetail.LogD("FeedSdk", "handleCreateUserResponse")
+            FeedSdk.onExploreInitialized?.onInitSuccess()
+            for (userIntialiser in FeedSdk.onUserInitialized) {
+                LogDetail.LogD("FeedSdk", "userIntialiser")
+                userIntialiser?.onInitSuccess()
+            }
+            FeedSdk.isSdkInitializationSuccessful = true
+            FeedSdk.isExploreInitializationSuccessful = true
+        } catch (ex:Exception){
+            LogDetail.LogEStack(ex)
         }
-        FeedSdk.isSdkInitializationSuccessful = true
-        FeedSdk.isExploreInitializationSuccessful = true
     }
 }
