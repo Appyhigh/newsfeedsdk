@@ -44,12 +44,10 @@ class PublisherBlocklistAdapter(var blockList: ArrayList<PublisherDetail>, var l
             try{
                 isChanged = true
                 ApiCreateOrUpdateUser().updateBlockPublisher(blockList[position].publisherId!!, "unblock", false)
-                listener.onRemove(blockList[position])
-                blockList.removeAt(position)
                 notifyItemRemoved(position)
+                listener.onRemove(blockList[position])
                 listener.onRefresh()
             } catch (ex:Exception){ }
-
         }
         mainHolder.view.selector.setOnClickListener {
             blockList[position].isBlocked = !blockList[position].isBlocked
