@@ -198,6 +198,7 @@ object Constants {
     const val GET = "GET"
     const val CONFIG_MODEL = "config_model"
     const val PRIVACY_ACCEPTED = "privacy_accepted"
+    const val SHOW_FEED = "showFeed"
 
 
     var isChecked = true

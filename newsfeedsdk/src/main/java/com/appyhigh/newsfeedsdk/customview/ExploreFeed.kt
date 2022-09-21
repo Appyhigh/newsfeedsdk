@@ -160,7 +160,7 @@ class ExploreFeed : LinearLayout,OnRefreshListener {
                 languages = null
             }
             Constants.exploreLanguages = languages
-            if(FeedSdk.appName=="CricHouse") {
+            if(FeedSdk.isCricketApp()) {
                 Constants.exploreInterest = "cricket"
             } else{
                 Constants.exploreInterest = (if (unSelectedInterestsList.isEmpty()) {

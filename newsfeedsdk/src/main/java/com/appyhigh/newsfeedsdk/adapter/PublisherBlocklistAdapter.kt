@@ -41,12 +41,15 @@ class PublisherBlocklistAdapter(var blockList: ArrayList<PublisherDetail>, var l
         mainHolder.view.card = blockList[position]
         mainHolder.view.showSelector = showSelector
         mainHolder.view.tvBlock.setOnClickListener {
-            isChanged = true
-            ApiCreateOrUpdateUser().updateBlockPublisher(blockList[position].publisherId!!, "unblock", false)
-            listener.onRemove(blockList[position])
-            blockList.removeAt(position)
-            notifyItemRemoved(position)
-            listener.onRefresh()
+            try{
+                isChanged = true
+                ApiCreateOrUpdateUser().updateBlockPublisher(blockList[position].publisherId!!, "unblock", false)
+                listener.onRemove(blockList[position])
+                blockList.removeAt(position)
+                notifyItemRemoved(position)
+                listener.onRefresh()
+            } catch (ex:Exception){ }
+
         }
         mainHolder.view.selector.setOnClickListener {
             blockList[position].isBlocked = !blockList[position].isBlocked

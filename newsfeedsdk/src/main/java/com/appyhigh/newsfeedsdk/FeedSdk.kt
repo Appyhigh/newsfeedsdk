@@ -118,6 +118,10 @@ class FeedSdk {
             return sdkVersion.toLong()
         }
 
+        fun isCricketApp(): Boolean{
+            return isCricketApp
+        }
+
         @SuppressLint("StaticFieldLeak")
         var mContext: Context? = null
         var mLifecycle: Lifecycle? = null
@@ -160,6 +164,7 @@ class FeedSdk {
         var isCryptoApp = false
         var parentNudgeView: FrameLayout? = null
         private var sdkVersion = 1008
+        private var isCricketApp = false
     }
 
     private var parentAppIntent = Intent()
@@ -172,6 +177,9 @@ class FeedSdk {
         isDark: Boolean? = false
     ) {
         LogDetail.LogD("FeedSdk", "initializeSdk")
+        if(activity.baseContext.packageName.contains("cricket.scores")){
+            isCricketApp = true
+        }
         if (font == null && !isFontDownloading)
             applyFont(activity.baseContext, "Roboto", false)
         onUserInitialized = ArrayList()
@@ -531,6 +539,7 @@ class FeedSdk {
                 )
             }
         } catch (ex: Exception) {
+            spUtil?.putString(Constants.DEVICE_MODEL, Build.MODEL)
         }
     }
 

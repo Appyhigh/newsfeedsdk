@@ -20,6 +20,7 @@ import android.widget.Toast
 import androidx.core.text.HtmlCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
+import com.appyhigh.newsfeedsdk.BuildConfig
 import com.appyhigh.newsfeedsdk.Constants
 import com.appyhigh.newsfeedsdk.Constants.getLanguages
 import com.appyhigh.newsfeedsdk.FeedSdk
@@ -62,6 +63,7 @@ class CricketHomePWAFragment : Fragment(), AdvancedWebView.Listener, OnRefreshLi
     private var mUserDetails: UserResponse? = null
     private var mLanguageResponseModel: ArrayList<Language>? = null
     private var languagesMap = HashMap<String, Language>()
+    private var currentLanguage = ""
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         binding = FragmentCricketHomePwaBinding.inflate(layoutInflater, container, false)
@@ -89,15 +91,16 @@ class CricketHomePWAFragment : Fragment(), AdvancedWebView.Listener, OnRefreshLi
                     if(languages.isEmpty()){
                         languages = "en"
                     }
+                    currentLanguage = languages
                     val platform = "android"
                     link = if(pwaLink.contains("?"))
-                        "$pwaLink&platform=$platform&language=$languages"
+                        "$pwaLink&platform=$platform&language=$languages&${Constants.SHOW_FEED}=false"
                     else
-                        "$pwaLink?platform=$platform&language=$languages"
+                        "$pwaLink?platform=$platform&language=$languages&${Constants.SHOW_FEED}=false"
                     binding.noInternet.visibility=View.GONE
 //            LogDetail.LogD("webtest", "onViewCreated: "+keyId+" "+link)
                     binding.webview.loadUrl(link)
-                    LogDetail.LogD("webtest", "setWebView: $link")
+                    LogDetail.LogD("webtest", "setWebView refresh: $link")
                     Constants.pwaWebViews[pwaLink] = binding.webview
                 } catch (ex:java.lang.Exception){
                     LogDetail.LogEStack(ex)
@@ -114,7 +117,7 @@ class CricketHomePWAFragment : Fragment(), AdvancedWebView.Listener, OnRefreshLi
 //        if(BuildConfig.DEBUG && !pwaLink.contains("staging.masterfeed.io") && pwaLink.contains("masterfeed.io")){
 //            pwaLink = pwaLink.replace("masterfeed.io", "staging.masterfeed.io")
 //        }
-        if(FeedSdk.appName?.lowercase()=="crichouse"){
+        if(FeedSdk.isCricketApp()){
             ApiGetLanguages().getLanguagesEncrypted(
                 Endpoints.GET_LANGUAGES_ENCRYPTED,
                 object : ApiGetLanguages.LanguageResponseListener {
@@ -195,10 +198,11 @@ class CricketHomePWAFragment : Fragment(), AdvancedWebView.Listener, OnRefreshLi
             languages = "en"
         }
         val platform = "android"
+        currentLanguage = languages
         link = if(pwaLink.contains("?"))
-                        "$pwaLink&platform=$platform&language=$languages"
+                        "$pwaLink&platform=$platform&language=$languages&${Constants.SHOW_FEED}=false"
                     else
-                        "$pwaLink?platform=$platform&language=$languages"
+                        "$pwaLink?platform=$platform&language=$languages&${Constants.SHOW_FEED}=false"
         val gson = Gson()
         cookieManager.setCookie(link, "token="+ RSAKeyGenerator.getNewJwtToken(FeedSdk.appId, FeedSdk.userId) ?: "")
         cookieManager.setCookie(link, "user_info="+ gson.toJson(Constants.userDetails))
@@ -316,6 +320,9 @@ class CricketHomePWAFragment : Fragment(), AdvancedWebView.Listener, OnRefreshLi
     private fun initTabsActivity(intent:Intent, interest:String) : Boolean{
         if(alreadyLoaded) return true
         alreadyLoaded = true
+        if(currentLanguage.isNotEmpty()){
+            intent.putExtra(Constants.LANGUAGE, currentLanguage)
+        }
         intent.putExtra(Constants.INTEREST, interest)
         startActivity(intent)
         return true

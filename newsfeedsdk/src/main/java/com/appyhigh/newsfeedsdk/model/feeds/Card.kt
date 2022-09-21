@@ -1018,7 +1018,7 @@ data class Card(
                     return
                 }
             }
-            if (Constants.allInterestsMap.containsKey(id) && FeedSdk.appName != "CricHouse") {
+            if (Constants.allInterestsMap.containsKey(id) && !FeedSdk.isCricketApp()) {
                 view.visibility = View.VISIBLE
             } else {
                 view.visibility = View.GONE

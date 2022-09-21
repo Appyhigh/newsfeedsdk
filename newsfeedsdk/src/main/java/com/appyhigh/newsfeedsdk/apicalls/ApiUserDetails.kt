@@ -97,7 +97,7 @@ class ApiUserDetails {
                     )
                 Constants.impreesionModel = userResponse.user?.impressions
                 Constants.isChecked =
-                    if (userResponse.user?.cricket_notification != null) userResponse.user?.cricket_notification!! else FeedSdk.appName == "CricHouse"
+                    if (userResponse.user?.cricket_notification != null) userResponse.user?.cricket_notification!! else FeedSdk.isCricketApp()
                 addTopic(Constants.isChecked)
                 userResponseListener.onSuccess(userResponse)
                 SpUtil.userResponseListener?.onSuccess(userResponse)

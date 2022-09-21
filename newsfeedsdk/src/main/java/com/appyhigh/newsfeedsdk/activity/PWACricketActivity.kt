@@ -23,7 +23,7 @@ class PWACricketActivity : AppCompatActivity() {
         Card.setFontFamily(binding.tvInterest)
         binding.tvInterest.text = intent.getStringExtra(Constants.INTEREST)
         supportFragmentManager.beginTransaction()
-            .add(R.id.cricketPWAFragment, CricketPWAFragment.newInstance(intent.getStringExtra("link")!!, intent.getStringExtra(Constants.INTEREST)!!), "cricketPWA")
+            .add(R.id.cricketPWAFragment, CricketPWAFragment.newInstance(intent.getStringExtra("link")!!, intent.getStringExtra(Constants.INTEREST)!!,""), "cricketPWA")
             .disallowAddToBackStack()
             .commit()
     }

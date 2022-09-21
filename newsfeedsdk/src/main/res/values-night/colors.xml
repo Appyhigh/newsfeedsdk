@@ -27,6 +27,7 @@
 
     <color name="textColor11">#3860F6</color>
     <color name="feedLayoutBackground">@color/feedBackground</color>
+    <color name="feedCricketPwaBackground">@color/feedBackground</color>
 
     <color name="alert_select_line">@color/feedBackground</color>
     <color name="alert_coin_bg">@color/feedSecondaryBackground</color>

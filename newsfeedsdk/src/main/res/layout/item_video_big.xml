@@ -138,78 +138,20 @@
 
         </LinearLayout>
 
-        <TextView
-            android:id="@+id/feed_comment_option"
-            android:layout_width="0dp"
-            android:layout_height="40dp"
-            android:layout_marginStart="20dp"
-            android:layout_marginEnd="20dp"
-            android:layout_marginBottom="20dp"
-            android:background="@drawable/video_feed_text_view_drawable"
-            app:isBold="@{false}"
-            android:gravity="center_vertical"
-            android:paddingStart="15dp"
-            android:paddingTop="8dp"
-            android:paddingEnd="10dp"
-            android:paddingBottom="8dp"
-            android:text="Add Comments..."
-            android:textColor="@android:color/white"
-            android:textSize="12sp"
-            android:visibility="gone"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toStartOf="@+id/feed_like_option"
-            app:layout_constraintStart_toStartOf="parent" />
-
-        <ImageView
-            android:id="@+id/feed_like_option"
-            android:layout_width="40dp"
-            android:layout_height="40dp"
-            android:layout_marginEnd="8dp"
-            android:background="@drawable/video_feed_text_view_drawable"
-            android:padding="10dp"
-            android:visibility="gone"
-            app:layout_constraintBottom_toBottomOf="@+id/feed_comment_option"
-            app:layout_constraintEnd_toStartOf="@+id/feed_message_option"
-            app:srcCompat="@drawable/ic_thumb_up_gross_line_symbol" />
-
-        <ImageView
-            android:id="@+id/feed_message_option"
-            android:layout_width="40dp"
-            android:layout_height="40dp"
-            android:layout_marginEnd="8dp"
-            android:background="@drawable/video_feed_text_view_drawable"
-            android:padding="10dp"
-            android:visibility="gone"
-            app:layout_constraintBottom_toBottomOf="@+id/feed_comment_option"
-            app:layout_constraintEnd_toStartOf="@+id/feed_forward_option"
-            app:srcCompat="@drawable/ic_message" />
-
-        <ImageView
-            android:id="@+id/feed_forward_option"
-            android:layout_width="40dp"
-            android:layout_height="40dp"
-            android:layout_marginEnd="20dp"
-            android:background="@drawable/video_feed_text_view_drawable"
-            android:padding="10dp"
-            android:visibility="gone"
-            app:layout_constraintBottom_toBottomOf="@+id/feed_comment_option"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:srcCompat="@drawable/ic_send" />
-
         <androidx.appcompat.widget.AppCompatTextView
             android:id="@+id/feed_title"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginStart="20dp"
             android:layout_marginEnd="20dp"
-            android:layout_marginBottom="70dp"
+            android:layout_marginBottom="12dp"
             android:ellipsize="end"
             android:maxLines="3"
             app:isBold="@{false}"
             android:onClick="@{(v) ->listener.onPostClicked(v, position)}"
             android:textColor="@android:color/white"
             app:description="@{card.items[0].content.description}"
-            app:layout_constraintBottom_toTopOf="@+id/feed_comment_option"
+            app:layout_constraintBottom_toTopOf="@+id/ll_post_actions"
             app:layout_constraintStart_toStartOf="parent"
             app:title="@{card.items[0].content.title}"
             tools:text="Chhangte has got some moves" />
@@ -218,11 +160,13 @@
             android:id="@+id/feed_publisher_logo"
             android:layout_width="40dp"
             android:layout_height="40dp"
-            android:layout_marginBottom="15dp"
+            android:layout_marginBottom="12dp"
             android:onClick="@{(v) ->listener.onPostClicked(v, position)}"
             app:imageUrl="@{card.items[0].publisherProfilePic}"
+            android:layout_marginStart="20dp"
+            android:layout_marginEnd="20dp"
             app:layout_constraintBottom_toTopOf="@+id/feed_title"
-            app:layout_constraintStart_toStartOf="@+id/feed_title"
+            app:layout_constraintStart_toStartOf="parent"
             tools:srcCompat="@tools:sample/avatars" />
 
         <androidx.appcompat.widget.AppCompatTextView
@@ -230,6 +174,8 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="10dp"
+            android:maxLines="1"
+            android:ellipsize="end"
             android:onClick="@{(v) ->listener.onPostClicked(v, position)}"
             android:text="@{card.items[0].publisherName}"
             app:isBold="@{false}"
@@ -244,7 +190,7 @@
             android:id="@+id/ll_post_actions"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="10dp"
+            android:layout_marginBottom="12dp"
             android:background="@android:color/transparent"
             android:gravity="center_vertical"
             android:onClick="@{(v) ->listener.onPostClicked(v, position)}"
