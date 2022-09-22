@@ -5,7 +5,8 @@
     android:orientation="vertical"
     android:id="@+id/mainLayout"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:background="@color/feedCricketPwaBackground">
 
     <ProgressBar
         android:id="@+id/progress"
@@ -19,7 +20,7 @@
     <com.appyhigh.newsfeedsdk.utils.ExtendedWebView
         android:id="@+id/webview"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_height="wrap_content"
         android:visibility="gone"/>
 
     <LinearLayout
@@ -30,7 +31,7 @@
         android:gravity="center"
         android:visibility="gone"
         tools:visibility="visible"
-        android:background="@color/white"
+        android:background="@color/feedBackground"
         android:orientation="vertical">
         <androidx.appcompat.widget.AppCompatImageView
             android:layout_width="wrap_content"
@@ -42,12 +43,14 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="5dp"
             android:textStyle="bold"
+            android:textColor="@color/feedPrimaryTextColor"
             android:text="@string/no_internet"/>
         <androidx.appcompat.widget.AppCompatTextView
             android:id="@+id/checkConnection"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="2dp"
+            android:textColor="@color/feedPrimaryTextColor"
             android:text="@string/check_your_connection"/>
     </LinearLayout>
 

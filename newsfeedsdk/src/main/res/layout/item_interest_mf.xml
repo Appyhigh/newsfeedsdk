@@ -39,7 +39,8 @@
             android:text="Entertainment"
             android:paddingStart="10dp"
             android:textColor="@color/white"
-            android:textSize="16sp" />
+            android:textSize="16sp"
+            />
 
 
         <View

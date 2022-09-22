@@ -10,6 +10,7 @@ import android.view.Gravity
 import android.view.View
 import android.widget.LinearLayout
 import android.widget.ProgressBar
+import android.widget.TextView
 import androidx.appcompat.widget.AppCompatImageView
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
@@ -92,14 +93,14 @@ class NewsFeedScrollView : LinearLayout, PersonalizeCallListener, OnRefreshListe
         }
     }
 
-    private fun startInitView() {
+    private fun startInitView(){
         SpUtil.onRefreshListeners["news"] = this
         val view = inflate(context, R.layout.layout_news_feed_scroll_view, this)
         val llPrivacy = view.findViewById<LinearLayout>(R.id.llPrivacy)
-        if (!SpUtil.spUtilInstance!!.getBoolean(Constants.PRIVACY_ACCEPTED, false)) {
+        if(!SpUtil.spUtilInstance!!.getBoolean(Constants.PRIVACY_ACCEPTED, false)){
             llPrivacy.gravity = Gravity.TOP
             Constants.setPrivacyDialog(context, view)
-        } else {
+        } else{
             llPrivacy.visibility = View.GONE
             initView(view)
         }
@@ -107,8 +108,8 @@ class NewsFeedScrollView : LinearLayout, PersonalizeCallListener, OnRefreshListe
 
 
     private fun initView(view: View) {
-        Card.setFontFamily(view.findViewById(R.id.podcastBottomTitle))
-        Card.setFontFamily(view.findViewById(R.id.podcastBottomPublisherName))
+        Card.setFontFamily(view.findViewById(R.id.podcastBottomTitle) as TextView)
+        Card.setFontFamily(view.findViewById(R.id.podcastBottomPublisherName) as TextView)
         mUserDetails = null
         mInterestResponseModel = null
         mLanguageResponseModel = null
@@ -135,10 +136,7 @@ class NewsFeedScrollView : LinearLayout, PersonalizeCallListener, OnRefreshListe
         SpUtil.personalizeCallListener = this
         ivAdd?.setOnClickListener {
             val personaliseMenuBottomSheet = PersonaliseMenuBottomSheet()
-            personaliseMenuBottomSheet.show(
-                getFragmentManager(context)!!,
-                "personaliseMenuBottomSheet"
-            )
+            personaliseMenuBottomSheet.show(getFragmentManager(context)!!, "personaliseMenuBottomSheet")
         }
         ConnectivityLiveData(context).observeForever {
             when (it) {
@@ -279,14 +277,17 @@ class NewsFeedScrollView : LinearLayout, PersonalizeCallListener, OnRefreshListe
     ) {
         var interests = ""
         var pos = 0
-        if (selectedInterestsList.isEmpty() && Constants.allInterestsMap.values.isNotEmpty()) {
+        if (selectedInterestsList.isEmpty()) {
             selectedInterestsList.addAll(Constants.allInterestsMap.values.toList() as ArrayList<Interest>)
         }
-        for (i in 0 until selectedInterestsList.size) {
-            interests += if (i < selectedInterestsList.size - 1) {
-                selectedInterestsList[i].keyId + ","
+        if(Constants.userDetails?.showRegionalField == true) {
+            pinnedInterestList.add(Interest("Near You", "near_you", null, false))
+        }
+        for (i in 0 until pinnedInterestList.size) {
+            interests += if (i < pinnedInterestList.size - 1) {
+                pinnedInterestList[i].keyId + ","
             } else {
-                selectedInterestsList[i].keyId
+                pinnedInterestList[i].keyId
             }
         }
         ApiGetInterests().getInterestsAppWiseEncrypted(
@@ -295,24 +296,7 @@ class NewsFeedScrollView : LinearLayout, PersonalizeCallListener, OnRefreshListe
             object : ApiGetInterests.InterestOrderResponseListener {
                 override fun onSuccess(interestList: ArrayList<String>) {
                     Handler(Looper.getMainLooper()).post {
-                        newInterestList = ArrayList<Interest>()
-                        for (interest in interestList) {
-                            try {
-                                if (interest == "for_you") {
-                                    newInterestList.add(
-                                        Interest("For You", "for_you", null, false)
-                                    )
-//                                "podcast" -> Interest("Podcasts", "podcasts", null, false)
-//                                else -> Constants.allInterestsMap[interest]!!
-                                }
-                            } catch (ex: Exception) {
-                                LogDetail.LogEStack(ex)
-                            }
-                        }
-                        if (Constants.userDetails?.showRegionalField == true) {
-                            newInterestList.add(Interest("Near You", "near_you", null, false))
-                        }
-                        newInterestList.addAll(pinnedInterestList)
+                       checkAndAddTabs(interestList)
                         if (mUserDetails != null && mInterestResponseModel != null) {
                             try {
                                 if (SpUtil.pushIntent != null && !SpUtil.pushIntent!!.getBooleanExtra(
@@ -508,7 +492,7 @@ class NewsFeedScrollView : LinearLayout, PersonalizeCallListener, OnRefreshListe
                 "podcasts" -> fragmentList.add(PodcastsFragment.newInstance())
                 "crypto" -> fragmentList.add(CryptoFragment.newInstance())
                 else -> {
-                    if (!interest.pwaLink.isNullOrEmpty()) {
+                    if(!interest.pwaLink.isNullOrEmpty()){
                         interest.keyId?.let {
                             fragmentList.add(
                                 PWAFragment.newInstance(
@@ -516,7 +500,7 @@ class NewsFeedScrollView : LinearLayout, PersonalizeCallListener, OnRefreshListe
                                 )
                             )
                         }
-                    } else {
+                    } else{
                         fragmentList.add(
                             PagerFragment.newInstance(
                                 interest.keyId.toString(), i,
@@ -555,6 +539,36 @@ class NewsFeedScrollView : LinearLayout, PersonalizeCallListener, OnRefreshListe
                 val touchSlop = touchSlopField.get(recyclerView) as Int
                 touchSlopField.set(recyclerView, touchSlop * 6) //6 is empirical value
             } catch (ex: java.lang.Exception) {
+                LogDetail.LogEStack(ex)
+            }
+        }
+    }
+
+    private fun checkAndAddTabs(interestList:ArrayList<String>){
+        newInterestList = ArrayList<Interest>()
+        for(interest in interestList){
+            try{
+                if(interest == "for_you"){
+                    newInterestList.add(
+                        Interest("For You", "for_you", null, false)
+//                                "podcast" -> Interest("Podcasts", "podcasts", null, false)
+                    )
+                } else if(interest == "near_you"){
+                    newInterestList.add(Interest("Near You", "near_you", null, false))
+                }
+                else {
+                    if(interestMap.containsKey(interest)){
+                        newInterestList.add(interestMap[interest]!!)
+                    } else{
+                        for(search in pinnedInterestList){
+                            if(search.keyId == interest){
+                                newInterestList.add(search)
+                                break
+                            }
+                        }
+                    }
+                }
+            } catch (ex:Exception){
                 LogDetail.LogEStack(ex)
             }
         }

@@ -1,6 +1,5 @@
 package com.appyhigh.newsfeedsdk.utils
 
-import android.util.Log
 import com.appyhigh.newsfeedsdk.Constants
 import com.appyhigh.newsfeedsdk.Constants.SOCKET_URL
 import com.appyhigh.newsfeedsdk.FeedSdk
@@ -26,7 +25,7 @@ object SocketConnection {
             mSocket = getSocketConnection()
             isSocketConnected = mSocket != null && mSocket!!.connected()
             if (!isSocketConnected) {
-                LogDetail.LogD(TAG, "Initiate Connection")
+                LogDetail.LogDE(TAG, "Initiate Connection")
                 mSocket?.connect()
                 setSocketEvents()
             }
@@ -39,7 +38,7 @@ object SocketConnection {
         try{
             mSocket?.close()
             isSocketConnected = mSocket!!.connected()
-            LogDetail.LogD(TAG, "Close Connection")
+            LogDetail.LogDE(TAG, "Close Connection")
         } catch (ex:java.lang.Exception) {}
     }
 

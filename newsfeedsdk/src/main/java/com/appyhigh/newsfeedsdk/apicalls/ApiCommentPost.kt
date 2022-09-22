@@ -17,6 +17,8 @@ class ApiCommentPost {
     fun postCommentEncrypted(
         apiUrl: String,
         postId: String,
+        postSource: String?,
+        feedType: String?,
         commentType: String,
         commentValue: String,
         postCommentResponse: PostCommentResponse
@@ -26,11 +28,18 @@ class ApiCommentPost {
         keys.add("comment_type")
         keys.add("post_id")
         keys.add("comment_value")
-
         values.add(commentType)
         values.add(postId)
         values.add(commentValue)
 
+        if(!postSource.isNullOrEmpty()) {
+            keys.add(Constants.POST_SOURCE)
+            values.add(postSource)
+        }
+        if(!feedType.isNullOrEmpty()) {
+            keys.add(Constants.FEED_TYPE)
+            values.add(feedType)
+        }
         val allDetails = BaseAPICallObject().getBaseObjectWithAuth(Constants.POST, apiUrl, keys, values)
         LogDetail.LogDE("Test Data", allDetails.toString())
         val publicKey = SessionUser.Instance().publicKey

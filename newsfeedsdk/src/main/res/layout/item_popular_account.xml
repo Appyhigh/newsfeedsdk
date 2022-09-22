@@ -58,7 +58,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:gravity="center"
-
+                    app:isBold="@{false}"
                     android:text="A"
                     android:textColor="@color/white"
                     android:textSize="30sp" />
@@ -73,7 +73,6 @@
             android:layout_marginTop="10dp"
             android:ellipsize="end"
             android:textStyle="bold"
-
             app:isBold="@{true}"
             android:maxLines="1"
             android:text="@{item.fullname}"
@@ -93,7 +92,6 @@
             android:clickable="true"
             android:focusable="true"
             android:textStyle="bold"
-
             app:isBold="@{true}"
             android:gravity="center"
             android:paddingStart="10dp"

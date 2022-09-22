@@ -67,7 +67,6 @@ class ApiPrivateAds {
                     listener.onSuccess(it.body()!!)
                 } catch (ex: Exception) {
                     listener.onFailure()
-                    LogDetail.LogEStack(ex)
                 }
             }, {
                 listener.onFailure()

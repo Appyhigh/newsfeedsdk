@@ -7,6 +7,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.EditText
 import android.widget.ImageView
+import android.widget.TextView
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.appyhigh.newsfeedsdk.R
@@ -61,7 +62,7 @@ class NonNativeCommentBottomSheet(
     }
 
     private fun setFonts(view: View?){
-        Card.setFontFamily(view?.findViewById(R.id.title))
-        Card.setFontFamily(view?.findViewById(R.id.et_comment), true)
+        Card.setFontFamily(view?.findViewById(R.id.title) as TextView)
+        Card.setFontFamily(view?.findViewById(R.id.et_comment) as TextView, true)
     }
 }

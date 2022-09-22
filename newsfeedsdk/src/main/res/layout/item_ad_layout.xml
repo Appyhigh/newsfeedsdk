@@ -34,7 +34,7 @@
         <androidx.appcompat.widget.AppCompatTextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-
+            app:isBold="@{false}"
             android:textColor="@color/text_color_black"
             android:text="Loading Ad..."/>
 

@@ -69,7 +69,8 @@ class PWACricketTabsActivity : AppCompatActivity() {
                             fragmentList.add(
                                 CricketPWAFragment.newInstance(
                                     tab.pwaLink,
-                                    tab.key_id!!
+                                    tab.key_id!!,
+                                    intent.getStringExtra(Constants.LANGUAGE)?:""
                                 )
                             )
                         }

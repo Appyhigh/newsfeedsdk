@@ -65,6 +65,7 @@
                     android:background="@drawable/text_bg_red"
                     android:gravity="center"
                     android:text="A"
+                    app:isBold="@{true}"
                     android:textColor="@color/white"
                     android:textSize="16sp"
                     android:visibility="gone" />
@@ -107,6 +108,7 @@
                     android:textColor="@color/feedPrimaryTextColor"
                     android:textSize="14sp"
                     android:textStyle="bold"
+                    app:isBold="@{true}"
                     tools:text="News18 English" />
 
                 <LinearLayout
@@ -128,6 +130,7 @@
                             android:layout_height="wrap_content"
                             android:textColor="@android:color/darker_gray"
                             android:textSize="12sp"
+                            app:isBold="@{false}"
                             app:formattedTime='@{card.items[0].publishedOn ?? ""}'
                             tools:text="6 hours ago" />
 
@@ -157,7 +160,7 @@
                     android:layout_toStartOf="@+id/ivOption"
                     android:onClick="@{(v) -> listener.onFollowClicked(v, position)}"
                     isFollowing="@{card.items[0].isFollowingPublisher}"
-
+                    app:isBold="@{false}"
                     android:background="@drawable/bg_round_button_empty_gray"
                     android:padding="5dp"
                     android:text="Follow"
@@ -169,7 +172,7 @@
                     android:layout_height="wrap_content"
                     android:text="Report"
                     android:textColor="@color/white"
-
+                    app:isBold="@{false}"
                     android:background="@drawable/bg_round_button"
                     android:paddingTop="5dp"
                     android:paddingStart="10dp"
@@ -256,6 +259,7 @@
                 android:ellipsize="end"
                 android:maxLines="1"
                 android:text="NEWS"
+                app:isBold="@{true}"
                 android:textAllCaps="true"
                 android:textColor="@android:color/holo_blue_light"
                 android:textStyle="bold" />
@@ -312,6 +316,7 @@
                     android:paddingEnd="10dp"
                     android:textColor="@color/feedPrimaryTextColor"
                     android:textSize="17sp"
+                    app:isBold="@{false}"
                     app:description="@{card.items[0].content.description}"
                     app:title="@{card.items[0].content.title}"
                     tools:text="Schools, Colleges  " />
@@ -389,7 +394,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="5dp"
-
+                    app:isBold="@{false}"
                     app:angryCount="@{card.items[0].reactionsCount.angryCount}"
                     app:likeCount="@{card.items[0].reactionsCount.likeCount}"
                     app:laughCount="@{card.items[0].reactionsCount.laughCount}"
@@ -423,7 +428,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="5dp"
-
+                    app:isBold="@{false}"
                     android:textColor="@color/feedPrimaryTextColor"
                     android:text="@{card.items[0].appComments.toString()}" />
             </LinearLayout>

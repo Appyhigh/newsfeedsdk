@@ -24,7 +24,7 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="0.9"
                 android:textColor="#566075"
-
+                app:isBold="@{false}"
                 android:textSize="15sp"
                 tools:text="Solid"
                 />

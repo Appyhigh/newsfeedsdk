@@ -95,6 +95,8 @@ public class SessionUser {
                 app_version_code = String.valueOf(info.versionCode);
             }
             app_version_name = String.valueOf(info.versionName);
+            FeedSdk.Companion.setAppVersionCode(app_version_code);
+            FeedSdk.Companion.setAppVersionName(app_version_name);
         } catch (Exception ex){
             LogDetail.LogEStack(ex);
         }

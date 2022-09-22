@@ -28,6 +28,7 @@
             android:paddingTop="20dp"
             android:paddingBottom="20dp"
             android:text="@string/gurgaon"
+            app:isBold="@{false}"
             android:textColor="@color/feedLocationItemColor"
             android:textSize="16sp" />
 

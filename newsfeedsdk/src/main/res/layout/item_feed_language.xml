@@ -24,7 +24,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@{item.nativeName}"
-
+            app:isBold="@{false}"
             android:textColor="@color/purple"
             tools:text="Hindi" />
 
@@ -33,7 +33,7 @@
             android:layout_height="wrap_content"
             android:layout_marginStart="10dp"
             android:text="@{item.language}"
-
+            app:isBold="@{false}"
             android:textColor="@color/black"
             tools:text="Hindi" />
 

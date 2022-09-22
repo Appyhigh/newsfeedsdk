@@ -13,16 +13,25 @@ class ApiReactPost {
     fun reactPostEncrypted(
         apiUrl: String,
         postId: String,
+        postSource: String?,
+        feedType: String?,
         reaction: Constants.ReactionType) {
 
         val keys = ArrayList<String?>()
         val values = ArrayList<String?>()
-
         keys.add("post_id")
         keys.add("reaction")
-
         values.add(postId)
         values.add(reaction.name.lowercase())
+
+        if(!postSource.isNullOrEmpty()) {
+            keys.add(Constants.POST_SOURCE)
+            values.add(postSource)
+        }
+        if(!feedType.isNullOrEmpty()) {
+            keys.add(Constants.FEED_TYPE)
+            values.add(feedType)
+        }
         val allDetails =
             BaseAPICallObject().getBaseObjectWithAuth(Constants.POST, apiUrl, keys, values)
 

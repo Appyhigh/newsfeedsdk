@@ -676,6 +676,7 @@ class PodcastPlayerActivity : AppCompatActivity() {
         ApiCommentPost().postCommentEncrypted(
             Endpoints.COMMENT_POST_ENCRYPTED,
             postId,
+            postSource, feedType,
             "text",
             comment,
             object : ApiCommentPost.PostCommentResponse {
@@ -733,7 +734,7 @@ class PodcastPlayerActivity : AppCompatActivity() {
         }
         ApiReactPost().reactPostEncrypted(
             Endpoints.REACT_POST_ENCRYPTED,
-            postId, reactionType)
+            postId, postSource, feedType, reactionType)
     }
 
     private fun setFonts(){

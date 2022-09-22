@@ -42,7 +42,7 @@
             android:textSize="@dimen/_16ssp"
             android:maxLines="1"
             android:textColor="@color/feedPrimaryTextColor"
-
+            app:isBold="@{false}"
             android:ellipsize="end"
             tools:text="Sample" />
 
@@ -54,7 +54,7 @@
             android:maxLines="1"
             android:ellipsize="end"
             android:textColor="@color/textColor11"
-
+            app:isBold="@{false}"
             android:visibility="@{card.sideText==null?view.GONE:view.VISIBLE}"
             android:onClick="@{(v) -> listener.onSideTextClicked(v, position, card)}"
             android:text="@{card.sideText}"

@@ -1018,7 +1018,7 @@ data class Card(
                     return
                 }
             }
-            if (Constants.allInterestsMap.containsKey(id) && FeedSdk.appName != "CricHouse") {
+            if (Constants.allInterestsMap.containsKey(id) && !FeedSdk.isCricketApp()) {
                 view.visibility = View.VISIBLE
             } else {
                 view.visibility = View.GONE
@@ -1227,6 +1227,7 @@ data class Card(
             }
         }
 
+        @SuppressLint("SetTextI18n")
         @JvmStatic
         @BindingAdapter("marketCap")
         fun setMarketCap(view: TextView, marketCap: Double) {
@@ -1618,6 +1619,22 @@ data class Card(
         @BindingAdapter(value = ["isBold"], requireAll = false)
         fun setFontFamily(view: TextView?, isBold: Boolean = false) {
             try {
+                LogDetail.LogDE("setFontFamily","called")
+                if (isBold) {
+                    view!!.setTypeface(FeedSdk.font, Typeface.BOLD)
+                } else {
+                    view!!.typeface = FeedSdk.font
+                }
+            } catch (ex: java.lang.Exception) {
+                LogDetail.LogEStack(ex)
+            }
+        }
+
+        @JvmStatic
+        @BindingAdapter(value = ["isBold"], requireAll = false)
+        fun setFontFamily(view: Button?, isBold: Boolean = false) {
+            try {
+                LogDetail.LogDE("setFontFamily","called")
                 if (isBold) {
                     view!!.setTypeface(FeedSdk.font, Typeface.BOLD)
                 } else {

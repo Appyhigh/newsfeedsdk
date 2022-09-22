@@ -28,9 +28,11 @@
 
     <ProgressBar
         android:id="@+id/pbLoading"
-        android:layout_width="wrap_content"
+        android:layout_width="40dp"
         android:layout_height="wrap_content"
-        android:visibility="gone" />
+        android:layout_gravity="center"
+        android:indeterminateTint="@color/purple_500"
+        tools:ignore="UnusedAttribute" />
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/rvPosts"

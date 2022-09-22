@@ -18,10 +18,10 @@
     </queries>
 
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
-    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.INTERNET" />
-    <uses-permission android:name="android.permission.FOREGROUND_SERVICE"/>
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
     <uses-permission android:name="android.permission.WAKE_LOCK" />
 
     <application
@@ -30,57 +30,84 @@
         android:usesCleartextTraffic="true"
         tools:ignore="UnusedAttribute">
         <activity
+            android:name=".activity.SdkEventsActivity"
+            android:exported="false"
+            android:screenOrientation="portrait"/>
+        <activity
             android:name=".activity.PWACricketActivity"
-            android:exported="false" />
+            android:exported="false"
+            android:screenOrientation="portrait"/>
         <activity
             android:name=".activity.PWACricketTabsActivity"
-            android:exported="false" />
+            android:exported="false"
+            android:screenOrientation="portrait"/>
         <activity
             android:name=".activity.CryptoMainAlertActivity"
-            android:exported="false" />
+            android:exported="false"
+            android:screenOrientation="portrait"/>
         <activity
             android:name=".activity.PWAMatchScoreActivity"
-            android:exported="false" />
+            android:exported="false"
+            android:screenOrientation="portrait"/>
         <activity
             android:name=".activity.PostNativeDetailActivity"
-            android:exported="false" />
+            android:exported="false"
+            android:screenOrientation="portrait"/>
         <activity
             android:name=".activity.FeedLanguageActivity"
-            android:exported="false" />
+            android:exported="false"
+            android:screenOrientation="portrait"/>
         <activity
             android:name=".activity.FeedInterestsActivity"
-            android:exported="false" />
+            android:exported="false"
+            android:screenOrientation="portrait"/>
         <activity
             android:name=".activity.CryptoCoinDetailsActivity"
-            android:exported="false" />
+            android:exported="false"
+            android:screenOrientation="portrait"/>
         <activity
             android:name=".activity.CryptoListActivity"
-            android:exported="false" />
+            android:exported="false"
+            android:screenOrientation="portrait"/>
         <activity
             android:name=".activity.PodcastPlayerActivity"
-            android:exported="false" />
+            android:exported="false"
+            android:screenOrientation="portrait"/>
         <activity
             android:name=".activity.PodcastsCategoryActivity"
-            android:exported="false" />
-        <activity android:name=".activity.ReelsActivity" />
-        <activity android:name=".activity.TradingViewActivity" />
-        <activity android:name=".activity.PublisherPageActivity" />
+            android:exported="false"
+            android:screenOrientation="portrait"/>
+        <activity android:name=".activity.ReelsActivity"
+            android:screenOrientation="portrait"/>
+        <activity android:name=".activity.TradingViewActivity"
+            android:screenOrientation="portrait"/>
+        <activity android:name=".activity.PublisherPageActivity"
+            android:screenOrientation="portrait"/>
         <activity
             android:name=".activity.PublisherBlockActivity"
-            android:exported="false" />
-        <activity android:name=".activity.FeedsActivity" />
+            android:exported="false"
+            android:screenOrientation="portrait"/>
+        <activity android:name=".activity.FeedsActivity"
+            android:screenOrientation="portrait"/>
+
         <service android:name=".service.NotificationCricketService" />
         <service android:name=".service.StickyNotificationService" />
 
-        <activity android:name=".activity.NewsFeedPageActivity"
-            android:configChanges="orientation|screenSize"/>
-        <activity android:name=".activity.ContactPublisherActivity" />
-        <activity android:name=".activity.AddInterestsActivity" />
+        <activity
+            android:name=".activity.NewsFeedPageActivity"
+            android:configChanges="orientation|screenSize"
+            android:screenOrientation="portrait"/>
+        <activity android:name=".activity.ContactPublisherActivity"
+            android:screenOrientation="portrait"/>
+        <activity android:name=".activity.AddInterestsActivity"
+            android:screenOrientation="portrait"/>
         <activity
             android:name=".activity.SettingsActivity"
-            android:exported="true" />
+            android:exported="true"
+            android:screenOrientation="portrait"/>
         <activity
             android:name=".activity.WebActivity"
+            android:exported="true"
             android:screenOrientation="portrait"
             android:windowSoftInputMode="adjustPan" />
     </application>

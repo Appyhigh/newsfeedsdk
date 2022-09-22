@@ -47,7 +47,7 @@
         android:text="@string/other"
         android:layout_marginTop="5dp"
         android:layout_marginBottom="5dp"
-        android:fontFamily="_regular"
+
         android:textSize="16sp"
         android:textColor="@color/black"
         />
@@ -63,7 +63,7 @@
         android:maxLines="4"
         android:ellipsize="end"
         android:background="@drawable/bg_report_text"
-        android:fontFamily="_regular"
+
         android:hint="@string/write_here"
         android:inputType="text"
         android:importantForAutofill="no" />

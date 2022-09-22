@@ -77,6 +77,7 @@ import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.PlayerConstan
 import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.YouTubePlayer
 import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.listeners.AbstractYouTubePlayerListener
 import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.listeners.YouTubePlayerCallback
+import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.listeners.YouTubePlayerFullScreenListener
 import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.views.YouTubePlayerView
 import java.util.*
 
@@ -559,6 +560,10 @@ class NewsFeedAdapter(
                     holder.view.card = newsFeedList[position]
                     holder.view.listener = this
                     holder.view.position = holder.adapterPosition
+                    holder.view.ivClose.setOnClickListener {
+                        newsFeedList.removeAt(position)
+                        notifyItemRemoved(position)
+                    }
                 }
                 else {
                     val holder = mainHolder as RatingViewHolder
@@ -1026,8 +1031,8 @@ class NewsFeedAdapter(
                     "reactionCount",
                     it.likeCount + it.angryCount + it.laughCount + it.wowCount + it.loveCount + it.sadCount
                 )
-                intent.putExtra("isReacted", newsFeedList[position].items[0].isReacted)
             }
+            newsFeedList[position].items[0].isReacted?.let { intent.putExtra("isReacted", it) }
             if (fromPublishPage) {
                 intent.putExtra("fromPublishPage", true)
             } else if (v.context.toString().contains("ExploreHashtag")) {
@@ -1230,7 +1235,7 @@ class NewsFeedAdapter(
         card.items[0].postId?.let {
             ApiReactPost().reactPostEncrypted(
                 Endpoints.REACT_POST_ENCRYPTED,
-                it, reaction)
+                it, newsFeedList[position].items[0].postSource, newsFeedList[position].items[0].feedType, reaction)
         }
     }
 

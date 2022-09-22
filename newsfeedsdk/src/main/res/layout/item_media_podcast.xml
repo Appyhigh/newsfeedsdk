@@ -73,7 +73,7 @@
             android:textSize="14sp"
             android:layout_marginTop="10dp"
             android:textColor="@color/feedPrimaryTextColor"
-
+            app:isBold="@{false}"
             app:description="@{card.items[0].content.description}"
             app:title="@{card.items[0].content.title}"
             tools:text="Work From Your Happy Place with Belinda Ellsworth"
@@ -91,7 +91,7 @@
                 android:layout_height="wrap_content"
                 android:textColor="#7F8386"
                 android:textSize="12sp"
-
+                app:isBold="@{false}"
                 app:setPodcastDuration="@{card.items[0].content.duration}"
                 tools:text="30 min"
                 />
@@ -113,7 +113,7 @@
                 android:maxLines="1"
                 android:ellipsize="end"
                 android:text="@{card.items[0].publisherName}"
-
+                app:isBold="@{false}"
                 tools:text="Jane Cooper"
                 />
         </LinearLayout>

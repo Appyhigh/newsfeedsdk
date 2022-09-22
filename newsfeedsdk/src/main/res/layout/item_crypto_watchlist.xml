@@ -32,7 +32,7 @@
             android:id="@+id/coinSymbol"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-
+            app:isBold="@{false}"
             android:textColor="#727272"
             android:textSize="12sp"
             android:text="@{item.coinSymbol}"
@@ -44,7 +44,6 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textStyle="bold"
-
             app:isBold="@{true}"
             android:textColor="@color/feedPrimaryTextColor"
             android:textSize="12sp"
@@ -55,7 +54,7 @@
             android:id="@+id/priceChange"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-
+            app:isBold="@{false}"
             android:textSize="10sp"
             android:layout_marginTop="5dp"
             tools:textColor="#21C17A"

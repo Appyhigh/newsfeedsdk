@@ -59,7 +59,7 @@
                     android:layout_height="match_parent"
                     android:gravity="center"
                     android:text="A"
-
+                    app:isBold="@{false}"
                     android:textColor="@color/textColor"
                     android:textSize="30sp" />
             </RelativeLayout>
@@ -73,7 +73,7 @@
             android:layout_marginTop="10dp"
             android:ellipsize="end"
             android:textStyle="bold"
-
+            app:isBold="@{true}"
             android:maxLines="1"
             android:text="@{item.id}"
             android:textAlignment="center"
