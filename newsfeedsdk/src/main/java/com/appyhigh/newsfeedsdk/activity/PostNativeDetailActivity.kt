@@ -858,6 +858,7 @@ class PostNativeDetailActivity : AppCompatActivity() {
             ApiReactPost().reactPostEncrypted(
                 Endpoints.REACT_POST_ENCRYPTED,
                 postId!!,
+                presentPostDetailsModel?.post?.postSource, presentPostDetailsModel?.post?.feedType,
                 reactionType
             )
         } catch (ex: Exception) {
@@ -869,6 +870,7 @@ class PostNativeDetailActivity : AppCompatActivity() {
         ApiCommentPost().postCommentEncrypted(
             Endpoints.COMMENT_POST_ENCRYPTED,
             postId!!,
+            presentPostDetailsModel?.post?.postSource, presentPostDetailsModel?.post?.feedType,
             "text",
             comment,
             object : ApiCommentPost.PostCommentResponse {

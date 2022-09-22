@@ -78,9 +78,9 @@ class CricketPWAFragment : Fragment(), AdvancedWebView.Listener, PWATabSelectedL
         super.onViewCreated(view, savedInstanceState)
         Card.setFontFamily(binding.noInternetTitle, true)
         Card.setFontFamily(binding.checkConnection)
-//        if(BuildConfig.DEBUG && !pwaLink.contains("staging.masterfeed.io") && pwaLink.contains("masterfeed.io")){
-//            pwaLink = pwaLink.replace("masterfeed.io", "staging.masterfeed.io")
-//        }
+        if(BuildConfig.DEBUG && !pwaLink.contains("staging.masterfeed.io") && pwaLink.contains("masterfeed.io")){
+            pwaLink = pwaLink.replace("masterfeed.io", "staging.masterfeed.io")
+        }
         setWebView(view)
     }
 
@@ -121,17 +121,7 @@ class CricketPWAFragment : Fragment(), AdvancedWebView.Listener, PWATabSelectedL
         }
         var languages = ""
         if(currentLanguage.isEmpty()){
-            if(keyId=="cricket") {
-                for ((i, language) in FeedSdk.languagesList.withIndex()) {
-                    if (i < FeedSdk.languagesList.size - 1) {
-                        languages = languages + language.id.lowercase(Locale.getDefault()) + ","
-                    } else {
-                        languages += language.id.lowercase(Locale.getDefault())
-                    }
-                }
-            } else {
-                languages = getLanguages(listOf("hi", "ta", "te", "bn"))
-            }
+            languages = getLanguages(listOf("hi", "ta", "te", "bn"))
         } else{
             languages = currentLanguage
         }

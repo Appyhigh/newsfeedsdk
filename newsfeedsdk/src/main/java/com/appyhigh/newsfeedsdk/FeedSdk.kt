@@ -127,7 +127,7 @@ class FeedSdk {
         var mLifecycle: Lifecycle? = null
         var mUser: User? = null
         var spUtil: SpUtil? = null
-        var sdkCountryCode: String? = ""
+        var sdkCountryCode: String? = "in"
         var userId: String? = ""
         var appId: String? = ""
         var appName: String? = ""
@@ -579,7 +579,7 @@ class FeedSdk {
         sdkCountryCode = if (telephonyManager.networkCountryIso.isNotEmpty()) {
             telephonyManager.networkCountryIso
         } else {
-            "IN"
+            "in"
         }
     }
 

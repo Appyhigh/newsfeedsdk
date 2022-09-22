@@ -84,7 +84,7 @@ class PodcastsFragment : Fragment() {
                                 try {
                                     val postView = PostView(
                                         FeedSdk.sdkCountryCode ?: "in",
-                                        "category",
+                                        card.items[0].feedType?:"category",
                                         card.items[0].isVideo,
                                         card.items[0].languageString,
                                         Constants.getInterestsString(card.items[0].interests),

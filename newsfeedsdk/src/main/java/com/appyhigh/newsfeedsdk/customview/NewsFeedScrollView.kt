@@ -280,6 +280,9 @@ class NewsFeedScrollView : LinearLayout, PersonalizeCallListener, OnRefreshListe
         if (selectedInterestsList.isEmpty()) {
             selectedInterestsList.addAll(Constants.allInterestsMap.values.toList() as ArrayList<Interest>)
         }
+        if(Constants.userDetails?.showRegionalField == true) {
+            selectedInterestsList.add(Interest("Near You", "near_you", null, false))
+        }
         for (i in 0 until selectedInterestsList.size) {
             interests += if (i < selectedInterestsList.size - 1) {
                 selectedInterestsList[i].keyId + ","
@@ -305,9 +308,6 @@ class NewsFeedScrollView : LinearLayout, PersonalizeCallListener, OnRefreshListe
                         } catch (ex: Exception) {
                             LogDetail.LogEStack(ex)
                         }
-                    }
-                    if (Constants.userDetails?.showRegionalField == true) {
-                        newInterestList.add(Interest("Near You", "near_you", null, false))
                     }
                     newInterestList.addAll(pinnedInterestList)
                     if (mUserDetails != null && mInterestResponseModel != null) {

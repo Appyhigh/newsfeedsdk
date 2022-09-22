@@ -183,17 +183,11 @@ class CricketHomePWAFragment : Fragment(), AdvancedWebView.Listener, OnRefreshLi
             cookieManager.removeAllCookie()
         }
         var languages = ""
-        if(keyId=="cricket") {
-            for ((i, language) in FeedSdk.languagesList.withIndex()) {
-                if (i < FeedSdk.languagesList.size - 1) {
-                    languages = languages + language.id.lowercase(Locale.getDefault()) + ","
-                } else {
-                    languages += language.id.lowercase(Locale.getDefault())
-                }
-            }
-        } else {
-            languages = getLanguages(listOf("hi", "ta", "te", "bn"))
+        Constants.selectedLanguagesMap = HashMap()
+        for(language in FeedSdk.languagesList){
+            Constants.selectedLanguagesMap[language.id.lowercase(Locale.getDefault())] = language
         }
+        languages = getLanguages(listOf("hi", "ta", "te", "bn"))
         if(languages.isEmpty()){
             languages = "en"
         }
@@ -334,6 +328,9 @@ class CricketHomePWAFragment : Fragment(), AdvancedWebView.Listener, OnRefreshLi
         val intent = Intent(requireContext(), PWACricketActivity::class.java)
         val uri = Uri.parse(url)
         val title = uri.getQueryParameter("title")
+        if(currentLanguage.isNotEmpty()){
+            intent.putExtra(Constants.LANGUAGE, currentLanguage)
+        }
         if(title.isNullOrEmpty()){
             intent.putExtra(Constants.INTEREST, interest)
         } else {

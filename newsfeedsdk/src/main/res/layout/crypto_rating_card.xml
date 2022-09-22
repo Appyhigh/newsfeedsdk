@@ -58,7 +58,7 @@
                     android:id="@+id/ivClose"
                     android:layout_width="20dp"
                     android:layout_height="20dp"
-                    app:tint="@color/white"
+                    app:tint="@color/feedSecondaryTintColor"
                     app:srcCompat="@drawable/ic_close"/>
             </LinearLayout>
             <androidx.appcompat.widget.AppCompatTextView

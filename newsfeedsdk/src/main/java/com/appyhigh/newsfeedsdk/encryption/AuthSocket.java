@@ -442,6 +442,7 @@ public class AuthSocket {
     //API Calling Using Encrypted Data
     public void postData(String sendingData, com.appyhigh.newsfeedsdk.apicalls.ResponseListener responseListener) {
         checkAndRefreshToken(() -> {
+            if(!checkUserId()) return;
             OkHttpClient client = new OkHttpClient();
             RequestBody formBody = new FormBody.Builder()
                     .add("data", sendingData)
@@ -515,6 +516,13 @@ public class AuthSocket {
 
             });
         });
+    }
+
+    private boolean checkUserId(){
+        return FeedSdk.Companion.getAppId() != null &&
+                !FeedSdk.Companion.getAppId().isEmpty() &&
+                FeedSdk.Companion.getUserId() != null &&
+                !FeedSdk.Companion.getUserId().isEmpty();
     }
 
     public interface AuthenticationSuccess {

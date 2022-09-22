@@ -560,6 +560,10 @@ class NewsFeedAdapter(
                     holder.view.card = newsFeedList[position]
                     holder.view.listener = this
                     holder.view.position = holder.adapterPosition
+                    holder.view.ivClose.setOnClickListener {
+                        newsFeedList.removeAt(position)
+                        notifyItemRemoved(position)
+                    }
                 }
                 else {
                     val holder = mainHolder as RatingViewHolder
@@ -1231,7 +1235,7 @@ class NewsFeedAdapter(
         card.items[0].postId?.let {
             ApiReactPost().reactPostEncrypted(
                 Endpoints.REACT_POST_ENCRYPTED,
-                it, reaction)
+                it, newsFeedList[position].items[0].postSource, newsFeedList[position].items[0].feedType, reaction)
         }
     }
 

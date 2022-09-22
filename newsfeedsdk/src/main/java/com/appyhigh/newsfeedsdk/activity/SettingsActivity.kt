@@ -129,7 +129,6 @@ class SettingsActivity : AppCompatActivity(), SearchStickyItemListener {
 //                logFirebaseEvent("SettingsChange","Action","Close notification")
 //                stopStickyNotificationService()
 //            }
-            finish()
         }
         binding!!.turnOffIcon.setOnClickListener {
             binding!!.turnOffIcon.isEnabled = false

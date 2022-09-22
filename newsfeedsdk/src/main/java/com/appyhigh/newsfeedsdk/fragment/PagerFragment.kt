@@ -320,7 +320,7 @@ class PagerFragment : Fragment(), EasyPermissions.PermissionCallbacks {
                                         try {
                                             val postView = PostView(
                                                 FeedSdk.sdkCountryCode ?: "in",
-                                                feedType,
+                                                card.items[0].feedType?:feedType,
                                                 card.items[0].isVideo,
                                                 card.items[0].languageString,
                                                 Constants.getInterestsString(card.items[0].interests),
@@ -478,7 +478,7 @@ class PagerFragment : Fragment(), EasyPermissions.PermissionCallbacks {
                                         try {
                                             val postView = PostView(
                                                 FeedSdk.sdkCountryCode ?: "in",
-                                                feedType,
+                                                card.items[0].feedType?:feedType,
                                                 card.items[0].isVideo,
                                                 card.items[0].languageString,
                                                 Constants.getInterestsString(card.items[0].interests),
