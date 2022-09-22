@@ -9,6 +9,7 @@ import com.appyhigh.newsfeedsdk.R
 import com.appyhigh.newsfeedsdk.apicalls.ApiCreateOrUpdateUser
 import com.appyhigh.newsfeedsdk.callbacks.BlockPublisherClickListener
 import com.appyhigh.newsfeedsdk.databinding.ItemPublisherBlockBinding
+import com.appyhigh.newsfeedsdk.encryption.LogDetail
 import com.appyhigh.newsfeedsdk.model.PublisherDetail
 import com.appyhigh.newsfeedsdk.model.feeds.Card
 
@@ -41,12 +42,16 @@ class PublisherBlocklistAdapter(var blockList: ArrayList<PublisherDetail>, var l
         mainHolder.view.card = blockList[position]
         mainHolder.view.showSelector = showSelector
         mainHolder.view.tvBlock.setOnClickListener {
-            isChanged = true
-            ApiCreateOrUpdateUser().updateBlockPublisher(blockList[position].publisherId!!, "unblock", false)
-            listener.onRemove(blockList[position])
-            blockList.removeAt(position)
-            notifyItemRemoved(position)
-            listener.onRefresh()
+            try{
+                isChanged = true
+                LogDetail.LogDE("unblock", "$position  ${blockList.size}")
+                ApiCreateOrUpdateUser().updateBlockPublisher(blockList[position].publisherId!!, "unblock", false)
+                listener.onRemove(blockList[position])
+                blockList.removeAt(position)
+                notifyItemRemoved(position)
+                listener.onRefresh()
+            } catch (ex:Exception){ }
+            notifyDataSetChanged()
         }
         mainHolder.view.selector.setOnClickListener {
             blockList[position].isBlocked = !blockList[position].isBlocked

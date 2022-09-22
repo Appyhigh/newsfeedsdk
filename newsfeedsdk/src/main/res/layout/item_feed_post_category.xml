@@ -87,7 +87,6 @@
                     android:layout_marginStart="10dp"
                     android:ellipsize="end"
                     android:textStyle="bold"
-
                     app:isBold="@{true}"
                     android:maxLines="1"
                     android:textColor="@color/textColor"
@@ -104,7 +103,6 @@
                 android:layout_marginEnd="10dp"
                 android:ellipsize="end"
                 android:textStyle="bold"
-
                 app:isBold="@{true}"
                 android:maxLines="2"
                 android:textColor="@color/text_color_black"
@@ -121,7 +119,6 @@
                 android:layout_marginTop="13dp"
                 android:layout_marginBottom="15dp"
                 android:textStyle="bold"
-
                 app:isBold="@{true}"
                 android:text="@{item.publisherName}"
                 android:textColor="@color/text_color_black"
@@ -134,6 +131,7 @@
                 android:layout_height="wrap_content"
                 android:textColor="#ACACAC"
                 android:textSize="@dimen/explore_font"
+                app:isBold="@{false}"
                 android:visibility="@{item.updated_at==null?view.GONE:view.VISIBLE}"
                 android:layout_marginStart="10dp"
                 android:layout_marginTop="13dp"

@@ -49,6 +49,7 @@
                     android:gravity="center"
                     android:textColor="@color/white"
                     android:textSize="16sp"
+                    app:isBold="@{true}"
                     android:visibility="gone"
                     tools:text="A" />
             </RelativeLayout>
@@ -65,6 +66,7 @@
                 android:layout_gravity="center"
                 android:textColor="@color/feedPrimaryTextColor"
                 android:textSize="14sp"
+                app:isBold="@{false}"
                 android:text="@{card.fullname}"/>
 
             <androidx.appcompat.widget.AppCompatTextView
@@ -78,6 +80,7 @@
                 android:textSize="12sp"
                 android:textColor="@color/colorWhite"
                 android:text="Unblock"
+                app:isBold="@{false}"
                 android:background="@drawable/bg_round_button"
                 />
 

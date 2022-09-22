@@ -9,6 +9,7 @@ import android.graphics.Color
 import android.graphics.Typeface
 import android.graphics.drawable.Drawable
 import android.net.Uri
+import android.os.Build
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
@@ -572,14 +573,16 @@ class PostNativeDetailActivity : AppCompatActivity() {
                 override fun onFailure() {
                     try{
                         Handler(Looper.getMainLooper()).post {
-                            Toast.makeText(
-                                this@PostNativeDetailActivity,
-                                getString(R.string.error_some_issue_occurred),
-                                Toast.LENGTH_SHORT
-                            ).show()
+                            try{
+                                Toast.makeText(
+                                    this@PostNativeDetailActivity,
+                                    getString(R.string.error_some_issue_occurred),
+                                    Toast.LENGTH_SHORT
+                                ).show()
+                            } catch (ex:Exception){ }
                         }
-                        finish()
                     } catch (ex:Exception){}
+                    finish()
                 }
             })
     }
@@ -857,6 +860,7 @@ class PostNativeDetailActivity : AppCompatActivity() {
             ApiReactPost().reactPostEncrypted(
                 Endpoints.REACT_POST_ENCRYPTED,
                 postId!!,
+                presentPostDetailsModel?.post?.postSource, presentPostDetailsModel?.post?.feedType,
                 reactionType
             )
         } catch (ex: Exception) {
@@ -868,6 +872,7 @@ class PostNativeDetailActivity : AppCompatActivity() {
         ApiCommentPost().postCommentEncrypted(
             Endpoints.COMMENT_POST_ENCRYPTED,
             postId!!,
+            presentPostDetailsModel?.post?.postSource, presentPostDetailsModel?.post?.feedType,
             "text",
             comment,
             object : ApiCommentPost.PostCommentResponse {
@@ -1409,12 +1414,20 @@ class PostNativeDetailActivity : AppCompatActivity() {
     }
 
     private fun getAdSize(): AdSize? {
-        val display = windowManager.defaultDisplay
-        val outMetrics = DisplayMetrics()
-        display.getMetrics(outMetrics)
-        val widthPixels = outMetrics.widthPixels.toFloat()
-        val density = outMetrics.density
-        val adWidth = (widthPixels / density).toInt()
+        val adWidth = if (Build.VERSION.SDK_INT < Build.VERSION_CODES.R) {
+            val outMetrics = DisplayMetrics()
+            val display = windowManager.defaultDisplay
+            display.getMetrics(outMetrics)
+            val widthPixels = outMetrics.widthPixels.toFloat()
+            val density = outMetrics.density
+            (widthPixels / density).toInt()
+        } else{
+            val outMetrics = windowManager.currentWindowMetrics
+            val bounds = outMetrics.bounds
+            val widthPixels = if (bounds.width() < bounds.height()) bounds.width() else bounds.height()
+            val scale = resources.configuration.densityDpi / 160f
+            (widthPixels/scale).toInt()
+        }
         return AdSize.getCurrentOrientationAnchoredAdaptiveBannerAdSize(this, adWidth)
     }
 

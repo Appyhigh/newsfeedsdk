@@ -4,6 +4,7 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.os.Bundle
 import android.view.View
+import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.GridLayoutManager
 import com.appyhigh.newsfeedsdk.Constants
@@ -243,8 +244,8 @@ class PodcastsCategoryActivity : AppCompatActivity() {
     private fun setFonts(view: View?){
         Card.setFontFamily(binding?.headerTitle, true)
         Card.setFontFamily(binding?.noPosts)
-        Card.setFontFamily(view?.findViewById(R.id.podcastBottomTitle))
-        Card.setFontFamily(view?.findViewById(R.id.podcastBottomPublisherName))
+        Card.setFontFamily(view?.findViewById(R.id.podcastBottomTitle) as TextView)
+        Card.setFontFamily(view?.findViewById(R.id.podcastBottomPublisherName) as TextView)
     }
 
 }

@@ -30,6 +30,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@{interest.label}"
+            app:isBold="@{false}"
             android:layout_gravity="center_vertical"
             android:textColor="@color/feedPrimaryTextColor"
             android:textSize="16sp" />
@@ -45,6 +46,7 @@
                 android:paddingStart="20dp"
                 android:paddingEnd="20dp"
                 app:newInterestItem="@{interest}"
+                app:isBold="@{false}"
                 android:textAllCaps="false"
                 tools:text="Follow"
                 android:onClick="@{(v) -> listener.onInterestFollowed(v,position,interest.userSelected)}"

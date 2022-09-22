@@ -13,6 +13,7 @@ import android.view.View.GONE
 import android.view.View.VISIBLE
 import android.view.ViewGroup
 import android.widget.ProgressBar
+import android.widget.TextView
 import android.widget.Toast
 import androidx.cardview.widget.CardView
 import androidx.fragment.app.Fragment
@@ -92,6 +93,7 @@ class PagerFragment : Fragment(), EasyPermissions.PermissionCallbacks {
     var intent: Intent? = null
     var dynamicLinkToCovidCard = false
     private var locationPopup: CardView? = null
+    private var noPosts: TextView? = null
     private var TAG = "PagerFragment"
     private var personalizeListener: NewsFeedList.PersonalizationListener? = null
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -129,6 +131,7 @@ class PagerFragment : Fragment(), EasyPermissions.PermissionCallbacks {
         LogDetail.LogD(TAG, "onViewCreated")
         pbLoading = view.findViewById(R.id.pbLoading)
         rvPosts = view.findViewById(R.id.rvPosts)
+        noPosts = view.findViewById(R.id.noPosts)
         locationPopup = view.findViewById(R.id.location_popup)
         pbLoading?.visibility = VISIBLE
         languages = ""
@@ -210,6 +213,14 @@ class PagerFragment : Fragment(), EasyPermissions.PermissionCallbacks {
         )
         if (stateCode.isNotEmpty()) {
             locationPopup?.visibility = GONE
+            if (EasyPermissions.hasPermissions(requireContext(), *perms.toTypedArray())) {
+                SmartLocation.with(context).location()
+                    .oneFix()
+                    .start {
+                        longitude = it.longitude
+                        latitude = it.latitude
+                    }
+            }
         } else if (EasyPermissions.hasPermissions(requireContext(), *perms.toTypedArray())) {
             locationPopup?.visibility = GONE
             SmartLocation.with(context).location()
@@ -258,6 +269,15 @@ class PagerFragment : Fragment(), EasyPermissions.PermissionCallbacks {
                         } else {
                             newsFeedList = getFeedsResponse.cards as ArrayList<Card>
                         }
+                        try{
+                            if(newsFeedList.isEmpty()){
+                                pbLoading?.visibility = View.GONE
+                                noPosts?.visibility = View.VISIBLE
+                                return@post
+                            } else{
+                                noPosts?.visibility = View.GONE
+                            }
+                        } catch (ex:Exception){}
                         val adItem = Card()
                         val loadMore = Card()
                         loadMore.cardType = LOADER
@@ -393,6 +413,12 @@ class PagerFragment : Fragment(), EasyPermissions.PermissionCallbacks {
                                 newsFeedList.addAll(getFeedsResponse.cards as ArrayList<Card>)
                             } else {
                                 newsFeedList = getFeedsResponse.cards as ArrayList<Card>
+                            }
+
+                            if(newsFeedList.isEmpty()){
+                                pbLoading?.visibility = View.GONE
+                                noPosts?.visibility = View.VISIBLE
+                                return@runOnUiThread
                             }
                             val adItem = Card()
                             val loadMore = Card()

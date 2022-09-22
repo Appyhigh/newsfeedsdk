@@ -198,6 +198,7 @@ object Constants {
     const val GET = "GET"
     const val CONFIG_MODEL = "config_model"
     const val PRIVACY_ACCEPTED = "privacy_accepted"
+    const val SHOW_FEED = "showFeed"
 
 
     var isChecked = true
@@ -759,8 +760,8 @@ object Constants {
         try{
             val tvPrivacy: AppCompatTextView = view.findViewById(R.id.tvPrivacy)
             val tvOk: AppCompatTextView = view.findViewById(R.id.tvOk)
-            Card.setFontFamily(view.findViewById(R.id.tvTitle), true)
-            Card.setFontFamily(view.findViewById(R.id.tvBody))
+            Card.setFontFamily(view.findViewById(R.id.tvTitle) as TextView, true)
+            Card.setFontFamily(view.findViewById(R.id.tvBody) as TextView)
             Card.setFontFamily(tvPrivacy)
             Card.setFontFamily(tvOk)
             tvPrivacy.setOnClickListener {

@@ -30,7 +30,7 @@
                 android:textSize="14sp"
                 android:maxLines="1"
                 android:ellipsize="end"
-
+                app:isBold="@{false}"
                 android:text="@string/market_cap"/>
 
             <TextView
@@ -38,7 +38,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="2dp"
-
+                app:isBold="@{false}"
                 android:textColor="@color/feedPrimaryTextColor"
                 android:textSize="16sp"
                 android:maxLines="1"
@@ -51,7 +51,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="10dp"
                 android:textColor="#A3A5AC"
-
+                app:isBold="@{false}"
                 android:textSize="14sp"
                 android:maxLines="1"
                 android:ellipsize="end"
@@ -63,7 +63,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="2dp"
                 android:textColor="@color/feedPrimaryTextColor"
-
+                app:isBold="@{false}"
                 android:textSize="16sp"
                 android:maxLines="1"
                 app:cryptoLiquidityValue="@{card.items[0].liquidityScore}"
@@ -75,7 +75,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="10dp"
                 android:textColor="#A3A5AC"
-
+                app:isBold="@{false}"
                 android:textSize="14sp"
                 android:maxLines="1"
                 android:ellipsize="end"
@@ -87,7 +87,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="2dp"
                 android:textColor="@color/feedPrimaryTextColor"
-
+                app:isBold="@{false}"
                 android:textSize="16sp"
                 android:maxLines="1"
                 app:cryptoFormattedValue="@{card.items[0].allTimeHigh}"
@@ -111,7 +111,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:textColor="#A3A5AC"
-
+                app:isBold="@{false}"
                 android:textSize="14sp"
                 android:maxLines="1"
                 android:ellipsize="end"
@@ -123,7 +123,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="2dp"
                 android:textColor="@color/feedPrimaryTextColor"
-
+                app:isBold="@{false}"
                 android:textSize="16sp"
                 app:marketCap="@{card.items[0].hVol}"
                 android:maxLines="1"
@@ -135,7 +135,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="10dp"
                 android:textColor="#A3A5AC"
-
+                app:isBold="@{false}"
                 android:textSize="14sp"
                 android:maxLines="1"
                 android:ellipsize="end"
@@ -146,7 +146,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="2dp"
                 android:textColor="@color/feedPrimaryTextColor"
-
+                app:isBold="@{false}"
                 android:textSize="16sp"
                 android:maxLines="1"
                 android:ellipsize="end"
@@ -158,7 +158,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="10dp"
                 android:textColor="#A3A5AC"
-
+                app:isBold="@{false}"
                 android:textSize="14sp"
                 android:maxLines="1"
                 android:ellipsize="end"
@@ -169,7 +169,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="2dp"
                 android:textColor="@color/feedPrimaryTextColor"
-
+                app:isBold="@{false}"
                 android:textSize="16sp"
                 android:maxLines="1"
                 android:ellipsize="end"

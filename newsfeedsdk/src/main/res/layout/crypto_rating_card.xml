@@ -58,7 +58,7 @@
                     android:id="@+id/ivClose"
                     android:layout_width="20dp"
                     android:layout_height="20dp"
-                    app:tint="@color/white"
+                    app:tint="@color/feedSecondaryTintColor"
                     app:srcCompat="@drawable/ic_close"/>
             </LinearLayout>
             <androidx.appcompat.widget.AppCompatTextView
@@ -68,7 +68,7 @@
                 android:maxLines="1"
                 android:layout_gravity="center"
                 android:gravity="center"
-                android:fontFamily="_regular"
+
                 android:textSize="14sp"
                 android:textColor="@color/feedPrimaryTextColor"
                 android:text="Please rate us and show your love"
@@ -98,7 +98,7 @@
                 android:paddingTop="10dp"
                 android:paddingBottom="10dp"
                 android:gravity="center"
-                android:fontFamily="_regular"
+
                 android:textSize="14sp"
                 android:textColor="@color/feedPrimaryTextColor"
                 android:onClick="@{ (v) -> listener.onRatingClicked(v, position)}"

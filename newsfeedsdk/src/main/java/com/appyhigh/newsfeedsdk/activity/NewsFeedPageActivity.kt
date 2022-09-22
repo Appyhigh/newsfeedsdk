@@ -348,6 +348,7 @@ class NewsFeedPageActivity : AppCompatActivity() {
         ApiReactPost().reactPostEncrypted(
             Endpoints.REACT_POST_ENCRYPTED,
             postId!!,
+            presentPostDetailsModel?.post?.postSource, presentPostDetailsModel?.post?.feedType,
             reactionType
         )
     }
@@ -402,6 +403,7 @@ class NewsFeedPageActivity : AppCompatActivity() {
         ApiCommentPost().postCommentEncrypted(
             Endpoints.COMMENT_POST_ENCRYPTED,
             postId!!,
+            presentPostDetailsModel?.post?.postSource, presentPostDetailsModel?.post?.feedType,
             "text",
             comment,
             object : ApiCommentPost.PostCommentResponse {
@@ -431,14 +433,16 @@ class NewsFeedPageActivity : AppCompatActivity() {
                 override fun onFailure() {
                     try{
                         Handler(Looper.getMainLooper()).post {
-                            Toast.makeText(
-                                this@NewsFeedPageActivity,
-                                getString(R.string.error_some_issue_occurred),
-                                Toast.LENGTH_SHORT
-                            ).show()
+                            try{
+                                Toast.makeText(
+                                    this@NewsFeedPageActivity,
+                                    getString(R.string.error_some_issue_occurred),
+                                    Toast.LENGTH_SHORT
+                                ).show()
+                            } catch (ex:Exception){ LogDetail.LogEStack(ex) }
                         }
-                        finish()
-                    } catch (ex:Exception) {}
+                    } catch (ex:Exception){}
+                    finish()
                 }
             })
     }
@@ -1609,8 +1613,8 @@ class NewsFeedPageActivity : AppCompatActivity() {
         Card.setFontFamily(binding?.tvComments)
         Card.setFontFamily(binding?.tvShare)
         Card.setFontFamily(binding?.tvWhatsappShare)
-        Card.setFontFamily(view?.findViewById(R.id.podcastBottomTitle))
-        Card.setFontFamily(view?.findViewById(R.id.podcastBottomPublisherName))
+        Card.setFontFamily(view?.findViewById(R.id.podcastBottomTitle) as TextView)
+        Card.setFontFamily(view?.findViewById(R.id.podcastBottomPublisherName) as TextView)
     }
 
 }

@@ -41,11 +41,11 @@ class SocketWorker(appContext: Context, workerParams: WorkerParameters):
                             cards.add(card)
                         }
                     }
-                    if(cards.isEmpty() && context.isMyServiceRunning(
-                            NotificationCricketService::class.java)){
-                        context.stopNotificationCricketService()
-                    }
                     try {
+                        if(cards.isEmpty() && context.isMyServiceRunning(
+                                NotificationCricketService::class.java)){
+                            context.stopNotificationCricketService()
+                        }
                         SpUtil.spUtilInstance!!.putBoolean("dismissCricket", false)
                         if (!SocketConnection.isSocketListenersNotificationSet()) {
                             val socketClientCallback: SocketConnection.SocketClientCallback = object :
@@ -64,6 +64,7 @@ class SocketWorker(appContext: Context, workerParams: WorkerParameters):
                                             }
                                         }
                                     } catch (ex:Exception){
+                                        SocketConnection.closeSocketConnection()
                                         LogDetail.LogEStack(ex)
                                     }
                                 }

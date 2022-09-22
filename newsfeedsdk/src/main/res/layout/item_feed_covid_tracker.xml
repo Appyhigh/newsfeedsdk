@@ -48,7 +48,6 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="5"
                 android:layout_marginStart="10dp"
-
                 app:isBold="@{true}"
                 android:textSize="16sp"
                 android:textStyle="bold"
@@ -108,7 +107,7 @@
                         android:layout_height="wrap_content"
                         android:maxLines="1"
                         android:ellipsize="end"
-
+                        app:isBold="@{false}"
                         android:textSize="14sp"
                         android:textColor="@color/feedPrimaryTextColor"
                         android:text="@string/tested"
@@ -123,7 +122,7 @@
                         android:textSize="18sp"
                         android:layout_marginTop="2dp"
                         android:textColor="#EF3E42"
-
+                        app:isBold="@{false}"
                         tools:text="3,45,370"
                         />
 
@@ -134,6 +133,7 @@
                         android:ellipsize="end"
                         android:textSize="12sp"
                         android:textColor="#21C17A"
+                        app:isBold="@{false}"
                          />
                 </LinearLayout>
 
@@ -150,7 +150,7 @@
                         android:ellipsize="end"
                         android:textSize="14sp"
                         android:textColor="@color/feedPrimaryTextColor"
-
+                        app:isBold="@{false}"
                         android:text="@string/deceased"
                         />
 
@@ -162,7 +162,7 @@
                         android:ellipsize="end"
                         android:textSize="18sp"
                         android:textColor="@color/feedPrimaryTextColor"
-
+                        app:isBold="@{false}"
                         tools:text="3,45,370"
                         />
 
@@ -174,7 +174,7 @@
                         android:ellipsize="end"
                         android:textSize="12sp"
                         android:textColor="#EF3E42"
-
+                        app:isBold="@{false}"
                         tools:text="5,370"
                         android:drawablePadding="3dp"
                         app:drawableEndCompat="@drawable/ic_up_key_arrow" />
@@ -199,7 +199,7 @@
                         android:ellipsize="end"
                         android:textSize="14sp"
                         android:textColor="@color/feedPrimaryTextColor"
-
+                        app:isBold="@{false}"
                         android:text="@string/recovered"
                         />
                     <androidx.appcompat.widget.AppCompatTextView
@@ -210,7 +210,7 @@
                         android:ellipsize="end"
                         android:textSize="18sp"
                         android:textColor="#21C17A"
-
+                        app:isBold="@{false}"
                         tools:text="3,45,370"
                         />
 
@@ -222,7 +222,7 @@
                         android:ellipsize="end"
                         android:textSize="12sp"
                         android:textColor="#21C17A"
-
+                        app:isBold="@{false}"
                         tools:text="5,370"
                         android:drawablePadding="3dp"
                         app:drawableTint="#21C17A"
@@ -242,7 +242,7 @@
                         android:ellipsize="end"
                         android:textSize="14sp"
                         android:textColor="@color/feedPrimaryTextColor"
-
+                        app:isBold="@{false}"
                         android:text="@string/active"
                         />
                     <androidx.appcompat.widget.AppCompatTextView
@@ -253,7 +253,7 @@
                         android:ellipsize="end"
                         android:textSize="18sp"
                         android:textColor="#EF3E42"
-
+                        app:isBold="@{false}"
                         tools:text="3,45,370"
                         />
 
@@ -266,6 +266,7 @@
                         android:textSize="12sp"
                         android:textColor="#EF3E42"
                         tools:text="5,370"
+                        app:isBold="@{false}"
                         android:drawablePadding="3dp"
                         app:drawableEndCompat="@drawable/ic_up_key_arrow" />
                 </LinearLayout>
@@ -301,7 +302,7 @@
                         android:ellipsize="end"
                         android:textSize="14sp"
                         android:textColor="@color/feedPrimaryTextColor"
-
+                        app:isBold="@{false}"
                         android:text="@string/total_vaccine_doses_administered"
                         />
 
@@ -314,7 +315,7 @@
                         android:textSize="18sp"
                         android:layout_marginTop="2dp"
                         android:textColor="@color/purple_500"
-
+                        app:isBold="@{false}"
                         tools:text="3,45,370"
                         />
 
@@ -350,7 +351,7 @@
                         android:ellipsize="end"
                         android:textSize="14sp"
                         android:textColor="@color/feedPrimaryTextColor"
-
+                        app:isBold="@{false}"
                         android:text="@string/one_dose"
                         />
 
@@ -362,7 +363,7 @@
                         android:ellipsize="end"
                         android:textSize="18sp"
                         android:textColor="#FF9E00"
-
+                        app:isBold="@{false}"
                         tools:text="3,45,370"
                         />
 
@@ -374,7 +375,7 @@
                         android:ellipsize="end"
                         android:textSize="12sp"
                         android:textColor="#FF9E00"
-
+                        app:isBold="@{false}"
                         tools:text="5,370"
                         android:drawablePadding="3dp"
                         app:drawableTint="#FF9E00"
@@ -395,7 +396,7 @@
                         android:ellipsize="end"
                         android:textSize="14sp"
                         android:textColor="@color/feedPrimaryTextColor"
-
+                        app:isBold="@{false}"
                         android:text="@string/fully_vaccinated"
                         />
                     <androidx.appcompat.widget.AppCompatTextView
@@ -406,7 +407,7 @@
                         android:ellipsize="end"
                         android:textSize="18sp"
                         android:textColor="#21C17A"
-
+                        app:isBold="@{false}"
                         tools:text="3,45,370"
                         />
 
@@ -418,7 +419,7 @@
                         android:ellipsize="end"
                         android:textSize="12sp"
                         android:textColor="#21C17A"
-
+                        app:isBold="@{false}"
                         tools:text="5,370"
                         android:drawablePadding="3dp"
                         app:drawableTint="#21C17A"
@@ -440,7 +441,7 @@
             android:layout_marginTop="10dp"
             android:maxLines="1"
             android:ellipsize="end"
-
+            app:isBold="@{false}"
             android:textSize="12sp"
             android:textColor="#7F8386"
             tools:text="Last updated on : 22 March 2021"
@@ -453,7 +454,7 @@
             android:layout_marginTop="5dp"
             android:maxLines="1"
             android:ellipsize="end"
-
+            app:isBold="@{false}"
             android:textSize="12sp"
             android:textColor="#7F8386"
             tools:text="Source: Govt. API"

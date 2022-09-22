@@ -2,15 +2,13 @@ package com.appyhigh.newsfeedsdk.fragment
 
 import android.app.Activity
 import android.app.Dialog
+import android.os.Build
 import android.os.Bundle
 import android.util.DisplayMetrics
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.ProgressBar
-import android.widget.RadioButton
-import android.widget.RadioGroup
-import android.widget.Toast
+import android.widget.*
 import androidx.appcompat.widget.AppCompatButton
 import androidx.appcompat.widget.AppCompatTextView
 import com.appyhigh.newsfeedsdk.Constants
@@ -128,13 +126,19 @@ class ReportBottomSheetFragment : BottomSheetDialogFragment() {
 
 
     fun Activity.getScreenHeight(): Int {
-        val displayMetrics = DisplayMetrics()
-        windowManager.defaultDisplay.getMetrics(displayMetrics)
-        return displayMetrics.heightPixels
+        return if (Build.VERSION.SDK_INT < Build.VERSION_CODES.R) {
+            val displayMetrics = DisplayMetrics()
+            windowManager.defaultDisplay.getMetrics(displayMetrics)
+            displayMetrics.heightPixels
+        } else{
+            val outMetrics = windowManager.currentWindowMetrics
+            val bounds = outMetrics.bounds
+            bounds.height()
+        }
     }
 
     private fun setFonts(view: View?){
-        Card.setFontFamily(view?.findViewById(R.id.btnSave), true)
-        Card.setFontFamily(view?.findViewById(R.id.tvGoBack))
+        Card.setFontFamily(view?.findViewById(R.id.btnSave) as Button, true)
+        Card.setFontFamily(view?.findViewById(R.id.tvGoBack) as TextView)
     }
 }

@@ -76,6 +76,7 @@
                     android:gravity="center"
                     android:textColor="@color/white"
                     android:textSize="16sp"
+                    app:isBold="@{true}"
                     android:visibility="gone"
                     tools:text="A" />
 
@@ -168,7 +169,7 @@
                     android:layout_toStartOf="@+id/ivOption"
                     android:background="@drawable/bg_round_button_empty_gray"
                     android:padding="5dp"
-
+                    app:isBold="@{false}"
                     android:text="Follow"
                     isFollowing="@{card.items[0].isFollowingPublisher}"
                     android:onClick="@{(v) -> listener.onFollowClicked(v, position)}"
@@ -183,7 +184,7 @@
                     android:text="Report"
                     android:textColor="@color/white"
                     android:background="@drawable/bg_round_button"
-
+                    app:isBold="@{false}"
                     android:paddingTop="5dp"
                     android:paddingStart="10dp"
                     android:paddingEnd="10dp"
@@ -268,6 +269,7 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:textColor="@color/white"
+                            app:isBold="@{false}"
                             android:layout_marginStart="10dp"
                             android:textSize="12sp"
                             android:layout_gravity="center"
@@ -380,6 +382,7 @@
                 android:layout_marginTop="5dp"
                 android:text="@string/error_video_description"
                 android:textColor="#bfffffff"
+                app:isBold="@{false}"
                 android:textSize="16sp" />
 
         </LinearLayout>
@@ -399,6 +402,7 @@
             android:onClick="@{(v) -> listener.onPostClicked(v, position)}"
             android:textColor="@color/feedPrimaryTextColor"
             android:textSize="17sp"
+            app:isBold="@{false}"
             app:title="@{card.items[0].content.title}"
             app:description="@{card.items[0].content.description}"
             app:caption="@{card.items[0].content.caption}"
@@ -436,6 +440,7 @@
                     android:layout_marginStart="5dp"
                     android:textColor="@color/text_color_black"
                     tools:text='asdoj'
+                    app:isBold="@{false}"
                     app:angryCount="@{card.items[0].reactionsCount.angryCount}"
                     app:laughCount="@{card.items[0].reactionsCount.laughCount}"
                     app:likeCount="@{card.items[0].reactionsCount.likeCount}"
@@ -471,6 +476,7 @@
                     android:layout_marginStart="5dp"
                     android:text="@{card.items[0].appComments.toString()}"
                     android:textColor="@color/text_color_black"
+                    app:isBold="@{false}"
                     tools:text='adiosj'/>
             </LinearLayout>
 

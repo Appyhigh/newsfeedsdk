@@ -10,6 +10,7 @@ import android.view.ContextThemeWrapper
 import android.view.View
 import android.widget.LinearLayout
 import android.widget.ProgressBar
+import android.widget.TextView
 import androidx.appcompat.widget.AppCompatImageView
 import androidx.core.view.GravityCompat
 import androidx.drawerlayout.widget.DrawerLayout
@@ -47,6 +48,7 @@ import com.appyhigh.newsfeedsdk.utils.SpUtil
 import com.appyhigh.newsfeedsdk.utils.SpUtil.Companion.personalizeCallListener
 import com.google.android.material.navigation.NavigationView
 import java.util.*
+import kotlin.collections.ArrayList
 
 
 class NewsFeedList : LinearLayout, PersonalizeCallListener, OnRefreshListener {
@@ -116,8 +118,8 @@ class NewsFeedList : LinearLayout, PersonalizeCallListener, OnRefreshListener {
 
 
     private fun initView(view: View) {
-        Card.setFontFamily(view.findViewById(R.id.podcastBottomTitle))
-        Card.setFontFamily(view.findViewById(R.id.podcastBottomPublisherName))
+        Card.setFontFamily(view.findViewById(R.id.podcastBottomTitle) as TextView)
+        Card.setFontFamily(view.findViewById(R.id.podcastBottomPublisherName) as TextView)
         mUserDetails = null
         mInterestResponseModel = null
         mLanguageResponseModel = null
@@ -356,11 +358,14 @@ class NewsFeedList : LinearLayout, PersonalizeCallListener, OnRefreshListener {
         if (selectedInterestsList.isEmpty() && Constants.allInterestsMap.values.isNotEmpty()) {
             selectedInterestsList.addAll(Constants.allInterestsMap.values.toList() as ArrayList<Interest>)
         }
-        for (i in 0 until selectedInterestsList.size) {
-            interests += if (i < selectedInterestsList.size - 1) {
-                selectedInterestsList[i].keyId + ","
+        if(Constants.userDetails?.showRegionalField == true) {
+            pinnedInterestList.add(Interest("Near You", "near_you", null, false))
+        }
+        for (i in 0 until pinnedInterestList.size) {
+            interests += if (i < pinnedInterestList.size - 1) {
+                pinnedInterestList[i].keyId + ","
             } else {
-                selectedInterestsList[i].keyId
+                pinnedInterestList[i].keyId
             }
         }
         LogDetail.LogD("NewsFeedList", "getInterestsOrder: api called")
@@ -369,24 +374,7 @@ class NewsFeedList : LinearLayout, PersonalizeCallListener, OnRefreshListener {
             interests,
             object : ApiGetInterests.InterestOrderResponseListener {
                 override fun onSuccess(interestList: ArrayList<String>) {
-                    newInterestList = ArrayList<Interest>()
-                    for(interest in interestList){
-                        try{
-                            if(interest == "for_you"){
-                                newInterestList.add(
-                                    Interest("For You", "for_you", null, false)
-//                                "podcast" -> Interest("Podcasts", "podcasts", null, false)
-                                )
-                            }
-
-                        } catch (ex:Exception){
-                            LogDetail.LogEStack(ex)
-                        }
-                    }
-                    if(Constants.userDetails?.showRegionalField == true) {
-                        newInterestList.add(Interest("Near You", "near_you", null, false))
-                    }
-                    newInterestList.addAll(pinnedInterestList)
+                    checkAndAddTabs(interestList)
                     if (mUserDetails != null && mInterestResponseModel != null){
                         try {
                             if (SpUtil.pushIntent != null && !SpUtil.pushIntent!!.getBooleanExtra("isForYou", false)
@@ -567,6 +555,36 @@ class NewsFeedList : LinearLayout, PersonalizeCallListener, OnRefreshListener {
                 val touchSlop = touchSlopField.get(recyclerView) as Int
                 touchSlopField.set(recyclerView, touchSlop * 6) //6 is empirical value
             } catch (ex: java.lang.Exception) {
+                LogDetail.LogEStack(ex)
+            }
+        }
+    }
+
+    private fun checkAndAddTabs(interestList:ArrayList<String>){
+        newInterestList = ArrayList<Interest>()
+        for(interest in interestList){
+            try{
+                if(interest == "for_you"){
+                    newInterestList.add(
+                        Interest("For You", "for_you", null, false)
+//                                "podcast" -> Interest("Podcasts", "podcasts", null, false)
+                    )
+                } else if(interest == "near_you"){
+                    newInterestList.add(Interest("Near You", "near_you", null, false))
+                }
+                else {
+                    if(interestMap.containsKey(interest)){
+                        newInterestList.add(interestMap[interest]!!)
+                    } else{
+                        for(search in pinnedInterestList){
+                            if(search.keyId == interest){
+                                newInterestList.add(search)
+                                break
+                            }
+                        }
+                    }
+                }
+            } catch (ex:Exception){
                 LogDetail.LogEStack(ex)
             }
         }

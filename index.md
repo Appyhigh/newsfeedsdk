@@ -2,6 +2,28 @@
 
        | SDK Name         | Lib Version  | SDK Version Code |
        |------------------|--------------|------------------|
+       | newsfeedsdk      |    1.1.1    |      1008        |
+
+1. Added near you in get-app-wise order api
+2. Added post_source, feed_type in react & comment api
+3. fix crypto podcasts issue
+4. fix sticky work manager issue
+5. fix portrait issue for all activities
+6. fix publisher blocker crash issue
+
+----------------------------------------------------------------------------------------------------------------------------
+
+       | SDK Name         | Lib Version  | SDK Version Code |
+       |------------------|--------------|------------------|
+       | newsfeedsdk      |    1.1.0    |      1008        |
+
+1. Targeted SDK 31
+2. Fixed issues for cricket pwa
+
+----------------------------------------------------------------------------------------------------------------------------
+
+       | SDK Name         | Lib Version  | SDK Version Code |
+       |------------------|--------------|------------------|
        | newsfeedsdk      |    1.0.5     |      1008        |
 
 1. Fixed issues from 1.0.4v

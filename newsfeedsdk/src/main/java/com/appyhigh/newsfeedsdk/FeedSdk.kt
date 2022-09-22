@@ -118,12 +118,16 @@ class FeedSdk {
             return sdkVersion.toLong()
         }
 
+        fun isCricketApp(): Boolean{
+            return isCricketApp
+        }
+
         @SuppressLint("StaticFieldLeak")
         var mContext: Context? = null
         var mLifecycle: Lifecycle? = null
         var mUser: User? = null
         var spUtil: SpUtil? = null
-        var sdkCountryCode: String? = ""
+        var sdkCountryCode: String? = "in"
         var userId: String? = ""
         var appId: String? = ""
         var appName: String? = ""
@@ -160,6 +164,7 @@ class FeedSdk {
         var isCryptoApp = false
         var parentNudgeView: FrameLayout? = null
         private var sdkVersion = 1008
+        private var isCricketApp = false
     }
 
     private var parentAppIntent = Intent()
@@ -172,6 +177,9 @@ class FeedSdk {
         isDark: Boolean? = false
     ) {
         LogDetail.LogD("FeedSdk", "initializeSdk")
+        if(activity.baseContext.packageName.contains("cricket.scores")){
+            isCricketApp = true
+        }
         if (font == null && !isFontDownloading)
             applyFont(activity.baseContext, "Roboto", false)
         onUserInitialized = ArrayList()
@@ -531,6 +539,7 @@ class FeedSdk {
                 )
             }
         } catch (ex: Exception) {
+            spUtil?.putString(Constants.DEVICE_MODEL, Build.MODEL)
         }
     }
 
@@ -570,7 +579,7 @@ class FeedSdk {
         sdkCountryCode = if (telephonyManager.networkCountryIso.isNotEmpty()) {
             telephonyManager.networkCountryIso
         } else {
-            "IN"
+            "in"
         }
     }
 
@@ -644,6 +653,13 @@ class FeedSdk {
             if (!spUtil.contains(IS_STICKY_NOTIFICATION_ON)) {
                 spUtil.putBoolean(IS_STICKY_NOTIFICATION_ON, false)
             }
+//            if (!intent.hasExtra("fromSticky")) {
+//                if (spUtil.getBoolean(IS_STICKY_SERVICE_ON) && (!spUtil.getBoolean(IS_STICKY_NOTIFICATION_ON)
+//                            || !mContext!!.isMyServiceRunning(SearchStickyWorker::class.java))
+//                ) {
+//                    mContext!!.startStickyNotificationService()
+//                }
+//            }
             if (!intent.hasExtra("fromSticky")) {
                 if (spUtil.getBoolean(IS_STICKY_SERVICE_ON) && (!spUtil.getBoolean(
                         IS_STICKY_NOTIFICATION_ON
@@ -667,6 +683,9 @@ class FeedSdk {
             if (mContext!!.isMyServiceRunning(StickyNotificationService::class.java)) {
                 mContext!!.stopStickyNotificationService()
             }
+//            if (mContext!!.isMyServiceRunning(SearchStickyWorker::class.java)) {
+//                mContext!!.stopStickyNotificationService()
+//            }
         } catch (ex: Exception) {
             LogDetail.LogEStack(ex)
         }

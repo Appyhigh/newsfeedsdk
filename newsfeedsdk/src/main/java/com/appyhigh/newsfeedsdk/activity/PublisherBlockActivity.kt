@@ -14,6 +14,7 @@ import com.appyhigh.newsfeedsdk.model.PublisherDetail
 import com.appyhigh.newsfeedsdk.model.feeds.Card
 import com.appyhigh.newsfeedsdk.utils.SpUtil
 import java.util.*
+import kotlin.collections.ArrayList
 
 class PublisherBlockActivity: AppCompatActivity() {
 
@@ -43,7 +44,9 @@ class PublisherBlockActivity: AppCompatActivity() {
                         binding!!.tvSelectAll.visibility = View.GONE
                         binding!!.etSearch.visibility = View.GONE
                     }else{
-                        adapter = PublisherBlocklistAdapter(blockList, object : BlockPublisherClickListener{
+                        val adapterBlockList = ArrayList<PublisherDetail>()
+                        adapterBlockList.addAll(blockList)
+                        adapter = PublisherBlocklistAdapter(adapterBlockList, object : BlockPublisherClickListener{
                             override fun onRefresh() {
                                 if(blockList.isEmpty()){
                                     binding!!.tvNoPublisher.visibility = View.VISIBLE

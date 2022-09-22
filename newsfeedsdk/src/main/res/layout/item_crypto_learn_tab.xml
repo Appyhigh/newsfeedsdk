@@ -32,7 +32,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:background="@{tab.selected?@color/purple_500:@color/feedSecondaryBackground}"
-            android:fontFamily="_regular"
+            app:isBold="@{false}"
             android:text="@{tab.id}"
             android:textColor="@{tab.selected?@color/feedPrimaryTextColor:@color/greyTextColor}"
             android:paddingStart="10dp"

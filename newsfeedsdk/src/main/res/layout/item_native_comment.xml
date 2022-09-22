@@ -50,7 +50,6 @@
             android:ellipsize="end"
             android:layout_marginStart="5dp"
             android:layout_gravity="center"
-            android:fontFamily="_regular"
             android:textColor="#bebebe"
             android:textSize="13sp"
             tools:text="6 mins ago"/>
@@ -64,7 +63,6 @@
         android:layout_marginStart="5dp"
         android:layout_marginTop="10dp"
         android:lineSpacingExtra="2dp"
-        android:fontFamily="_regular"
         android:textColor="@color/feedPrimaryTextColor"
         android:textSize="12sp"
         tools:text="Time after time, Kunal Kemmu has demonstrated his zany approach towards style. Quirky, flamboyant and OTT sneakers have always been Kunal’s go-to."/>

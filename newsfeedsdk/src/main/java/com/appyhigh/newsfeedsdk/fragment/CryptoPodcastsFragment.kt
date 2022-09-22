@@ -54,12 +54,13 @@ class CryptoPodcastsFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         Card.setFontFamily(binding.title)
+        Card.setFontFamily(binding.noPosts)
         binding.pbLoading.visibility = View.VISIBLE
         binding.rvPosts.visibility = View.GONE
         pageNo = 0
         ApiPodcast().getPodcastCategoryEncrypted(
             Endpoints.PODCAST_CATEGORY_ENCRYPTED,
-            "News",
+            "crypto",
             getLanguageQuery(),
             pageNo,
             object : PodcastResponseListener {
@@ -72,6 +73,11 @@ class CryptoPodcastsFragment : Fragment() {
                     presentUrl = url
                     presentTimeStamp = timeStamp
                     binding.pbLoading.visibility = View.GONE
+                    if(podcastResponse.cards.isEmpty()){
+                        binding.noPosts.visibility = View.VISIBLE
+                        binding.rvPosts.visibility = View.GONE
+                        return
+                    }
                     binding.rvPosts.visibility = View.VISIBLE
                     val podcastList = podcastResponse.cards as ArrayList<Card>
                     podcastList.removeAt(0)
@@ -92,7 +98,7 @@ class CryptoPodcastsFragment : Fragment() {
                                 try {
                                     val postView = PostView(
                                         FeedSdk.sdkCountryCode ?: "in",
-                                        "category",
+                                        card.items[0].feedType?:"category",
                                         card.items[0].isVideo,
                                         card.items[0].languageString,
                                         Constants.getInterestsString(card.items[0].interests),
@@ -154,8 +160,9 @@ class CryptoPodcastsFragment : Fragment() {
     }
 
     fun getMorePodcasts(){
-        ApiPodcast().getPodcastHomeEncrypted(
-            Endpoints.PODCAST_HOME_ENCRYPTED,
+        ApiPodcast().getPodcastCategoryEncrypted(
+            Endpoints.PODCAST_CATEGORY_ENCRYPTED,
+            "crypto",
             getLanguageQuery(),
             pageNo,
             object : PodcastResponseListener {
@@ -173,7 +180,7 @@ class CryptoPodcastsFragment : Fragment() {
                             card.cardType = Constants.CRYPTO_PODCASTS
                         }
                     }
-                    newsFeedAdapter?.updateList(podcastList, "podcasts", pageNo, presentUrl, presentTimeStamp)
+                    newsFeedAdapter?.updateList(podcastList, "crypto_podcasts", pageNo, presentUrl, presentTimeStamp)
                     pageNo+=1
                 }
             })

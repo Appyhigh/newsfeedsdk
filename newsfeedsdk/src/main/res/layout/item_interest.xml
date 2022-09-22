@@ -57,6 +57,7 @@
                 android:layout_height="wrap_content"
                 android:text="@{interest.label}"
                 android:textSize="15sp"
+                app:isBold="@{false}"
                 app:isSelected="@{interest.selected}"
                 tools:text="For you" />
 

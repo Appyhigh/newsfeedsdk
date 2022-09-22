@@ -2,6 +2,7 @@ package com.appyhigh.newsfeedsdk.activity
 
 import android.os.Bundle
 import android.view.View
+import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.widget.doOnTextChanged
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -95,8 +96,8 @@ class CryptoListActivity : AppCompatActivity(), ApiCrypto.CryptoSearchListener {
     private fun setFonts(view: View?){
         Card.setFontFamily(binding?.headerTitle, true)
         Card.setFontFamily(binding?.search)
-        Card.setFontFamily(view?.findViewById(R.id.podcastBottomTitle))
-        Card.setFontFamily(view?.findViewById(R.id.podcastBottomPublisherName))
+        Card.setFontFamily(view?.findViewById(R.id.podcastBottomTitle) as TextView)
+        Card.setFontFamily(view?.findViewById(R.id.podcastBottomPublisherName) as TextView)
     }
 
     private fun fetchData(listener: OnRefreshListener?=null){

@@ -1,31 +1,24 @@
-package com.appyhigh.newsfeedsdk.service
+package com.appyhigh.newsfeedsdk.utils
 
 import android.annotation.SuppressLint
-import android.app.*
+import android.app.Activity
+import android.app.NotificationChannel
+import android.app.NotificationManager
+import android.app.PendingIntent
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
-import android.content.Intent.FLAG_ACTIVITY_CLEAR_TOP
-import android.content.Intent.FLAG_ACTIVITY_NEW_TASK
 import android.content.IntentFilter
 import android.graphics.Color
 import android.os.Build
 import android.os.Bundle
-import android.os.IBinder
 import android.view.View
 import android.widget.LinearLayout
 import android.widget.RemoteViews
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
-import androidx.work.ExistingPeriodicWorkPolicy
-import androidx.work.PeriodicWorkRequest
-import androidx.work.WorkManager
+import androidx.work.*
 import com.appyhigh.newsfeedsdk.Constants
-import com.appyhigh.newsfeedsdk.Constants.IS_STICKY_NOTIFICATION_ON
-import com.appyhigh.newsfeedsdk.Constants.IS_STICKY_SERVICE_ON
-import com.appyhigh.newsfeedsdk.Constants.STICKY_NOTIFICATION
-import com.appyhigh.newsfeedsdk.Constants.getStickyBackground
-import com.appyhigh.newsfeedsdk.Constants.getWidgetImage
 import com.appyhigh.newsfeedsdk.FeedSdk
 import com.appyhigh.newsfeedsdk.R
 import com.appyhigh.newsfeedsdk.activity.SdkEventsActivity
@@ -34,16 +27,13 @@ import com.appyhigh.newsfeedsdk.apicalls.ApiConfig
 import com.appyhigh.newsfeedsdk.apicalls.ApiSearchSticky
 import com.appyhigh.newsfeedsdk.encryption.LogDetail
 import com.appyhigh.newsfeedsdk.model.SearchStickyModel
-import com.appyhigh.newsfeedsdk.utils.AdUtilsSDK
-import com.appyhigh.newsfeedsdk.utils.SpUtil
-import com.appyhigh.newsfeedsdk.utils.StickyWorker
-import com.appyhigh.newsfeedsdk.utils.startStickyNotificationService
 import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.gson.Gson
 import java.util.*
 import java.util.concurrent.TimeUnit
 
-class StickyNotificationService : Service(){
+class SearchStickyWorker (appContext: Context, workerParams: WorkerParameters):
+    Worker(appContext, workerParams) {
 
     private val channelID = "StickyNotification"
     var serviceRunning = false
@@ -51,7 +41,7 @@ class StickyNotificationService : Service(){
     val TAG = "StickyNotifService"
     var isFlashOn = false
     var NOTIFICATION_ID = 1283
-    var intentFilter:IntentFilter? = null
+    var intentFilter: IntentFilter? = null
     var notificationManager: NotificationManagerCompat? = null
     var notification: NotificationCompat.Builder? = null
     private var packagesMap = hashMapOf("bharat.browser" to true, "u.see.browser.for.uc.browser" to true, "u.browser.for.lite.uc.browser" to true)
@@ -60,10 +50,6 @@ class StickyNotificationService : Service(){
         PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
     } else{
         PendingIntent.FLAG_UPDATE_CURRENT
-    }
-
-    override fun onBind(intent: Intent?): IBinder? {
-        return null
     }
 
     private var myTask: TimerTask = object : TimerTask() {
@@ -75,7 +61,7 @@ class StickyNotificationService : Service(){
             } catch (ex:Exception){ LogDetail.LogEStack(ex) }
             try {
                 notificationManager?.notify(NOTIFICATION_ID, notification!!.build())
-                SpUtil.spUtilInstance!!.putBoolean(IS_STICKY_NOTIFICATION_ON, true)
+                SpUtil.spUtilInstance!!.putBoolean(Constants.IS_STICKY_NOTIFICATION_ON, true)
             } catch (ex: Exception) {
                 myTimer.cancel()
                 if(!serviceRunning){
@@ -86,16 +72,28 @@ class StickyNotificationService : Service(){
         }
     }
 
-    override fun onCreate() {
-        super.onCreate()
+    override fun doWork(): Result {
+        try {
+            LogDetail.LogDE("SearchStickyWorker", "doWork: called")
+            SpUtil.spUtilInstance?.init(applicationContext)
+            if (!SpUtil.spUtilInstance!!.getBoolean(Constants.IS_STICKY_SERVICE_ON) || !serviceRunning) {
+               startNotification()
+            }
+        } catch (ex:Exception){
+            LogDetail.LogEStack(ex)
+        }
+        return Result.success()
+    }
+
+    private fun startNotification(){
         try{
             createNotificationChannel()
             setNotification()
-            SpUtil.spUtilInstance?.putBoolean(IS_STICKY_NOTIFICATION_ON, true)
-            val appName = FeedSdk.appName
+            SpUtil.spUtilInstance?.putBoolean(Constants.IS_STICKY_NOTIFICATION_ON, true)
             // add actions here !
             intentFilter = IntentFilter()
             intentFilter!!.addAction("Dismiss")
+            intentFilter!!.addAction(FeedSdk.appName+"Dismiss")
             receiver = object : BroadcastReceiver() {
                 override fun onReceive(context: Context?, receiveIntent: Intent) {
                     try{
@@ -104,10 +102,16 @@ class StickyNotificationService : Service(){
                         }
                         when (receiveIntent.action) {
                             "Dismiss" -> {
-                                SpUtil.spUtilInstance?.putBoolean(IS_STICKY_NOTIFICATION_ON, false)
+                                SpUtil.spUtilInstance?.putBoolean(Constants.IS_STICKY_NOTIFICATION_ON, false)
                                 serviceRunning = false
-                                stopForeground(true)
-                                stopSelf()
+                                notificationManager?.cancel(NOTIFICATION_ID)
+                                WorkManager.getInstance(applicationContext).cancelAllWorkByTag("SEARCH_STICKY_BAR");
+                            }
+                            FeedSdk.appName+"Dismiss" -> {
+                                SpUtil.spUtilInstance?.putBoolean(Constants.IS_STICKY_NOTIFICATION_ON, false)
+                                serviceRunning = false
+                                notificationManager?.cancel(NOTIFICATION_ID)
+                                WorkManager.getInstance(applicationContext).cancelAllWorkByTag("SEARCH_STICKY_BAR");
                             }
                         }
                     } catch (ex:Exception){
@@ -116,9 +120,9 @@ class StickyNotificationService : Service(){
                 }
             }
             try{
-                this@StickyNotificationService.unregisterReceiver(receiver)
+                applicationContext.unregisterReceiver(receiver)
             } catch (ex:java.lang.Exception){}
-            this@StickyNotificationService.registerReceiver(receiver, intentFilter)
+            applicationContext.registerReceiver(receiver, intentFilter)
             val stickyTimerInterval = SpUtil.spUtilInstance!!.getLong("stickyTimerInterval", 300)
             myTimer.scheduleAtFixedRate(myTask, 0L, (stickyTimerInterval * 1000).toLong())
             try{
@@ -132,37 +136,16 @@ class StickyNotificationService : Service(){
         }
     }
 
-    private fun checkAndGetIntent(packagesMap: HashMap<String, Boolean>):Intent{
+    private fun checkAndGetIntent(packagesMap: HashMap<String, Boolean>): Intent {
         return try{
             if(packagesMap.containsKey(applicationContext.packageName)){
                 val activity = Class.forName(FeedSdk.feedTargetActivity) as Class<out Activity?>?
-                Intent(this@StickyNotificationService, activity)
+                Intent(applicationContext, activity)
             } else {
-                Intent(this@StickyNotificationService, WebActivity::class.java)
+                Intent(applicationContext, WebActivity::class.java)
             }
         } catch (ex:Exception){
-            Intent(this@StickyNotificationService, WebActivity::class.java)
-        }
-    }
-
-    @SuppressLint("LogNotTimber")
-    override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
-        try{
-            LogDetail.LogD(TAG, "onStartCommand: " + intent?.action)
-            if(intent?.action!! == Constants.ACTION.STOPFOREGROUND.toString()) {
-                SpUtil.spUtilInstance?.putBoolean(IS_STICKY_NOTIFICATION_ON, false)
-                serviceRunning = false
-                stopForeground(true)
-                this@StickyNotificationService.unregisterReceiver(receiver)
-                stopSelf()
-                return START_NOT_STICKY
-            } else{
-                setNotification()
-                return START_STICKY
-            }
-        } catch (ex:java.lang.Exception){
-            LogDetail.LogEStack(ex)
-            return START_NOT_STICKY
+            Intent(applicationContext, WebActivity::class.java)
         }
     }
 
@@ -179,7 +162,7 @@ class StickyNotificationService : Service(){
             notificationChannel.setShowBadge(true)
 //            notificationChannel.enableVibration(false)
 //            notificationChannel.setSound(null,null)
-            val notificationManager = this@StickyNotificationService!!.getSystemService<NotificationManager>(
+            val notificationManager = applicationContext!!.getSystemService<NotificationManager>(
                 NotificationManager::class.java
             )
             notificationManager.createNotificationChannel(notificationChannel)
@@ -188,15 +171,17 @@ class StickyNotificationService : Service(){
 
     private fun setNotification(){
         val gson = Gson()
-        val stickyNotification: SearchStickyModel = gson.fromJson(SpUtil.spUtilInstance!!.getString(STICKY_NOTIFICATION), SearchStickyModel::class.java)
-        val collapsedRemoteView = RemoteViews(packageName, R.layout.sticky_notification_collapsed)
-        val expandedRemoteView = RemoteViews(packageName, R.layout.sticky_notification_expanded)
+        val stickyNotification: SearchStickyModel = gson.fromJson(SpUtil.spUtilInstance!!.getString(
+            Constants.STICKY_NOTIFICATION
+        ), SearchStickyModel::class.java)
+        val collapsedRemoteView = RemoteViews(applicationContext.packageName, R.layout.sticky_notification_collapsed)
+        val expandedRemoteView = RemoteViews(applicationContext.packageName, R.layout.sticky_notification_expanded)
         setCollapsedData(collapsedRemoteView, stickyNotification)
         setExpandedData(expandedRemoteView, stickyNotification)
-        notification = NotificationCompat.Builder(this@StickyNotificationService, channelID)
+        notification = NotificationCompat.Builder(applicationContext, channelID)
             .setCustomContentView(collapsedRemoteView)
             .setCustomBigContentView(expandedRemoteView)
-            .setSmallIcon(applicationInfo.icon)
+            .setSmallIcon(applicationContext.applicationInfo.icon)
             .setPriority(NotificationCompat.PRIORITY_MAX)
             .setChannelId(channelID)
             .setOngoing(true)
@@ -207,15 +192,15 @@ class StickyNotificationService : Service(){
             .setOnlyAlertOnce(true)
             .setAutoCancel(false)
 
-        notificationManager = NotificationManagerCompat.from(this@StickyNotificationService)
+        notificationManager = NotificationManagerCompat.from(applicationContext)
         if(serviceRunning) {
             notificationManager?.notify(NOTIFICATION_ID, notification!!.build())
-            SpUtil.spUtilInstance!!.putBoolean(IS_STICKY_NOTIFICATION_ON, true)
+            SpUtil.spUtilInstance!!.putBoolean(Constants.IS_STICKY_NOTIFICATION_ON, true)
         } else {
-            startForeground(NOTIFICATION_ID, notification!!.build())
+            notificationManager?.notify(NOTIFICATION_ID, notification!!.build())
             serviceRunning = true
-            SpUtil.spUtilInstance!!.putBoolean(IS_STICKY_NOTIFICATION_ON, true)
-            SpUtil.spUtilInstance!!.putBoolean(IS_STICKY_SERVICE_ON, true)
+            SpUtil.spUtilInstance!!.putBoolean(Constants.IS_STICKY_NOTIFICATION_ON, true)
+            SpUtil.spUtilInstance!!.putBoolean(Constants.IS_STICKY_SERVICE_ON, true)
             if(packagesMap.containsKey(applicationContext.packageName)){
                 val stickyWorkInterval = SpUtil.spUtilInstance!!.getLong("stickyWorkInterval", 6)
                 startWorkManager(true, stickyWorkInterval)
@@ -230,7 +215,7 @@ class StickyNotificationService : Service(){
     private fun startWorkManager(useHours:Boolean, stickyWorkInterval: Long){
         try{
             val stickyWorkRequest = PeriodicWorkRequest.Builder(
-                StickyWorker::class.java,
+                SearchStickyWorker::class.java,
                 if(useHours) stickyWorkInterval else (stickyWorkInterval*15),
                 if(useHours) TimeUnit.HOURS else TimeUnit.MINUTES,
                 5, // flex interval - worker will run somewhen within this period of time, but at the end of repeating interval
@@ -247,9 +232,10 @@ class StickyNotificationService : Service(){
         }
     }
 
+
     @SuppressLint("UnspecifiedImmutableFlag")
-    fun openStickyTile(widget: String, isCollapsed: Boolean):PendingIntent {
-        val intentFlags = FLAG_ACTIVITY_NEW_TASK or FLAG_ACTIVITY_CLEAR_TOP
+    private fun openStickyTile(widget: String, isCollapsed: Boolean):PendingIntent {
+        val intentFlags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP
         try{
             return when (widget) {
                 "Flashlight" -> {
@@ -265,13 +251,12 @@ class StickyNotificationService : Service(){
                     PendingIntent.getActivity(applicationContext, 1, searchIntent, flags)
                 }
                 else -> {
-                    LogDetail.LogDE("openStickyTile", widget)
-                    val sdkEventsIntent = Intent(this@StickyNotificationService, SdkEventsActivity::class.java)
+                    val sdkEventsIntent = Intent(applicationContext, SdkEventsActivity::class.java)
                     sdkEventsIntent.flags = intentFlags
                     sdkEventsIntent.action = widget
                     sdkEventsIntent.putExtra("isCollapsed", isCollapsed)
                     sdkEventsIntent.putExtra("widget", widget)
-                    PendingIntent.getActivity(this@StickyNotificationService, 0, sdkEventsIntent, flags)
+                    PendingIntent.getActivity(applicationContext, 0, sdkEventsIntent, flags)
                 }
             }
         } catch (ex: java.lang.Exception) {
@@ -283,7 +268,7 @@ class StickyNotificationService : Service(){
         val intent = Intent(FeedSdk.appName + widget)
         intent.putExtra("isCollapsed", isCollapsed)
         intent.putExtra("widget", widget)
-        return PendingIntent.getBroadcast(this@StickyNotificationService, 1, intent, flags)
+        return PendingIntent.getBroadcast(applicationContext, 1, intent, flags)
     }
 
     private fun setCollapsedData(remoteView: RemoteViews, stickyNotification: SearchStickyModel){
@@ -313,7 +298,7 @@ class StickyNotificationService : Service(){
             val closeIntent = Intent("Dismiss")
             closeIntent.putExtra("isCollapsed", false)
             closeIntent.putExtra("widget", "CloseIcon")
-            val dismissIntent = PendingIntent.getBroadcast(this@StickyNotificationService, 1, closeIntent, flags)
+            val dismissIntent = PendingIntent.getBroadcast(applicationContext, 1, closeIntent, flags)
             remoteView.setOnClickPendingIntent(R.id.close, dismissIntent)
             setCommonData(remoteView, stickyNotification, false)
         } catch (ex:Exception){
@@ -326,7 +311,7 @@ class StickyNotificationService : Service(){
         val tileIconUrls = arrayOf(R.id.tileIconUrl1, R.id.tileIconUrl2, R.id.tileIconUrl3, R.id.tileIconUrl4)
         val tileIconFrames = arrayOf(R.id.tileIconFrame1, R.id.tileIconFrame2, R.id.tileIconFrame3, R.id.tileIconFrame4)
         val tilesNames = arrayOf(R.id.tileName1, R.id.tileName2, R.id.tileName3, R.id.tileName4)
-        val scale: Float = resources.displayMetrics.density
+        val scale: Float = applicationContext.resources.displayMetrics.density
         val padding = (5 * scale + 0.5f).toInt()
         val isColored = stickyNotification.type == "color"
         if(isCollapsed){
@@ -339,7 +324,10 @@ class StickyNotificationService : Service(){
         } catch (ex:Exception){
             LogDetail.LogEStack(ex)
         }
-        val background = getStickyBackground(stickyNotification.backgroundType!!, stickyNotification.background!!)
+        val background = Constants.getStickyBackground(
+            stickyNotification.backgroundType!!,
+            stickyNotification.background!!
+        )
         if(!isColored){
 //            remoteView.setInt(R.id.searchIconUrl, "setColorFilter", if(isCollapsed) Color.parseColor(stickyNotification.tint) else background)
         }
@@ -348,8 +336,11 @@ class StickyNotificationService : Service(){
                 remoteView.setViewVisibility(tilesLayouts[i], View.VISIBLE)
                 remoteView.setTextViewText(tilesNames[i], stickyNotification.icons?.get(i))
                 remoteView.setTextColor(tilesNames[i], Color.parseColor(stickyNotification.tint))
-                remoteView.setImageViewResource(tileIconUrls[i], getWidgetImage(isColored ,
-                    if(isFlashOn && stickyNotification.icons[i]=="Flashlight") "FlashlightOn" else stickyNotification.icons[i]))
+                remoteView.setImageViewResource(tileIconUrls[i], Constants.getWidgetImage(
+                    isColored,
+                    if (isFlashOn && stickyNotification.icons[i] == "Flashlight") "FlashlightOn" else stickyNotification.icons[i]
+                )
+                )
                 if(!isColored){
                     if(stickyNotification.icons[i]!="Whatsapp") {
                         remoteView.setInt(tileIconUrls[i], "setColorFilter", Color.parseColor(stickyNotification.tint))
@@ -372,14 +363,13 @@ class StickyNotificationService : Service(){
         }
     }
 
-    override fun onDestroy() {
-        super.onDestroy()
+    override fun onStopped() {
+        super.onStopped()
         try{
             myTimer.cancel()
-            this@StickyNotificationService.unregisterReceiver(receiver)
+            applicationContext.unregisterReceiver(receiver)
         } catch (ex:Exception){ }
     }
-
 
     private fun logEvent(action: String, isCollapsed: Boolean, widget: String){
         try {
@@ -391,10 +381,11 @@ class StickyNotificationService : Service(){
             } else {
                 bundle.putString("trayState", "Expanded")
             }
-            FirebaseAnalytics.getInstance(this@StickyNotificationService).logEvent("NotificationClick", bundle)
+            FirebaseAnalytics.getInstance(applicationContext).logEvent("NotificationClick", bundle)
             ApiSearchSticky().userActionNotification(widget)
         } catch (ex:Exception){
             LogDetail.LogEStack(ex)
         }
     }
+
 }

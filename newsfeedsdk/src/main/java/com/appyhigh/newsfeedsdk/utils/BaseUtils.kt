@@ -7,6 +7,7 @@ import android.app.Activity
 import android.content.Context
 import android.content.res.Resources
 import android.graphics.Typeface
+import android.os.Build
 import android.os.Handler
 import android.os.Looper
 import android.util.DisplayMetrics
@@ -26,7 +27,6 @@ import com.google.android.gms.ads.interstitial.InterstitialAd
 import com.google.android.gms.ads.interstitial.InterstitialAdLoadCallback
 import com.google.android.gms.ads.nativead.NativeAd
 import com.google.android.gms.ads.nativead.NativeAdView
-import com.mocklets.pluto.PlutoLog
 import kotlin.concurrent.fixedRateTimer
 
 const val TAG = "BaseUtils"
@@ -194,16 +194,11 @@ fun requestFeedAd(view: LinearLayout, @LayoutRes layoutId: Int, adUnit:String, s
                     })
                     .withNativeAdOptions(NativeAdOptions.Builder().build()).build()
                 if(contentUrls.isNotEmpty()){
-                    PlutoLog.d("ContentMapping","requestFeedAd")
-                    for (url in contentUrls) {
-                        PlutoLog.d("ContentMapping","$url")
-                    }
                     adLoader.loadAd(
                         AdRequest.Builder()
                             .setNeighboringContentUrls(contentUrls)
                             .build())
                 } else {
-                    PlutoLog.d("ContentMapping","empty")
                     adLoader.loadAd(AdRequest.Builder().build())
                 }
             } catch (e: Exception) {
@@ -275,16 +270,11 @@ fun requestVideoAd(view: LinearLayout, @LayoutRes layoutId: Int, adUnit:String, 
                     })
                     .withNativeAdOptions(NativeAdOptions.Builder().build()).build()
                 if(contentUrls.isNotEmpty()){
-                    PlutoLog.d("ContentMapping","requestVideoFeedAd")
-                    for (url in contentUrls) {
-                        PlutoLog.d("ContentMapping","$url")
-                    }
                     adLoader.loadAd(
                         AdRequest.Builder()
                             .setNeighboringContentUrls(contentUrls)
                             .build())
                 } else {
-                    PlutoLog.d("ContentMapping","empty")
                     adLoader.loadAd(AdRequest.Builder().build())
                 }
             } catch (e: Exception) {
@@ -379,12 +369,20 @@ fun showAdaptiveBanner(context: Context, adUnit: String, bannerAd: LinearLayout)
 
 private fun getAdSize(context: Context): AdSize? {
     try{
-        val display = (context as Activity).windowManager.defaultDisplay
-        val outMetrics = DisplayMetrics()
-        display.getMetrics(outMetrics)
-        val widthPixels = outMetrics.widthPixels.toFloat()
-        val density = outMetrics.density
-        val adWidth = (widthPixels / density).toInt()
+        val adWidth = if (Build.VERSION.SDK_INT < Build.VERSION_CODES.R) {
+            val outMetrics = DisplayMetrics()
+            val display = (context as Activity).windowManager.defaultDisplay
+            display.getMetrics(outMetrics)
+            val widthPixels = outMetrics.widthPixels.toFloat()
+            val density = outMetrics.density
+            (widthPixels / density).toInt()
+        } else{
+            val outMetrics = (context as Activity).windowManager.currentWindowMetrics
+            val bounds = outMetrics.bounds
+            val widthPixels = if (bounds.width() < bounds.height()) bounds.width() else bounds.height()
+            val scale = context.resources.configuration.densityDpi / 160f
+            (widthPixels/scale).toInt()
+        }
         return AdSize.getCurrentOrientationAnchoredAdaptiveBannerAdSize(context, adWidth)
     } catch (ex:Exception){
         LogDetail.LogEStack(ex)

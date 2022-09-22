@@ -3,6 +3,7 @@ package com.appyhigh.newsfeedsdk.fragment
 import android.app.Activity
 import android.app.Dialog
 import android.content.Intent
+import android.os.Build
 import android.os.Bundle
 import android.text.TextUtils
 import android.util.DisplayMetrics
@@ -12,6 +13,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.webkit.URLUtil
 import android.widget.LinearLayout
+import android.widget.TextView
 import android.widget.Toast
 import com.appyhigh.newsfeedsdk.R
 import com.appyhigh.newsfeedsdk.activity.ContactPublisherActivity
@@ -53,9 +55,9 @@ class FeedMenuBottomSheetFragment :
             R.layout.bottom_sheet_feed_menu, container,
             false
         )
-        Card.setFontFamily(view?.findViewById(R.id.contactPublisherTitle))
-        Card.setFontFamily(view?.findViewById(R.id.blockPublisherTitle))
-        Card.setFontFamily(view?.findViewById(R.id.reportPostTitle))
+        Card.setFontFamily(view?.findViewById(R.id.contactPublisherTitle) as TextView)
+        Card.setFontFamily(view?.findViewById(R.id.blockPublisherTitle) as TextView)
+        Card.setFontFamily(view?.findViewById(R.id.reportPostTitle) as TextView)
         // get the views and attach the listener
         val llContactPublisher = view.findViewById<LinearLayout>(R.id.llContactPublisher)
         val llBlockPublisher = view.findViewById<LinearLayout>(R.id.llBlockPublisher)
@@ -130,9 +132,15 @@ class FeedMenuBottomSheetFragment :
 
 
     private fun Activity.getScreenHeight(): Int {
-        val displayMetrics = DisplayMetrics()
-        windowManager.defaultDisplay.getMetrics(displayMetrics)
-        return displayMetrics.heightPixels
+        return if (Build.VERSION.SDK_INT < Build.VERSION_CODES.R) {
+            val displayMetrics = DisplayMetrics()
+            windowManager.defaultDisplay.getMetrics(displayMetrics)
+            displayMetrics.heightPixels
+        } else{
+            val outMetrics = windowManager.currentWindowMetrics
+            val bounds = outMetrics.bounds
+            bounds.height()
+        }
     }
 
     interface ReportPost {

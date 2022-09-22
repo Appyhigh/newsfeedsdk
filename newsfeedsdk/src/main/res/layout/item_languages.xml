@@ -43,7 +43,6 @@
                 android:layout_marginEnd="@dimen/horizontal_spacing"
                 android:ellipsize="end"
                 android:textStyle="bold"
-
                 app:isBold="@{true}"
                 android:maxLines="1"
                 android:text="@{language.language}"
@@ -57,7 +56,6 @@
                 android:layout_marginEnd="@dimen/space_regular"
                 android:layout_toStartOf="@+id/cbLangugae"
                 android:textStyle="bold"
-
                 app:isBold="@{true}"
                 android:gravity="center"
                 android:maxLines="1"

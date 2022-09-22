@@ -68,6 +68,7 @@
                     android:gravity="center"
                     android:textColor="@color/white"
                     android:textSize="16sp"
+                    app:isBold="@{true}"
                     android:visibility="gone"
                     tools:text="A" />
 
@@ -130,6 +131,7 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:textColor="@color/darker_gray"
+                            app:isBold="@{false}"
                             android:textSize="12sp"
                             app:formattedTime="@{card.items[0].publishedOn}"
                             tools:text="6 hours ago" />
@@ -174,6 +176,7 @@
                     isFollowing="@{card.items[0].isFollowingPublisher}"
                     android:padding="5dp"
                     android:text="Follow"
+                    app:isBold="@{false}"
                     android:textColor="@color/feedPrimaryTextColor"
                     app:visible="@{!buildConfig.DEBUG}" />
 
@@ -182,6 +185,7 @@
                     android:layout_height="wrap_content"
                     android:text="Report"
                     android:textColor="@color/white"
+                    app:isBold="@{false}"
                     android:background="@drawable/bg_round_button"
                     android:paddingTop="5dp"
                     android:paddingStart="10dp"
@@ -260,6 +264,7 @@
             android:textAlignment="textStart"
             android:textColor="@color/feedPrimaryTextColor"
             android:textSize="17sp"
+            app:isBold="@{false}"
             app:description="@{card.items[0].content.description}"
             app:title="@{card.items[0].content.title}"
             tools:text="Schools, Colleges reopen after months of COVID lockdown in England. In India from 21st September 2021" />
@@ -306,6 +311,7 @@
                 android:ellipsize="end"
                 android:maxLines="1"
                 android:text="NEWS"
+                app:isBold="@{true}"
                 android:textAllCaps="true"
                 android:textColor="@android:color/holo_blue_light"
                 android:textStyle="bold" />
@@ -367,6 +373,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginStart="5dp"
                     android:textColor="@color/text_color_black"
+                    app:isBold="@{false}"
                     app:angryCount="@{card.items[0].reactionsCount.angryCount}"
                     app:laughCount="@{card.items[0].reactionsCount.laughCount}"
                     app:likeCount="@{card.items[0].reactionsCount.likeCount}"
@@ -399,6 +406,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="5dp"
+                    app:isBold="@{false}"
                     android:text="@{card.items[0].appComments.toString()}"
                     android:textColor="@color/text_color_black"
                     tools:text="243243"/>

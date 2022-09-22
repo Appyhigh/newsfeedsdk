@@ -55,6 +55,7 @@
                 android:textAlignment="textStart"
                 android:textColor="#666666"
                 android:textSize="14sp"
+                app:isBold="@{false}"
                 android:text="@{card.questionText}"
                 tools:text="Do you like Technology?" />
 
@@ -67,7 +68,7 @@
                 android:text="@{card.infoText}"
                 android:textColor="@color/feedPrimaryTextColor"
                 android:textSize="16sp"
-
+                app:isBold="@{false}"
                 tools:text="93% user likes Cricket" />
 
         </LinearLayout>

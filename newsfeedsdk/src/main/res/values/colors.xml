@@ -135,6 +135,7 @@
     <color name="feedSecondaryBackground">@color/white</color>
     <color name="feedBlackBackground">@color/white</color>
     <color name="feedLayoutBackground">#EBF4FF</color>
+    <color name="feedCricketPwaBackground">#F5F9FE</color>
     <color name="feedPrimaryTextColor">#231F20</color>
     <color name="feedLocationTitleColor">#201D1E</color>
     <color name="feedNewInterestTitleColor">#201D1E</color>

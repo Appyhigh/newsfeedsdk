@@ -20,6 +20,12 @@ data class PostDetailsModel(
         @SerializedName("post_id")
         var postId: String? = null,
 
+        @SerializedName("post_source")
+        var postSource: String? = null,
+
+        @SerializedName("feed_type")
+        var feedType: String? = null,
+
         @SerializedName("platform")
         var platform: String? = null,
 

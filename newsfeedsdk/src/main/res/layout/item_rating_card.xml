@@ -53,6 +53,7 @@
                 android:layout_below="@+id/tvRateUs"
                 android:layout_centerHorizontal="true"
                 android:text="@string/rate_us_to_share_your_feedback"
+                app:isBold="@{false}"
                 android:textColor="@color/white"
                 android:textSize="16sp" />
 
@@ -91,7 +92,7 @@
                 android:layout_gravity="center"
                 android:layout_marginTop="10dp"
                 android:layout_marginBottom="20dp"
-
+                app:isBold="@{false}"
                 android:background="#FFFFFF"
                 android:gravity="center"
                 android:onClick="@{ (v) -> listener.onRatingClicked(v, position)}"

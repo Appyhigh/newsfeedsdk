@@ -19,6 +19,7 @@ import android.widget.Toast
 import androidx.core.text.HtmlCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
+import com.appyhigh.newsfeedsdk.BuildConfig
 import com.appyhigh.newsfeedsdk.Constants
 import com.appyhigh.newsfeedsdk.Constants.getLanguages
 import com.appyhigh.newsfeedsdk.FeedSdk
@@ -52,6 +53,7 @@ class CricketPWAFragment : Fragment(), AdvancedWebView.Listener, PWATabSelectedL
     var prevWeb: WebView?=null
     private var isloaded = false
     private var fileName = ""
+    private var currentLanguage = ""
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         binding = FragmentCricketPwaBinding.inflate(layoutInflater, container, false)
@@ -76,9 +78,9 @@ class CricketPWAFragment : Fragment(), AdvancedWebView.Listener, PWATabSelectedL
         super.onViewCreated(view, savedInstanceState)
         Card.setFontFamily(binding.noInternetTitle, true)
         Card.setFontFamily(binding.checkConnection)
-//        if(BuildConfig.DEBUG && !pwaLink.contains("staging.masterfeed.io") && pwaLink.contains("masterfeed.io")){
-//            pwaLink = pwaLink.replace("masterfeed.io", "staging.masterfeed.io")
-//        }
+        if(BuildConfig.DEBUG && !pwaLink.contains("staging.masterfeed.io") && pwaLink.contains("masterfeed.io")){
+            pwaLink = pwaLink.replace("masterfeed.io", "staging.masterfeed.io")
+        }
         setWebView(view)
     }
 
@@ -118,16 +120,10 @@ class CricketPWAFragment : Fragment(), AdvancedWebView.Listener, PWATabSelectedL
 //            cookieManager.removeAllCookie()
         }
         var languages = ""
-        if(keyId=="cricket") {
-            for ((i, language) in FeedSdk.languagesList.withIndex()) {
-                if (i < FeedSdk.languagesList.size - 1) {
-                    languages = languages + language.id.lowercase(Locale.getDefault()) + ","
-                } else {
-                    languages += language.id.lowercase(Locale.getDefault())
-                }
-            }
-        } else {
+        if(currentLanguage.isEmpty()){
             languages = getLanguages(listOf("hi", "ta", "te", "bn"))
+        } else{
+            languages = currentLanguage
         }
         if(languages.isEmpty()){
             languages = "en"
@@ -136,6 +132,7 @@ class CricketPWAFragment : Fragment(), AdvancedWebView.Listener, PWATabSelectedL
         pwaUri = pwaUri.addUriParameter("platform","android")
         pwaUri = pwaUri.addUriParameter("language",languages)
         pwaUri = pwaUri.addUriParameter("theme",FeedSdk.sdkTheme)
+        pwaUri = pwaUri.addUriParameter(Constants.SHOW_FEED,"false")
         link = pwaUri.toString()
         val gson = Gson()
         cookieManager.setCookie(link, "token="+ RSAKeyGenerator.getJwtToken(FeedSdk.appId, FeedSdk.userId) ?: "")
@@ -430,10 +427,11 @@ class CricketPWAFragment : Fragment(), AdvancedWebView.Listener, PWATabSelectedL
     }
 
     companion object {
-        fun newInstance(link: String, keyId: String): CricketPWAFragment {
+        fun newInstance(link: String, keyId: String, language: String): CricketPWAFragment {
             val cricketPWAFragment = CricketPWAFragment()
             cricketPWAFragment.pwaLink = link
             cricketPWAFragment.keyId = keyId
+            cricketPWAFragment.currentLanguage = language
             return cricketPWAFragment
         }
     }

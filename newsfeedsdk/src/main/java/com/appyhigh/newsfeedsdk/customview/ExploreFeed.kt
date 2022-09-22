@@ -5,6 +5,7 @@ import android.util.AttributeSet
 import android.view.View
 import android.widget.LinearLayout
 import android.widget.ProgressBar
+import android.widget.TextView
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.appyhigh.newsfeedsdk.Constants
@@ -159,7 +160,7 @@ class ExploreFeed : LinearLayout,OnRefreshListener {
                 languages = null
             }
             Constants.exploreLanguages = languages
-            if(FeedSdk.appName=="CricHouse") {
+            if(FeedSdk.isCricketApp()) {
                 Constants.exploreInterest = "cricket"
             } else{
                 Constants.exploreInterest = (if (unSelectedInterestsList.isEmpty()) {
@@ -206,8 +207,8 @@ class ExploreFeed : LinearLayout,OnRefreshListener {
     }
 
     private fun setFonts(view: View?){
-        Card.setFontFamily(view?.findViewById(R.id.podcastBottomTitle))
-        Card.setFontFamily(view?.findViewById(R.id.podcastBottomPublisherName))
+        Card.setFontFamily(view?.findViewById(R.id.podcastBottomTitle) as TextView)
+        Card.setFontFamily(view?.findViewById(R.id.podcastBottomPublisherName) as TextView)
     }
 
     override fun onRefreshNeeded() {

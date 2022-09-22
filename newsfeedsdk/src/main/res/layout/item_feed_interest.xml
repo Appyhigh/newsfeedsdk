@@ -33,7 +33,7 @@
             android:layout_height="wrap_content"
             android:layout_marginStart="10dp"
             android:text="@{item.interest}"
-
+            app:isBold="@{false}"
             android:textColor="@color/black"
             tools:text="Hindi" />
 
