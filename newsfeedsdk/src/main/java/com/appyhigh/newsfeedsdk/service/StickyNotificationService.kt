@@ -104,10 +104,12 @@ class StickyNotificationService : Service(){
                         }
                         when (receiveIntent.action) {
                             "Dismiss" -> {
-                                SpUtil.spUtilInstance?.putBoolean(IS_STICKY_NOTIFICATION_ON, false)
-                                serviceRunning = false
-                                stopForeground(true)
-                                stopSelf()
+                                if(receiveIntent.hasExtra(packageName) && !receiveIntent.getBooleanExtra(packageName, false)) {
+                                    SpUtil.spUtilInstance?.putBoolean(IS_STICKY_NOTIFICATION_ON, false)
+                                    serviceRunning = false
+                                    stopForeground(true)
+                                    stopSelf()
+                                }
                             }
                         }
                     } catch (ex:Exception){

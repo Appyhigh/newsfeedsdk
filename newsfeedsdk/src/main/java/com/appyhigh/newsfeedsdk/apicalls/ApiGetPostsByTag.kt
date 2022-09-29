@@ -69,7 +69,7 @@ class ApiGetPostsByTag {
         LogDetail.LogD("Data to be Sent -> ", sendingData)
 
         AuthSocket.Instance().postData(sendingData, object : ResponseListener {
-            override fun onSuccess(apiUrl: String, response: String) {
+            override fun onSuccess(apiUrl: String, response: String, timeStamp:Long) {
                 LogDetail.LogDE("ApiGetPostsByTag $apiUrl", response.toString())
                 val gson: Gson = GsonBuilder().create()
                 val getFeedsResponseBase: GetFeedsResponse =
@@ -82,8 +82,8 @@ class ApiGetPostsByTag {
                 try {
                     postsByTagResponseListener.onSuccess(
                         getFeedsResponse.body()!!,
-                        getFeedsResponse.raw().request.url.toString(),
-                        getFeedsResponse.raw().sentRequestAtMillis
+                        "https://feeds.apyhi.com+$apiUrl",
+                        timeStamp
                     )
                 }catch (e:Exception){
                     LogDetail.LogEStack(e)

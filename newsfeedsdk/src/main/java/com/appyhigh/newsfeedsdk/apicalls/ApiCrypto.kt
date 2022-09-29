@@ -92,7 +92,7 @@ class ApiCrypto {
         LogDetail.LogD("Data to be Sent -> ", sendingData)
 
         AuthSocket.Instance().postData(sendingData, object : ResponseListener {
-            override fun onSuccess(apiUrl: String, response: String) {
+            override fun onSuccess(apiUrl: String, response: String, timeStamp:Long) {
                 LogDetail.LogDE("ApiGetCrypto $apiUrl", response.toString())
                 val gson: Gson = GsonBuilder().create()
                 val cryptoResponseBase: CryptoResponse =
@@ -106,8 +106,8 @@ class ApiCrypto {
                 try {
                     cryptoResponseListener.onSuccess(
                         cryptoResponse!!.body()!!,
-                        cryptoResponse.raw().request.url.toString(),
-                        cryptoResponse.raw().sentRequestAtMillis
+                        "https://feeds.apyhi.com+$apiUrl",
+                        timeStamp
                     )
                     if (page_number == 1) {
                         val gson = Gson()
@@ -178,7 +178,7 @@ class ApiCrypto {
         LogDetail.LogD("Data to be Sent -> ", sendingData)
 
         AuthSocket.Instance().postData(sendingData, object : ResponseListener {
-            override fun onSuccess(apiUrl: String, response: String) {
+            override fun onSuccess(apiUrl: String, response: String, timeStamp:Long) {
                 LogDetail.LogDE("ApiGetCryptoDetails $apiUrl", response.toString())
                 val gson: Gson = GsonBuilder().create()
                 val cryptoResponseBase: CryptoDetailsResponse =
@@ -192,8 +192,8 @@ class ApiCrypto {
                 try {
                     cryptoResponseListener.onSuccess(
                         cryptoResponse!!.body()!!,
-                        cryptoResponse.raw().request.url.toString(),
-                        cryptoResponse.raw().sentRequestAtMillis
+                        "https://feeds.apyhi.com+$apiUrl",
+                        timeStamp
                     )
                 } catch (ex: Exception) {
                     LogDetail.LogEStack(ex)
@@ -248,7 +248,7 @@ class ApiCrypto {
         LogDetail.LogD("Data to be Sent -> ", sendingData)
 
         AuthSocket.Instance().postData(sendingData, object : ResponseListener {
-            override fun onSuccess(apiUrl: String, response: String) {
+            override fun onSuccess(apiUrl: String, response: String, timeStamp:Long) {
                 LogDetail.LogDE("ApiGetCryptoCoinDetails $apiUrl", response.toString())
                 val gson: Gson = GsonBuilder().create()
                 val cryptoResponseBase: CryptoResponse =
@@ -261,8 +261,8 @@ class ApiCrypto {
                 try {
                     cryptoResponseListener.onSuccess(
                         cryptoResponse!!.body()!!,
-                        cryptoResponse.raw().request.url.toString(),
-                        cryptoResponse.raw().sentRequestAtMillis
+                        "https://feeds.apyhi.com+$apiUrl",
+                        timeStamp
                     )
                 } catch (ex: Exception) {
                     LogDetail.LogEStack(ex)
@@ -294,7 +294,7 @@ class ApiCrypto {
         LogDetail.LogD("Data to be Sent -> ", sendingData)
 
         AuthSocket.Instance().postData(sendingData, object : ResponseListener {
-            override fun onSuccess(apiUrl: String, response: String) {
+            override fun onSuccess(apiUrl: String, response: String, timeStamp:Long) {
                 LogDetail.LogDE("ApiGetCryptoAlertView $apiUrl", response.toString())
                 val gson: Gson = GsonBuilder().create()
                 val cryptoResponseBase: CryptoResponse =
@@ -306,8 +306,8 @@ class ApiCrypto {
                     Response.success(cryptoResponseBase)
                 listener.onSuccess(
                     cryptoResponse.body()!!,
-                    cryptoResponse.raw().request.url.toString(),
-                    cryptoResponse.raw().sentRequestAtMillis
+                    "https://feeds.apyhi.com+$apiUrl",
+                    timeStamp
                 )
             }
 
@@ -355,7 +355,7 @@ class ApiCrypto {
         LogDetail.LogD("Data to be Sent -> ", sendingData)
 
         AuthSocket.Instance().postData(sendingData, object : ResponseListener {
-            override fun onSuccess(apiUrl: String, response: String) {
+            override fun onSuccess(apiUrl: String, response: String, timeStamp:Long) {
                 LogDetail.LogDE("ApiGetCrypto $apiUrl", response.toString())
                 listener.onSuccess()
             }
@@ -400,7 +400,7 @@ class ApiCrypto {
         LogDetail.LogD("Data to be Sent -> ", sendingData)
 
         AuthSocket.Instance().postData(sendingData, object : ResponseListener {
-            override fun onSuccess(apiUrl: String, response: String) {
+            override fun onSuccess(apiUrl: String, response: String, timeStamp:Long) {
                 LogDetail.LogDE("ApiGetCrypto $apiUrl", response)
                 listener.onSuccess()
             }
@@ -434,7 +434,7 @@ class ApiCrypto {
         LogDetail.LogD("Data to be Sent -> ", sendingData)
 
         AuthSocket.Instance().postData(sendingData, object : ResponseListener {
-            override fun onSuccess(apiUrl: String, response: String) {
+            override fun onSuccess(apiUrl: String, response: String, timeStamp:Long) {
                 LogDetail.LogDE("ApiGetCrypto $apiUrl", response.toString())
                 listener.onSuccess()
             }
@@ -486,7 +486,7 @@ class ApiCrypto {
         LogDetail.LogD("Data to be Sent -> ", sendingData)
 
         AuthSocket.Instance().postData(sendingData, object : ResponseListener {
-            override fun onSuccess(apiUrl: String, response: String) {
+            override fun onSuccess(apiUrl: String, response: String, timeStamp:Long) {
                 LogDetail.LogDE("searchCryptoCoinsEncrypted $apiUrl", response.toString())
                 val gson: Gson = GsonBuilder().create()
                 val cryptoResponseBase: CryptoSearchResponse =
@@ -531,7 +531,7 @@ class ApiCrypto {
         LogDetail.LogD("Data to be Sent -> ", sendingData)
 
         AuthSocket.Instance().postData(sendingData, object : ResponseListener {
-            override fun onSuccess(apiUrl: String, response: String) {
+            override fun onSuccess(apiUrl: String, response: String, timeStamp:Long) {
                 LogDetail.LogDE("ApiGetCrypto $apiUrl", response.toString())
                 val gson: Gson = GsonBuilder().create()
                 val cryptoResponseBase: ConvertorResponse =
@@ -573,7 +573,7 @@ class ApiCrypto {
         LogDetail.LogD("Data to be Sent -> ", sendingData)
 
         AuthSocket.Instance().postData(sendingData, object : ResponseListener {
-            override fun onSuccess(apiUrl: String, response: String) {
+            override fun onSuccess(apiUrl: String, response: String, timeStamp:Long) {
                 LogDetail.LogDE("ApiGetCrypto $apiUrl", response)
                 val gson: Gson = GsonBuilder().create()
                 val cryptoResponseBase: ConvertorResponse =

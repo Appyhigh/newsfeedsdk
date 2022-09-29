@@ -144,7 +144,7 @@ class CricketSocketWorker(appContext: Context, workerParams: WorkerParameters):
             intentFilter.addAction("dismissCricket")
             receiver = object : BroadcastReceiver() {
                 override fun onReceive(context: Context?, intent: Intent) {
-                    if (!intent.hasExtra(FeedSdk.appName) && intent.action == "dismissCricket") {
+                    if (!intent.hasExtra(context?.packageName) && intent.action == "dismissCricket") {
                         stopWorker()
                     }
                 }

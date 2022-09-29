@@ -65,7 +65,7 @@ class ApiCreateOrUpdateUser {
         ) + "." + publicKey
         LogDetail.LogD("Test Data Encrypted -> ", sendingData)
         AuthSocket.Instance().postData(sendingData, object : ResponseListener {
-            override fun onSuccess(apiUrl: String, response: String) {
+            override fun onSuccess(apiUrl: String, response: String, timeStamp:Long) {
                 LogDetail.LogDE("ApiCreateOrUpdateUser $apiUrl", response)
                 handleCreateUserResponse()
             }
@@ -99,7 +99,7 @@ class ApiCreateOrUpdateUser {
         ) + "." + publicKey
         LogDetail.LogD("Test Data Encrypted -> ", sendingData)
         AuthSocket.Instance().postData(sendingData, object : ResponseListener {
-            override fun onSuccess(apiUrl: String, response: String) {
+            override fun onSuccess(apiUrl: String, response: String, timeStamp:Long) {
                 LogDetail.LogDE("ApiCreateOrUpdateUser $apiUrl", response)
                 addTopic(isChecked)
                 Constants.userDetails?.cricket_notification = isChecked
@@ -135,7 +135,7 @@ class ApiCreateOrUpdateUser {
         ) + "." + publicKey
         LogDetail.LogD("Test Data Encrypted -> ", sendingData)
         AuthSocket.Instance().postData(sendingData, object : ResponseListener {
-            override fun onSuccess(apiUrl: String, response: String) {
+            override fun onSuccess(apiUrl: String, response: String, timeStamp:Long) {
                 LogDetail.LogDE("ApiCreateOrUpdateUser $apiUrl", response)
                 LogDetail.LogD("UpdateUser", "updated crypto watchlist")
                 SpUtil.cryptoWatchListUpdateListener?.onCryptoWatchListUpdated(Constants.cryptoWatchList)
@@ -162,7 +162,7 @@ class ApiCreateOrUpdateUser {
         val sendingData: String = instanceEncryption.encrypt(allDetails.toString().toByteArray(StandardCharsets.UTF_8)) + "." + publicKey
         LogDetail.LogD("Test Data Encrypted -> ", sendingData)
         AuthSocket.Instance().postData(sendingData, object : ResponseListener {
-            override fun onSuccess(apiUrl: String, response: String) {
+            override fun onSuccess(apiUrl: String, response: String, timeStamp:Long) {
                 LogDetail.LogDE("ApiCreateOrUpdateUser $apiUrl", response)
             }
 
@@ -187,7 +187,7 @@ class ApiCreateOrUpdateUser {
         val sendingData: String = instanceEncryption.encrypt(allDetails.toString().toByteArray(StandardCharsets.UTF_8)) + "." + publicKey
         LogDetail.LogD("Test Data Encrypted -> ", sendingData)
         AuthSocket.Instance().postData(sendingData, object : ResponseListener {
-            override fun onSuccess(apiUrl: String, response: String) {
+            override fun onSuccess(apiUrl: String, response: String, timeStamp:Long) {
                 LogDetail.LogDE("ApiCreateOrUpdateUser $apiUrl", response)
                 for (listener in SpUtil.onRefreshListeners) {
                     listener.value.onRefreshNeeded()
@@ -225,7 +225,7 @@ class ApiCreateOrUpdateUser {
         LogDetail.LogD("Data to be Sent -> ", sendingData)
 
         AuthSocket.Instance().postData(sendingData, object : ResponseListener {
-            override fun onSuccess(apiUrl: String, response: String) {
+            override fun onSuccess(apiUrl: String, response: String, timeStamp:Long) {
                 try{
                     LogDetail.LogDE("ApiGetPublisherPosts $apiUrl", response)
                     if(action == "block") {

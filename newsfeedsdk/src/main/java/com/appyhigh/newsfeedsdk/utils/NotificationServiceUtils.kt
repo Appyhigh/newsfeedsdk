@@ -45,11 +45,16 @@ fun Context.startStickyNotificationService(){
     try{
         if(android.os.Build.VERSION.SDK_INT != Build.VERSION_CODES.O_MR1) {
             val dismissIntent = Intent("Dismiss")
+            dismissIntent.putExtra("package",packageName)
             sendBroadcast(dismissIntent)
             Handler(Looper.getMainLooper()).postDelayed({
-                val startIntent = Intent(this, StickyNotificationService::class.java)
-                startIntent.action = Constants.ACTION.STARTFOREGROUND.toString()
-                ContextCompat.startForegroundService(this, startIntent)
+                try {
+                    val startIntent = Intent(this, StickyNotificationService::class.java)
+                    startIntent.action = Constants.ACTION.STARTFOREGROUND.toString()
+                    ContextCompat.startForegroundService(this, startIntent)
+                } catch (ex:Exception){
+                    LogDetail.LogEStack(ex)
+                }
             }, 1000)
         }
     } catch (ex:Exception){
@@ -94,7 +99,7 @@ private fun startStickyWorkManager(context: Context){
 fun Context.startNotificationCricketService() {
     try{
         val dismissIntent = Intent("dismissCricket")
-        dismissIntent.putExtra(FeedSdk.appName, true)
+        dismissIntent.putExtra(packageName, true)
         sendBroadcast(dismissIntent)
         Handler(Looper.getMainLooper()).postDelayed({
             startCricketWorkManager(this)
@@ -130,16 +135,20 @@ fun Context.startNotificationCricketService(liveScores : JSONObject) {
     try{
         if(android.os.Build.VERSION.SDK_INT != Build.VERSION_CODES.O_MR1) {
             val dismissIntent = Intent("dismissCricket")
-            dismissIntent.putExtra(FeedSdk.appName, true)
+            dismissIntent.putExtra(packageName, true)
             sendBroadcast(dismissIntent)
             Handler(Looper.getMainLooper()).postDelayed({
-                val startIntent = Intent(this, NotificationCricketService::class.java)
-                startIntent.putExtra("liveScores", liveScores.toString())
-                startIntent.action = Constants.ACTION.STARTFOREGROUND.toString()
-                ContextCompat.startForegroundService(
-                    this,
-                    startIntent
-                )
+                try{
+                    val startIntent = Intent(this, NotificationCricketService::class.java)
+                    startIntent.putExtra("liveScores", liveScores.toString())
+                    startIntent.action = Constants.ACTION.STARTFOREGROUND.toString()
+                    ContextCompat.startForegroundService(
+                        this,
+                        startIntent
+                    )
+                } catch (ex:Exception){
+                    LogDetail.LogEStack(ex)
+                }
             }, 1000)
         }
     } catch (ex:Exception){

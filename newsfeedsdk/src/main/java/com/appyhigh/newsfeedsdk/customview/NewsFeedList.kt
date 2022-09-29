@@ -565,14 +565,12 @@ class NewsFeedList : LinearLayout, PersonalizeCallListener, OnRefreshListener {
         for(interest in interestList){
             try{
                 if(interest == "for_you"){
-                    newInterestList.add(
-                        Interest("For You", "for_you", null, false)
-//                                "podcast" -> Interest("Podcasts", "podcasts", null, false)
-                    )
+                    newInterestList.add(Interest("For You", "for_you", null, false))
                 } else if(interest == "near_you"){
                     newInterestList.add(Interest("Near You", "near_you", null, false))
-                }
-                else {
+                } else if(interest =="podcast"){
+                    newInterestList.add(Interest("Podcasts", "podcasts", null, false))
+                } else {
                     if(interestMap.containsKey(interest)){
                         newInterestList.add(interestMap[interest]!!)
                     } else{

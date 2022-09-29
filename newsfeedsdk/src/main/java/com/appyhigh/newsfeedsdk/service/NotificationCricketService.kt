@@ -101,7 +101,7 @@ class NotificationCricketService  : Service(){
                 override fun onReceive(context: Context?, intent: Intent) {
                     val notificationManager =
                             context?.getSystemService(NOTIFICATION_SERVICE) as NotificationManager
-                    if (!intent.hasExtra(FeedSdk.appName) && intent.action == "dismissCricket") {
+                    if (!intent.hasExtra(packageName) && intent.action == "dismissCricket") {
                         SpUtil.spUtilInstance?.putBoolean("dismissCricket", true)
                         notificationManager.cancelAll()
                         stopForeground(true)

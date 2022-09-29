@@ -147,26 +147,30 @@ class PagerFragment : Fragment(), EasyPermissions.PermissionCallbacks {
         }
         interestQuery = ""
         if (selectedInterest.equals("for_you")) {
-            feedType = "own_interests"
-            val tempList = ArrayList<Interest>()
-            for (newInterest in interestsList) {
-                if (newInterest.keyId != "for_you" || newInterest.keyId != "podcasts")
-                    tempList.add(newInterest)
-            }
-            for ((i, interest) in tempList.withIndex()) {
-                if (i < tempList.size - 1) {
-                    interestQuery =
-                        interestQuery + interest.keyId.toString() + ","
-                } else {
-                    interestQuery += interest.keyId
-                }
-            }
+            setInterestString()
             getForYouFeed()
         } else if (selectedInterest.equals("near_you")) {
             getRegionalFeed()
         } else {
             interestQuery = selectedInterest.toString()
             getForYouFeed()
+        }
+    }
+
+    private fun setInterestString(){
+        feedType = "own_interests"
+        val tempList = ArrayList<Interest>()
+        for (newInterest in interestsList) {
+            if (newInterest.keyId != "for_you" && newInterest.keyId != "near_you" && newInterest.keyId != "podcasts")
+                tempList.add(newInterest)
+        }
+        for ((i, interest) in tempList.withIndex()) {
+            if (i < tempList.size - 1) {
+                interestQuery =
+                    interestQuery + interest.keyId.toString() + ","
+            } else {
+                interestQuery += interest.keyId
+            }
         }
     }
 
@@ -237,6 +241,7 @@ class PagerFragment : Fragment(), EasyPermissions.PermissionCallbacks {
                     RC_LOCATION, *perms.toTypedArray()
                 )
             }
+            setInterestString()
             getForYouFeed()
             return
         }

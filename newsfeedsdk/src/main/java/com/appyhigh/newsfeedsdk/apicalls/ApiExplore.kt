@@ -54,7 +54,7 @@ class ApiExplore {
         LogDetail.LogD("Data to be Sent -> ", sendingData)
 
         AuthSocket.Instance().postData(sendingData, object : ResponseListener {
-            override fun onSuccess(apiUrl: String, response: String) {
+            override fun onSuccess(apiUrl: String, response: String, timeStamp:Long) {
                 LogDetail.LogDE("ApiExplore $apiUrl", response)
                 val gson: Gson = GsonBuilder().create()
                 val exploreResponseBase: ExploreResponseModel =
@@ -66,8 +66,8 @@ class ApiExplore {
                     Response.success(exploreResponseBase)
                 exploreResponseListener.onSuccess(
                     exploreResponse.body()!!,
-                    exploreResponse.raw().request.url.toString(),
-                    exploreResponse.raw().sentRequestAtMillis
+                    "https://feeds.apyhi.com+$apiUrl",
+                    timeStamp
                 )
             }
 
@@ -96,7 +96,7 @@ class ApiExplore {
         LogDetail.LogD("Data to be Sent -> ", sendingData)
 
         AuthSocket.Instance().postData(sendingData, object : ResponseListener {
-            override fun onSuccess(apiUrl: String, response: String) {
+            override fun onSuccess(apiUrl: String, response: String, timeStamp:Long) {
                 LogDetail.LogDE("ApiExplore $apiUrl", response)
                 val gson: Gson = GsonBuilder().create()
                 val stateResponseBase: StateListResponse =
@@ -107,8 +107,8 @@ class ApiExplore {
                 val stateResponse: Response<StateListResponse> = Response.success(stateResponseBase)
                 listener.onSuccess(
                     stateResponse.body()!!,
-                    stateResponse.raw().request.url.toString(),
-                    stateResponse.raw().sentRequestAtMillis
+                    "https://feeds.apyhi.com+$apiUrl",
+                    timeStamp
                 )
             }
 

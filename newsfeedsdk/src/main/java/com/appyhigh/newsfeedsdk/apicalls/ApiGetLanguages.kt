@@ -39,7 +39,7 @@ class ApiGetLanguages {
             ) + "." + publicKey
             LogDetail.LogD("Test Data Encrypted -> ", sendingData)
             AuthSocket.Instance().postData(sendingData, object : ResponseListener {
-                override fun onSuccess(apiUrl: String, response: String) {
+                override fun onSuccess(apiUrl: String, response: String, timeStamp:Long) {
                     LogDetail.LogDE("ApiGetLanguages $apiUrl", response)
                     val gson: Gson = GsonBuilder().create()
                     val languageResponseModel: List<Language> =

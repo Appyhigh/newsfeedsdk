@@ -200,7 +200,7 @@ public class AuthSocket {
 
         verifyData(initialIEncryptionString, new com.appyhigh.newsfeedsdk.apicalls.ResponseListener() {
             @Override
-            public void onSuccess(@Nullable String apiUrl, @Nullable String response) {
+            public void onSuccess(@Nullable String apiUrl, @Nullable String response, long timeStamp) {
                 LogDetail.LogDE("verify", response.toString());
             }
 
@@ -495,10 +495,10 @@ public class AuthSocket {
                                         if(statusJson.has("status_code") && statusJson.getInt("status_code")>300){
                                             responseListener.onError(call, new IOException(RespJson.getString("apiURL")+" "+statusJson.getString("msg")));
                                         } else {
-                                            responseListener.onSuccess(RespJson.getString("apiURL"), dataJSON);
+                                            responseListener.onSuccess(RespJson.getString("apiURL"), dataJSON, response.sentRequestAtMillis());
                                         }
                                     } catch (Exception ex) {
-                                        responseListener.onSuccess(RespJson.getString("apiURL"), dataJSON);
+                                        responseListener.onSuccess(RespJson.getString("apiURL"), dataJSON, response.sentRequestAtMillis());
                                     }
                                 } catch (JSONException e) {
                                     LogDetail.LogEStack(e);

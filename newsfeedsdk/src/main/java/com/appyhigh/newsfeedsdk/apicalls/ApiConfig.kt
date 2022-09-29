@@ -116,7 +116,7 @@ class ApiConfig {
         LogDetail.LogD("Data to be Sent -> ", sendingData)
 
         AuthSocket.Instance().postData(sendingData, object : ResponseListener {
-            override fun onSuccess(apiUrl: String, response: String) {
+            override fun onSuccess(apiUrl: String, response: String, timeStamp:Long) {
                 LogDetail.LogDE("ApiConfig $apiUrl", response)
                 val gson: Gson = GsonBuilder().create()
                 val configResponseBase: ConfigModel =
