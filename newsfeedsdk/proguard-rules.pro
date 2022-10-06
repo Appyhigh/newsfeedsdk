@@ -110,3 +110,5 @@
     <init>(android.app.Application);
 }
 -dontwarn com.google.errorprone.annotations.**
+
+-keep class org.simpleframework.xml.**{ *; }

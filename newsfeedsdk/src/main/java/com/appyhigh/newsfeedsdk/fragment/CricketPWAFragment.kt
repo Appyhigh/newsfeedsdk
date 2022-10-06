@@ -132,8 +132,10 @@ class CricketPWAFragment : Fragment(), AdvancedWebView.Listener, PWATabSelectedL
         pwaUri = pwaUri.addUriParameter("platform","android")
         pwaUri = pwaUri.addUriParameter("language",languages)
         pwaUri = pwaUri.addUriParameter("theme",FeedSdk.sdkTheme)
-        pwaUri = pwaUri.addUriParameter(Constants.SHOW_FEED,"false")
         link = pwaUri.toString()
+        if(!link.contains(Constants.SHOW_FEED+"=")){
+            link = "$link&${Constants.SHOW_FEED}=false"
+        }
         val gson = Gson()
         cookieManager.setCookie(link, "token="+ RSAKeyGenerator.getJwtToken(FeedSdk.appId, FeedSdk.userId) ?: "")
         cookieManager.setCookie(link, "user_info="+ gson.toJson(Constants.userDetails))

@@ -148,7 +148,7 @@ dependencies {
     }
 
     //forxml
-    implementation 'com.squareup.retrofit2:converter-simplexml:2.4.0'
+    implementation 'com.squareup.retrofit2:converter-simplexml:2.9.0'
 
     //tooltip
     implementation 'com.github.sephiroth74:android-target-tooltip:2.0.4'

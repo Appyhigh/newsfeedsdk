@@ -176,7 +176,7 @@ class ApiConfig {
                             val data = Data.Builder()
                             val workerName = match.items[0].seriesname + match.items[0].matchdate_gmt + match.items[0].matchtime_gmt
                             data.putString("worker", workerName)
-                            val socketWorkRequest = OneTimeWorkRequestBuilder<CricketSocketWorker>()
+                            val socketWorkRequest = OneTimeWorkRequestBuilder<SocketWorker>()
                                 .setInitialDelay(
                                     matchDateTime - currentDateTime,
                                     TimeUnit.MILLISECONDS

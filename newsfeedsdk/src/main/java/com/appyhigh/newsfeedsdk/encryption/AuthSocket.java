@@ -280,7 +280,7 @@ public class AuthSocket {
             @Override
             public void onFailure(@NonNull Call call, @NonNull IOException e) {
                 LogDetail.LogEStack(e);
-                LogDetail.LogDE("Error",e.getMessage());
+                LogDetail.LogDE("Error",serverURL+"verify  -"+e.getMessage());
                 responseListener.onError(call, e);
             }
 
@@ -299,9 +299,7 @@ public class AuthSocket {
                         if (data[1].equals(license)) {
                             LogDetail.LogD(TAG, " Equals LICENSE KEY ");
                             LogDetail.println(data[0]);
-
                             String initialIDecryptionString = instanceEncryption.decrypt(data[0].getBytes());
-
                             LogDetail.LogDE("TAG--dec", initialIDecryptionString);
 
                             try {

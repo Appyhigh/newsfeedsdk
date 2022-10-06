@@ -576,10 +576,14 @@ class FeedSdk {
     private fun getCountryCode() {
         val telephonyManager =
             mContext?.getSystemService(Context.TELEPHONY_SERVICE) as TelephonyManager
-        sdkCountryCode = if (telephonyManager.networkCountryIso.isNotEmpty()) {
-            telephonyManager.networkCountryIso
+        if(BuildConfig.DEBUG){
+            sdkCountryCode = "in"
         } else {
-            "in"
+            sdkCountryCode = if (telephonyManager.networkCountryIso.isNotEmpty()) {
+                telephonyManager.networkCountryIso
+            } else {
+                "in"
+            }
         }
     }
 

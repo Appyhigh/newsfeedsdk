@@ -1,10 +1,7 @@
 package com.appyhigh.newsfeedsdk.apiclient
 
 import com.appyhigh.newsfeedsdk.Constants
-import com.appyhigh.newsfeedsdk.model.PrivateAdRequest
-import com.appyhigh.newsfeedsdk.model.PrivateAdResponse
-import com.appyhigh.newsfeedsdk.model.SearchStickyActionModel
-import com.appyhigh.newsfeedsdk.model.SearchStickyWidgetModel
+import com.appyhigh.newsfeedsdk.model.*
 import com.appyhigh.newsfeedsdk.model.crypto.CryptoFinderResponse
 import io.reactivex.rxjava3.core.Observable
 import retrofit2.Response
@@ -41,4 +38,7 @@ interface APISearchStickyInterface {
 
     @GET
     fun hitUrl(@Url url: String): Observable<Response<Void>?>?
+
+    @GET("rss")
+    fun getTrendingSearches(@Query("geo") countryCode: String): Observable<TrendingSearchResponseWrapper>
 }

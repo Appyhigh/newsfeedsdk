@@ -406,7 +406,7 @@ data class Item(
     val alertId: String = "",
     @SerializedName("alert_status")
     @Expose
-    val alertStatus: String = "",
+    var alertStatus: String = "",
     @SerializedName("lower_threshold")
     @Expose
     val lowerThreshold: Double? = null,

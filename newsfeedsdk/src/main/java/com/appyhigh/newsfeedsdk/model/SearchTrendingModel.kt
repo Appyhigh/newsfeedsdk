@@ -1,17 +1,9 @@
-package com.appyhigh.newsfeedsdk.utils
+package com.appyhigh.newsfeedsdk.model
 
-import io.reactivex.rxjava3.core.Observable
 import org.simpleframework.xml.Element
 import org.simpleframework.xml.ElementList
+import org.simpleframework.xml.Path
 import org.simpleframework.xml.Root
-import retrofit2.http.GET
-import retrofit2.http.Query
-
-
-interface TrendingSearchesApi {
-    @GET("rss")
-    fun getTrendingSearches(@Query("geo") countryCode: String): Observable<TrendingSearchResponseWrapper>
-}
 
 @Root(name = "rss", strict = false)
 class TrendingSearchResponseWrapper @JvmOverloads constructor(

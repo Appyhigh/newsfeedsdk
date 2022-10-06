@@ -1377,6 +1377,7 @@ data class Card(
                             object : ApiCrypto.CryptoAlertResponseListener {
                                 override fun onSuccess() {
                                     alertSwitch.setImageResource(R.drawable.ic_crypto_alert_off)
+                                    cryptoList[count-1].alertStatus = "sent"
                                 }
                             })
                     } else {
@@ -1387,6 +1388,7 @@ data class Card(
                             object : ApiCrypto.CryptoAlertResponseListener {
                                 override fun onSuccess() {
                                     alertSwitch.setImageResource(R.drawable.ic_crypto_alert_on)
+                                    cryptoList[count-1].alertStatus = "pending"
                                 }
                             })
                     }

@@ -205,6 +205,7 @@ class ReelsActivity : AppCompatActivity() {
         } else{
             lang = null
         }
+        pageNo = 0
         ApiGetFeeds().getVideoFeedsEncrypted(
             Endpoints.GET_FEEDS_ENCRYPTED,
             FeedSdk.sdkCountryCode ?: "in",
@@ -219,7 +220,6 @@ class ReelsActivity : AppCompatActivity() {
                     storeData(presentUrl, presentTimeStamp)
                     presentTimeStamp = timeStamp
                     presentUrl = url
-                    pageNo += 1
                     val cards = ArrayList<Card>()
                     for (card in getFeedsResponse.cards) {
                         card.cardType = Constants.CardType.MEDIA_VIDEO_BIG.toString().lowercase(
@@ -227,7 +227,10 @@ class ReelsActivity : AppCompatActivity() {
                         cards.add(card)
                     }
                     cardsMap["reels"]?.addAll(cards)
-                    mAdapter?.updateExploreReelsList(cards, pageNo-1)
+                    mAdapter?.updateExploreReelsList(cards, pageNo)
+                    if(getFeedsResponse.cards.isNotEmpty()) {
+                        pageNo += 1
+                    }
                 }
             })
     }
