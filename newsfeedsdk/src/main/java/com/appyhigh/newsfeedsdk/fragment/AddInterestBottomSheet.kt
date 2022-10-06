@@ -37,6 +37,7 @@ import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import java.util.*
+import kotlin.collections.ArrayList
 
 const val isFirstUse="ISFIRSTUSE"
 
@@ -90,8 +91,8 @@ class AddInterestBottomSheet :
         }
         etSearch = binding.etSearch
         binding.saveBtn.setOnClickListener {
-            if(interestList.size < 1){
-                Constants.Toaster.show(requireContext(),"Please select at least one interest")
+            if(interestList.size < 3){
+                Constants.Toaster.show(requireContext(),"Please select at least three interest")
             }else{
                 updateInterests()
                 dismiss()
@@ -162,8 +163,7 @@ class AddInterestBottomSheet :
                 interestMap[interest.keyId!!] = interest
             }
             if (mUserDetails?.interests.isNullOrEmpty()) {
-                selectedInterestsList =
-                    (mInterestResponseModel?.interestList as ArrayList<Interest>?)!!
+                selectedInterestsList = ArrayList()
             } else {
                 for (interest in interestMap.values) {
                     if (mUserDetails?.interests!!.contains(interest.keyId)) {
@@ -236,7 +236,7 @@ class AddInterestBottomSheet :
     }
 
     private fun updateInterests() {
-        if (interestList.size >= 1) {
+        if (interestList.size > 2) {
             ApiUpdateUserPersonalization().updateUserPersonalizationEncrypted(
                 Endpoints.UPDATE_USER_ENCRYPTED,
                 interestList,

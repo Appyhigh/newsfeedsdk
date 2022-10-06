@@ -27,6 +27,7 @@ import com.google.android.flexbox.FlexboxLayoutManager
 import com.google.android.flexbox.JustifyContent
 import retrofit2.Retrofit
 import java.util.*
+import kotlin.collections.ArrayList
 
 class AddInterestsActivity : AppCompatActivity() {
     private lateinit var flexLayoutManager: FlexboxLayoutManager
@@ -100,15 +101,12 @@ class AddInterestsActivity : AppCompatActivity() {
 
     private fun setUpInterests() {
         var selectedInterestsList = ArrayList<Interest>()
-        var isSelectedInterestsEmpty = false
         if (mUserDetails != null && mInterestResponseModel != null) {
             for (interest in mInterestResponseModel?.interestList!!) {
                 interestMap[interest.keyId!!] = interest
             }
             if (mUserDetails?.user?.interests.isNullOrEmpty()) {
-                isSelectedInterestsEmpty = true
-                selectedInterestsList =
-                    (mInterestResponseModel?.interestList as ArrayList<Interest>?)!!
+                selectedInterestsList = ArrayList()
             } else {
                 for (interest in interestMap.values) {
                     if (mUserDetails?.user?.interests!!.contains(interest.keyId)) {

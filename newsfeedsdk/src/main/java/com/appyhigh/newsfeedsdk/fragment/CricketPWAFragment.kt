@@ -78,9 +78,9 @@ class CricketPWAFragment : Fragment(), AdvancedWebView.Listener, PWATabSelectedL
         super.onViewCreated(view, savedInstanceState)
         Card.setFontFamily(binding.noInternetTitle, true)
         Card.setFontFamily(binding.checkConnection)
-        if(BuildConfig.DEBUG && !pwaLink.contains("staging.masterfeed.io") && pwaLink.contains("masterfeed.io")){
-            pwaLink = pwaLink.replace("masterfeed.io", "staging.masterfeed.io")
-        }
+//        if(BuildConfig.DEBUG && !pwaLink.contains("staging.masterfeed.io") && pwaLink.contains("masterfeed.io")){
+//            pwaLink = pwaLink.replace("masterfeed.io", "staging.masterfeed.io")
+//        }
         setWebView(view)
     }
 

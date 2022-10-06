@@ -23,6 +23,7 @@ import com.appyhigh.newsfeedsdk.Constants
 import com.appyhigh.newsfeedsdk.Constants.AD
 import com.appyhigh.newsfeedsdk.Constants.IS_ALREADY_RATED
 import com.appyhigh.newsfeedsdk.Constants.LOADER
+import com.appyhigh.newsfeedsdk.Constants.LOCATION_POPUP_TIMESTAMP
 import com.appyhigh.newsfeedsdk.Constants.RATING
 import com.appyhigh.newsfeedsdk.Constants.SESSION_NUMBER
 import com.appyhigh.newsfeedsdk.Constants.SHARE
@@ -52,6 +53,7 @@ import io.nlopez.smartlocation.SmartLocation
 import pub.devrel.easypermissions.AfterPermissionGranted
 import pub.devrel.easypermissions.EasyPermissions
 import java.util.*
+import kotlin.collections.ArrayList
 import kotlin.math.round
 
 private const val SELECTED_INTEREST = "SELECTED_INTEREST"
@@ -183,8 +185,7 @@ class PagerFragment : Fragment(), EasyPermissions.PermissionCallbacks {
         EasyPermissions.onRequestPermissionsResult(requestCode, permissions, grantResults, this)
     }
 
-    override fun onPermissionsGranted(requestCode: Int, perms: MutableList<String>) {
-    }
+    override fun onPermissionsGranted(requestCode: Int, perms: MutableList<String>) {}
 
     override fun onPermissionsDenied(requestCode: Int, perms: MutableList<String>) {
         if (EasyPermissions.somePermissionPermanentlyDenied(this, perms)) {
@@ -201,7 +202,8 @@ class PagerFragment : Fragment(), EasyPermissions.PermissionCallbacks {
                 LogDetail.LogEStack(ex)
             }
         }
-
+        newsFeedList = ArrayList<Card>()
+        endlessScrolling = null
         mUser?.stateCode?.let { stateCode = mUser!!.stateCode!! }
         mUser?.latitude?.let { latitude = mUser!!.latitude!! }
         mUser?.longitude?.let { longitude = mUser!!.longitude!! }
@@ -224,6 +226,21 @@ class PagerFragment : Fragment(), EasyPermissions.PermissionCallbacks {
                         longitude = it.longitude
                         latitude = it.latitude
                     }
+            }
+            else {
+                val prevTimeStamp = SpUtil.spUtilInstance!!.getLong(LOCATION_POPUP_TIMESTAMP, 0)
+                val presentTimeStamp = System.currentTimeMillis()
+                val dayMilliSeconds = 24*60*60*1000
+                if(presentTimeStamp - prevTimeStamp > dayMilliSeconds){
+                    locationPopup?.visibility = VISIBLE
+                    locationPopup?.setOnClickListener {
+                        EasyPermissions.requestPermissions(
+                            this, "Allow permission to location to access local news",
+                            RC_LOCATION, *perms.toTypedArray()
+                        )
+                    }
+                    SpUtil.spUtilInstance!!.putLong(LOCATION_POPUP_TIMESTAMP, presentTimeStamp)
+                }
             }
         } else if (EasyPermissions.hasPermissions(requireContext(), *perms.toTypedArray())) {
             locationPopup?.visibility = GONE

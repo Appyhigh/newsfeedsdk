@@ -66,7 +66,7 @@ class ApiExplore {
                     Response.success(exploreResponseBase)
                 exploreResponseListener.onSuccess(
                     exploreResponse.body()!!,
-                    "https://feeds.apyhi.com+$apiUrl",
+                    "https://feeds.apyhi.com$apiUrl",
                     timeStamp
                 )
             }
@@ -107,7 +107,7 @@ class ApiExplore {
                 val stateResponse: Response<StateListResponse> = Response.success(stateResponseBase)
                 listener.onSuccess(
                     stateResponse.body()!!,
-                    "https://feeds.apyhi.com+$apiUrl",
+                    "https://feeds.apyhi.com$apiUrl",
                     timeStamp
                 )
             }

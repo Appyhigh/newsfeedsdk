@@ -82,7 +82,7 @@ class ApiGetPostsByTag {
                 try {
                     postsByTagResponseListener.onSuccess(
                         getFeedsResponse.body()!!,
-                        "https://feeds.apyhi.com+$apiUrl",
+                        "https://feeds.apyhi.com$apiUrl",
                         timeStamp
                     )
                 }catch (e:Exception){

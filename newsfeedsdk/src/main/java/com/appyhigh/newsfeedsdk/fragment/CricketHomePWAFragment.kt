@@ -77,17 +77,11 @@ class CricketHomePWAFragment : Fragment(), AdvancedWebView.Listener, OnRefreshLi
                     val cookieManager = CookieManager.getInstance()
                     cookieManager.setCookie(link, "user_info="+ Gson().toJson(Constants.userDetails))
                     var languages = ""
-                    if(keyId=="cricket") {
-                        for ((i, language) in FeedSdk.languagesList.withIndex()) {
-                            if (i < FeedSdk.languagesList.size - 1) {
-                                languages = languages + language.id.lowercase(Locale.getDefault()) + ","
-                            } else {
-                                languages += language.id.lowercase(Locale.getDefault())
-                            }
-                        }
-                    } else {
-                        languages = getLanguages(listOf("hi", "ta", "te", "bn"))
+                    Constants.selectedLanguagesMap = HashMap()
+                    for(language in FeedSdk.languagesList){
+                        Constants.selectedLanguagesMap[language.id.lowercase(Locale.getDefault())] = language
                     }
+                    languages = getLanguages(listOf("hi", "ta", "te", "bn"))
                     if(languages.isEmpty()){
                         languages = "en"
                     }

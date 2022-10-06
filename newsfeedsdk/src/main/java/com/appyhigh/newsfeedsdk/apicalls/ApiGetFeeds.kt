@@ -123,7 +123,7 @@ class ApiGetFeeds {
 
                     feedsResponseListener.onSuccess(
                         getFeedsResponse.body()!!,
-                        "https://feeds.apyhi.com+$apiUrl",
+                        "https://feeds.apyhi.com$apiUrl",
                         timeStamp
                     )
                 }
@@ -192,7 +192,7 @@ class ApiGetFeeds {
 
                 feedsResponseListener.onSuccess(
                     getFeedsResponse.body()!!,
-                    "https://feeds.apyhi.com+$apiUrl",
+                    "https://feeds.apyhi.com$apiUrl",
                     timeStamp
                 )
             }
@@ -280,7 +280,7 @@ class ApiGetFeeds {
 
                 feedsResponseListener.onSuccess(
                     getFeedsResponse.body()!!,
-                    "https://feeds.apyhi.com+$apiUrl",
+                    "https://feeds.apyhi.com$apiUrl",
                     timeStamp
                 )
             }
@@ -412,7 +412,7 @@ class ApiGetFeeds {
 
                     feedsResponseListener.onSuccess(
                         getFeedsResponse.body()!!,
-                        "https://feeds.apyhi.com+$apiUrl",
+                        "https://feeds.apyhi.com$apiUrl",
                         timeStamp
                     )
                 }
@@ -512,7 +512,7 @@ class ApiGetFeeds {
 
                 feedsResponseListener.onSuccess(
                     getFeedsResponse.body()!!,
-                    "https://feeds.apyhi.com+$apiUrl",
+                    "https://feeds.apyhi.com$apiUrl",
                     timeStamp
                 )
             }

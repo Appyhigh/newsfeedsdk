@@ -87,7 +87,7 @@ class ApiAppLock {
 
                 feedsResponseListener.onSuccess(
                     getFeedsResponse.body()!!,
-                    "https://feeds.apyhi.com+$apiUrl",
+                    "https://feeds.apyhi.com$apiUrl",
                     timeStamp
                 )
             }

@@ -85,7 +85,7 @@ class ApiPodcast {
                 try {
                     podcastResponseListener.onSuccess(
                         getFeedsResponse.body()!!,
-                        "https://feeds.apyhi.com+$apiUrl",
+                        "https://feeds.apyhi.com$apiUrl",
                         timeStamp
                     )
                 } catch (ex: Exception) {
@@ -151,7 +151,7 @@ class ApiPodcast {
                 try {
                     podcastResponseListener.onSuccess(
                         getFeedsResponse.body()!!,
-                        "https://feeds.apyhi.com+$apiUrl",
+                        "https://feeds.apyhi.com$apiUrl",
                         timeStamp
                     )
                 } catch (ex: Exception) {
@@ -218,7 +218,7 @@ class ApiPodcast {
                 try {
                     podcastResponseListener.onSuccess(
                         getFeedsResponse.body()!!,
-                        "https://feeds.apyhi.com+$apiUrl",
+                        "https://feeds.apyhi.com$apiUrl",
                         timeStamp
                     )
                 } catch (ex: Exception) {

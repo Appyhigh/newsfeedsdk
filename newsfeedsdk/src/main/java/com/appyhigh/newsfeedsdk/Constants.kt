@@ -199,6 +199,7 @@ object Constants {
     const val CONFIG_MODEL = "config_model"
     const val PRIVACY_ACCEPTED = "privacy_accepted"
     const val SHOW_FEED = "showFeed"
+    const val LOCATION_POPUP_TIMESTAMP = "location_popup_timestamp"
 
 
     var isChecked = true
@@ -428,6 +429,7 @@ object Constants {
     val nativeAdLifecycleCallbacks = HashMap<LinearLayout, NativeAdItem>()
     var userDetails: User? = null
     var pwaTabListeners = HashMap<String, PWATabSelectedListener>()
+
 
     fun getWidgetImage(isColored: Boolean, widget: String): Int {
         return when (widget) {

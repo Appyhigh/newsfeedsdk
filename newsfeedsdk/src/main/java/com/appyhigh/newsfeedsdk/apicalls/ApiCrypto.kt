@@ -106,7 +106,7 @@ class ApiCrypto {
                 try {
                     cryptoResponseListener.onSuccess(
                         cryptoResponse!!.body()!!,
-                        "https://feeds.apyhi.com+$apiUrl",
+                        "https://feeds.apyhi.com$apiUrl",
                         timeStamp
                     )
                     if (page_number == 1) {
@@ -192,7 +192,7 @@ class ApiCrypto {
                 try {
                     cryptoResponseListener.onSuccess(
                         cryptoResponse!!.body()!!,
-                        "https://feeds.apyhi.com+$apiUrl",
+                        "https://feeds.apyhi.com$apiUrl",
                         timeStamp
                     )
                 } catch (ex: Exception) {
@@ -261,7 +261,7 @@ class ApiCrypto {
                 try {
                     cryptoResponseListener.onSuccess(
                         cryptoResponse!!.body()!!,
-                        "https://feeds.apyhi.com+$apiUrl",
+                        "https://feeds.apyhi.com$apiUrl",
                         timeStamp
                     )
                 } catch (ex: Exception) {
@@ -306,7 +306,7 @@ class ApiCrypto {
                     Response.success(cryptoResponseBase)
                 listener.onSuccess(
                     cryptoResponse.body()!!,
-                    "https://feeds.apyhi.com+$apiUrl",
+                    "https://feeds.apyhi.com$apiUrl",
                     timeStamp
                 )
             }

@@ -830,7 +830,7 @@ class FeedSdk {
                         showFeedScreenListener.showFeeds()
                     }
                 }, 1000)
-            } else if (intent.extras != null && !handleIntent(activity.baseContext, intent)) {
+            } else if (!handleIntent(activity.baseContext, intent)) {
                 showFeedScreenListener.checkParentAppNotifications()
             }
         }
@@ -857,6 +857,7 @@ class FeedSdk {
     }
 
     private fun handleIntent(context: Context, intentData: Intent): Boolean {
+        if(intentData.extras == null) return false
         if (intentData.hasExtra(Constants.PAGE) && intentData.hasExtra(Constants.PUSH_SOURCE)
             && intentData.getStringExtra(Constants.PUSH_SOURCE) == Constants.FEEDSDK
         ) {
