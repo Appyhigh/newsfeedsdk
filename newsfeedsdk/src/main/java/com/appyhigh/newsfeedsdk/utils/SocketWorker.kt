@@ -2,6 +2,7 @@ package com.appyhigh.newsfeedsdk.utils
 
 import android.content.Context
 import android.content.Intent
+import android.os.Build
 import androidx.work.Worker
 import androidx.work.WorkerParameters
 import com.appyhigh.newsfeedsdk.Constants
@@ -22,8 +23,9 @@ class SocketWorker(appContext: Context, workerParams: WorkerParameters):
         } catch (ex:Exception){
             LogDetail.LogEStack(ex)
         }
-        // Do the work here--in this case, upload the images.
-        handleCricketNotification(applicationContext)
+        if(Build.VERSION.SDK_INT< Build.VERSION_CODES.S) {
+            handleCricketNotification(applicationContext)
+        }
         LogDetail.LogD("check777", "doWork: "+Date().toString())
         // Indicate whether the work finished successfully with the Result
         return Result.success()

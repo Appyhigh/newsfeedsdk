@@ -47,7 +47,7 @@ class ApiGetPublisherPosts {
         LogDetail.LogD("Data to be Sent -> ", sendingData)
 
         AuthSocket.Instance().postData(sendingData, object : ResponseListener {
-            override fun onSuccess(apiUrl: String, response: String) {
+            override fun onSuccess(apiUrl: String, response: String, timeStamp:Long) {
                 LogDetail.LogDE("ApiGetPublisherPosts $apiUrl", response)
                 val gson: Gson = GsonBuilder().create()
                 val getFeedsResponseBase: GetFeedsResponse =
@@ -59,8 +59,8 @@ class ApiGetPublisherPosts {
                     Response.success(getFeedsResponseBase)
                 publisherPostsResponseListener.onSuccess(
                     getFeedsResponse.body()!!,
-                    getFeedsResponse.raw().request.url.toString(),
-                    getFeedsResponse.raw().sentRequestAtMillis
+                    "https://feeds.apyhi.com$apiUrl",
+                    timeStamp
                 )
             }
 
@@ -95,7 +95,7 @@ class ApiGetPublisherPosts {
         LogDetail.LogD("Data to be Sent -> ", sendingData)
 
         AuthSocket.Instance().postData(sendingData, object : ResponseListener {
-            override fun onSuccess(apiUrl: String, response: String) {
+            override fun onSuccess(apiUrl: String, response: String, timeStamp:Long) {
                 LogDetail.LogDE("ApiGetPublisherPosts $apiUrl", response)
                 val gson: Gson = GsonBuilder().create()
                 val getPublisherBlocklistModel: PublisherBlocklistModel =

@@ -97,7 +97,7 @@ class ApiPostImpression {
             LogDetail.LogD("Data to be Sent -> ", sendingData)
 
             AuthSocket.Instance().postData(sendingData, object : ResponseListener {
-                override fun onSuccess(apiUrl: String, response: String) {
+                override fun onSuccess(apiUrl: String, response: String, timeStamp:Long) {
                     LogDetail.LogDE("ApiPostImpression $apiUrl", response.toString())
                     try {
                         sharedPrefs.edit().clear().apply()
@@ -168,7 +168,7 @@ class ApiPostImpression {
             LogDetail.LogD("Data to be Sent -> ", sendingData)
 
             AuthSocket.Instance().postData(sendingData, object : ResponseListener {
-                override fun onSuccess(apiUrl: String, response: String) {
+                override fun onSuccess(apiUrl: String, response: String, timeStamp:Long) {
                     LogDetail.LogDE("ApiPostImpression $apiUrl", response.toString())
                 }
 

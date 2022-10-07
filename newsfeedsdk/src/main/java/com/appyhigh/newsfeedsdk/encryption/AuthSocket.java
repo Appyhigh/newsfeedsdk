@@ -200,7 +200,7 @@ public class AuthSocket {
 
         verifyData(initialIEncryptionString, new com.appyhigh.newsfeedsdk.apicalls.ResponseListener() {
             @Override
-            public void onSuccess(@Nullable String apiUrl, @Nullable String response) {
+            public void onSuccess(@Nullable String apiUrl, @Nullable String response, long timeStamp) {
                 LogDetail.LogDE("verify", response.toString());
             }
 
@@ -280,7 +280,7 @@ public class AuthSocket {
             @Override
             public void onFailure(@NonNull Call call, @NonNull IOException e) {
                 LogDetail.LogEStack(e);
-                LogDetail.LogDE("Error",e.getMessage());
+                LogDetail.LogDE("Error",serverURL+"verify  -"+e.getMessage());
                 responseListener.onError(call, e);
             }
 
@@ -299,9 +299,7 @@ public class AuthSocket {
                         if (data[1].equals(license)) {
                             LogDetail.LogD(TAG, " Equals LICENSE KEY ");
                             LogDetail.println(data[0]);
-
                             String initialIDecryptionString = instanceEncryption.decrypt(data[0].getBytes());
-
                             LogDetail.LogDE("TAG--dec", initialIDecryptionString);
 
                             try {
@@ -495,10 +493,10 @@ public class AuthSocket {
                                         if(statusJson.has("status_code") && statusJson.getInt("status_code")>300){
                                             responseListener.onError(call, new IOException(RespJson.getString("apiURL")+" "+statusJson.getString("msg")));
                                         } else {
-                                            responseListener.onSuccess(RespJson.getString("apiURL"), dataJSON);
+                                            responseListener.onSuccess(RespJson.getString("apiURL"), dataJSON, response.sentRequestAtMillis());
                                         }
                                     } catch (Exception ex) {
-                                        responseListener.onSuccess(RespJson.getString("apiURL"), dataJSON);
+                                        responseListener.onSuccess(RespJson.getString("apiURL"), dataJSON, response.sentRequestAtMillis());
                                     }
                                 } catch (JSONException e) {
                                     LogDetail.LogEStack(e);

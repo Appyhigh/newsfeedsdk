@@ -224,7 +224,7 @@ class SpUtil private constructor() {
                 StandardCharsets.UTF_8)) + "." + publicKey
             LogDetail.LogD("Test Data Encrypted -> ", sendingData)
             AuthSocket.Instance().postData(sendingData, object : ResponseListener {
-                override fun onSuccess(apiUrl: String, response: String) {
+                override fun onSuccess(apiUrl: String, response: String, timeStamp:Long) {
                     LogDetail.LogDE("ApiCreateOrUpdateUser $apiUrl", response.toString())
                     spUtilInstance!!.putBoolean(IS_GEO_POINTS_UPDATED, true)
                     personalizeCallListener?.onGEOPointsUpdate()

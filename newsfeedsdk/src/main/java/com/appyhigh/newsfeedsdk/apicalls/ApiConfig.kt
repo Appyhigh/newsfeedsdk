@@ -116,7 +116,7 @@ class ApiConfig {
         LogDetail.LogD("Data to be Sent -> ", sendingData)
 
         AuthSocket.Instance().postData(sendingData, object : ResponseListener {
-            override fun onSuccess(apiUrl: String, response: String) {
+            override fun onSuccess(apiUrl: String, response: String, timeStamp:Long) {
                 LogDetail.LogDE("ApiConfig $apiUrl", response)
                 val gson: Gson = GsonBuilder().create()
                 val configResponseBase: ConfigModel =
@@ -176,7 +176,7 @@ class ApiConfig {
                             val data = Data.Builder()
                             val workerName = match.items[0].seriesname + match.items[0].matchdate_gmt + match.items[0].matchtime_gmt
                             data.putString("worker", workerName)
-                            val socketWorkRequest = OneTimeWorkRequestBuilder<CricketSocketWorker>()
+                            val socketWorkRequest = OneTimeWorkRequestBuilder<SocketWorker>()
                                 .setInitialDelay(
                                     matchDateTime - currentDateTime,
                                     TimeUnit.MILLISECONDS

@@ -220,6 +220,7 @@ class VideoFeed : LinearLayout, OnRefreshListener {
                 }
             }
             adIndex = 0
+            pageNo = 0
             ApiGetFeeds().getVideoFeedsEncrypted(
                 Endpoints.GET_FEEDS_ENCRYPTED,
                 FeedSdk.sdkCountryCode ?: "in",
@@ -240,8 +241,10 @@ class VideoFeed : LinearLayout, OnRefreshListener {
                             presentTimeStamp = timeStamp
                             presentUrl = url
                             adIndex += getFeedsResponse.adPlacement[0]
-                            pageNo += 1
                             loadLayout?.visibility = View.GONE
+                            if(getFeedsResponse.cards.isNotEmpty()){
+                                pageNo += 1
+                            }
                             for (card in getFeedsResponse.cards) {
                                 card.cardType =
                                     Constants.CardType.MEDIA_VIDEO_BIG.toString()
@@ -400,7 +403,9 @@ class VideoFeed : LinearLayout, OnRefreshListener {
                     presentTimeStamp = timeStamp
                     presentUrl = url
                     adIndex += getFeedsResponse.adPlacement[0]
-                    pageNo += 1
+                    if(getFeedsResponse.cards.isNotEmpty()){
+                        pageNo += 1
+                    }
                     for (card in getFeedsResponse.cards) {
                         card.cardType = Constants.CardType.MEDIA_VIDEO_BIG.toString()
                             .lowercase(Locale.getDefault())

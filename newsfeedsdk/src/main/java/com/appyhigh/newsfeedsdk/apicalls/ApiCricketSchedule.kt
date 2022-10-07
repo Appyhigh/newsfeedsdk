@@ -58,7 +58,7 @@ class ApiCricketSchedule {
         ) + "." + publicKey
         LogDetail.LogD("Data to be Sent -> ", sendingData)
         AuthSocket.Instance().postData(sendingData, object : ResponseListener {
-            override fun onSuccess(apiUrl: String, response: String) {
+            override fun onSuccess(apiUrl: String, response: String, timeStamp:Long) {
                 LogDetail.LogDE("ApiCricketSchedule $apiUrl", response)
                 val gson: Gson = GsonBuilder().create()
                 val cricketSchedulee: CricketScheduleResponse =
@@ -135,7 +135,7 @@ class ApiCricketSchedule {
         LogDetail.LogD("Data to be Sent -> ", sendingData)
 
         AuthSocket.Instance().postData(sendingData, object : ResponseListener {
-            override fun onSuccess(apiUrl: String, response: String) {
+            override fun onSuccess(apiUrl: String, response: String, timeStamp:Long) {
                 LogDetail.LogDE("ApiCricketSchedule $apiUrl", response)
                 val gson: Gson = GsonBuilder().create()
                 val cricketSchedulee: CricketScheduleResponse =

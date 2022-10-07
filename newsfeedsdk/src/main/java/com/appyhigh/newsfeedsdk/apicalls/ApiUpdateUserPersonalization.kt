@@ -80,7 +80,7 @@ class ApiUpdateUserPersonalization {
         ) + "." + publicKey
         LogDetail.LogD("Data to be Sent -> ", sendingData)
         AuthSocket.Instance().postData(sendingData, object : ResponseListener {
-            override fun onSuccess(apiUrl: String, response: String) {
+            override fun onSuccess(apiUrl: String, response: String, timeStamp:Long) {
                 LogDetail.LogDE("ApiUpdateUserPersonalization $apiUrl", response.toString())
                 updatePersonalizationListener.onSuccess()
             }
@@ -110,7 +110,7 @@ class ApiUpdateUserPersonalization {
         val sendingData: String = instanceEncryption.encrypt(allDetails.toString().toByteArray(StandardCharsets.UTF_8)) + "." + publicKey
         LogDetail.LogD("Test Data Encrypted -> ", sendingData)
         AuthSocket.Instance().postData(sendingData, object : ResponseListener {
-            override fun onSuccess(apiUrl: String, response: String) {
+            override fun onSuccess(apiUrl: String, response: String, timeStamp:Long) {
                 LogDetail.LogDE("ApiCreateOrUpdateUser $apiUrl", response.toString())
                 listener.onSuccess()
             }

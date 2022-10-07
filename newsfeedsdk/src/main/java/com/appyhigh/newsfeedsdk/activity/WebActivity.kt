@@ -32,14 +32,14 @@ import com.appyhigh.newsfeedsdk.adapter.WebPlatformsGridAdapter
 import com.appyhigh.newsfeedsdk.apicalls.ApiConfig
 import com.appyhigh.newsfeedsdk.apicalls.ApiSearchSticky
 import com.appyhigh.newsfeedsdk.apicalls.ConfigAdRequestListener
+import com.appyhigh.newsfeedsdk.apiclient.APISearchStickyInterface
 import com.appyhigh.newsfeedsdk.databinding.ActivitySearchStickyWebBinding
 import com.appyhigh.newsfeedsdk.encryption.LogDetail
 import com.appyhigh.newsfeedsdk.model.SearchStickyWidgetModel
+import com.appyhigh.newsfeedsdk.model.TrendingSearchItem
 import com.appyhigh.newsfeedsdk.model.feeds.Card
 import com.appyhigh.newsfeedsdk.utils.AdUtilsSDK
 import com.appyhigh.newsfeedsdk.utils.SpUtil
-import com.appyhigh.newsfeedsdk.utils.TrendingSearchItem
-import com.appyhigh.newsfeedsdk.utils.TrendingSearchesApi
 import com.google.android.gms.ads.AdRequest
 import com.google.android.gms.ads.AdSize
 import com.google.android.gms.ads.AdView
@@ -543,18 +543,16 @@ class WebActivity : AppCompatActivity(), AdvancedWebView.Listener {
             .client(client)
             .addCallAdapterFactory(RxJava3CallAdapterFactory.create())
             .addConverterFactory(
-                SimpleXmlConverterFactory.createNonStrict(
-                    Persister(AnnotationStrategy())
-                )
+                SimpleXmlConverterFactory.create()
             )
             .addCallAdapterFactory(RxJava3CallAdapterFactory.createWithScheduler(Schedulers.io()))
             .build()
-        val trendingApi: TrendingSearchesApi = retrofit.create(TrendingSearchesApi::class.java)
+        val trendingApi: APISearchStickyInterface = retrofit.create(APISearchStickyInterface::class.java)
 
         trendingApi.getTrendingSearches("IN")
             .subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
-            .subscribe({ it ->
+            .subscribe({
                 trendingVis()
                 trending_list = it.channel?.itemList!!
                 var vert_ll = LinearLayout(this)

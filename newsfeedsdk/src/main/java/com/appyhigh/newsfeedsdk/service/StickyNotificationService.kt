@@ -104,10 +104,12 @@ class StickyNotificationService : Service(){
                         }
                         when (receiveIntent.action) {
                             "Dismiss" -> {
-                                SpUtil.spUtilInstance?.putBoolean(IS_STICKY_NOTIFICATION_ON, false)
-                                serviceRunning = false
-                                stopForeground(true)
-                                stopSelf()
+                                if(receiveIntent.getBooleanExtra(packageName, true)) {
+                                    SpUtil.spUtilInstance?.putBoolean(IS_STICKY_NOTIFICATION_ON, false)
+                                    serviceRunning = false
+                                    stopForeground(true)
+                                    stopSelf()
+                                }
                             }
                         }
                     } catch (ex:Exception){
@@ -265,7 +267,6 @@ class StickyNotificationService : Service(){
                     PendingIntent.getActivity(applicationContext, 1, searchIntent, flags)
                 }
                 else -> {
-                    LogDetail.LogDE("openStickyTile", widget)
                     val sdkEventsIntent = Intent(this@StickyNotificationService, SdkEventsActivity::class.java)
                     sdkEventsIntent.flags = intentFlags
                     sdkEventsIntent.action = widget

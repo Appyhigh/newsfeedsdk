@@ -2,7 +2,22 @@
 
        | SDK Name         | Lib Version  | SDK Version Code |
        |------------------|--------------|------------------|
-       | newsfeedsdk      |    1.1.1    |      1008        |
+       | newsfeedsdk      |    1.1.2     |      1008        |
+
+1. TG-664 Fixed timestamp & url issue in post-impressions 
+2. TG-665 page number issue for get-feeds 
+3. TG-667 Fixed interests tab order issue after adding near_you 
+4. TG-668 near_you posts are showed for interests from pageno 1 issue 
+5. TG-669 for_you & near_you is sent in interests param for get-feeds 
+6. TG-670 Trending search loading issues 
+7. TG-672 multiple sticky notifications showing when multiple apps with stick search are in background 
+8. TG-673 crypto alert toggle issue in crypto alerts
+
+----------------------------------------------------------------------------------------------------------------------------
+
+       | SDK Name         | Lib Version  | SDK Version Code |
+       |------------------|--------------|------------------|
+       | newsfeedsdk      |    1.1.1     |      1008        |
 
 1. Added near you in get-app-wise order api
 2. Added post_source, feed_type in react & comment api
@@ -15,7 +30,7 @@
 
        | SDK Name         | Lib Version  | SDK Version Code |
        |------------------|--------------|------------------|
-       | newsfeedsdk      |    1.1.0    |      1008        |
+       | newsfeedsdk      |    1.1.0     |      1008         |
 
 1. Targeted SDK 31
 2. Fixed issues for cricket pwa
@@ -49,7 +64,7 @@
        |------------------|--------------|------------------|
        | newsfeedsdk      |    1.0.2     |      1008        |
 
-1. Added getBase64SHA1FromHex() function in AuthSocket.
+1. Added getBase64SHA1FromHex() function in AuthSocket
 
 ----------------------------------------------------------------------------------------------------------------------------
 

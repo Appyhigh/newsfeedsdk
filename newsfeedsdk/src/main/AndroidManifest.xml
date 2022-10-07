@@ -31,7 +31,7 @@
         tools:ignore="UnusedAttribute">
         <activity
             android:name=".activity.SdkEventsActivity"
-            android:exported="false"
+            android:exported="true"
             android:screenOrientation="portrait"/>
         <activity
             android:name=".activity.PWACricketActivity"

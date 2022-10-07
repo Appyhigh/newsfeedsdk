@@ -1,6 +1,7 @@
 package com.appyhigh.newsfeedsdk.utils
 
 import android.content.Context
+import android.os.Build
 import androidx.work.Worker
 import androidx.work.WorkerParameters
 import com.appyhigh.newsfeedsdk.Constants
@@ -17,7 +18,9 @@ class StickyWorker (appContext: Context, workerParams: WorkerParameters):
             if (SpUtil.spUtilInstance!!.getBoolean(Constants.IS_STICKY_SERVICE_ON)
                 && !applicationContext.isMyServiceRunning(StickyNotificationService::class.java)
             ) {
-                applicationContext.startStickyNotificationService()
+                if(Build.VERSION.SDK_INT< Build.VERSION_CODES.S) {
+                    applicationContext.startStickyNotificationService()
+                }
             }
         } catch (ex:Exception){
             LogDetail.LogEStack(ex)

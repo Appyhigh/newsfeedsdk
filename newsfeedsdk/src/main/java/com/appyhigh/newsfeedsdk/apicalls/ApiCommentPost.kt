@@ -55,7 +55,7 @@ class ApiCommentPost {
 
         AuthSocket.Instance().postData(sendingData, object : ResponseListener {
 
-            override fun onSuccess(apiUrl: String, response: String) {
+            override fun onSuccess(apiUrl: String, response: String, timeStamp:Long) {
                 LogDetail.LogDE("ApiPostImpression $apiUrl", response)
 
                 val gson: Gson = GsonBuilder().create()
