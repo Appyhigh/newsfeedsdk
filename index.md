@@ -2,6 +2,13 @@
 
        | SDK Name         | Lib Version  | SDK Version Code |
        |------------------|--------------|------------------|
+       | newsfeedsdk      |    1.1.3     |      1008        |
+
+1. Fixed crashes from SDKEventActivity
+----------------------------------------------------------------------------------------------------------------------------
+
+       | SDK Name         | Lib Version  | SDK Version Code |
+       |------------------|--------------|------------------|
        | newsfeedsdk      |    1.1.2     |      1008        |
 
 1. TG-664 Fixed timestamp & url issue in post-impressions 
