@@ -91,7 +91,7 @@ class AddInterestBottomSheet :
         }
         etSearch = binding.etSearch
         binding.saveBtn.setOnClickListener {
-            if(interestList.size < 3){
+            if(allInterestList.size > 2 && interestList.size < 3){
                 Constants.Toaster.show(requireContext(),"Please select at least three interest")
             }else{
                 updateInterests()
