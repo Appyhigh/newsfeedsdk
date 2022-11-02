@@ -2,9 +2,18 @@
 
        | SDK Name         | Lib Version  | SDK Version Code |
        |------------------|--------------|------------------|
+       | newsfeedsdk      |    1.1.4     |      1008        |
+
+1. Fixed hide interests tab issue for single interest
+
+----------------------------------------------------------------------------------------------------------------------------
+
+       | SDK Name         | Lib Version  | SDK Version Code |
+       |------------------|--------------|------------------|
        | newsfeedsdk      |    1.1.3     |      1008        |
 
 1. Fixed crashes from SDKEventActivity
+
 ----------------------------------------------------------------------------------------------------------------------------
 
        | SDK Name         | Lib Version  | SDK Version Code |

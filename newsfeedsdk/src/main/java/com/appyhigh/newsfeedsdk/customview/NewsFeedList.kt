@@ -65,7 +65,7 @@ class NewsFeedList : LinearLayout, PersonalizeCallListener, OnRefreshListener {
     private var pinnedInterestList: ArrayList<Interest> = ArrayList()
     private var pinnedInterestMap: HashMap<String, Interest> = HashMap()
     private var fragmentList: ArrayList<Fragment> = ArrayList()
-//    private var ivPersonalize: AppCompatImageView? = null
+    //    private var ivPersonalize: AppCompatImageView? = null
     private var isRefreshNeeded = false
     private var mLanguageResponseModel: ArrayList<Language>? = null
     private var selectedIndex = 0
@@ -247,30 +247,30 @@ class NewsFeedList : LinearLayout, PersonalizeCallListener, OnRefreshListener {
     }
 
     private fun setUpLanguages() {
-       try {
-           if (mUserDetails != null && mLanguageResponseModel != null) {
-               var selectedLanguagesList = ArrayList<Language>()
-               for (language in mLanguageResponseModel!!) {
-                   languagesMap[language.id] = language
-                   Constants.allLanguagesMap[language.id.lowercase(Locale.getDefault())] = language
-               }
-               Constants.selectedLanguagesMap = HashMap()
-               if (mUserDetails?.user?.languages.isNullOrEmpty()) {
+        try {
+            if (mUserDetails != null && mLanguageResponseModel != null) {
+                var selectedLanguagesList = ArrayList<Language>()
+                for (language in mLanguageResponseModel!!) {
+                    languagesMap[language.id] = language
+                    Constants.allLanguagesMap[language.id.lowercase(Locale.getDefault())] = language
+                }
+                Constants.selectedLanguagesMap = HashMap()
+                if (mUserDetails?.user?.languages.isNullOrEmpty()) {
 //                selectedLanguagesList = mLanguageResponseModel!!
-               } else {
-                   for (language in languagesMap.values) {
-                       if (mUserDetails?.user?.languages!!.contains(language.id.lowercase(Locale.getDefault()))) {
-                           selectedLanguagesList.add(language)
-                           Constants.selectedLanguagesMap[language.id.lowercase(Locale.getDefault())] =
-                               language
-                       }
-                   }
-               }
-               FeedSdk.languagesList = selectedLanguagesList
-           }
-       }catch (e:Exception){
-           LogDetail.LogEStack(e)
-       }
+                } else {
+                    for (language in languagesMap.values) {
+                        if (mUserDetails?.user?.languages!!.contains(language.id.lowercase(Locale.getDefault()))) {
+                            selectedLanguagesList.add(language)
+                            Constants.selectedLanguagesMap[language.id.lowercase(Locale.getDefault())] =
+                                language
+                        }
+                    }
+                }
+                FeedSdk.languagesList = selectedLanguagesList
+            }
+        }catch (e:Exception){
+            LogDetail.LogEStack(e)
+        }
     }
 
     private fun setUpInterestAdapter() {
@@ -296,33 +296,6 @@ class NewsFeedList : LinearLayout, PersonalizeCallListener, OnRefreshListener {
 
             if (mInterestResponseModel?.interestList!!.size == 1) {
                 selectedInterestsList = arrayListOf(mInterestResponseModel?.interestList!![0])
-                vpFeed?.visibility = View.GONE
-                singleInterestContainer?.visibility = View.VISIBLE
-                val activity = if ((context as ContextWrapper).baseContext is FragmentActivity)
-                    (context as ContextWrapper).baseContext as FragmentActivity
-                else context as FragmentActivity
-                activity.supportFragmentManager.beginTransaction().apply {
-                    replace(
-                        R.id.single_interest,
-                        PagerFragment.newInstance(selectedInterestsList[0].keyId!!,
-                            0,
-                            selectedInterestsList,
-                            isSelectedInterestsEmpty,
-                            object : PersonalizationListener {
-                                override fun onPersonalizationClicked() {
-                                    ivAdd?.performClick()
-                                }
-
-                                override fun onRefresh() {
-                                    startInitView()
-                                }
-                            })
-                    )
-                    disallowAddToBackStack()
-                    commit()
-                }
-                rvInterests?.visibility = View.GONE
-                ivAdd?.visibility = View.GONE
 //                ivPersonalize?.visibility = View.GONE
             } else if (mUserDetails?.user?.interests.isNullOrEmpty() || (mUserDetails?.user?.interests!!.size == 1 && mUserDetails?.user?.interests!![0].isEmpty())) {
                 isSelectedInterestsEmpty = true
@@ -371,6 +344,9 @@ class NewsFeedList : LinearLayout, PersonalizeCallListener, OnRefreshListener {
             object : ApiGetInterests.InterestOrderResponseListener {
                 override fun onSuccess(interestList: ArrayList<String>) {
                     checkAndAddTabs(interestList)
+                    if(interestList.size==1){
+                        hideInterestTabs(newInterestList, isSelectedInterestsEmpty)
+                    }
                     if (mUserDetails != null && mInterestResponseModel != null){
                         try {
                             if (SpUtil.pushIntent != null && !SpUtil.pushIntent!!.getBooleanExtra("isForYou", false)
@@ -480,6 +456,53 @@ class NewsFeedList : LinearLayout, PersonalizeCallListener, OnRefreshListener {
                     }
                 }
             })
+    }
+
+    private fun hideInterestTabs(selectedInterestsList: ArrayList<Interest>, isSelectedInterestsEmpty: Boolean){
+        try{
+            vpFeed?.visibility = View.GONE
+            singleInterestContainer?.visibility = View.VISIBLE
+            val activity = if ((context as ContextWrapper).baseContext is FragmentActivity)
+                (context as ContextWrapper).baseContext as FragmentActivity
+            else context as FragmentActivity
+            val fragment = when (selectedInterestsList[0].keyId) {
+                "cricket" -> CricketHomePWAFragment.newInstance(
+                    Constants.allInterestsMap["cricket"]!!.pwaLink ?: "", "cricket"
+                )
+                "podcasts" -> PodcastsFragment.newInstance()
+                "crypto" -> CryptoFragment.newInstance()
+                else -> {
+                    if (!selectedInterestsList[0].pwaLink.isNullOrEmpty()) {
+                        PWAFragment.newInstance(
+                            selectedInterestsList[0].pwaLink!!, selectedInterestsList[0].keyId!!
+                        )
+                    } else {
+                        PagerFragment.newInstance(selectedInterestsList[0].keyId!!,
+                            0,
+                            selectedInterestsList,
+                            isSelectedInterestsEmpty,
+                            object : PersonalizationListener {
+                                override fun onPersonalizationClicked() {
+                                    ivAdd?.performClick()
+                                }
+
+                                override fun onRefresh() {
+                                    startInitView()
+                                }
+                            })
+                    }
+                }
+            }
+            activity.supportFragmentManager.beginTransaction().apply {
+                replace(R.id.single_interest, fragment)
+                disallowAddToBackStack()
+                commit()
+            }
+            rvInterests?.visibility = View.GONE
+            ivAdd?.visibility = View.GONE
+        } catch (ex:Exception){
+            LogDetail.LogEStack(ex)
+        }
     }
 
     private var onInterestSelected = object : InterestSelectedListener {
