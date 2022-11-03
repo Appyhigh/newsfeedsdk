@@ -87,8 +87,6 @@ class FeedLanguageActivity : AppCompatActivity() {
                                     bottomSheet.show((FeedSdk.mContext as FragmentActivity).supportFragmentManager,"BottomSheet")
                                     finish()
                                 } catch (ex:Exception){
-                                    val intent = Intent(this@FeedLanguageActivity, FeedInterestsActivity::class.java)
-                                    startActivity(intent)
                                     setResult(RESULT_OK)
                                     finish()
                                 }
