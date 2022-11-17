@@ -41,6 +41,12 @@ data class ConfigModel(
     @SerializedName("post_detail_interstitial")
     @Expose
     val postDetailInterstitial: ItemAdsModel = ItemAdsModel(),
+    @SerializedName("crypto_home_native")
+    @Expose
+    val cryptoHomeNative: ItemAdsModel = ItemAdsModel(),
+    @SerializedName("crypto_home_native_footer")
+    @Expose
+    val cryptoHomeNativeFooter: ItemAdsModel = ItemAdsModel(),
     @SerializedName("custom_firebase_config")
     @Expose
     val customFirebaseConfig: CustomFirebaseConfig = CustomFirebaseConfig(),

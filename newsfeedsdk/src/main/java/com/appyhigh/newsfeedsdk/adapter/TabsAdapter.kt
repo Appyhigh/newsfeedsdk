@@ -18,6 +18,7 @@ import com.appyhigh.newsfeedsdk.databinding.ItemCryptoLearnTabBinding
 import com.appyhigh.newsfeedsdk.databinding.ItemCryptoTabBinding
 import com.appyhigh.newsfeedsdk.encryption.LogDetail
 import com.appyhigh.newsfeedsdk.model.feeds.Item
+import com.appyhigh.newsfeedsdk.utils.SpUtil
 
 class TabsAdapter(
     private var tabList: List<Item>,
@@ -146,6 +147,9 @@ class TabsAdapter(
             notifyDataSetChanged()
         } catch (ex:Exception){
             LogDetail.LogEStack(ex)
+        }
+        if(type=="crypto_learn") {
+            tabList[position].id?.let { SpUtil.cryptoEventsListener?.onCryptoNewsTabClicked(it) }
         }
     }
 
