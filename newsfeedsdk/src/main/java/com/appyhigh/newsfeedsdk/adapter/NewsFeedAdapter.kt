@@ -58,10 +58,7 @@ import com.appyhigh.newsfeedsdk.fragment.FeedMenuBottomSheetFragment
 import com.appyhigh.newsfeedsdk.fragment.ReportIssueDialogFragment
 import com.appyhigh.newsfeedsdk.model.feeds.Card
 import com.appyhigh.newsfeedsdk.model.feeds.Item
-import com.appyhigh.newsfeedsdk.utils.AudioTracker
-import com.appyhigh.newsfeedsdk.utils.AudioTrackerListener
-import com.appyhigh.newsfeedsdk.utils.Converters
-import com.appyhigh.newsfeedsdk.utils.SpUtil
+import com.appyhigh.newsfeedsdk.utils.*
 import com.appyhigh.newsfeedsdk.utils.SpUtil.Companion.eventsListener
 import com.appyhigh.newsfeedsdk.utils.SpUtil.Companion.spUtilInstance
 import com.google.android.exoplayer2.ui.StyledPlayerView
@@ -80,6 +77,7 @@ import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.listeners.You
 import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.listeners.YouTubePlayerFullScreenListener
 import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.views.YouTubePlayerView
 import java.util.*
+import kotlin.collections.ArrayList
 
 class NewsFeedAdapter(
     private var newsFeedList: ArrayList<Card>,
@@ -582,6 +580,7 @@ class NewsFeedAdapter(
                 val holder = mainHolder as TelegramChannelHolder
                 holder.view.joinChannel.setOnClickListener {
                     SpUtil.telegramCardListener?.onRefreshNeeded()
+                    SpUtil.cryptoEventsListener?.onTelegramBannerClicked()
                 }
             }
             LOAD_MORE -> {
@@ -1110,6 +1109,9 @@ class NewsFeedAdapter(
             .show()
         newsFeedList.removeAt(position)
         notifyItemRemoved(position)
+        if(FeedSdk.isCryptoApp){
+            SpUtil.cryptoEventsListener?.onRatingClicked()
+        }
         val context = v.context
         try {
             SpUtil.spUtilInstance?.putBoolean(IS_ALREADY_RATED, true)

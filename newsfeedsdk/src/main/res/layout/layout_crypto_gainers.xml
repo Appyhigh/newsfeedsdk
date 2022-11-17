@@ -28,5 +28,15 @@
             app:cryptoType="@{card.cardType}"
             app:cryptoItems="@{card.items}" />
 
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:layout_marginHorizontal="10dp"
+            android:layout_marginVertical="7.5dp"
+            app:cryptoType="@{card.cardType}"
+            app:showAdType='@{"crypto_home_native_footer"}'
+            />
+
     </LinearLayout>
 </layout>

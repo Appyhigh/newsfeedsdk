@@ -100,5 +100,12 @@ xmlns:app="http://schemas.android.com/apk/res-auto">
             app:srcCompat="@drawable/ic_forward_white"
             />
     </LinearLayout>
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginHorizontal="10dp"
+        android:orientation="vertical"
+        app:cryptoType="@{card.cardType}"
+        app:showAdType='@{"crypto_home_native"}'/>
 </LinearLayout>
 </layout>

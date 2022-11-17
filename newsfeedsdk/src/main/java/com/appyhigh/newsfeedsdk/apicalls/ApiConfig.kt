@@ -95,6 +95,8 @@ class ApiConfig {
             "post_detail_article_top_native" -> configModel!!.postDetailArticleTopNative
             "post_detail_article_end_native" -> configModel!!.postDetailArticleEndNative
             "post_detail_footer_banner" -> configModel!!.postDetailFooterBanner
+            "crypto_home_native" -> configModel!!.cryptoHomeNative
+            "crypto_home_native_footer" -> configModel!!.cryptoHomeNativeFooter
             else -> configModel!!.feedNative
         }
     }

@@ -12,4 +12,7 @@ interface CryptoEventsListener {
     fun onNewsAction(category:String, postId: String, action:String, publisher:String, postTitle:String)
     fun onLearnPageClick(category:String, section:String, postId: String, postTitle:String)
     fun onActionOfPostDetailPage(postId: String, action:String, publisher:String, postTitle:String)
+    fun onTelegramBannerClicked()
+    fun onRatingClicked()
+    fun onCryptoNewsTabClicked(section: String)
 }

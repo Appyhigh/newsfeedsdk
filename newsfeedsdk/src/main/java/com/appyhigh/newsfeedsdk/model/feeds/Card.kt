@@ -84,6 +84,7 @@ import java.text.DecimalFormat
 import java.text.ParseException
 import java.text.SimpleDateFormat
 import java.util.*
+import kotlin.collections.ArrayList
 
 
 data class Card(
@@ -1210,6 +1211,34 @@ data class Card(
                     adapter =
                         CryptoDetailsAdapter(cryptoItems as ArrayList<Item>, false, cryptoType)
                 }
+            }
+        }
+
+        @JvmStatic
+        @BindingAdapter("cryptoType", "showAdType")
+        fun setShowAd(
+            view: LinearLayout,
+            cryptoType: String,
+            showAdType: String
+        ) {
+            if (cryptoType == Constants.CardType.CRYPTO_LOSERS.toString().lowercase(Locale.getDefault())
+                || cryptoType == Constants.CardType.CRYPTO_WATCHLIST.toString().lowercase(Locale.getDefault())
+            ) {
+                ApiConfig().requestAd(view.context, showAdType, object : ConfigAdRequestListener{
+                    override fun onPrivateAdSuccess(webView: WebView) {
+                        view.removeAllViews()
+                        view.addView(webView)
+                    }
+
+                    override fun onAdmobAdSuccess(adId: String) {
+                        requestFeedAd(view, R.layout.native_ad_feed_small, adId, true, showAdType, ArrayList())
+                    }
+
+                    override fun onAdHide() {
+
+                    }
+
+                })
             }
         }
 
