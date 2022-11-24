@@ -1,6 +1,8 @@
 package com.appyhigh.newsfeedsdk.callbacks
 
+import com.appyhigh.newsfeedsdk.model.PostDetailsModel
+
 interface OnRelatedPostClickListener {
-    fun onPostClick(postId:String, isNative:Boolean)
+    fun onPostClick(nextPost: PostDetailsModel.NextPost)
     fun onSharePost(postId:String, title:String, imageUrl:String, isWhatsapp: Boolean, url:String)
 }

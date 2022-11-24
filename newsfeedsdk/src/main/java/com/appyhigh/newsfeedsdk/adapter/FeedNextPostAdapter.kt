@@ -79,7 +79,7 @@ class FeedNextPostAdapter(private var posts:ArrayList<PostDetailsModel.NextPost>
                 onRelatedPostClickListener.onSharePost(post.post_id, post.content.caption, post.content.media_list[0], true, url)
             }
             holder.itemView.setOnClickListener {
-                onRelatedPostClickListener.onPostClick(post.post_id, post.isNative!!)
+                onRelatedPostClickListener.onPostClick(post)
             }
             holder.view.publisherPostedTime.text = getTime(post.publishedOn)
         } catch (ex:Exception){

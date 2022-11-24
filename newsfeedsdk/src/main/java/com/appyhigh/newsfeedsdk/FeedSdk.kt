@@ -163,7 +163,7 @@ class FeedSdk {
         var isExistingUser: Boolean = false
         var isCryptoApp = false
         var parentNudgeView: FrameLayout? = null
-        private var sdkVersion = 1008
+        private var sdkVersion = 1009
         private var isCricketApp = false
     }
 
@@ -173,6 +173,7 @@ class FeedSdk {
         activity: Activity,
         intent: Intent,
         user: User? = null,
+        showPrivacyCard: Boolean? = true,
         showCricketNotification: Boolean? = true,
         isDark: Boolean? = false
     ) {
@@ -194,16 +195,21 @@ class FeedSdk {
         }
         SpUtil.spUtilInstance?.init(activity.baseContext)
         spUtil = SpUtil.spUtilInstance
-        val info: PackageInfo = mContext!!.packageManager.getPackageInfo(mContext!!.packageName, 0)
-        appVersionCode = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
-            info.longVersionCode.toString()
-        } else {
-            info.versionCode.toString()
-        }
-        appVersionName = info.versionName.toString()
+        try{
+            val info: PackageInfo = mContext!!.packageManager.getPackageInfo(mContext!!.packageName, 0)
+            appVersionCode = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+                info.longVersionCode.toString()
+            } else {
+                info.versionCode.toString()
+            }
+            appVersionName = info.versionName.toString()
+        } catch (ex:Exception){}
         try{
             Constants.userAgent = WebSettings.getDefaultUserAgent(mContext)
         } catch (ex:Exception){}
+        if(showPrivacyCard == false){
+            SpUtil.spUtilInstance!!.putBoolean(Constants.PRIVACY_ACCEPTED, true)
+        }
         setIntentBeforeInitialise(intent)
         setTheme(isDark)
         setShareBody(null)
@@ -227,12 +233,14 @@ class FeedSdk {
                 )
                 apiGetInterests()
                 sendPostImpressions()
+                ApiPostImpression().clearImpressions(activity.baseContext)
             }
 
             override fun onFailure() {
                 LogDetail.LogDE(logTag, "Failed to generate Firebase Push Token")
                 apiGetInterests()
                 sendPostImpressions()
+                ApiPostImpression().clearImpressions(activity.baseContext)
             }
         })
         ImpressionUtils().initialize(activity)

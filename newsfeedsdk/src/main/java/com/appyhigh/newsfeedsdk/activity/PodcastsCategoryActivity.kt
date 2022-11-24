@@ -2,6 +2,7 @@ package com.appyhigh.newsfeedsdk.activity
 
 import android.annotation.SuppressLint
 import android.content.Context
+import android.content.SharedPreferences
 import android.os.Bundle
 import android.view.View
 import android.widget.TextView
@@ -29,7 +30,6 @@ class PodcastsCategoryActivity : AppCompatActivity() {
 
     private var binding: ActivityPodcastsCategoryBinding? = null
     var pageNo=0
-    var postImpressions = HashMap<String, PostView>()
     var groupType = "podcast-category"
     private var endlessScrolling: EndlessScrolling? = null
     private var linearLayoutManager: GridLayoutManager? = null
@@ -37,6 +37,7 @@ class PodcastsCategoryActivity : AppCompatActivity() {
     private var newsFeedAdapter: NewsFeedAdapter? = null
     private var presentUrl = ""
     private var presentTimeStamp:Long = 0
+    val gson = Gson()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -52,13 +53,15 @@ class PodcastsCategoryActivity : AppCompatActivity() {
         binding!!.rvPosts.visibility = View.GONE
         binding!!.backBtn.setOnClickListener { finish() }
         groupType = intent.getStringExtra("groupType")!!
+        val sharedPreferences: SharedPreferences = getSharedPreferences("postImpressions", Context.MODE_PRIVATE)
+        val postPreferences: SharedPreferences = getSharedPreferences("postIdsDb", Context.MODE_PRIVATE)
         val listener = object : PodcastResponseListener {
             override fun onSuccess(
                 podcastResponse: PodcastResponse,
                 url: String,
                 timeStamp: Long
             ) {
-                storeData(presentUrl, presentTimeStamp)
+                storeData()
                 presentUrl = url
                 presentTimeStamp = timeStamp
                 binding!!.pbLoading.visibility = View.GONE
@@ -91,9 +94,10 @@ class PodcastsCategoryActivity : AppCompatActivity() {
                                     card.items[0].shortVideo,
                                     card.items[0].source,
                                     totalDuration,
-                                    watchedDuration
+                                    watchedDuration,
+                                    card.items[0].postId+"PodcastsCategoryActivity"
                                 )
-                                postImpressions.put(card.items[0].postId!!,postView)
+                                ApiPostImpression().storeImpression(sharedPreferences, postPreferences, presentUrl, presentTimeStamp, postView)
                             } catch (ex: Exception){
                                 LogDetail.LogEStack(ex)
                             }
@@ -171,7 +175,7 @@ class PodcastsCategoryActivity : AppCompatActivity() {
                 url: String,
                 timeStamp: Long
             ) {
-                storeData(presentUrl, presentTimeStamp)
+                storeData()
                 presentUrl = url
                 presentTimeStamp = timeStamp
                 val podcastList = podcastResponse.cards as ArrayList<Card>
@@ -201,7 +205,7 @@ class PodcastsCategoryActivity : AppCompatActivity() {
 
     override fun onDestroy() {
         super.onDestroy()
-        storeData(presentUrl, presentTimeStamp)
+        storeData()
     }
 
     private fun getLanguageQuery(): String {
@@ -221,17 +225,8 @@ class PodcastsCategoryActivity : AppCompatActivity() {
     }
 
     @SuppressLint("CommitPrefEdits")
-    fun storeData(url: String, timeStamp: Long){
+    fun storeData(){
         try {
-            if(postImpressions.isEmpty() || url.isEmpty()){
-                return
-            }
-            val postImpressionsModel = PostImpressionsModel(url, postImpressions.values.toList(), timeStamp)
-            val gson = Gson()
-            val sharedPrefs = getSharedPreferences("postImpressions", Context.MODE_PRIVATE)
-            val postImpressionString = gson.toJson(postImpressionsModel)
-            sharedPrefs.edit().putString(timeStamp.toString(), postImpressionString).apply()
-            postImpressions = HashMap()
             ApiPostImpression().addPostImpressionsEncrypted(
                 Endpoints.POST_IMPRESSIONS_ENCRYPTED,
                 this

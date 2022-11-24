@@ -163,6 +163,10 @@ data class PostDetailsModel(
         var isNative: Boolean = false,
         @SerializedName("published_on")
         var publishedOn: String = "",
+        @SerializedName("post_source")
+        var postSource: String? = null,
+        @SerializedName("feed_type")
+        var feedType: String? = null
     )
 
     data class NextPostContent(

@@ -2,6 +2,7 @@ package com.appyhigh.newsfeedsdk.activity
 
 import android.annotation.SuppressLint
 import android.content.Context
+import android.content.SharedPreferences
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
@@ -45,9 +46,9 @@ class ReelsActivity : AppCompatActivity() {
     private var feedType = "quick_bites"
     private var presentUrl = ""
     private var presentTimeStamp:Long = 0
-    var postImpressions = HashMap<String, PostView>()
     var currentPosition = 0
     var holders = HashMap<Int,RecyclerView.ViewHolder>()
+    val gson = Gson()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -59,6 +60,8 @@ class ReelsActivity : AppCompatActivity() {
         }
         presentUrl = intent.getStringExtra("postUrl")?:""
         presentTimeStamp = intent.getLongExtra("timeStamp", 0)
+        val sharedPreferences: SharedPreferences = getSharedPreferences("postImpressions", Context.MODE_PRIVATE)
+        val postPreferences: SharedPreferences = getSharedPreferences("postIdsDb", Context.MODE_PRIVATE)
         mAdapter = NewsFeedAdapter(reels, object : NewsFeedList.PersonalizationListener {
             override fun onPersonalizationClicked() {
             }
@@ -91,9 +94,10 @@ class ReelsActivity : AppCompatActivity() {
                             card.items[0].shortVideo,
                             card.items[0].source,
                             totalDuration,
-                            watchedDuration
+                            watchedDuration,
+                            card.items[0].postId+"ReelsActivity"
                         )
-                        postImpressions.put(card.items[0].postId!!,postView)
+                        ApiPostImpression().storeImpression(sharedPreferences, postPreferences, presentUrl, presentTimeStamp, postView)
                     } catch (ex:java.lang.Exception){
                         LogDetail.LogEStack(ex)
                     }
@@ -177,7 +181,7 @@ class ReelsActivity : AppCompatActivity() {
     override fun onDestroy() {
         super.onDestroy()
         binding = null
-        storeData(presentUrl, presentTimeStamp)
+        storeData()
     }
 
     private fun setEndlessScrolling() {
@@ -217,7 +221,7 @@ class ReelsActivity : AppCompatActivity() {
             true,
             object : ApiGetFeeds.GetFeedsResponseListener {
                 override fun onSuccess(getFeedsResponse: GetFeedsResponse, url: String, timeStamp: Long) {
-                    storeData(presentUrl, presentTimeStamp)
+                    storeData()
                     presentTimeStamp = timeStamp
                     presentUrl = url
                     val cards = ArrayList<Card>()
@@ -236,17 +240,8 @@ class ReelsActivity : AppCompatActivity() {
     }
 
     @SuppressLint("CommitPrefEdits")
-    fun storeData(url: String, timeStamp: Long){
+    fun storeData(){
         try {
-            if(postImpressions.isEmpty()){
-                return
-            }
-            val postImpressionsModel = PostImpressionsModel(url, postImpressions.values.toList(), timeStamp)
-            val gson = Gson()
-            val sharedPrefs = getSharedPreferences("postImpressions", Context.MODE_PRIVATE)
-            val postImpressionString = gson.toJson(postImpressionsModel)
-            sharedPrefs.edit().putString(timeStamp.toString(), postImpressionString).apply()
-            postImpressions = HashMap()
             ApiPostImpression().addPostImpressionsEncrypted(
                 Endpoints.POST_IMPRESSIONS_ENCRYPTED,
                 this

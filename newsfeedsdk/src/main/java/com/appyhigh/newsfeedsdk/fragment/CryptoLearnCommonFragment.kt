@@ -2,6 +2,7 @@ package com.appyhigh.newsfeedsdk.fragment
 
 import android.annotation.SuppressLint
 import android.content.Context
+import android.content.SharedPreferences
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -36,7 +37,6 @@ class CryptoLearnCommonFragment : Fragment() {
 
     private var binding: FragmentCryptoLearnCommonBinding?=null
     var pageNo = 1
-    var postImpressions = HashMap<String, PostView>()
     private var presentUrl = ""
     private var presentTimeStamp:Long = 0
     private var endlessScrolling: EndlessScrolling? = null
@@ -49,6 +49,7 @@ class CryptoLearnCommonFragment : Fragment() {
     var newsFeedList = ArrayList<Card>()
     private var adIndex = 0
     var adCheckerList = ArrayList<Card>()
+    val gson = Gson()
 
 
     override fun onCreateView(
@@ -64,6 +65,8 @@ class CryptoLearnCommonFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
         binding!!.pbLoading.visibility = View.VISIBLE
         binding!!.rvLearnPosts.visibility = View.GONE
+        val sharedPreferences: SharedPreferences = requireContext().getSharedPreferences("postImpressions", Context.MODE_PRIVATE)
+        val postPreferences: SharedPreferences = requireContext().getSharedPreferences("postIdsDb", Context.MODE_PRIVATE)
         postImpressionListener = object : PostImpressionListener {
             override fun addImpression(card: Card, totalDuration: Int?, watchedDuration: Int?) {
                 try {
@@ -79,9 +82,10 @@ class CryptoLearnCommonFragment : Fragment() {
                         card.items[0].shortVideo,
                         card.items[0].source,
                         totalDuration,
-                        watchedDuration
+                        watchedDuration,
+                        card.items[0].postId+"CryptoLearnCommonFragment"
                     )
-                    postImpressions[card.items[0].postId!!] = postView
+                    ApiPostImpression().storeImpression(sharedPreferences, postPreferences, presentUrl, presentTimeStamp, postView)
                 } catch (ex: Exception){
                     LogDetail.LogEStack(ex)
                 }
@@ -130,7 +134,7 @@ class CryptoLearnCommonFragment : Fragment() {
             feedType,
             object : ApiGetPostsByTag.PostsByTagResponseListener {
                 override fun onSuccess(getFeedsResponse: GetFeedsResponse, url: String, timeStamp: Long) {
-                    storeData(presentUrl, presentTimeStamp)
+                    storeData()
                     presentTimeStamp = timeStamp
                     presentUrl = url
                     binding?.pbLoading?.visibility = View.GONE
@@ -193,7 +197,7 @@ class CryptoLearnCommonFragment : Fragment() {
                     url: String,
                     timeStamp: Long
                 ) {
-                    storeData(presentUrl, presentTimeStamp)
+                    storeData()
                     presentUrl = url
                     presentTimeStamp = timeStamp
                     val newsFeedList = cryptoResponse.cards as ArrayList<Card>
@@ -227,7 +231,7 @@ class CryptoLearnCommonFragment : Fragment() {
 
     override fun onDestroy() {
         super.onDestroy()
-        storeData(presentUrl, presentTimeStamp)
+        storeData()
     }
 
 
@@ -261,17 +265,8 @@ class CryptoLearnCommonFragment : Fragment() {
     }
 
     @SuppressLint("CommitPrefEdits")
-    fun storeData(url: String, timeStamp: Long){
+    fun storeData(){
         try {
-            if(postImpressions.isEmpty() || url.isEmpty()){
-                return
-            }
-            val postImpressionsModel = PostImpressionsModel(url, postImpressions.values.toList(), timeStamp)
-            val gson = Gson()
-            val sharedPrefs = requireContext().getSharedPreferences("postImpressions", Context.MODE_PRIVATE)
-            val postImpressionString = gson.toJson(postImpressionsModel)
-            sharedPrefs.edit().putString(timeStamp.toString(), postImpressionString).apply()
-            postImpressions = HashMap()
             ApiPostImpression().addPostImpressionsEncrypted(
                 Endpoints.POST_IMPRESSIONS_ENCRYPTED,
                 requireContext()
