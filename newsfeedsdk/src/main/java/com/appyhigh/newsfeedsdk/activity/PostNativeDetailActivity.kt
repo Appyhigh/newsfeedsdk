@@ -825,7 +825,7 @@ class PostNativeDetailActivity : AppCompatActivity() {
                 intent.putExtra(Constants.POSITION, Constants.postDetailCards.size)
             }
             intent.putExtra(Constants.LANGUAGE, intent.getStringExtra(Constants.LANGUAGE) ?: "en")
-            intent.putExtra(Constants.POST_ID, postId)
+            intent.putExtra(Constants.POST_ID, nextPost.post_id)
             intent.putExtra(Constants.POST_SOURCE, nextPost.postSource)
             intent.putExtra(Constants.FEED_TYPE,nextPost.feedType)
             intent.putExtra("from_app", true)
@@ -1364,6 +1364,10 @@ class PostNativeDetailActivity : AppCompatActivity() {
             val sharedPreferences: SharedPreferences = getSharedPreferences("postImpressions", Context.MODE_PRIVATE)
             val postPreferences: SharedPreferences = getSharedPreferences("postIdsDb", Context.MODE_PRIVATE)
             ApiPostImpression().storeImpression(sharedPreferences, postPreferences, presentPostDetailsModel?.post?.presentUrl!!, presentPostDetailsModel?.post?.presentTimeStamp!!, postView)
+            ApiPostImpression().addPostImpressionsEncrypted(
+                Endpoints.POST_IMPRESSIONS_ENCRYPTED,
+                this@PostNativeDetailActivity
+            )
         } catch (ex: java.lang.Exception) {
             LogDetail.LogEStack(ex)
         }

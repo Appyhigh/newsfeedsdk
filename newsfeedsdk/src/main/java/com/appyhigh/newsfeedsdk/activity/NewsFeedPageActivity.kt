@@ -963,7 +963,7 @@ class NewsFeedPageActivity : AppCompatActivity() {
                 intent.putExtra(POSITION, postDetailCards.size)
             }
             intent.putExtra(LANGUAGE, intent.getStringExtra(LANGUAGE) ?: "en")
-            intent.putExtra(POST_ID, postId)
+            intent.putExtra(POST_ID, nextPost.post_id)
             intent.putExtra(POST_SOURCE , nextPost.postSource)
             intent.putExtra(FEED_TYPE ,nextPost.feedType)
             intent.putExtra("from_app", true)
@@ -1642,6 +1642,10 @@ class NewsFeedPageActivity : AppCompatActivity() {
             val sharedPreferences: SharedPreferences = getSharedPreferences("postImpressions", Context.MODE_PRIVATE)
             val postPreferences: SharedPreferences = getSharedPreferences("postIdsDb", Context.MODE_PRIVATE)
             ApiPostImpression().storeImpression(sharedPreferences, postPreferences, presentPostDetailsModel?.post?.presentUrl!!, presentPostDetailsModel?.post?.presentTimeStamp!!, postView)
+            ApiPostImpression().addPostImpressionsEncrypted(
+                Endpoints.POST_IMPRESSIONS_ENCRYPTED,
+                this@NewsFeedPageActivity
+            )
         } catch (ex: java.lang.Exception) {
             LogDetail.LogEStack(ex)
         }
