@@ -480,12 +480,18 @@ class NewsFeedScrollView : LinearLayout, PersonalizeCallListener, OnRefreshListe
         fragmentList = ArrayList()
         for ((i, interest) in selectedInterestsList.withIndex()) {
             when (interest.keyId) {
-//                "cricket" -> fragmentList.add(CricketFragment.newInstance())
-                "cricket" -> fragmentList.add(
-                    CricketHomePWAFragment.newInstance(
-                        Constants.allInterestsMap["cricket"]!!.pwaLink ?: "", "cricket"
+                "cricket" -> {
+                    val cricketLink = try {
+                        Constants.allInterestsMap["cricket"]!!.pwaLink ?: ""
+                    } catch (e: Exception) {
+                        "cricket"
+                    }
+                    fragmentList.add(
+                        CricketHomePWAFragment.newInstance(
+                            cricketLink, "cricket"
+                        )
                     )
-                )
+                }
                 "podcasts" -> fragmentList.add(PodcastsFragment.newInstance())
                 "crypto" -> fragmentList.add(CryptoFragment.newInstance())
                 else -> {
