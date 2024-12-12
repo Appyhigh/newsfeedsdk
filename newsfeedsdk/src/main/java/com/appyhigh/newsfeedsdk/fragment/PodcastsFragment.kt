@@ -2,6 +2,7 @@ package com.appyhigh.newsfeedsdk.fragment
 
 import android.annotation.SuppressLint
 import android.content.Context
+import android.content.SharedPreferences
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -29,13 +30,13 @@ class PodcastsFragment : Fragment() {
     var pageNo = 0
     private var adIndex = 0
     var adCheckerList = ArrayList<Card>()
-    var postImpressions = HashMap<String, PostView>()
     private var presentUrl = ""
     private var presentTimeStamp:Long = 0
     private var endlessScrolling: EndlessScrolling? = null
     private var linearLayoutManager: GridLayoutManager? = null
 //    private var linearLayoutManager: LinearLayoutManager? = null
     private var newsFeedAdapter: NewsFeedAdapter? = null
+    val gson = Gson()
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -49,6 +50,8 @@ class PodcastsFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
         binding.pbLoading.visibility = View.VISIBLE
         binding.rvPosts.visibility = View.GONE
+        val sharedPreferences: SharedPreferences = requireContext().getSharedPreferences("postImpressions", Context.MODE_PRIVATE)
+        val postPreferences: SharedPreferences = requireContext().getSharedPreferences("postIdsDb", Context.MODE_PRIVATE)
         ApiPodcast().getPodcastHomeEncrypted(
             Endpoints.PODCAST_HOME_ENCRYPTED,
             getLanguageQuery(),
@@ -59,7 +62,7 @@ class PodcastsFragment : Fragment() {
                     url: String,
                     timeStamp: Long
                 ) {
-                    storeData(presentUrl, presentTimeStamp)
+                    storeData()
                     presentUrl = url
                     presentTimeStamp = timeStamp
                     adIndex += podcastResponse.adPlacement[0]
@@ -94,9 +97,10 @@ class PodcastsFragment : Fragment() {
                                         card.items[0].shortVideo,
                                         card.items[0].source,
                                         totalDuration,
-                                        watchedDuration
+                                        watchedDuration,
+                                        card.items[0].postId+"PodcastsFragment"
                                     )
-                                    postImpressions[card.items[0].postId!!] = postView
+                                    ApiPostImpression().storeImpression(sharedPreferences, postPreferences, presentUrl, presentTimeStamp, postView)
                                 } catch (ex: Exception){
                                     LogDetail.LogEStack(ex)
                                 }
@@ -158,7 +162,7 @@ class PodcastsFragment : Fragment() {
                     url: String,
                     timeStamp: Long
                 ) {
-                    storeData(presentUrl, presentTimeStamp)
+                    storeData()
                     presentUrl = url
                     presentTimeStamp = timeStamp
                     adIndex += podcastResponse.adPlacement[0]
@@ -197,7 +201,7 @@ class PodcastsFragment : Fragment() {
 
     override fun onDestroy() {
         super.onDestroy()
-        storeData(presentUrl, presentTimeStamp)
+        storeData()
     }
 
 
@@ -218,17 +222,8 @@ class PodcastsFragment : Fragment() {
     }
 
     @SuppressLint("CommitPrefEdits")
-    fun storeData(url: String, timeStamp: Long){
+    fun storeData(){
         try {
-            if(postImpressions.isEmpty() || url.isEmpty()){
-                return
-            }
-            val postImpressionsModel = PostImpressionsModel(url, postImpressions.values.toList(), timeStamp)
-            val gson = Gson()
-            val sharedPrefs = requireContext().getSharedPreferences("postImpressions", Context.MODE_PRIVATE)
-            val postImpressionString = gson.toJson(postImpressionsModel)
-            sharedPrefs.edit().putString(timeStamp.toString(), postImpressionString).apply()
-            postImpressions = HashMap()
             ApiPostImpression().addPostImpressionsEncrypted(
                 Endpoints.POST_IMPRESSIONS_ENCRYPTED,
                 requireContext()

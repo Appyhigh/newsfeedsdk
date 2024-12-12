@@ -6,6 +6,7 @@ import android.app.Dialog
 import android.content.ActivityNotFoundException
 import android.content.Context
 import android.content.Intent
+import android.content.SharedPreferences
 import android.content.pm.ActivityInfo
 import android.graphics.drawable.Drawable
 import android.net.Uri
@@ -64,6 +65,9 @@ import com.google.android.exoplayer2.ui.AspectRatioFrameLayout
 import com.google.android.exoplayer2.ui.StyledPlayerView.SHOW_BUFFERING_WHEN_PLAYING
 import com.google.android.exoplayer2.upstream.DefaultDataSource
 import com.google.android.exoplayer2.util.Util
+import com.google.android.gms.ads.AdError
+import com.google.android.gms.ads.LoadAdError
+import com.google.android.gms.ads.interstitial.InterstitialAd
 import com.google.android.gms.tasks.OnSuccessListener
 import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.firebase.dynamiclinks.DynamicLink.AndroidParameters
@@ -113,6 +117,10 @@ class NewsFeedPageActivity : AppCompatActivity() {
     private var details_close_button: View? = null
     private var interest = ""
     var presentPostDetailsModel: PostDetailsModel? = null
+    var nextCardPost: PostDetailsModel.NextPost? = null
+    var nextCardAlreadyExists: Boolean = false
+    var adsModel = ApiConfig().getConfigModel(this)
+    var mInterstitialAd: InterstitialAd? = null
     var totalDuration = 0
     var duration = 0
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -132,20 +140,10 @@ class NewsFeedPageActivity : AppCompatActivity() {
         exo_fullscreen_button?.visibility = View.GONE
         details_close_button?.visibility = View.GONE
         Constants.postDetailPageNo = 0
-        ApiConfig().requestAd(this, "post_detail_footer_banner", object : ConfigAdRequestListener{
-            override fun onPrivateAdSuccess(webView: WebView) {
-                binding!!.bannerAd.removeAllViews()
-                binding!!.bannerAd.addView(webView)
-            }
-
-            override fun onAdmobAdSuccess(adId: String) {
-                showAdaptiveBanner(this@NewsFeedPageActivity, adId, binding!!.bannerAd)
-            }
-
-            override fun onAdHide() {
-                binding!!.bannerAd.visibility = View.GONE
-            }
-        }, true)
+        if (position == 0) {
+            Constants.nativePageCount = 1
+        }
+        showAds()
         if (intent.hasExtra(INTEREST)) {
             postDetailCards = ArrayList()
         }
@@ -319,6 +317,57 @@ class NewsFeedPageActivity : AppCompatActivity() {
         }
     }
 
+    private fun showAds() {
+        try {
+            ApiConfig().requestAd(this, "post_detail_footer_banner", object : ConfigAdRequestListener{
+                override fun onPrivateAdSuccess(webView: WebView) {
+                    binding!!.bannerAd.removeAllViews()
+                    binding!!.bannerAd.addView(webView)
+                }
+
+                override fun onAdmobAdSuccess(adId: String) {
+                    showAdaptiveBanner(this@NewsFeedPageActivity, adId, binding!!.bannerAd)
+                }
+
+                override fun onAdHide() {
+                    binding!!.bannerAd.visibility = View.GONE
+                }
+            }, true)
+
+            if (ApiConfig().checkShowAds(this) && adsModel.postDetailInterstitial.showAdmob) {
+                if (Constants.nativePageCount > adsModel.showInterstitialAfterPosts) {
+                    loadInterstitialAd(
+                        this,
+                        adsModel.postDetailInterstitial.admobId,
+                        object : InterstitialAdUtilLoadCallback {
+                            override fun onAdFailedToLoad(
+                                adError: LoadAdError,
+                                ad: InterstitialAd?
+                            ) {
+                                mInterstitialAd = null
+                            }
+
+                            override fun onAdLoaded(ad: InterstitialAd?) {
+                                mInterstitialAd = ad
+                            }
+
+                            override fun onAdDismissedFullScreenContent() {
+                                Constants.nativePageCount = 0
+                                mInterstitialAd = null
+                                nextCardPost?.let { getNextCard(it, nextCardAlreadyExists) }
+                            }
+
+                            override fun onAdFailedToShowFullScreenContent(adError: AdError?) {}
+
+                            override fun onAdShowedFullScreenContent() {}
+                        })
+                }
+            }
+        } catch (ex: Exception) {
+            LogDetail.LogEStack(ex)
+        }
+    }
+
 
     fun postReaction() {
         var reactionType = ReactionType.LIKE
@@ -483,6 +532,8 @@ class NewsFeedPageActivity : AppCompatActivity() {
 
     private fun handleResults(postDetailsModel: PostDetailsModel, isAlreadyExists: Boolean) {
         presentPostDetailsModel = postDetailsModel
+        post_source = postDetailsModel.post?.postSource?:"unknown"
+        feed_type = postDetailsModel.post?.feedType?:"unknown"
         if (!isAlreadyExists) {
             postDetailCards.add(postDetailsModel)
         } else {
@@ -829,7 +880,7 @@ class NewsFeedPageActivity : AppCompatActivity() {
                 val nextPost = postDetailsModel.post!!.additional_data.next_post
                 binding?.nextCard?.visibility = View.VISIBLE
                 binding?.nextCard?.setOnClickListener {
-                    getNextCard(nextPost!!.post_id, isAlreadyExists, nextPost.isNative)
+                    getNextCard(nextPost!!, isAlreadyExists)
                 }
                 val relatedPost = postDetailsModel.post!!.additional_data.related_post
                 val url = try {
@@ -856,7 +907,7 @@ class NewsFeedPageActivity : AppCompatActivity() {
 
                         })
                     binding?.relatedVideo?.setOnClickListener {
-                        getNextCard(relatedPost.post_id, isAlreadyExists, relatedPost.isNative)
+                        getNextCard(relatedPost, isAlreadyExists)
                     }
                 } else {
                     binding?.relatedPost?.visibility = View.VISIBLE
@@ -878,35 +929,47 @@ class NewsFeedPageActivity : AppCompatActivity() {
 
                         })
                     binding?.relatedPost?.setOnClickListener {
-                        getNextCard(relatedPost.post_id, isAlreadyExists, relatedPost.isNative)
+                        getNextCard(relatedPost, isAlreadyExists)
                     }
                 }
             }
         } catch (ex: Exception) {
             LogDetail.LogEStack(ex)
         }
+        if(!isVideo) {
+            storeData()
+        }
     }
 
-    private fun getNextCard(postId: String, isAlreadyExists: Boolean, isNative: Boolean) {
-        val intent = if (isNative) {
-            val bundle = Bundle()
-            bundle.putString("NativePageOpen", "Feed")
-            FirebaseAnalytics.getInstance(this).logEvent("NativePage", bundle)
-            Intent(this, PostNativeDetailActivity::class.java)
+    private fun getNextCard(nextPost: PostDetailsModel.NextPost, isAlreadyExists: Boolean) {
+        if (mInterstitialAd != null) {
+            nextCardAlreadyExists = isAlreadyExists
+            nextCardPost = nextPost
+            mInterstitialAd?.show(this)
         } else {
-            Intent(this, NewsFeedPageActivity::class.java)
+            Constants.nativePageCount = Constants.nativePageCount + 1
+            val intent = if (nextPost.isNative) {
+                val bundle = Bundle()
+                bundle.putString("NativePageOpen", "Feed")
+                FirebaseAnalytics.getInstance(this).logEvent("NativePage", bundle)
+                Intent(this, PostNativeDetailActivity::class.java)
+            } else {
+                Intent(this, NewsFeedPageActivity::class.java)
+            }
+            if (isAlreadyExists && postDetailCards.size > position + 1) {
+                intent.putExtra(ALREADY_EXISTS, true)
+                intent.putExtra(POSITION, position + 1)
+            } else {
+                intent.putExtra(POSITION, postDetailCards.size)
+            }
+            intent.putExtra(LANGUAGE, intent.getStringExtra(LANGUAGE) ?: "en")
+            intent.putExtra(POST_ID, nextPost.post_id)
+            intent.putExtra(POST_SOURCE , nextPost.postSource)
+            intent.putExtra(FEED_TYPE ,nextPost.feedType)
+            intent.putExtra("from_app", true)
+            startActivity(intent)
+            finish()
         }
-        if (isAlreadyExists && postDetailCards.size > position + 1) {
-            intent.putExtra(ALREADY_EXISTS, true)
-            intent.putExtra(POSITION, position + 1)
-        } else {
-            intent.putExtra(POSITION, postDetailCards.size)
-        }
-        intent.putExtra(LANGUAGE, intent.getStringExtra(LANGUAGE) ?: "en")
-        intent.putExtra(POST_ID, postId)
-        intent.putExtra("from_app", true)
-        startActivity(intent)
-        finish()
     }
 
     private fun handleError(throwable: Throwable) {
@@ -1573,22 +1636,15 @@ class NewsFeedPageActivity : AppCompatActivity() {
                 isVideo,
                 presentPostDetailsModel?.post?.publisherName,
                 if (isVideo) totalDuration else null,
-                if (isVideo) duration else null
+                if (isVideo) duration else null,
+                postId+"NewsFeedPageActivity"
             )
-            val postImpressions = ArrayList<PostView>()
-            postImpressions.add(postView)
-            val postImpressionsModel = PostImpressionsModel(
-                presentPostDetailsModel?.post?.presentUrl!!,
-                postImpressions,
-                presentPostDetailsModel?.post?.presentTimeStamp!!
-            )
-            val gson = Gson()
-            val sharedPrefs = getSharedPreferences("postImpressions", Context.MODE_PRIVATE)
-            val postImpressionString = gson.toJson(postImpressionsModel)
-            sharedPrefs.edit().putString(postId.toString(), postImpressionString).apply()
+            val sharedPreferences: SharedPreferences = getSharedPreferences("postImpressions", Context.MODE_PRIVATE)
+            val postPreferences: SharedPreferences = getSharedPreferences("postIdsDb", Context.MODE_PRIVATE)
+            ApiPostImpression().storeImpression(sharedPreferences, postPreferences, presentPostDetailsModel?.post?.presentUrl!!, presentPostDetailsModel?.post?.presentTimeStamp!!, postView)
             ApiPostImpression().addPostImpressionsEncrypted(
                 Endpoints.POST_IMPRESSIONS_ENCRYPTED,
-                this
+                this@NewsFeedPageActivity
             )
         } catch (ex: java.lang.Exception) {
             LogDetail.LogEStack(ex)

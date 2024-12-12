@@ -31,6 +31,7 @@ import com.appyhigh.newsfeedsdk.activity.PodcastPlayerActivity
 import com.appyhigh.newsfeedsdk.apicalls.ApiPostImpression
 import com.appyhigh.newsfeedsdk.apiclient.Endpoints
 import com.appyhigh.newsfeedsdk.encryption.LogDetail
+import com.appyhigh.newsfeedsdk.fragment.PagerFragment
 import com.appyhigh.newsfeedsdk.model.PostImpressionsModel
 import com.appyhigh.newsfeedsdk.model.PostView
 import com.bumptech.glide.Glide
@@ -492,7 +493,8 @@ class PodcastMediaPlayer {
                     false,
                     podcastMediaCard.publisherName,
                     totalDuration,
-                    duration
+                    duration,
+                    podcastMediaCard.postId+"PodcastMediaPlayer"
                 )
                 val postImpressions = ArrayList<PostView>()
                 postImpressions.add(postView)

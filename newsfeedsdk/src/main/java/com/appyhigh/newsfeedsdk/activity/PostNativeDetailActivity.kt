@@ -5,6 +5,7 @@ import android.app.Activity
 import android.content.ActivityNotFoundException
 import android.content.Context
 import android.content.Intent
+import android.content.SharedPreferences
 import android.graphics.Color
 import android.graphics.Typeface
 import android.graphics.drawable.Drawable
@@ -91,9 +92,8 @@ class PostNativeDetailActivity : AppCompatActivity() {
     var totalDuration = 0
     var duration = 0
     var mInterstitialAd: InterstitialAd? = null
-    var nextCardPostId: String = ""
     var nextCardAlreadyExists: Boolean = false
-    var nextCardNative: Boolean = false
+    var nextCardPost: PostDetailsModel.NextPost? = null
     private var btwArticleLayout: LinearLayout? = null
     private var loadTrace = FirebasePerformance.startTrace("NativePage-loadTime")
     private var timeSpentTrace: Trace? = null
@@ -417,7 +417,7 @@ class PostNativeDetailActivity : AppCompatActivity() {
                             override fun onAdDismissedFullScreenContent() {
                                 Constants.nativePageCount = 0
                                 mInterstitialAd = null
-                                getNextCard(nextCardPostId, nextCardAlreadyExists, nextCardNative)
+                                nextCardPost?.let { getNextCard(it, nextCardAlreadyExists) }
                             }
 
                             override fun onAdFailedToShowFullScreenContent(adError: AdError?) {}
@@ -592,6 +592,8 @@ class PostNativeDetailActivity : AppCompatActivity() {
         try {
             binding!!.pbLoading.visibility = View.GONE
             presentPostDetailsModel = postDetailsModel
+            post_source = postDetailsModel.post?.postSource?:"unknown"
+            feed_type = postDetailsModel.post?.feedType?:"unknown"
             if (!isAlreadyExists) {
                 Constants.postDetailCards.add(postDetailsModel)
             }
@@ -750,15 +752,15 @@ class PostNativeDetailActivity : AppCompatActivity() {
                     binding?.nextCard?.visibility = View.VISIBLE
                     binding?.nextCard?.setOnClickListener {
                         getNextCard(
-                            nextPost!!.post_id,
-                            isAlreadyExists,
-                            postDetailsModel.post?.additional_data?.next_post!!.isNative!!
+                            nextPost!!,
+                            isAlreadyExists
                         )
                     }
                 }
             } catch (ex: Exception) {
                 LogDetail.LogEStack(ex)
             }
+            storeData()
         } catch (ex: Exception) {
             LogDetail.LogEStack(ex)
         }
@@ -804,15 +806,14 @@ class PostNativeDetailActivity : AppCompatActivity() {
         }
     }
 
-    private fun getNextCard(postId: String, isAlreadyExists: Boolean, isNative: Boolean) {
+    private fun getNextCard(nextPost: PostDetailsModel.NextPost, isAlreadyExists: Boolean) {
         if (mInterstitialAd != null) {
-            nextCardPostId = postId
+            nextCardPost = nextPost
             nextCardAlreadyExists = isAlreadyExists
-            nextCardNative = isNative
             mInterstitialAd?.show(this)
         } else {
             Constants.nativePageCount = Constants.nativePageCount + 1
-            val intent = if (isNative) {
+            val intent = if (nextPost.isNative) {
                 Intent(this, PostNativeDetailActivity::class.java)
             } else {
                 Intent(this, NewsFeedPageActivity::class.java)
@@ -824,7 +825,9 @@ class PostNativeDetailActivity : AppCompatActivity() {
                 intent.putExtra(Constants.POSITION, Constants.postDetailCards.size)
             }
             intent.putExtra(Constants.LANGUAGE, intent.getStringExtra(Constants.LANGUAGE) ?: "en")
-            intent.putExtra(Constants.POST_ID, postId)
+            intent.putExtra(Constants.POST_ID, nextPost.post_id)
+            intent.putExtra(Constants.POST_SOURCE, nextPost.postSource)
+            intent.putExtra(Constants.FEED_TYPE,nextPost.feedType)
             intent.putExtra("from_app", true)
             startActivity(intent)
             finish()
@@ -1251,8 +1254,8 @@ class PostNativeDetailActivity : AppCompatActivity() {
             val nextPostAdapter =
                 FeedNextPostAdapter(postDetailsModel.post!!.additional_data!!.related_post_list as ArrayList<PostDetailsModel.NextPost>,
                     object : OnRelatedPostClickListener {
-                        override fun onPostClick(postId: String, isNative: Boolean) {
-                            getNextCard(postId, isAlreadyExists, isNative)
+                        override fun onPostClick(nextPost: PostDetailsModel.NextPost) {
+                            getNextCard(nextPost, isAlreadyExists)
                         }
 
                         override fun onSharePost(
@@ -1355,20 +1358,16 @@ class PostNativeDetailActivity : AppCompatActivity() {
                 false,
                 presentPostDetailsModel?.post?.publisherName,
                 null,
-                null
+                null,
+                postId+"PostNativeDetailActivity"
             )
-            val postImpressions = ArrayList<PostView>()
-            postImpressions.add(postView)
-            val postImpressionsModel = PostImpressionsModel(
-                presentPostDetailsModel?.post?.presentUrl!!,
-                postImpressions,
-                presentPostDetailsModel?.post?.presentTimeStamp!!
+            val sharedPreferences: SharedPreferences = getSharedPreferences("postImpressions", Context.MODE_PRIVATE)
+            val postPreferences: SharedPreferences = getSharedPreferences("postIdsDb", Context.MODE_PRIVATE)
+            ApiPostImpression().storeImpression(sharedPreferences, postPreferences, presentPostDetailsModel?.post?.presentUrl!!, presentPostDetailsModel?.post?.presentTimeStamp!!, postView)
+            ApiPostImpression().addPostImpressionsEncrypted(
+                Endpoints.POST_IMPRESSIONS_ENCRYPTED,
+                this@PostNativeDetailActivity
             )
-            val gson = Gson()
-            val sharedPrefs = getSharedPreferences("postImpressions", Context.MODE_PRIVATE)
-            val postImpressionString = gson.toJson(postImpressionsModel)
-            sharedPrefs.edit().putString(postId.toString(), postImpressionString).apply()
-            ApiPostImpression().addPostImpressionsEncrypted(Endpoints.POST_IMPRESSIONS_ENCRYPTED, this)
         } catch (ex: java.lang.Exception) {
             LogDetail.LogEStack(ex)
         }

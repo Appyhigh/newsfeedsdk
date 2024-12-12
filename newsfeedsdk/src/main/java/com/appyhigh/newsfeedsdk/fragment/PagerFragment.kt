@@ -4,6 +4,7 @@ import android.Manifest
 import android.annotation.SuppressLint
 import android.content.Context
 import android.content.Intent
+import android.content.SharedPreferences
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
@@ -91,13 +92,14 @@ class PagerFragment : Fragment(), EasyPermissions.PermissionCallbacks {
     private var stateCode = ""
     private var mUser: User? = null
     private var presentTimeStamp: Long = 0
-    var postImpressions = HashMap<String, PostView>()
     var intent: Intent? = null
     var dynamicLinkToCovidCard = false
     private var locationPopup: CardView? = null
     private var noPosts: TextView? = null
     private var TAG = "PagerFragment"
     private var personalizeListener: NewsFeedList.PersonalizationListener? = null
+    val gson = Gson()
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         LogDetail.LogD(TAG, "onCreate")
@@ -264,7 +266,8 @@ class PagerFragment : Fragment(), EasyPermissions.PermissionCallbacks {
         }
         pageNo = 0
         adIndex = 0
-
+        val sharedPreferences: SharedPreferences = requireContext().getSharedPreferences("postImpressions", Context.MODE_PRIVATE)
+        val postPreferences: SharedPreferences = requireContext().getSharedPreferences("postIdsDb", Context.MODE_PRIVATE)
         ApiGetFeeds().getRegionalFeedsEncrypted(
             Endpoints.GET_REGIONAL_FEEDS_ENCRYPTED,
             round(latitude * 100000) / 100000.toDouble(),
@@ -279,7 +282,7 @@ class PagerFragment : Fragment(), EasyPermissions.PermissionCallbacks {
                 ) {
                     Handler(Looper.getMainLooper()).post {
                         LogDetail.LogD(TAG, "apigetfeeds started")
-                        storeData(presentUrl, presentTimeStamp)
+                        storeData()
                         presentTimeStamp = timeStamp
                         presentUrl = url
                         adIndex += getFeedsResponse.adPlacement[0]
@@ -352,10 +355,10 @@ class PagerFragment : Fragment(), EasyPermissions.PermissionCallbacks {
                                                 card.items[0].shortVideo,
                                                 card.items[0].source,
                                                 totalDuration,
-                                                watchedDuration
+                                                watchedDuration,
+                                                card.items[0].postId+"PagerFragment"+selectedInterest.toString()
                                             )
-                                            postImpressions[card.items[0].postId!!] = postView
-                                            storeImpressions(url, timeStamp)
+                                            ApiPostImpression().storeImpression(sharedPreferences, postPreferences, presentUrl, presentTimeStamp, postView)
                                         } catch (ex: java.lang.Exception) {
                                             LogDetail.LogEStack(ex)
                                         }
@@ -407,7 +410,8 @@ class PagerFragment : Fragment(), EasyPermissions.PermissionCallbacks {
                 hasFirstPostId = true
             }
         }
-
+        val sharedPreferences: SharedPreferences = requireContext().getSharedPreferences("postImpressions", Context.MODE_PRIVATE)
+        val postPreferences: SharedPreferences = requireContext().getSharedPreferences("postIdsDb", Context.MODE_PRIVATE)
         ApiGetFeeds().getFeedsEncrypted(
             Endpoints.GET_FEEDS_ENCRYPTED,
             FeedSdk.sdkCountryCode ?: "in",
@@ -424,7 +428,7 @@ class PagerFragment : Fragment(), EasyPermissions.PermissionCallbacks {
                 ) {
                     if (isAdded) {
                         requireActivity().runOnUiThread {
-                            storeData(presentUrl, presentTimeStamp)
+                            storeData()
                             presentTimeStamp = timeStamp
                             presentUrl = url
                             adIndex += getFeedsResponse.adPlacement[0]
@@ -510,10 +514,10 @@ class PagerFragment : Fragment(), EasyPermissions.PermissionCallbacks {
                                                 card.items[0].shortVideo,
                                                 card.items[0].source,
                                                 totalDuration,
-                                                watchedDuration
+                                                watchedDuration,
+                                                card.items[0].postId+"PagerFragment"+selectedInterest.toString()
                                             )
-                                            postImpressions[card.items[0].postId!!] = postView
-                                            storeImpressions(url, timeStamp)
+                                            ApiPostImpression().storeImpression(sharedPreferences, postPreferences, presentUrl, presentTimeStamp, postView)
                                         } catch (ex: java.lang.Exception) {
                                             LogDetail.LogEStack(ex)
                                         }
@@ -599,7 +603,7 @@ class PagerFragment : Fragment(), EasyPermissions.PermissionCallbacks {
                     url: String,
                     timeStamp: Long
                 ) {
-                    storeData(presentUrl, presentTimeStamp)
+                    storeData()
                     presentTimeStamp = timeStamp
                     presentUrl = url
                     Constants.feedsResponseDetails.api_uri = presentUrl
@@ -669,7 +673,7 @@ class PagerFragment : Fragment(), EasyPermissions.PermissionCallbacks {
                     url: String,
                     timeStamp: Long
                 ) {
-                    storeData(presentUrl, presentTimeStamp)
+                    storeData()
                     presentTimeStamp = timeStamp
                     presentUrl = url
                     Constants.feedsResponseDetails.api_uri = presentUrl
@@ -798,37 +802,9 @@ class PagerFragment : Fragment(), EasyPermissions.PermissionCallbacks {
         }
     }
 
-    fun storeImpressions(url: String, timeStamp: Long) {
-        try {
-            if (postImpressions.isEmpty()) {
-                return
-            }
-            val postImpressionsModel =
-                PostImpressionsModel(url, postImpressions.values.toList(), timeStamp)
-            val gson = Gson()
-            val sharedPrefs =
-                requireContext().getSharedPreferences("postImpressions", Context.MODE_PRIVATE)
-            val postImpressionString = gson.toJson(postImpressionsModel)
-            sharedPrefs.edit().putString(timeStamp.toString(), postImpressionString).apply()
-        } catch (ex: java.lang.Exception) {
-            LogDetail.LogEStack(ex)
-        }
-    }
-
     @SuppressLint("CommitPrefEdits")
-    fun storeData(url: String, timeStamp: Long) {
+    fun storeData() {
         try {
-            if (postImpressions.isEmpty()) {
-                return
-            }
-            val postImpressionsModel =
-                PostImpressionsModel(url, postImpressions.values.toList(), timeStamp)
-            val gson = Gson()
-            val sharedPrefs =
-                requireContext().getSharedPreferences("postImpressions", Context.MODE_PRIVATE)
-            val postImpressionString = gson.toJson(postImpressionsModel)
-            sharedPrefs.edit().putString(timeStamp.toString(), postImpressionString).apply()
-            postImpressions = HashMap()
             ApiPostImpression().addPostImpressionsEncrypted(
                 Endpoints.POST_IMPRESSIONS_ENCRYPTED,
                 requireContext()
@@ -840,7 +816,7 @@ class PagerFragment : Fragment(), EasyPermissions.PermissionCallbacks {
 
     override fun onDestroy() {
         super.onDestroy()
-        storeData(presentUrl, presentTimeStamp)
+        storeData()
     }
 
     private fun getHomeNativeAd(): String {

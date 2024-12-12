@@ -155,7 +155,8 @@ public class AuthSocket {
             String decodedString = new String(decodedBytes);
 
             //Another Key can Be configured in Remote Config of Firebase - Challenge it would have to come from Client Firebase
-            String encryptionKey = String.valueOf(FeedSdk.Companion.getSDKVersion()).trim() + decodedString.trim() + SHA1.trim();
+//            String encryptionKey = String.valueOf(FeedSdk.Companion.getSDKVersion()).trim() + decodedString.trim() + SHA1.trim();
+            String encryptionKey = "1008" + decodedString.trim() + SHA1.trim();
             LogDetail.LogDE("encryptionKey", encryptionKey);
             this.encryptionKey = encryptionKey;
             instanceEncryption = new AESCBCPKCS5Encryption().getInstance(encryptionKey.trim());

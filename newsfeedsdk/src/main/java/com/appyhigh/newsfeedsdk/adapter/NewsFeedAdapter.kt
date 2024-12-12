@@ -629,6 +629,7 @@ class NewsFeedAdapter(
                 holder.view.position = holder.adapterPosition
                 holder.view.onAttachedListener = this
                 holder.view.onDetachedListener = this
+                postImpressionListener?.addImpression(newsFeedList[position], null, null)
             }
             TITLE_ICON -> {
                 val holder = mainHolder as TitleIconViewHolder

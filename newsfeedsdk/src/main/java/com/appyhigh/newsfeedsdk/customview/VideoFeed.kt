@@ -2,6 +2,7 @@ package com.appyhigh.newsfeedsdk.customview
 
 import android.annotation.SuppressLint
 import android.content.Context
+import android.content.SharedPreferences
 import android.graphics.Rect
 import android.os.Handler
 import android.os.Looper
@@ -59,7 +60,7 @@ class VideoFeed : LinearLayout, OnRefreshListener {
     private var presentTimeStamp: Long = 0
     var currentPosition = 0
     var holders = HashMap<Int, RecyclerView.ViewHolder?>()
-    var postImpressions = HashMap<String, PostView>()
+    val gson = Gson()
     var tempR: Rect = Rect()
 
     constructor(context: Context?) : super(context) {
@@ -237,7 +238,7 @@ class VideoFeed : LinearLayout, OnRefreshListener {
                         timeStamp: Long
                     ) {
                         Handler(Looper.getMainLooper()).post{
-                            storeData(presentUrl, presentTimeStamp)
+                            storeData()
                             presentTimeStamp = timeStamp
                             presentUrl = url
                             adIndex += getFeedsResponse.adPlacement[0]
@@ -298,6 +299,8 @@ class VideoFeed : LinearLayout, OnRefreshListener {
 
     @SuppressLint("LogNotTimber")
     private fun initNewsAdapter(newsFeedList: ArrayList<Card>) {
+        val sharedPreferences: SharedPreferences = context.getSharedPreferences("postImpressions", Context.MODE_PRIVATE)
+        val postPreferences: SharedPreferences = context.getSharedPreferences("postIdsDb", Context.MODE_PRIVATE)
         newsFeedAdapter =
             NewsFeedAdapter(
                 newsFeedList,
@@ -344,9 +347,10 @@ class VideoFeed : LinearLayout, OnRefreshListener {
                                 card.items[0].shortVideo,
                                 card.items[0].source,
                                 totalDuration,
-                                watchedDuration
+                                watchedDuration,
+                                card.items[0].postId+"VideoFeed"
                             )
-                            postImpressions.put(card.items[0].postId!!, postView)
+                            ApiPostImpression().storeImpression(sharedPreferences, postPreferences, presentUrl, presentTimeStamp, postView)
                         } catch (ex: java.lang.Exception) {
                             LogDetail.LogEStack(ex)
                         }
@@ -399,7 +403,7 @@ class VideoFeed : LinearLayout, OnRefreshListener {
                     url: String,
                     timeStamp: Long
                 ) {
-                    storeData(presentUrl, presentTimeStamp)
+                    storeData()
                     presentTimeStamp = timeStamp
                     presentUrl = url
                     adIndex += getFeedsResponse.adPlacement[0]
@@ -515,19 +519,8 @@ class VideoFeed : LinearLayout, OnRefreshListener {
     }
 
     @SuppressLint("CommitPrefEdits")
-    fun storeData(url: String, timeStamp: Long) {
+    fun storeData() {
         try {
-            if (postImpressions.isEmpty()) {
-                return
-            }
-            val postImpressionsModel =
-                PostImpressionsModel(url, postImpressions.values.toList(), timeStamp)
-            val gson = Gson()
-            val sharedPrefs =
-                context.getSharedPreferences("postImpressions", Context.MODE_PRIVATE)
-            val postImpressionString = gson.toJson(postImpressionsModel)
-            sharedPrefs.edit().putString(timeStamp.toString(), postImpressionString).apply()
-            postImpressions = HashMap()
             ApiPostImpression().addPostImpressionsEncrypted(
                 Endpoints.POST_IMPRESSIONS_ENCRYPTED,
                 context
@@ -538,7 +531,7 @@ class VideoFeed : LinearLayout, OnRefreshListener {
     }
 
     fun onDestroy() {
-        storeData(presentUrl, presentTimeStamp)
+        storeData()
         try{
             val holder = holders[currentPosition]
             if(holder is NewsFeedAdapter.BigVideoViewHolder) {

@@ -22,5 +22,6 @@ data class PostView(
     val short_video: Boolean? =false,
     val source: String? =null,
     val total_video_duration: Int? =null,
-    val watched_duration: Int? =null
+    val watched_duration: Int? =null,
+    val key: String
 )

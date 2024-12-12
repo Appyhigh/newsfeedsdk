@@ -2,6 +2,7 @@ package com.appyhigh.newsfeedsdk.fragment
 
 import android.annotation.SuppressLint
 import android.content.Context
+import android.content.SharedPreferences
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -34,13 +35,12 @@ class CryptoPodcastsFragment : Fragment() {
 
     lateinit var binding: FragmentCryptoPodcastsBinding
     var pageNo = 0
-    var postImpressions = HashMap<String, PostView>()
     private var presentUrl = ""
     private var presentTimeStamp:Long = 0
     private var endlessScrolling: EndlessScrolling? = null
     private var linearLayoutManager: GridLayoutManager? = null
     private var newsFeedAdapter: NewsFeedAdapter? = null
-
+    val gson = Gson()
 
 
     override fun onCreateView(
@@ -58,6 +58,8 @@ class CryptoPodcastsFragment : Fragment() {
         binding.pbLoading.visibility = View.VISIBLE
         binding.rvPosts.visibility = View.GONE
         pageNo = 0
+        val sharedPreferences: SharedPreferences = requireContext().getSharedPreferences("postImpressions", Context.MODE_PRIVATE)
+        val postPreferences: SharedPreferences = requireContext().getSharedPreferences("postIdsDb", Context.MODE_PRIVATE)
         ApiPodcast().getPodcastCategoryEncrypted(
             Endpoints.PODCAST_CATEGORY_ENCRYPTED,
             "crypto",
@@ -69,7 +71,7 @@ class CryptoPodcastsFragment : Fragment() {
                     url: String,
                     timeStamp: Long
                 ) {
-                    storeData(presentUrl, presentTimeStamp)
+                    storeData()
                     presentUrl = url
                     presentTimeStamp = timeStamp
                     binding.pbLoading.visibility = View.GONE
@@ -108,9 +110,10 @@ class CryptoPodcastsFragment : Fragment() {
                                         card.items[0].shortVideo,
                                         card.items[0].source,
                                         totalDuration,
-                                        watchedDuration
+                                        watchedDuration,
+                                        card.items[0].postId+"CryptoPodcastsFragment"
                                     )
-                                    postImpressions[card.items[0].postId!!] = postView
+                                    ApiPostImpression().storeImpression(sharedPreferences, postPreferences, presentUrl, presentTimeStamp, postView)
                                 } catch (ex: Exception){
                                     LogDetail.LogEStack(ex)
                                 }
@@ -171,7 +174,7 @@ class CryptoPodcastsFragment : Fragment() {
                     url: String,
                     timeStamp: Long
                 ) {
-                    storeData(presentUrl, presentTimeStamp)
+                    storeData()
                     presentUrl = url
                     presentTimeStamp = timeStamp
                     val podcastList = podcastResponse.cards as ArrayList<Card>
@@ -188,7 +191,7 @@ class CryptoPodcastsFragment : Fragment() {
 
     override fun onDestroy() {
         super.onDestroy()
-        storeData(presentUrl, presentTimeStamp)
+        storeData()
     }
 
 
@@ -209,17 +212,8 @@ class CryptoPodcastsFragment : Fragment() {
     }
 
     @SuppressLint("CommitPrefEdits")
-    fun storeData(url: String, timeStamp: Long){
+    fun storeData(){
         try {
-            if(postImpressions.isEmpty() || url.isEmpty()){
-                return
-            }
-            val postImpressionsModel = PostImpressionsModel(url, postImpressions.values.toList(), timeStamp)
-            val gson = Gson()
-            val sharedPrefs = requireContext().getSharedPreferences("postImpressions", Context.MODE_PRIVATE)
-            val postImpressionString = gson.toJson(postImpressionsModel)
-            sharedPrefs.edit().putString(timeStamp.toString(), postImpressionString).apply()
-            postImpressions = HashMap()
             ApiPostImpression().addPostImpressionsEncrypted(
                 Endpoints.POST_IMPRESSIONS_ENCRYPTED,
                 requireContext()

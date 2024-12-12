@@ -2,6 +2,7 @@ package com.appyhigh.newsfeedsdk.activity
 
 import android.annotation.SuppressLint
 import android.content.Context
+import android.content.SharedPreferences
 import android.os.Bundle
 import android.view.View
 import androidx.appcompat.app.AppCompatActivity
@@ -23,7 +24,6 @@ import com.appyhigh.newsfeedsdk.apiclient.Endpoints
 import com.appyhigh.newsfeedsdk.callbacks.PostImpressionListener
 import com.appyhigh.newsfeedsdk.databinding.ActivityFeedsBinding
 import com.appyhigh.newsfeedsdk.encryption.LogDetail
-import com.appyhigh.newsfeedsdk.model.PostImpressionsModel
 import com.appyhigh.newsfeedsdk.model.PostView
 import com.appyhigh.newsfeedsdk.model.feeds.Card
 import com.appyhigh.newsfeedsdk.model.feeds.GetFeedsResponse
@@ -41,13 +41,14 @@ class FeedsActivity : AppCompatActivity() {
     private var presentTimeStamp: Long = 0
     var languages: String? = null
     var pageNo = 0
-    var postImpressions = HashMap<String, PostView>()
     private var endlessScrolling: EndlessScrolling? = null
     private var postImpressionListener: PostImpressionListener? = null
 
     private var binding: ActivityFeedsBinding? = null
     private var mLayoutManager: LinearLayoutManager? = null
     private var newsFeedAdapter: NewsFeedAdapter? = null
+    val gson = Gson()
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityFeedsBinding.inflate(layoutInflater)
@@ -68,6 +69,8 @@ class FeedsActivity : AppCompatActivity() {
             LogDetail.LogEStack(ex)
         }
         binding!!.title.text = tag
+        val sharedPreferences: SharedPreferences = getSharedPreferences("postImpressions", Context.MODE_PRIVATE)
+        val postPreferences: SharedPreferences = getSharedPreferences("postIdsDb", Context.MODE_PRIVATE)
         postImpressionListener = object : PostImpressionListener {
             override fun addImpression(card: Card, totalDuration: Int?, watchedDuration: Int?) {
                 try {
@@ -83,9 +86,10 @@ class FeedsActivity : AppCompatActivity() {
                         card.items[0].shortVideo,
                         card.items[0].source,
                         totalDuration,
-                        watchedDuration
+                        watchedDuration,
+                        card.items[0].postId+"FeedsActivity"
                     )
-                    postImpressions[card.items[0].postId!!] = postView
+                    ApiPostImpression().storeImpression(sharedPreferences, postPreferences, presentUrl, presentTimeStamp, postView)
                 } catch (ex: java.lang.Exception) {
                     LogDetail.LogEStack(ex)
                 }
@@ -153,7 +157,7 @@ class FeedsActivity : AppCompatActivity() {
                     url: String,
                     timeStamp: Long
                 ) {
-                    storeData(presentUrl, presentTimeStamp)
+                    storeData()
                     presentTimeStamp = timeStamp
                     presentUrl = url
                     pageNo += 1
@@ -183,7 +187,7 @@ class FeedsActivity : AppCompatActivity() {
                     url: String,
                     timeStamp: Long
                 ) {
-                    storeData(presentUrl, presentTimeStamp)
+                    storeData()
                     presentTimeStamp = timeStamp
                     presentUrl = url
                     binding?.progressLayout?.visibility = View.GONE
@@ -239,7 +243,7 @@ class FeedsActivity : AppCompatActivity() {
     override fun onDestroy() {
         super.onDestroy()
         binding = null
-        storeData(presentUrl, presentTimeStamp)
+        storeData()
     }
 
     private fun setEndlessScrolling() {
@@ -261,18 +265,8 @@ class FeedsActivity : AppCompatActivity() {
     }
 
     @SuppressLint("CommitPrefEdits")
-    fun storeData(url: String, timeStamp: Long) {
+    fun storeData() {
         try {
-            if (postImpressions.isEmpty()) {
-                return
-            }
-            val postImpressionsModel =
-                PostImpressionsModel(url, postImpressions.values.toList(), timeStamp)
-            val gson = Gson()
-            val sharedPrefs = getSharedPreferences("postImpressions", Context.MODE_PRIVATE)
-            val postImpressionString = gson.toJson(postImpressionsModel)
-            sharedPrefs.edit().putString(timeStamp.toString(), postImpressionString).apply()
-            postImpressions = HashMap()
             ApiPostImpression().addPostImpressionsEncrypted(
                 Endpoints.POST_IMPRESSIONS_ENCRYPTED,
                 this
