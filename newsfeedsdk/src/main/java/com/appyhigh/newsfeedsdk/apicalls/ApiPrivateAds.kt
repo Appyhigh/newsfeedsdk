@@ -9,7 +9,7 @@ import com.appyhigh.newsfeedsdk.apiclient.APISearchStickyInterface
 import com.appyhigh.newsfeedsdk.encryption.LogDetail
 import com.appyhigh.newsfeedsdk.model.PrivateAdRequest
 import com.appyhigh.newsfeedsdk.model.PrivateAdResponse
-import com.mocklets.pluto.PlutoInterceptor
+import com.pluto.plugins.network.okhttp.PlutoOkhttpInterceptor
 import hu.akarnokd.rxjava3.retrofit.RxJava3CallAdapterFactory
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import io.reactivex.rxjava3.schedulers.Schedulers
@@ -32,7 +32,7 @@ class ApiPrivateAds {
                 OkHttpClient.Builder()
                     .readTimeout(60, TimeUnit.SECONDS)
                     .callTimeout(60, TimeUnit.SECONDS)
-                    .addInterceptor(PlutoInterceptor()).build()
+                    .addInterceptor(PlutoOkhttpInterceptor).build()
             } else {
                 OkHttpClient.Builder()
                     .readTimeout(60, TimeUnit.SECONDS)

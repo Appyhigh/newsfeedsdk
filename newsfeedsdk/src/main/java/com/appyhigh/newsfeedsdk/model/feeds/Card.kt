@@ -128,7 +128,7 @@ data class Card(
                 (view.parent as View).findViewById<AppCompatTextView>(tvPublisherImage)
             if (!imageUrl.isNullOrEmpty() && imageUrl.contains(".svg")) {
                 val imageLoader = ImageLoader.Builder(view.context)
-                    .componentRegistry { add(SvgDecoder(view.context)) }
+                    .components { add(SvgDecoder.Factory()) }
                     .build()
 
                 val request = ImageRequest.Builder(view.context)

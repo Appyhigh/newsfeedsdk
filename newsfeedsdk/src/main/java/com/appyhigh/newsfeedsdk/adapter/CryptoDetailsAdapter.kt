@@ -109,7 +109,7 @@ class CryptoDetailsAdapter(var cryptoItems: ArrayList<Item>, var isEditable: Boo
     }
 
     fun updateList(newCryptoItems: ArrayList<Item>){
-        cryptoItems.removeLast()
+        cryptoItems.removeAt(cryptoItems.lastIndex)
         val oldSize = cryptoItems.size
         cryptoItems.addAll(newCryptoItems)
         val newSize = cryptoItems.size

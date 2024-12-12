@@ -249,7 +249,7 @@ class PodcastPlayerActivity : AppCompatActivity() {
                 override fun onLoadFailed(
                     e: GlideException?,
                     model: Any?,
-                    target: Target<Drawable>?,
+                    target: Target<Drawable>,
                     isFirstResource: Boolean
                 ): Boolean {
                     Picasso.get()
@@ -265,14 +265,14 @@ class PodcastPlayerActivity : AppCompatActivity() {
                 }
 
                 override fun onResourceReady(
-                    resource: Drawable?,
-                    model: Any?,
-                    target: Target<Drawable>?,
-                    dataSource: DataSource?,
+                    resource: Drawable,
+                    model: Any,
+                    target: Target<Drawable>,
+                    dataSource: DataSource,
                     isFirstResource: Boolean
                 ): Boolean {
                     binding!!.itemImage.setImageDrawable(resource)
-                    PodcastMediaPlayer.getPodcastMediaCard().imageBitmap = resource?.toBitmap()
+                    PodcastMediaPlayer.getPodcastMediaCard().imageBitmap = resource.toBitmap()
                     PodcastMediaPlayer.startPodcastNotification(this@PodcastPlayerActivity)
                     return true
                 }

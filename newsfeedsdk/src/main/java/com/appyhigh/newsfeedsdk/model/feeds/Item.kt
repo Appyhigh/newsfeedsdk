@@ -605,7 +605,7 @@ data class Item(
             try {
                 if(!imageUrl.isNullOrEmpty() && imageUrl.contains(".svg")){
                     val imageLoader = ImageLoader.Builder( circleImageView.context)
-                        .componentRegistry { add(SvgDecoder(circleImageView.context)) }
+                        .components { add(SvgDecoder.Factory()) }
                         .build()
 
                     val request = ImageRequest.Builder(circleImageView.context)
@@ -641,7 +641,7 @@ data class Item(
                             override fun onLoadFailed(
                                 exception: GlideException?,
                                 model: Any?,
-                                target: Target<Drawable>?,
+                                target: Target<Drawable>,
                                 isFirstResource: Boolean
                             ): Boolean {
                                 exception?.printStackTrace()
@@ -671,10 +671,10 @@ data class Item(
                             }
 
                             override fun onResourceReady(
-                                resource: Drawable?,
-                                model: Any?,
-                                target: Target<Drawable>?,
-                                dataSource: DataSource?,
+                                resource: Drawable,
+                                model: Any,
+                                target: Target<Drawable>,
+                                dataSource: DataSource,
                                 isFirstResource: Boolean
                             ): Boolean {
                                 val parent =

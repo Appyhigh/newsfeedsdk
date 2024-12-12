@@ -636,7 +636,7 @@ class NewsFeedPageActivity : AppCompatActivity() {
             binding?.tvPublisher?.text = publisherName
             if (logoUrl.contains(".svg")) {
                 val imageLoader = ImageLoader.Builder(this@NewsFeedPageActivity)
-                    .componentRegistry { add(SvgDecoder(this@NewsFeedPageActivity)) }
+                    .components { add(SvgDecoder.Factory()) }
                     .build()
 
                 val request = ImageRequest.Builder(this@NewsFeedPageActivity)

@@ -22,10 +22,10 @@ import com.appyhigh.newsfeedsdk.encryption.LogDetail
 import com.appyhigh.newsfeedsdk.model.NativeAdItem
 import com.google.android.gms.ads.*
 import com.google.android.gms.ads.VideoController.VideoLifecycleCallbacks
-import com.google.android.gms.ads.formats.NativeAdOptions
 import com.google.android.gms.ads.interstitial.InterstitialAd
 import com.google.android.gms.ads.interstitial.InterstitialAdLoadCallback
 import com.google.android.gms.ads.nativead.NativeAd
+import com.google.android.gms.ads.nativead.NativeAdOptions
 import com.google.android.gms.ads.nativead.NativeAdView
 import kotlin.concurrent.fixedRateTimer
 

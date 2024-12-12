@@ -221,7 +221,7 @@ class PublisherPageActivity : AppCompatActivity() {
 
         if(profilePic.contains(".svg")){
             val imageLoader = ImageLoader.Builder(this)
-                .componentRegistry { add(SvgDecoder(this@PublisherPageActivity)) }
+                .components { add(SvgDecoder.Factory()) }
                 .build()
 
             val request = ImageRequest.Builder(this)

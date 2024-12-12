@@ -6,7 +6,7 @@ import com.appyhigh.newsfeedsdk.FeedSdk
 import com.appyhigh.newsfeedsdk.encryption.LogDetail
 import com.appyhigh.newsfeedsdk.utils.SpUtil
 import com.appyhigh.newsfeedsdk.utils.StickyRSAKeyGenerator
-import com.mocklets.pluto.PlutoInterceptor
+import com.pluto.plugins.network.okhttp.PlutoOkhttpInterceptor
 import hu.akarnokd.rxjava3.retrofit.RxJava3CallAdapterFactory
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
@@ -23,7 +23,7 @@ class APISearchStickyClient {
             OkHttpClient.Builder()
                 .readTimeout(60, TimeUnit.SECONDS)
                 .callTimeout(60, TimeUnit.SECONDS)
-                .addInterceptor(PlutoInterceptor())
+                .addInterceptor(PlutoOkhttpInterceptor)
                 .addInterceptor(interceptor).build()
         } else {
             OkHttpClient.Builder()
